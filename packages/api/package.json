@@ -1,0 +1,27 @@
+{
+  "name": "@edgecoms/api",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {},
+  "dependencies": {
+    "@edgecoms/auth": "workspace:*",
+    "@edgecoms/db": "workspace:*",
+    "@edgecoms/env": "workspace:*",
+    "@trpc/client": "catalog:",
+    "@trpc/server": "catalog:",
+    "dotenv": "catalog:",
+    "next": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@edgecoms/config": "workspace:*",
+    "typescript": "catalog:"
+  }
+}

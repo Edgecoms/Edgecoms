@@ -1,0 +1,24 @@
+{
+  "name": "@edgecoms/auth",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {},
+  "dependencies": {
+    "@edgecoms/db": "workspace:*",
+    "@edgecoms/env": "workspace:*",
+    "better-auth": "catalog:",
+    "dotenv": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@edgecoms/config": "workspace:*",
+    "typescript": "catalog:"
+  }
+}

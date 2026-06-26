@@ -24,7 +24,7 @@ export function HeroHome() {
 			</div>
 
 			<div className="flex justify-start lg:justify-end">
-				<p className="max-w-xs text-pretty font-mono text-[11px] text-secondary-foreground uppercase leading-[1.8] tracking-[0.06em]">
+				<p className="max-w-xs text-pretty font-medium font-mono text-label text-primary-foreground uppercase leading-[1.8] tracking-[0.06em]">
 					A growing suite of thoughtfully crafted apps that help merchants sell
 					more, convert better, and grow with confidence.
 				</p>

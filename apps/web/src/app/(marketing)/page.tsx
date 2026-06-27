@@ -1,5 +1,6 @@
 import { HeroHome } from "@/components/home/hero-home";
 import { ManifestoHome } from "@/components/home/manifesto-home";
+import { ProductsHome } from "@/components/home/products-home";
 
 export default function HomePage() {
 	return (
@@ -8,6 +9,7 @@ export default function HomePage() {
 				<HeroHome />
 			</section>
 			<ManifestoHome />
+			<ProductsHome />
 		</main>
 	);
 }

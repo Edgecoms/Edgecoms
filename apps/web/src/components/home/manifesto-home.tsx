@@ -11,8 +11,8 @@ const thoughts = [
 export function ManifestoHome() {
 	return (
 		<section className="relative w-full overflow-hidden">
-			<div className="mx-auto w-full max-w-7xl px-6 py-28 lg:py-40">
-				<div className="grid items-center gap-y-16 pt-16 lg:grid-cols-12 lg:gap-x-16 lg:pt-24">
+			<div className="mx-auto flex min-h-[calc(100svh-var(--header-height))] w-full max-w-7xl items-center px-6 py-20">
+				<div className="grid w-full items-center gap-y-16 lg:grid-cols-12 lg:gap-x-16">
 					{/* manifesto */}
 					<div className="flex flex-col lg:col-span-6 lg:pr-6">
 						<Reveal delay={60}>

@@ -1,13 +1,13 @@
+import { WordMark } from "@/components/ui/word-mark";
 import { ButtonLink } from "@edgecoms/ui/components/button";
 import type { Route } from "next";
-import { WordMark } from "@/components/ui/word-mark";
 
 export function HeroHome() {
 	return (
 		<div className="grid min-h-[calc(100svh-var(--header-height))] grid-cols-1 items-center gap-12 py-20 lg:grid-cols-3 lg:gap-10 lg:py-0">
 			<div className="flex flex-col items-start gap-8">
 				<h1 className="text-balance font-medium text-display text-primary-foreground">
-					Building exceptional Shopify apps.
+					Built for the next generation of Shopify.
 				</h1>
 				<div className="flex flex-wrap items-center gap-3">
 					<ButtonLink href={"/products" as Route} size="xl" variant="primary">

@@ -1,3 +1,4 @@
+import { CtaHome } from "@/components/home/cta-home";
 import { HeroHome } from "@/components/home/hero-home";
 import { ManifestoHome } from "@/components/home/manifesto-home";
 import { PartnerHome } from "@/components/home/partner-home";
@@ -12,6 +13,7 @@ export default function HomePage() {
 			<ManifestoHome />
 			<ProductsHome />
 			<PartnerHome />
+			<CtaHome />
 		</main>
 	);
 }

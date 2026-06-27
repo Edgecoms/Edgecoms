@@ -1,5 +1,6 @@
 import { HeroHome } from "@/components/home/hero-home";
 import { ManifestoHome } from "@/components/home/manifesto-home";
+import { PartnerHome } from "@/components/home/partner-home";
 import { ProductsHome } from "@/components/home/products-home";
 
 export default function HomePage() {
@@ -10,6 +11,7 @@ export default function HomePage() {
 			</section>
 			<ManifestoHome />
 			<ProductsHome />
+			<PartnerHome />
 		</main>
 	);
 }

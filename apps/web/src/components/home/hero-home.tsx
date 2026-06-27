@@ -1,6 +1,6 @@
-import { WordMark } from "@/components/ui/word-mark";
 import { ButtonLink } from "@edgecoms/ui/components/button";
 import type { Route } from "next";
+import { WordMark } from "@/components/ui/word-mark";
 
 export function HeroHome() {
 	return (

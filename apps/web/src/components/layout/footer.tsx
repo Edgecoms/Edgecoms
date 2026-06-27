@@ -1,5 +1,6 @@
 import type { Route } from "next";
 import Link from "next/link";
+import Logo from "../ui/logo";
 
 const navLinks = [
 	{ label: "Products", href: "/products" },
@@ -13,10 +14,8 @@ export default function Footer() {
 		<footer className="w-full">
 			<div className="mx-auto w-full max-w-7xl px-6 pt-20 pb-12">
 				<div className="flex flex-col justify-between gap-10 border-border border-b pb-12 sm:flex-row">
-					<div className="flex flex-col gap-2">
-						<span className="font-medium text-h3 text-primary-foreground tracking-tight">
-							Edgecoms
-						</span>
+					<div className="flex flex-col gap-4">
+						<Logo height={18} width={18} />
 						<p className="text-body-sm text-secondary-foreground">
 							Built with intention.
 						</p>

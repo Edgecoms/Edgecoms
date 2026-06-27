@@ -6,7 +6,7 @@ import { ScrollableContainer } from "@/components/layout/scrollable-container";
 
 export default function MarketingLayout({ children }: { children: ReactNode }) {
 	return (
-		<ScrollableContainer className="isolate">
+		<ScrollableContainer className="isolate" smooth>
 			<Header />
 			{/* opaque curtain: page content + footer text scroll up over the
 			    sticky wordmark, revealing only it. */}

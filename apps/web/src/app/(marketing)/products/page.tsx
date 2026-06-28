@@ -17,7 +17,7 @@ export default function ProductsPage() {
 				<div className="mx-auto w-full max-w-7xl px-6 pt-32 pb-16">
 					<PageHeader
 						eyebrow="The Edge suite"
-						lead="Nine focused apps, one coherent platform. Each one does a single job exceptionally well — and they're built to work better together."
+						lead="Six focused apps, one coherent platform. Each one does a single job exceptionally well — and they're built to work better together."
 						title="Built for modern commerce."
 					/>
 				</div>

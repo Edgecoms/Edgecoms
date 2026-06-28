@@ -3,7 +3,7 @@ import { apps } from "./schema/apps";
 import { EDGE_APPS, resolveAppGid } from "./seed-data";
 
 /**
- * Seeds the 9 Edge apps. Idempotent: upserts on `slug`, refreshing the name and
+ * Seeds the 6 Edge apps. Idempotent: upserts on `slug`, refreshing the name and
  * Partner API GID, so re-running (e.g. after setting real GIDs via env) is safe.
  * Run with: `bun run db:seed` (loads apps/web/.env via --env-file).
  */

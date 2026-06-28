@@ -97,7 +97,7 @@ Run all scripts from the repo root.
 | `bun run db:push` | Push schema changes to the database |
 | `bun run db:generate` | Generate migration files |
 | `bun run db:migrate` | Run pending migrations |
-| `bun run db:seed` | Seed the 9 Edge apps (idempotent) |
+| `bun run db:seed` | Seed the 6 Edge apps (idempotent) |
 | `bun run db:create-admin` | Create/promote the admin user (`ADMIN_EMAIL` / `ADMIN_PASSWORD`) |
 | `bun run db:studio` | Open Drizzle Studio |
 
@@ -203,7 +203,7 @@ From a machine with `DATABASE_URL` pointing at the Railway Postgres:
 ```bash
 bun install
 bun run db:migrate     # apply migrations (or db:push for the first cut)
-bun run db:seed        # seed the 9 Edge apps
+bun run db:seed        # seed the 6 Edge apps
 bun run db:create-admin # ADMIN_EMAIL / ADMIN_PASSWORD must be set
 ```
 

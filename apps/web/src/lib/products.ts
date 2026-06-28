@@ -1,6 +1,6 @@
 /**
  * The Edge app catalog for the marketing site. Mirrors the seeded catalog in
- * `@edgecoms/db` (9 apps) with marketing copy. Kept here so server components
+ * `@edgecoms/db` (6 apps) with marketing copy. Kept here so server components
  * render it without a DB round-trip.
  */
 export interface EdgeProduct {
@@ -59,29 +59,5 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 		tagline: "Recurring revenue, merchant-friendly.",
 		description:
 			"Grow predictable revenue with flexible subscriptions, customer portals, and dunning that recovers churn.",
-	},
-	{
-		slug: "edge-upsell",
-		name: "Edge Upsell",
-		category: "Average order value",
-		tagline: "One-click upsells that feel right.",
-		description:
-			"Post-purchase and in-cart upsells with smart recommendations that raise revenue per order.",
-	},
-	{
-		slug: "edge-rewards",
-		name: "Edge Rewards",
-		category: "Retention",
-		tagline: "Loyalty that brings them back.",
-		description:
-			"Points, tiers, and referrals that turn first-time buyers into a loyal, repeat customer base.",
-	},
-	{
-		slug: "edge-search",
-		name: "Edge Search",
-		category: "Discovery",
-		tagline: "Find-it-fast product discovery.",
-		description:
-			"Instant, typo-tolerant search and filtering that helps shoppers find the right product in seconds.",
 	},
 ] as const;

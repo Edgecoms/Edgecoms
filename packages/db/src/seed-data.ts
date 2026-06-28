@@ -1,5 +1,5 @@
 /**
- * The canonical Edge app catalog (9 apps). `partnerApiGid` is the Shopify
+ * The canonical Edge app catalog (6 apps). `partnerApiGid` is the Shopify
  * Partner API app GID used to map an incoming `transactions` row back to an Edge
  * app. The values below are PLACEHOLDERS — replace them with the real GIDs from
  * the Partner Dashboard. They can be overridden at seed time without code
@@ -45,21 +45,6 @@ export const EDGE_APPS: readonly EdgeAppSeed[] = [
 		slug: "edge-subscriptions",
 		name: "Edge Subscriptions",
 		partnerApiGid: "gid://partners/App/1000006",
-	},
-	{
-		slug: "edge-upsell",
-		name: "Edge Upsell",
-		partnerApiGid: "gid://partners/App/1000007",
-	},
-	{
-		slug: "edge-rewards",
-		name: "Edge Rewards",
-		partnerApiGid: "gid://partners/App/1000008",
-	},
-	{
-		slug: "edge-search",
-		name: "Edge Search",
-		partnerApiGid: "gid://partners/App/1000009",
 	},
 ] as const;
 

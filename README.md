@@ -27,7 +27,7 @@ A full-stack TypeScript monorepo for Edgecoms — thoughtfully crafted Shopify a
    bun install
    ```
 
-2. **Configure environment** — populate `apps/web/.env` with your database connection and auth secrets.
+2. **Configure environment** — copy `apps/web/.env.example` to `apps/web/.env` and fill in your database connection, auth secrets, and admin bootstrap credentials.
 
 3. **Start PostgreSQL** — spin up the local database container (defined in `packages/db/docker-compose.yml`):
 
@@ -41,7 +41,14 @@ A full-stack TypeScript monorepo for Edgecoms — thoughtfully crafted Shopify a
    bun run db:push
    ```
 
-5. **Run the dev server:**
+5. **Seed the app catalog and create an admin** (idempotent):
+
+   ```bash
+   bun run db:seed
+   bun run db:create-admin
+   ```
+
+6. **Run the dev server:**
 
    ```bash
    bun run dev
@@ -54,12 +61,14 @@ A full-stack TypeScript monorepo for Edgecoms — thoughtfully crafted Shopify a
 ```
 edgecoms/
 ├── apps/
-│   └── web/          # Next.js full-stack application
+│   ├── web/          # Next.js app (marketing + partner + admin portals)
+│   └── worker/       # Railway cron entrypoint (billing-sync)
 └── packages/
     ├── ui/           # Shared shadcn/ui components & design tokens
-    ├── api/          # tRPC routers / business logic
+    ├── api/          # tRPC routers + the authorization layer
     ├── auth/         # Better Auth configuration
-    ├── db/           # Drizzle schema, queries & local DB compose
+    ├── billing/      # Money math, Partner API adapter, reconcile & commissions
+    ├── db/           # Drizzle schema, migrations & local DB compose
     ├── env/          # Shared, validated environment variables
     └── config/       # Shared tooling config (TS, Ultracite, etc.)
 ```
@@ -88,6 +97,8 @@ Run all scripts from the repo root.
 | `bun run db:push` | Push schema changes to the database |
 | `bun run db:generate` | Generate migration files |
 | `bun run db:migrate` | Run pending migrations |
+| `bun run db:seed` | Seed the 9 Edge apps (idempotent) |
+| `bun run db:create-admin` | Create/promote the admin user (`ADMIN_EMAIL` / `ADMIN_PASSWORD`) |
 | `bun run db:studio` | Open Drizzle Studio |
 
 ### Code Quality
@@ -120,3 +131,82 @@ bunx shadcn@latest add accordion dialog popover sheet table -c packages/ui
 ```
 
 For app-specific blocks rather than shared primitives, run the shadcn CLI from `apps/web` instead.
+
+## The Partner Platform
+
+This repo is the **Edge Partner Platform** — the business layer for Edge's
+Shopify apps. It has three experiences in one Next.js app plus a billing worker:
+
+- **Marketing** (`/`, `/products`, `/partners`, `/about`, `/contact`) — public, on-brand.
+- **Partner Portal** (`/partner/*`, role `partner`) — register merchants, track
+  commission, manage payout details.
+- **Admin Portal** (`/admin/*`, role `admin`) — approve partners (set rate +
+  per-app overrides), approve merchants (capturing the grandfathered app set),
+  mark commissions paid, and group payouts.
+
+### How the money works
+
+- Every amount is an **integer in minor units** (`bigint`) with a 3-char
+  currency — no floating-point math ever touches money.
+- `earning_events` is an **append-only** mirror of the Shopify Partner API
+  `transactions` stream, idempotent on the Shopify transaction id.
+- A commission is generated **once per earning event**, with the partner's
+  resolved rate (per-app override or default) **frozen onto the row**. Commission
+  is **lifetime** while the merchant stays subscribed.
+- A partner earns on an event only if the merchant is **approved** and the app is
+  **not grandfathered** for that merchant.
+
+The full invariant set lives in [`CLAUDE.md`](./CLAUDE.md). The money paths and
+authorization boundaries are unit/integration tested (`bun run test`) against an
+in-process Postgres (PGlite) — no Docker required for tests.
+
+### The billing worker
+
+`apps/worker` is a standalone entrypoint (`bun src/billing-sync.ts`) that runs a
+full sync — ingest the Partner API `transactions` stream, then generate any
+missing commissions — and then **closes its DB pool and exits**. It logs a
+structured JSON run summary. Admins can also trigger the same `runBillingSync`
+from the dashboard ("Run sync now").
+
+It needs these (optional everywhere else) env vars:
+
+```
+PARTNER_API_ORGANIZATION_ID="..."
+PARTNER_API_ACCESS_TOKEN="..."
+PARTNER_API_VERSION="2025-01"   # optional
+```
+
+## Deployment (Railway)
+
+Deploy **two services from this one repo** against a shared Railway Postgres:
+
+1. **Postgres** — add a Railway Postgres service. Enable **backups** and use its
+   **private networking** URL for `DATABASE_URL` on both services below.
+
+2. **Web service** (the Next app)
+   - Build: `bun install && bun run build`
+   - Start: `bun run --filter web start` (or `cd apps/web && bun run start`)
+   - Env: `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `CORS_ORIGIN`,
+     and the `PARTNER_API_*` vars (so the admin "Run sync now" works).
+
+3. **Worker service** (the cron job)
+   - Start command: `cd apps/worker && bun src/billing-sync.ts`
+   - Schedule (Railway cron): `0 */6 * * *` (every 6 hours).
+   - Env: `DATABASE_URL` + the `PARTNER_API_*` vars.
+   - The job must terminate when done (it does — it closes the pool and exits).
+     Railway skips the next scheduled run if the process is still alive.
+
+### First-deploy steps
+
+From a machine with `DATABASE_URL` pointing at the Railway Postgres:
+
+```bash
+bun install
+bun run db:migrate     # apply migrations (or db:push for the first cut)
+bun run db:seed        # seed the 9 Edge apps
+bun run db:create-admin # ADMIN_EMAIL / ADMIN_PASSWORD must be set
+```
+
+Replace the placeholder Partner API GIDs in the seed with your real app GIDs via
+`PARTNER_API_GID_<SLUG>` env vars (see `apps/web/.env.example`), then re-run
+`bun run db:seed`.

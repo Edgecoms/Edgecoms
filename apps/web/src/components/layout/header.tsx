@@ -37,7 +37,7 @@ export default function Header() {
 					</nav>
 					<div className="flex flex-1 items-center justify-end gap-2">
 						<ButtonLink
-							href={"/waitlist" as Route}
+							href={"/login" as Route}
 							size={"md"}
 							variant={"secondary"}
 						>

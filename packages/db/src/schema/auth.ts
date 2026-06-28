@@ -1,18 +1,43 @@
-import { relations } from "drizzle-orm";
-import { boolean, index, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { relations, sql } from "drizzle-orm";
+import {
+	boolean,
+	check,
+	index,
+	pgTable,
+	text,
+	timestamp,
+} from "drizzle-orm/pg-core";
 
-export const user = pgTable("user", {
-	id: text("id").primaryKey(),
-	name: text("name").notNull(),
-	email: text("email").notNull().unique(),
-	emailVerified: boolean("email_verified").default(false).notNull(),
-	image: text("image"),
-	createdAt: timestamp("created_at").defaultNow().notNull(),
-	updatedAt: timestamp("updated_at")
-		.defaultNow()
-		.$onUpdate(() => /* @__PURE__ */ new Date())
-		.notNull(),
-});
+/**
+ * Application roles. Better Auth owns the user table; `role` is an additional
+ * field on it (see CLAUDE.md "Auth/user link"). A partner user maps to exactly
+ * one `partners` row via `partners.userId`.
+ */
+export const USER_ROLES = ["admin", "partner"] as const;
+export type UserRole = (typeof USER_ROLES)[number];
+
+export const user = pgTable(
+	"user",
+	{
+		id: text("id").primaryKey(),
+		name: text("name").notNull(),
+		email: text("email").notNull().unique(),
+		emailVerified: boolean("email_verified").default(false).notNull(),
+		image: text("image"),
+		role: text("role", { enum: USER_ROLES }).default("partner").notNull(),
+		createdAt: timestamp("created_at").defaultNow().notNull(),
+		updatedAt: timestamp("updated_at")
+			.defaultNow()
+			.$onUpdate(() => /* @__PURE__ */ new Date())
+			.notNull(),
+	},
+	(table) => [
+		// Enforce the role cardinality at the DB layer, consistent with every
+		// other categorical column (which are pgEnums). Better Auth writes the
+		// column as text, so a CHECK is the least-invasive enforcement.
+		check("user_role_valid", sql`${table.role} in ('admin', 'partner')`),
+	]
+);
 
 export const session = pgTable(
 	"session",

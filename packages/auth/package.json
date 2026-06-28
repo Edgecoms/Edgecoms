@@ -9,10 +9,14 @@
       "default": "./src/*.ts"
     }
   },
-  "scripts": {},
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "create-admin": "bun --env-file=../../apps/web/.env src/create-admin.ts"
+  },
   "dependencies": {
     "@edgecoms/db": "workspace:*",
     "@edgecoms/env": "workspace:*",
+    "drizzle-orm": "^0.45.1",
     "better-auth": "catalog:",
     "dotenv": "catalog:",
     "zod": "catalog:"

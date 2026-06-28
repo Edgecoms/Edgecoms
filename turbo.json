@@ -1,6 +1,18 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
+  "globalPassThroughEnv": [
+    "SKIP_ENV_VALIDATION",
+    "NODE_ENV",
+    "PORT",
+    "DATABASE_URL",
+    "BETTER_AUTH_SECRET",
+    "BETTER_AUTH_URL",
+    "CORS_ORIGIN",
+    "PARTNER_API_ORGANIZATION_ID",
+    "PARTNER_API_ACCESS_TOKEN",
+    "PARTNER_API_VERSION"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],

@@ -107,8 +107,29 @@ export interface PartnerApiConfig {
 	pageSize?: number;
 }
 
-const DEFAULT_API_VERSION = "2025-01";
+const DEFAULT_API_VERSION = "2026-04";
 const DEFAULT_PAGE_SIZE = 100;
+
+// The app-revenue transaction fields. They live on each CONCRETE sale type
+// (which implement Node + Transaction) — there is no shared `AppCharge` type
+// to fragment on, so the selection is spread per type via inline fragments.
+// Validated against the Partner API schema (objects/AppSaleCredit etc.).
+const TXN_FIELDS = `
+          id
+          createdAt
+          netAmount { amount currencyCode }
+          grossAmount { amount currencyCode }
+          shopifyFee { amount currencyCode }
+          app { id }
+          shop { myshopifyDomain }`;
+
+const APP_SALE_TYPES = [
+	"AppSubscriptionSale",
+	"AppOneTimeSale",
+	"AppUsageSale",
+	"AppSaleAdjustment",
+	"AppSaleCredit",
+] as const;
 
 const TRANSACTIONS_QUERY = `
 query EdgeTransactions($cursor: String, $first: Int!) {
@@ -122,25 +143,11 @@ query EdgeTransactions($cursor: String, $first: Int!) {
       cursor
       node {
         __typename
-        ... on AppSubscriptionSale { ...TxnFields }
-        ... on AppOneTimeSale { ...TxnFields }
-        ... on AppUsageSale { ...TxnFields }
-        ... on AppSaleAdjustment { ...TxnFields }
-        ... on AppSaleCredit { ...TxnFields }
+${APP_SALE_TYPES.map((type) => `        ... on ${type} {${TXN_FIELDS}\n        }`).join("\n")}
       }
     }
   }
-}
-fragment TxnFields on AppCharge {
-  id
-  createdAt
-  netAmount { amount currencyCode }
-  grossAmount { amount currencyCode }
-  shopifyFee { amount currencyCode }
-  app { id }
-  shop { myshopifyDomain }
-}
-`;
+}`;
 
 interface TransactionsResponse {
 	data?: {

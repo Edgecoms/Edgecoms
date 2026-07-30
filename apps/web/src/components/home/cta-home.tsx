@@ -69,11 +69,12 @@ export function CtaHome() {
 					className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.07)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:4px_4px]"
 				/>
 				{/* Warm glow: a bright narrow core anchored just past the bottom edge,
-				    plus a wider soft halo. Kept low and tight so it lifts off the
-				    bottom rail instead of washing out the brand fill. */}
+				    plus a wider soft halo. Stops at bottom-14 — the exact height of
+				    the rail below — so the glow rises off the rail rather than
+				    washing out the white text sitting on it. */}
 				<div
 					aria-hidden="true"
-					className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-[radial-gradient(ellipse_34%_78%_at_50%_108%,rgba(255,232,178,0.95),transparent_68%),radial-gradient(ellipse_62%_62%_at_50%_112%,rgba(255,198,138,0.5),transparent_72%)]"
+					className="pointer-events-none absolute inset-x-0 bottom-14 h-1/2 bg-[radial-gradient(ellipse_34%_78%_at_50%_108%,rgba(255,232,178,0.95),transparent_68%),radial-gradient(ellipse_62%_62%_at_50%_112%,rgba(255,198,138,0.5),transparent_72%)]"
 				/>
 
 				<div aria-hidden="true" className="pointer-events-none hidden xl:block">

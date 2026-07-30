@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CtaHome } from "@/components/home/cta-home";
 import { FeaturesHome } from "@/components/home/features-home";
 import { HeroHome } from "@/components/home/hero-home";
 import { LogoTicker } from "@/components/home/logo-ticker";
@@ -15,6 +16,7 @@ export default function HomePage() {
 			<HeroHome />
 			<LogoTicker />
 			<FeaturesHome />
+			<CtaHome />
 		</main>
 	);
 }

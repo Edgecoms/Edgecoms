@@ -1,5 +1,5 @@
-import { WordmarkReveal } from "@/components/layout/wordmark-reveal";
 import { WordMark } from "@/components/ui/word-mark";
+import { WordmarkReveal } from "@/components/v1/wordmark-reveal";
 
 /**
  * The sticky reveal layer. It sits behind the page content (z-0) and is the

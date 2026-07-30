@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { HeroHome } from "@/components/home/hero-home";
+import { LogoTicker } from "@/components/home/logo-ticker";
 
 export const metadata: Metadata = {
 	title: "Edge",
@@ -8,8 +10,9 @@ export const metadata: Metadata = {
 
 export default function HomePage() {
 	return (
-		<main className="flex min-h-[calc(100svh-var(--header-height))] flex-col">
-			<section className="container mx-auto px-6 sm:max-w-7xl" />
+		<main className="flex flex-col">
+			<HeroHome />
+			<LogoTicker />
 		</main>
 	);
 }

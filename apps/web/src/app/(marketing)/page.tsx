@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { FeaturesHome } from "@/components/home/features-home";
 import { HeroHome } from "@/components/home/hero-home";
 import { LogoTicker } from "@/components/home/logo-ticker";
 
@@ -13,6 +14,7 @@ export default function HomePage() {
 		<main className="flex flex-col">
 			<HeroHome />
 			<LogoTicker />
+			<FeaturesHome />
 		</main>
 	);
 }

@@ -4,57 +4,68 @@ import Link from "next/link";
 
 export function HeroHome() {
 	return (
-		<section className="relative isolate flex min-h-[calc(100svh-var(--header-height))] w-full items-center justify-center overflow-hidden">
-			{/* Decorative dot field. Radix alpha token so it tracks light/dark, and
-			    an elliptical mask so the grid fades out instead of hitting a hard
-			    edge at the viewport bounds. */}
-			<div
-				aria-hidden="true"
-				className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(var(--gray-a4)_1px,transparent_1px)] [background-size:22px_22px] [mask-image:radial-gradient(ellipse_65%_55%_at_50%_45%,black_25%,transparent_78%)]"
-			/>
+		<section className="w-full px-3 pb-3">
+			{/* Inset panel rather than a full-bleed band, so the page background
+			    still frames it and the corners can round. Height tracks the
+			    viewport minus the sticky header and this wrapper's own padding. */}
+			<div className="relative isolate flex min-h-[calc(100svh-var(--header-height)-0.75rem)] w-full items-center justify-center overflow-hidden rounded-[2rem] bg-brand">
+				{/* Fine woven mesh — two 1px gratings at 4px pitch, which reads as
+				    texture rather than as visible dots. */}
+				<div
+					aria-hidden="true"
+					className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.07)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:4px_4px]"
+				/>
+				{/* Warm glow: a bright narrow core anchored just past the bottom edge,
+				    plus a wider soft halo. */}
+				<div
+					aria-hidden="true"
+					className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-[radial-gradient(ellipse_30%_82%_at_50%_112%,rgba(255,232,178,0.95),transparent_66%),radial-gradient(ellipse_58%_66%_at_50%_116%,rgba(255,198,138,0.5),transparent_72%)]"
+				/>
 
-			<div className="mx-auto flex w-full max-w-4xl flex-col items-center gap-6 px-6 py-16 text-center sm:gap-8 sm:py-24">
-				{/* Announcement pill — keeps the partner program one click from the
-				    fold without letting it take over a merchant-facing page. */}
-				<Link
-					className="group inline-flex max-w-full items-center gap-2 rounded-full border border-border bg-page px-4 py-1.5 text-caption text-secondary-foreground transition-colors hover:bg-surface-item-hover"
-					href={"/partners" as Route}
-				>
-					<span className="truncate">
-						Partner program · earn recurring commission on every store you bring
-					</span>
-					<span className="shrink-0 text-primary-foreground underline decoration-border underline-offset-4 group-hover:decoration-current">
-						Learn more
-					</span>
-				</Link>
-
-				<h1 className="text-balance font-medium text-display text-primary-foreground sm:text-display-lg lg:text-display-xl">
-					The apps your store needs, built to work as one
-				</h1>
-
-				<p className="max-w-2xl text-pretty text-body-lg text-secondary-foreground leading-relaxed">
-					Bundles, cart, reviews, subscriptions, currency, urgency. Six focused
-					Shopify apps from one team — one bill, one design language, one place
-					to get help.
-				</p>
-
-				<div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
-					<ButtonLink
-						className="h-11 rounded-full px-6 text-[15px]"
-						href={"/products" as Route}
-						size="xl"
-						variant="brand"
+				<div className="relative mx-auto flex w-full max-w-4xl flex-col items-center gap-6 px-6 py-20 text-center sm:gap-8 sm:py-28">
+					{/* Announcement pill — keeps the partner program one click from the
+					    fold without letting it take over a merchant-facing page. */}
+					<Link
+						className="group inline-flex max-w-full items-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 py-1.5 text-caption text-white transition-colors hover:bg-white/20"
+						href={"/partners" as Route}
 					>
-						Explore the suite
-					</ButtonLink>
-					<ButtonLink
-						className="h-11 rounded-full px-6 text-[15px]"
-						href={"/contact" as Route}
-						size="xl"
-						variant="secondary"
-					>
-						Talk to us
-					</ButtonLink>
+						<span className="truncate">
+							Partner program · earn recurring commission on every store you
+							bring
+						</span>
+						<span className="shrink-0 underline decoration-white/50 underline-offset-4 group-hover:decoration-current">
+							Learn more
+						</span>
+					</Link>
+
+					<h1 className="text-balance font-medium text-display text-white sm:text-display-lg lg:text-display-xl">
+						The apps your store needs, built to work as one
+					</h1>
+
+					<p className="max-w-2xl text-pretty text-body-lg text-white leading-relaxed">
+						Bundles, cart, reviews, subscriptions, currency, urgency. Six
+						focused Shopify apps from one team — one bill, one design language,
+						one place to get help.
+					</p>
+
+					<div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
+						<ButtonLink
+							className="h-11 rounded-full bg-white px-6 text-[15px] text-neutral-900 hover:bg-white/90 active:bg-white/90"
+							href={"/products" as Route}
+							size="xl"
+							variant="secondary"
+						>
+							Explore the suite
+						</ButtonLink>
+						<ButtonLink
+							className="h-11 rounded-full border border-white/40 bg-white/10 px-6 text-[15px] text-white hover:bg-white/20 active:bg-white/20"
+							href={"/contact" as Route}
+							size="xl"
+							variant="tertiary"
+						>
+							Talk to us
+						</ButtonLink>
+					</div>
 				</div>
 			</div>
 		</section>

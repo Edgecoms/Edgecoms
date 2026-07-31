@@ -3,35 +3,35 @@ import { Check, ReceiptText, Shapes, Share2 } from "lucide-react";
 import { GridMarkers } from "@/components/home/grid-markers";
 import { PanelTexture } from "@/components/home/panel-texture";
 
-/* Left panel: what running six point solutions actually feels like. Positions
-   are lg-only — below that the cards fall back to a normal wrapped flow, since
-   scattering them in a narrow column just makes them overlap. */
-const FRICTIONS: readonly { label: string; note?: string; at: string }[] = [
+/* Left panel: what running six point solutions actually feels like. The pile
+   is built from normal flow — each card only tilts and shifts off centre — so
+   it cannot collide with the heading or need re-tuning per breakpoint. */
+const FRICTIONS: readonly { label: string; note?: string; tilt: string }[] = [
 	{
 		label: "Theme update broke the cart drawer",
 		note: "Unresolved",
-		at: "lg:top-[8%] lg:left-[4%] lg:w-[62%] lg:-rotate-2",
+		tilt: "-rotate-2 sm:-translate-x-5",
 	},
 	{
 		label: "5 invoices, 5 renewal dates",
-		at: "lg:top-[26%] lg:right-[5%] lg:w-[52%] lg:rotate-2",
+		tilt: "rotate-1 sm:translate-x-6",
 	},
 	{
 		label: "Which vendor owns this bug?",
-		at: "lg:top-[43%] lg:left-[7%] lg:w-[54%] lg:rotate-1",
+		tilt: "-rotate-1 sm:-translate-x-2",
 	},
 	{
 		label: "Six app scripts on every page load",
-		at: "lg:top-[60%] lg:right-[7%] lg:w-[58%] lg:-rotate-1",
+		tilt: "rotate-2 sm:translate-x-4",
 	},
 	{
 		label: "Review widget doesn't match the brand",
-		at: "lg:top-[77%] lg:left-[5%] lg:w-[60%] lg:rotate-2",
+		tilt: "-rotate-1 sm:-translate-x-6",
 	},
 	{
 		label: "4 support inboxes, 4 different SLAs",
 		note: "Waiting",
-		at: "lg:bottom-[3%] lg:right-[6%] lg:w-[55%] lg:-rotate-2",
+		tilt: "rotate-2 sm:translate-x-3",
 	},
 ] as const;
 
@@ -80,20 +80,22 @@ export function WhyEdge() {
 
 				{/* Before / after. Equal halves so neither side reads as the aside. */}
 				<div className="mt-16 grid grid-cols-1 overflow-hidden rounded-[2rem] border border-border lg:grid-cols-2">
-					{/* before */}
-					<div className="relative isolate min-h-[420px] bg-bg p-8 sm:p-10 lg:min-h-[560px]">
+					{/* before — mirrors the "after" half exactly: dotted texture,
+					    centred heading, one stack of cards underneath. */}
+					<div className="relative isolate flex min-h-[420px] flex-col items-center justify-center gap-8 bg-bg p-8 sm:p-10 lg:min-h-[560px]">
 						<div
 							aria-hidden="true"
 							className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(var(--gray-a4)_1px,transparent_1px)] [background-size:20px_20px]"
 						/>
-						<h3 className="relative z-10 text-balance text-center font-medium text-h1 text-primary-foreground lg:absolute lg:inset-x-10 lg:top-1/2 lg:-translate-y-1/2">
+
+						<h3 className="relative text-balance text-center font-medium text-h1 text-primary-foreground">
 							Six apps from six vendors
 						</h3>
 
-						<ul className="mt-8 flex flex-col gap-3 lg:mt-0 lg:block">
+						<ul className="relative flex w-full max-w-sm flex-col gap-2">
 							{FRICTIONS.map((friction) => (
 								<li
-									className={`rounded-xl border border-border bg-page px-3.5 py-2.5 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_6px_16px_rgba(0,0,0,0.04)] ${friction.at}`}
+									className={`rounded-xl border border-border bg-page px-3.5 py-2.5 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_6px_16px_rgba(0,0,0,0.04)] ${friction.tilt}`}
 									key={friction.label}
 								>
 									<div className="flex items-start gap-2">

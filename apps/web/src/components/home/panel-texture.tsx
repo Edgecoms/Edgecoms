@@ -18,7 +18,7 @@ export function PanelTexture() {
 			flickerChance={0.2}
 			gridGap={5}
 			maxOpacity={0.25}
-			squareSize={2}
+			squareSize={3}
 		/>
 	);
 }

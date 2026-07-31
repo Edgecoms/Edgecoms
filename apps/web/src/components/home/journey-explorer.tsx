@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useId, useRef, useState } from "react";
 import { DIAGRAMS } from "@/components/home/products/diagrams";
+import { AppIcon } from "@/components/ui/app-icon";
 import { Highlight } from "@/components/ui/highlight";
 import {
 	APP_RESULT_BADGES,
@@ -159,7 +160,8 @@ export function JourneyExplorer() {
 									>
 										{entry.stage}
 									</span>
-									<span className="font-medium text-h3 text-primary-foreground">
+									<span className="flex items-center gap-2.5 font-medium text-h3 text-primary-foreground">
+										<AppIcon product={entry.product} size="sm" />
 										{entry.product.name}
 									</span>
 									{/* Only the open step carries its description, so the column

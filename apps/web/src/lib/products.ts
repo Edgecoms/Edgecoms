@@ -40,6 +40,13 @@ export interface AppFeature {
 	 * screenshots exist.
 	 */
 	image?: string;
+	/**
+	 * True when `image` is a stand-in rather than a shot of our own app. Comps
+	 * render in development and are dropped from production builds — the same
+	 * gate `screenshotIsComp` uses — so the intent to replace them is enforced
+	 * by the build rather than remembered.
+	 */
+	imageIsComp?: boolean;
 	/** The metric the block moves. Rendered as the eyebrow. */
 	metric: string;
 	title: string;
@@ -169,48 +176,58 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 		],
 		how: [
 			{
-				title: "Pick the products",
-				body: "A fixed set, a volume tier, or let Edge pair them from your real order history instead of a guess.",
+				title: "Choose what it runs on",
+				body: "Every product, everything except a list, a specific few, or whole collections. This is the step that decides whether the discount lands where your margin can carry it.",
 			},
 			{
-				title: "Set the offer",
-				body: "Fixed price, percentage off, or buy-one-get-one. You see exactly what the shopper will see before it goes live.",
+				title: "Build the tiers",
+				body: "Add a bar for each pack — buy two get one free, buy three get two free, an extra percentage on the bigger ones — and set the badge, the label and which variants the shopper picks.",
 			},
 			{
-				title: "Place it and read the lift",
-				body: "Product page, cart, or both. AOV and attach rate come back broken out per offer, so you know which one earned its place.",
+				title: "Preview it, then publish",
+				body: "Check it against a real product from your catalog on desktop and mobile, keep it as a draft while you are unsure, and publish when it looks right.",
 			},
 		],
 		features: [
 			{
 				metric: "Average order value",
-				title: "Turn the single-item order into a two-item order",
-				body: "Most orders contain exactly one thing, and that is the cheapest revenue in your store to go after. A bundle puts the natural second item in front of the shopper while they are already deciding — as a fixed set, a mix-and-match, or a build-your-own box, with per-variant rules so it never offers a size you cannot ship.",
-			},
-			{
-				metric: "AOV · units per order",
-				title: "Let them watch the discount grow",
-				body: "Volume tiers show the saving climbing as items go into the cart. The shopper is not reading about a deal, they are watching one happen, and the next tier is always close enough to be worth reaching for.",
-			},
-			{
-				metric: "Attach rate",
-				title: "Pair what your customers actually buy together",
-				body: "Frequently-bought-together suggestions are built from your own order history, not a category guess made by someone who has never seen your catalog. The pairing that works in your store is usually not the one you would have picked.",
-			},
-			{
-				metric: "Hours you get back",
-				title: "One line on the order, correct stock underneath",
-				body: "A bundle sells as a single SKU at a single price, while component inventory decrements individually behind it. Nothing to reconcile by hand, and no stock drift to discover at the end of the month.",
-			},
-			{
-				metric: "Conversion rate",
-				title: "It looks like your store, because it reads your theme",
-				body: "Fonts, colours and spacing are pulled from your theme automatically, and every one of them is overridable. It renders inline on the page, never in a popup a shopper has to dismiss before they can buy.",
+				title: "Buy two, get one free — and no discount code anywhere",
+				image: "/app-shots/bundles-tiers.avif",
+				imageIsComp: true,
+				body: "Volume tiers and buy-one-get-one offers, with an extra percentage stacked on the bigger packs so the saving visibly grows as the shopper moves up the list. They are not reading about a deal, they are watching one get better, and the next tier is always close enough to be worth reaching for.",
 			},
 			{
 				metric: "Every number above",
-				title: "See which offer earned its place",
-				body: "Revenue, attach rate and average order value are broken out per bundle instead of blended into a single figure. You find out which offer is carrying the lift, and which one has been sitting there doing nothing since launch.",
+				title: "The offer reports on itself",
+				image: "/app-shots/bundles-analytics.avif",
+				imageIsComp: true,
+				body: "Views, adds to cart, revenue and conversion rate sit on the bundle's own page with a trend line beside each one — not buried in a separate analytics area you have to go and find. When an offer is underperforming, you open it and the reason is already on screen.",
+			},
+			{
+				metric: "Conversion rate",
+				title: "See it on a real product before anyone else does",
+				image: "/app-shots/bundles-builder.avif",
+				imageIsComp: true,
+				body: "The live preview renders your offer against any reference product from your own catalog, in desktop and mobile, and it inherits your theme as it goes. Save it as a draft, look at it on the thing you are actually selling, publish when it is right.",
+			},
+			{
+				metric: "Margin",
+				title: "Run it exactly where it pays, and only when it should",
+				body: "Target every product, everything except a list, a specific handful, or whole collections — then schedule when the offer starts and stops. Margin decides where a discount runs, and an offer that ends by itself is one you cannot forget to switch off.",
+			},
+			{
+				metric: "AOV · urgency",
+				title: "A countdown built into the offer itself",
+				image: "/app-shots/bundles-gift.avif",
+				imageIsComp: true,
+				body: "The timer belongs to the bundle rather than sitting in a banner somewhere else on the site. It expires with the deal it is attached to, so there is never a clock promising a price the cart will refuse to honour.",
+			},
+			{
+				metric: "Lifetime value",
+				title: "Turn the biggest pack into a subscription",
+				image: "/app-shots/bundles-subscription.avif",
+				imageIsComp: true,
+				body: "An automatic-refill option sits inside the bundle, so the shopper who has just chosen the best-value pack can also choose to have it arrive every month. Somebody buying three of something is the easiest subscriber you will ever get, and this is the one moment they are thinking about it.",
 			},
 		],
 		worksWith: [
@@ -254,14 +271,19 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 					"It depends on your catalog and your margin, and anyone quoting you a single number has not seen your store. Below a few hundred orders a month, read the figure monthly rather than weekly — daily AOV on low volume is noise, not signal.",
 			},
 			{
-				question: "Does inventory draw down correctly?",
-				answer:
-					"Yes. A bundle sells as one line to the customer, and component stock decrements individually behind it.",
-			},
-			{
 				question: "Can I run bundles on one collection only?",
 				answer:
-					"Yes. Target by product, collection, tag, or country, so you only run offers where the margin supports them.",
+					"Yes. Target every product, everything except a list you choose, specific products, or whole collections — and schedule when the offer opens and closes. It is the difference between a promotion and an accidental sitewide sale.",
+			},
+			{
+				question: "Can I see the offer before customers do?",
+				answer:
+					"Yes. The preview renders against any product in your catalog, on desktop and mobile, and you can leave the whole offer as a draft until you are happy with it.",
+			},
+			{
+				question: "Can a bundle also sell a subscription?",
+				answer:
+					"Yes — an automatic-refill option can sit inside the bundle, so the shopper choosing the largest pack can have it repeat. Someone buying three at once is the most likely subscriber you have, and that is the moment to ask.",
 			},
 			{
 				question: "Will this slow my product page down?",
@@ -898,48 +920,48 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 		problemStats: ["pixelUnderreporting", "cartAbandonment", "mobileCheckout"],
 		how: [
 			{
-				title: "Connect your ad accounts",
-				body: "OAuth for all three platforms. No pasting access tokens between browser tabs.",
+				title: "Install the script, turn on the app embed",
+				body: "One click each. The embed is what captures first-party click IDs, and that is where a large part of your match quality comes from.",
 			},
 			{
-				title: "Events map themselves",
-				body: "Standard Shopify events arrive pre-mapped, so there is nothing to configure before data starts flowing.",
+				title: "Connect Meta, Google and TikTok",
+				body: "OAuth, no pasting access tokens between browser tabs. Every standard Shopify event is already mapped, so data starts flowing the moment a channel connects.",
 			},
 			{
-				title: "Watch the health score",
-				body: "Live diagnostics tell you something broke before your reported ROAS does.",
+				title: "Fire a test event and read the score",
+				body: "Confirm events land in each platform, then let the setup checklist and the health score tell you what is still worth fixing.",
 			},
 		],
 		features: [
 			{
 				metric: "Reported conversions",
-				title: "Send the purchase from your server, not the browser",
-				body: "The Conversions API for Meta, Google and TikTok, running alongside the pixel you already have. Ad blockers, privacy settings and dropped sessions stop being the thing that decides what your ad platform is allowed to know.",
+				title: "Every event, and which path it actually took",
+				body: "The Conversions API for Meta, Google and TikTok runs alongside your pixel, and the event log shows you whether each event went by pixel, by server, or both. Ad blockers and dropped sessions stop being the thing that decides what your ad platform is allowed to know — and you can see it happening rather than take it on trust.",
+			},
+			{
+				metric: "Match quality · trust",
+				title: "Open any event and see exactly what we sent",
+				body: "Every row opens onto the raw payload as it left your store — hashed identifiers and all — next to the platform's own response confirming it was received, and that event's match quality and dedup status. When Meta support asks you for a trace ID, it is already on the screen. Most tracking apps ask you to trust them. This one shows its working.",
 			},
 			{
 				metric: "ROAS accuracy",
-				title: "One purchase, one conversion",
-				body: "Automatic deduplication between the pixel and the server, whichever arrives first. Double-counting produces a return on ad spend that looks wonderful and is wrong, and acting on that costs more than the gap you started with.",
+				title: "One purchase, one conversion — reported as a fact",
+				body: "Every server event carries the deduplication key its platform expects, so the pixel and the API never both claim the same order. Purchase dedup gets its own line on the health card, because “probably not double-counting” is not a good enough basis for spending money.",
 			},
 			{
-				metric: "Attribution",
-				title: "More events find their person",
-				body: "Customer data is hashed before it leaves your store — both what the platforms require and what lifts match rates. A conversion the platform cannot tie back to a click may as well never have happened.",
+				metric: "Dynamic ads",
+				title: "Send the product ID your catalog actually uses",
+				body: "Choose whether content_ids sends the variant ID, the product ID or the SKU, so it matches the format in your catalog feed. Get this wrong and dynamic ads quietly retarget the wrong product or nothing at all — one of the most common reasons DPA underperforms, and one of the hardest to spot from inside Ads Manager.",
 			},
 			{
 				metric: "Optimisation",
-				title: "Optimise toward what you actually care about",
-				body: "Standard Shopify events arrive pre-mapped, and you can add your own. If a second order matters more to your business than a first, you can say so and let the platform bid for it.",
+				title: "See exactly what maps to what, on every platform",
+				body: "Every Shopify event next to its counterpart on Meta, Google and TikTok in one table — including the ones a platform has no equivalent for, marked as unmapped rather than silently dropped. Mapped parameters, value source and consent gating are all visible per event, and you can build custom events for anything Shopify does not emit natively.",
 			},
 			{
 				metric: "Risk",
 				title: "Find out before your ROAS does",
-				body: "A live health score with per-platform diagnostics and consent-mode gating. Tracking normally breaks silently and gets discovered a fortnight later in a report, after the budget has already moved somewhere worse.",
-			},
-			{
-				metric: "Cost per acquisition",
-				title: "Free, and not the kind of free that ends",
-				body: "No plan to choose, no card to add, no event cap to trip over on the best trading day of your year. It is free because accurate data makes the ad platforms better at spending your money, and that is payment enough.",
+				body: "A tracking health score out of a hundred, built from delivery coverage, connected channels and credential health, with a setup checklist that names what is still missing. Tracking normally breaks silently and gets discovered a fortnight later in a report, after the budget has already moved somewhere worse.",
 			},
 		],
 		worksWith: [
@@ -960,28 +982,39 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 		],
 		faq: [
 			{
-				question: "What about GDPR?",
+				question: "Will my ROAS go up?",
 				answer:
-					"Consent-mode gating is built in and customer data is hashed before transmission. Events are not sent for shoppers who have not consented.",
+					"Your reported ROAS usually does, because fewer conversions go missing on the way to the platform. Your actual sales do not change — your visibility of them does. That is the entire point: you stop switching off ad sets that were quietly working.",
+			},
+			{
+				question: "Is the match score Meta's official Event Match Quality?",
+				answer:
+					"No, and the app says so on the page rather than letting you assume otherwise. It is our estimate, calculated from the identifiers we actually send with each event, and it moves for the same reasons Meta's does. Meta's official EMQ lives in Events Manager and we link you straight to it.",
 			},
 			{
 				question: "Do I keep my pixel?",
 				answer:
-					"Yes. Server-side tracking runs alongside it, and deduplication is what stops the two from double-counting the same purchase.",
+					"Yes, and you should. Server-side runs alongside it and deduplication is what stops the two from both claiming the same purchase. The event log shows which events were sent by both paths.",
 			},
 			{
-				question: "Will my ROAS go up?",
+				question: "Which product ID should content_ids send?",
 				answer:
-					"Your reported ROAS usually does, because fewer conversions go missing. Your actual sales do not change — your visibility of them does. That is the entire point: you stop switching off ad sets that were quietly working.",
+					"Whichever one your catalog feed is built on — variant ID, product ID or SKU, switchable per store. If the two do not match, dynamic ads cannot resolve the product, so retargeting silently degrades while everything else looks fine.",
+			},
+			{
+				question: "What happens to events a platform does not support?",
+				answer:
+					"They are shown as unmapped in the event table rather than dropped without telling you. Google takes a few events Meta and TikTok do not, and vice versa, and you can see exactly which at a glance.",
+			},
+			{
+				question: "What about GDPR and Consent Mode v2?",
+				answer:
+					"Consent-mode gating is built in and can be set per event, customer data is hashed before it leaves your store, and TikTok events are gated alongside GA4 Consent Mode v2. Events are not sent for shoppers who have not consented.",
 			},
 			{
 				question: "How long does setup take?",
 				answer:
-					"Minutes rather than hours. Events are pre-mapped, and connecting an ad account is an OAuth click.",
-			},
-			{
-				question: "Do you support Consent Mode v2?",
-				answer: "Yes.",
+					"Minutes. Install the script, turn on the app embed, connect a channel by OAuth, fire a test event. Every standard Shopify event is mapped before you arrive.",
 			},
 		],
 		ctaHeading: "Stop optimising spend on incomplete data.",

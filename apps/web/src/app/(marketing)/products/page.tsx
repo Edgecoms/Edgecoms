@@ -19,6 +19,7 @@ import {
 } from "@/components/marketing/marketing-cta";
 import { BetterTogether } from "@/components/products/better-together";
 import { ProductBand } from "@/components/products/product-band";
+import { AppIcon } from "@/components/ui/app-icon";
 import { Highlight } from "@/components/ui/highlight";
 import { APP_RESULT_BADGES } from "@/lib/marketing-stats";
 import { EDGE_PRODUCTS } from "@/lib/products";
@@ -98,8 +99,11 @@ export default function ProductsPage() {
 										className="group grid grid-cols-1 items-baseline gap-2 py-5 transition-colors hover:bg-page sm:grid-cols-12 sm:gap-6 sm:px-4"
 										href={`/products/${product.slug}` as Route}
 									>
-										<span className="font-medium text-body text-primary-foreground group-hover:underline sm:col-span-3">
-											{product.name}
+										<span className="flex items-center gap-2.5 font-medium text-body text-primary-foreground sm:col-span-3">
+											<AppIcon product={product} size="sm" />
+											<span className="group-hover:underline">
+												{product.name}
+											</span>
 										</span>
 										<span className="text-pretty text-body-sm text-secondary-foreground leading-relaxed sm:col-span-7">
 											<Highlight>{product.tagline}</Highlight>

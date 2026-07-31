@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Highlight } from "@/components/ui/highlight";
+import { SHOW_PLACEHOLDER_PROOF } from "@/lib/marketing-stats";
 import type { AppFeature } from "@/lib/products";
 
 /**
@@ -14,14 +15,20 @@ import type { AppFeature } from "@/lib/products";
  */
 
 function FeatureVisual({ feature }: { feature: AppFeature }) {
-	if (feature.image) {
+	// A comp is withheld outside development, dropping the block back to the
+	// metric panel in a production build. Assigning to a local rather than
+	// testing the property inline is what lets TypeScript narrow it below.
+	const withheld = feature.imageIsComp && !SHOW_PLACEHOLDER_PROOF;
+	const image = withheld ? undefined : feature.image;
+
+	if (image) {
 		return (
 			<Image
 				alt={feature.title}
 				className="h-auto w-full rounded-[2rem] border border-border object-cover"
 				height={720}
 				sizes="(max-width: 1024px) 100vw, 560px"
-				src={feature.image}
+				src={image}
 				width={960}
 			/>
 		);

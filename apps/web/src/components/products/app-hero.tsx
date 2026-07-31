@@ -1,6 +1,7 @@
 import { ButtonLink } from "@edgecoms/ui/components/button";
 import type { Route } from "next";
 import { DIAGRAMS } from "@/components/home/products/diagrams";
+import { AppIcon } from "@/components/ui/app-icon";
 import { Highlight } from "@/components/ui/highlight";
 import { APP_RESULT_BADGES } from "@/lib/marketing-stats";
 import type { EdgeProduct } from "@/lib/products";
@@ -33,6 +34,7 @@ export function AppHero({ product }: { product: EdgeProduct }) {
 
 			<div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-12 px-6 pt-28 pb-20 lg:grid-cols-2 lg:gap-16">
 				<div className="flex flex-col items-start gap-5">
+					<AppIcon product={product} size="lg" />
 					<span className="font-medium font-mono text-label text-secondary-foreground uppercase tracking-[0.12em]">
 						{product.eyebrow}
 					</span>

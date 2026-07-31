@@ -23,7 +23,7 @@ function Mark({ integration }: { integration: Integration }) {
 		return (
 			<Image
 				alt={integration.name}
-				className="h-8 w-auto opacity-55 grayscale transition duration-300 hover:opacity-100 hover:grayscale-0 sm:h-10"
+				className="h-9 w-auto opacity-50 grayscale transition duration-300 hover:opacity-100 hover:grayscale-0 sm:h-11"
 				height={LOGO_HEIGHT}
 				src={integration.logo}
 				unoptimized
@@ -33,7 +33,10 @@ function Mark({ integration }: { integration: Integration }) {
 	}
 
 	return (
-		<span className="whitespace-nowrap font-medium text-h1 text-secondary-foreground/45 sm:text-display">
+		/* Sized to sit level with the glyph marks rather than at display size — a
+		   wordmark next to icons reads far larger than its cap height suggests,
+		   because it is wide as well as tall. */
+		<span className="whitespace-nowrap font-medium text-h1 text-secondary-foreground/45">
 			{integration.name}
 		</span>
 	);

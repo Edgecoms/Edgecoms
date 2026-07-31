@@ -71,16 +71,16 @@
 	--bg: var(--gray-2);
 	--page: var(--white-a11);
 
-	/* Text colour. Light mode is pure #000000 for both levels, by request —
-	   headings and body copy render at the same true black rather than the
-	   near-black/mid-grey pair the Radix scale gives you.
-	   Trade-off: with both at #000, size and weight are the only things left
-	   separating a heading from a caption. To put the tonal hierarchy back,
-	   point --text-secondary at var(--gray-11) and change nothing else.
+	/* Text colour, two levels. Headings and anything load-bearing sit at true
+	   #000; supporting copy — leads, glosses, captions, eyebrows — drops to the
+	   Radix mid-grey so tone carries the hierarchy alongside size and weight.
+	   Both levels were previously #000, which meant every
+	   `text-secondary-foreground` on the site rendered identically to
+	   `text-primary-foreground` and the distinction existed only in the markup.
 	   Dark mode keeps the scale — #000 on a dark surface is invisible, and the
 	   theme defaults to "system", so real visitors do land there. */
 	--text-primary: #000000;
-	--text-secondary: #000000;
+	--text-secondary: var(--gray-11);
 
 	--secondary: var(--white-a12);
 	--secondary-hover: var(--white-a7);

@@ -56,7 +56,7 @@ export function PricingTiers({
 							key={tier.name}
 						>
 							<div className="flex items-center gap-2">
-								<span className="font-medium font-mono text-label text-secondary-foreground uppercase tracking-[0.1em]">
+								<span className="font-medium text-body-sm text-brand">
 									{tier.name}
 								</span>
 								{isFeatured(tiers, index) ? (

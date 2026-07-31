@@ -60,7 +60,7 @@ export default function ContactPage() {
 
 			<div className="mx-auto w-full max-w-7xl px-6 pt-24 pb-20">
 				<div className="mx-auto flex max-w-3xl flex-col items-center gap-5 text-center">
-					<p className="font-medium font-mono text-label text-secondary-foreground uppercase tracking-[0.14em]">
+					<p className="font-medium text-body-sm text-brand">
 						Free store teardown
 					</p>
 					<h1 className="text-balance font-medium text-display text-primary-foreground sm:text-display-lg">
@@ -94,7 +94,7 @@ export default function ContactPage() {
 						</ol>
 
 						<div className="flex flex-col gap-4 border-border border-t pt-8">
-							<h2 className="font-medium font-mono text-label text-secondary-foreground uppercase tracking-[0.12em]">
+							<h2 className="font-medium text-body-sm text-secondary-foreground">
 								Would rather book a time?
 							</h2>
 							<a
@@ -108,7 +108,7 @@ export default function ContactPage() {
 						</div>
 
 						<div className="flex flex-col gap-4 border-border border-t pt-8">
-							<h2 className="font-medium font-mono text-label text-secondary-foreground uppercase tracking-[0.12em]">
+							<h2 className="font-medium text-body-sm text-secondary-foreground">
 								Or email us directly
 							</h2>
 							<ul className="flex flex-col gap-3">

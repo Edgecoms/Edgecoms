@@ -37,7 +37,7 @@ export function ProductBand({
 			<div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-12 px-6 py-20 lg:grid-cols-2 lg:gap-20">
 				<div className={`flex flex-col gap-5 ${flipped ? "lg:order-2" : ""}`}>
 					<div className="flex flex-wrap items-center gap-2">
-						<span className="font-medium font-mono text-label text-secondary-foreground uppercase tracking-[0.1em]">
+						<span className="font-medium text-body-sm text-brand">
 							{product.category}
 						</span>
 						{badge ? (

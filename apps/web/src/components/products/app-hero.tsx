@@ -36,7 +36,7 @@ export function AppHero({ product }: { product: EdgeProduct }) {
 			<div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-12 px-6 pt-24 pb-14 lg:grid-cols-2 lg:gap-16">
 				<div className="flex flex-col items-start gap-5">
 					<AppIcon product={product} size="lg" />
-					<span className="font-medium font-mono text-label text-secondary-foreground uppercase tracking-[0.12em]">
+					<span className="font-medium text-body-sm text-brand">
 						{product.eyebrow}
 					</span>
 

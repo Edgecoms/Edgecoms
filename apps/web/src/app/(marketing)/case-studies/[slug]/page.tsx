@@ -136,7 +136,7 @@ function Related({ current }: { current: string }) {
 							href={`/case-studies/${slug}` as Route}
 							key={slug}
 						>
-							<span className="font-medium font-mono text-label text-secondary-foreground uppercase tracking-[0.1em]">
+							<span className="font-medium text-body-sm text-secondary-foreground">
 								{study.category}
 							</span>
 							<span className="flex items-center gap-1.5 font-medium text-h3 text-primary-foreground">
@@ -182,7 +182,7 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
 							width={264}
 						/>
 					) : (
-						<span className="font-medium font-mono text-label text-secondary-foreground uppercase tracking-[0.14em]">
+						<span className="font-medium text-body-sm text-brand">
 							{study.category}
 						</span>
 					)}

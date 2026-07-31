@@ -45,22 +45,30 @@ function Term({
 }) {
 	/* RPV is the answer, not an input, so it carries the brand fill and the two
 	   inputs sit on the page surface. Without that the three read as a list of
-	   equals rather than as an equation with a result. */
+	   equals rather than as an equation with a result.
+
+	   The symbol sits in a fixed `h-14` box rather than flowing. That box, plus
+	   the shared `py-8`, is what the operators align themselves to — it is the
+	   one measurement the whole row agrees on, so `=` and `×` land on the
+	   symbols instead of floating at the midpoint of a card whose height depends
+	   on how long its gloss happens to be. */
 	return (
 		<div
-			className={`flex flex-1 flex-col items-center gap-2 rounded-2xl border p-6 text-center sm:p-8 ${
+			className={`flex flex-col items-center rounded-2xl border px-6 py-8 text-center sm:px-8 ${
 				outcome ? "border-brand/30 bg-brand/8" : "border-border bg-page"
 			}`}
 		>
 			<span
-				className={`font-medium text-display leading-none tracking-tight ${outcome ? "text-brand" : "text-primary-foreground"}`}
+				className={`flex h-14 items-center font-medium text-display leading-none tracking-tight ${outcome ? "text-brand" : "text-primary-foreground"}`}
 			>
 				{symbol}
 			</span>
-			<span className="font-medium text-body text-primary-foreground">
+			{/* Name tight to the symbol — they are the same thing said twice. The
+			    gloss is a separate register, so it gets the larger step. */}
+			<span className="mt-2 font-medium text-body text-primary-foreground">
 				{term}
 			</span>
-			<span className="max-w-[18ch] text-pretty text-caption text-secondary-foreground leading-relaxed">
+			<span className="mt-3 max-w-[20ch] text-pretty text-caption text-secondary-foreground leading-relaxed">
 				{gloss}
 			</span>
 		</div>
@@ -68,12 +76,15 @@ function Term({
 }
 
 function Operator({ children }: { children: string }) {
+	/* Stretches to the full row height and centres inside it, so the glyph sits
+	   on the cards' midline. The row's `items-stretch` is what makes that a real
+	   centre now — the cards are all one height, so there is a single midline to
+	   sit on. */
 	return (
-		<span
-			aria-hidden="true"
-			className="grid size-9 shrink-0 place-items-center rounded-full border border-border bg-bg font-medium text-[var(--gray-9)] text-h3"
-		>
-			{children}
+		<span aria-hidden="true" className="flex items-center justify-center">
+			<span className="grid size-9 shrink-0 place-items-center rounded-full border border-border bg-bg font-medium text-[var(--gray-9)] text-h3">
+				{children}
+			</span>
 		</span>
 	);
 }
@@ -87,14 +98,18 @@ export function RpvEquation() {
 			className="relative w-full scroll-mt-24 py-10"
 			id="how-it-adds-up"
 		>
+			{/* Masked to a soft ellipse instead of running edge to edge. At full
+			    strength behind the whole section the dots competed with the cards
+			    sitting on top of them; faded out at the margins they read as
+			    atmosphere and let the equation hold the centre. */}
 			<div
 				aria-hidden="true"
-				className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(var(--gray-a3)_1px,transparent_1px)] [background-size:22px_22px]"
+				className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(var(--gray-a3)_1px,transparent_1px)] [background-size:22px_22px] [mask-image:radial-gradient(ellipse_70%_50%_at_50%_32%,black,transparent_75%)]"
 			/>
 
 			<div className="mx-auto w-full max-w-7xl px-6">
 				<div className="mx-auto flex max-w-2xl flex-col items-center gap-4 text-center">
-					<p className="font-medium text-label text-secondary-foreground uppercase tracking-[0.14em]">
+					<p className="font-medium text-body-sm text-brand">
 						How a store actually grows
 					</p>
 					<h2
@@ -118,9 +133,14 @@ export function RpvEquation() {
 					value.
 				</p>
 
+				{/* A grid, not a flex row. `sm:items-stretch` is the fix for the
+				    ragged look: under `items-center` each card shrank to its own
+				    content, so a one-line gloss made a shorter card than a two-line
+				    one and the three tops and bottoms all disagreed. Equal columns
+				    with equal heights make it read as arithmetic. */}
 				<div
 					aria-hidden="true"
-					className="mx-auto mt-12 flex max-w-4xl flex-col items-stretch gap-3 sm:flex-row sm:items-center"
+					className="mx-auto mt-14 grid max-w-5xl grid-cols-1 gap-4 sm:grid-cols-[1fr_auto_1fr_auto_1fr] sm:items-stretch sm:gap-5"
 				>
 					<Term gloss={rpv.gloss} outcome symbol={rpv.symbol} term={rpv.term} />
 					<Operator>=</Operator>
@@ -129,13 +149,15 @@ export function RpvEquation() {
 					<Term gloss={aov.gloss} symbol={aov.symbol} term={aov.term} />
 				</div>
 
-				<p className="mx-auto mt-12 max-w-2xl text-balance text-center text-body-lg text-primary-foreground leading-relaxed">
+				<p className="mx-auto mt-14 max-w-2xl text-balance text-center text-body-lg text-primary-foreground leading-relaxed">
 					Most stores spend a year optimising the first number and never touch
 					the second. That is why their revenue per visitor is flat.
 				</p>
 
-				{/* Which app pulls which lever. */}
-				<div className="relative mt-16">
+				{/* Which app pulls which lever. Held further from the statement above
+				    than the statement is from the equation, so the page reads as two
+				    blocks rather than three evenly spaced ones. */}
+				<div className="relative mt-20">
 					<div className="grid grid-cols-1 gap-px border border-border bg-border md:grid-cols-3">
 						{LEVER_COLUMNS.map((lever) => (
 							<div

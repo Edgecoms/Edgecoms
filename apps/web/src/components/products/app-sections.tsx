@@ -46,7 +46,7 @@ export function WorksWith({ items }: { items: readonly string[] }) {
 		<section aria-labelledby="works-with-heading" className="w-full pb-16">
 			<div className="mx-auto flex w-full max-w-7xl flex-col gap-6 border-border border-t px-6 pt-12 sm:flex-row sm:items-center sm:gap-10">
 				<h2
-					className="shrink-0 font-medium font-mono text-label text-secondary-foreground uppercase tracking-[0.14em]"
+					className="shrink-0 font-medium text-body-sm text-brand"
 					id="works-with-heading"
 				>
 					Works with

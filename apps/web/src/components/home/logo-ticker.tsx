@@ -54,7 +54,7 @@ export function LogoTicker() {
 	return (
 		<section aria-labelledby="ticker-heading" className="w-full py-10">
 			<h2
-				className="mb-8 text-center font-medium text-body-sm text-secondary-foreground sm:mb-10"
+				className="mb-8 text-center font-medium text-body-sm text-brand sm:mb-10"
 				id="ticker-heading"
 			>
 				Works with the stack you already run

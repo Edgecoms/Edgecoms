@@ -73,7 +73,7 @@ export function FeatureSections({
 								<div
 									className={`flex flex-col gap-4 ${flipped ? "lg:order-2" : ""}`}
 								>
-									<span className="font-medium font-mono text-brand text-label uppercase tracking-[0.12em]">
+									<span className="font-medium text-body-sm text-brand">
 										{feature.metric}
 									</span>
 									<h3 className="max-w-lg text-balance font-medium text-display text-primary-foreground">

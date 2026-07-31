@@ -71,7 +71,7 @@ export default function Footer() {
 								key={product.slug}
 							>
 								<AppIcon product={product} size="sm" />
-								<span className="font-medium font-mono text-label text-primary-foreground uppercase tracking-[0.08em]">
+								<span className="font-medium text-body-sm text-primary-foreground tracking-[0.08em]">
 									{product.name.replace("Edge ", "")}
 								</span>
 								<span className="text-caption text-secondary-foreground">
@@ -90,7 +90,7 @@ export default function Footer() {
 							className="flex flex-col gap-5 lg:px-8 lg:first:pl-0"
 							key={column.heading}
 						>
-							<h2 className="font-medium font-mono text-label text-secondary-foreground uppercase tracking-[0.14em]">
+							<h2 className="font-medium text-body-sm text-secondary-foreground">
 								{column.heading}
 							</h2>
 							<ul className="flex flex-col gap-3">

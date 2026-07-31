@@ -16,7 +16,7 @@ export function PartnersHero() {
 		<section className="w-full px-3 pb-3">
 			<BrandPanel className="flex w-full items-center justify-center">
 				<div className="mx-auto flex w-full max-w-4xl flex-col items-center gap-6 px-6 py-24 text-center sm:gap-8 sm:py-32">
-					<p className="font-medium font-mono text-label text-white/80 uppercase tracking-[0.14em]">
+					<p className="font-medium text-body-sm text-white/80">
 						Partner program
 					</p>
 

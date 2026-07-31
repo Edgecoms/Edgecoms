@@ -51,9 +51,7 @@ export default function ProductsPage() {
 				/>
 
 				<div className="mx-auto flex w-full max-w-4xl flex-col items-center gap-6 px-6 pt-24 pb-14 text-center sm:gap-8">
-					<p className="font-medium font-mono text-label text-secondary-foreground uppercase tracking-[0.14em]">
-						The Edge suite
-					</p>
+					<p className="font-medium text-body-sm text-brand">The Edge suite</p>
 					<h1 className="text-balance font-medium text-display text-primary-foreground sm:text-display-lg">
 						Pick the lever you need.
 					</h1>

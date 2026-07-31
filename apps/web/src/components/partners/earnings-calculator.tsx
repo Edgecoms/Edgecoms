@@ -62,10 +62,7 @@ function Slider({
 	return (
 		<div className="flex flex-col gap-3">
 			<div className="flex items-baseline justify-between">
-				<label
-					className="font-medium font-mono text-label text-secondary-foreground uppercase tracking-[0.1em]"
-					htmlFor={id}
-				>
+				<label className="font-medium text-body-sm text-brand" htmlFor={id}>
 					{label}
 				</label>
 				<span className="font-medium text-body text-primary-foreground tabular-nums">
@@ -121,7 +118,7 @@ export function EarningsCalculator() {
 				/>
 
 				<div className="mt-auto flex flex-col gap-1 border-border border-t pt-6">
-					<span className="font-medium font-mono text-label text-secondary-foreground uppercase tracking-[0.1em]">
+					<span className="font-medium text-body-sm text-brand">
 						Your recurring commission
 					</span>
 					<span className="font-medium text-display text-primary-foreground tabular-nums">

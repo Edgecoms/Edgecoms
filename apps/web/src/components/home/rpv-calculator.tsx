@@ -85,10 +85,7 @@ function NumberField({
 	const id = useId();
 	return (
 		<div className="flex flex-col gap-2">
-			<label
-				className="font-medium text-label text-secondary-foreground uppercase tracking-[0.1em]"
-				htmlFor={id}
-			>
+			<label className="font-medium text-body-sm text-brand" htmlFor={id}>
 				{label}
 			</label>
 			<div className="flex items-center gap-1.5 rounded-xl border border-border bg-bg px-3.5 py-2.5 focus-within:ring-3 focus-within:ring-ring/50">
@@ -180,7 +177,7 @@ export function RpvCalculator() {
 		>
 			<div className="mx-auto w-full max-w-7xl px-6">
 				<div className="mx-auto flex max-w-2xl flex-col items-center gap-4 text-center">
-					<p className="font-medium text-label text-secondary-foreground uppercase tracking-[0.14em]">
+					<p className="font-medium text-body-sm text-brand">
 						Do the maths on your own store
 					</p>
 					<h2

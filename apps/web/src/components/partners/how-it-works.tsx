@@ -50,7 +50,7 @@ export function HowItWorks() {
 								className="flex flex-col gap-3 bg-bg p-8 sm:p-10"
 								key={item.step}
 							>
-								<span className="font-medium font-mono text-brand text-label tracking-[0.1em]">
+								<span className="font-medium text-body-sm text-brand">
 									{item.step}
 								</span>
 								<h3 className="font-medium text-h3 text-primary-foreground">

@@ -43,7 +43,7 @@ function CardBody({ card }: { card: CaseStudyCard }) {
 			    eye everything matters equally, which is the same as saying
 			    nothing does. */}
 			<div className="flex flex-1 flex-col p-5">
-				<span className="text-label text-secondary-foreground">
+				<span className="text-body-sm text-secondary-foreground">
 					{card.category}
 				</span>
 

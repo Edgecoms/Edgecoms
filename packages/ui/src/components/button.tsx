@@ -12,6 +12,8 @@ const buttonVariants = cva(buttonBaseStyles, {
 		variant: {
 			primary:
 				"bg-primary text-inverted-primary-foreground active:bg-primary-hover [@media(hover:hover)_and_(pointer:fine)]:hover:bg-primary-hover",
+			brand:
+				"bg-brand-solid text-brand-foreground active:bg-brand-solid-hover [@media(hover:hover)_and_(pointer:fine)]:hover:bg-brand-solid-hover",
 			secondary:
 				"cft-border-shadow hover:cft-border-shadow-hover bg-secondary text-primary-foreground active:bg-secondary-hover [@media(hover:hover)_and_(pointer:fine)]:hover:bg-secondary-hover",
 			tertiary:

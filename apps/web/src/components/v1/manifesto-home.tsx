@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Reveal } from "@/components/home/reveal";
+import { Reveal } from "@/components/v1/reveal";
 
 const thoughts = [
 	["We solve problems", "before adding features."],

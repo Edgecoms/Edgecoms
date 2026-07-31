@@ -1,69 +1,57 @@
-const RING_RADIUS = 72;
-const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
-const PROGRESS = 0.8;
+import { Panel } from "./parts";
 
-function TimeUnit({ value, label }: { value: string; label: string }) {
-	return (
-		<div className="flex flex-col items-center">
-			<span className="font-medium text-[#1c1c1e] text-[22px] tabular-nums leading-none tracking-tight">
-				{value}
-			</span>
-			<span className="mt-1 text-[#a1a1aa] text-[9px] tracking-[0.1em]">
-				{label}
-			</span>
-		</div>
-	);
-}
+const UNITS = [
+	{ label: "HRS", value: "02" },
+	{ label: "MIN", value: "14" },
+	{ label: "SEC", value: "36" },
+];
+
+/** How much of the window has already elapsed. */
+const ELAPSED = 0.68;
+
+/* Tick marks sit under the progress track. Evenly spaced by index rather than
+   hardcoded, so changing the count does not require redrawing the row. */
+const TICKS = Array.from({ length: 24 }, (_, i) => i);
 
 export default function TimerDiagram() {
 	return (
-		<div className="grid w-full place-items-center">
-			<div className="relative grid place-items-center">
-				<svg aria-hidden="true" height="184" viewBox="0 0 184 184" width="184">
-					{/* tick ring */}
-					<circle
-						cx="92"
-						cy="92"
-						fill="none"
-						r="82"
-						stroke="#E4E4E7"
-						strokeDasharray="1 6"
-						strokeWidth="2"
-					/>
-					{/* track */}
-					<circle
-						cx="92"
-						cy="92"
-						fill="none"
-						r={RING_RADIUS}
-						stroke="#ECECEE"
-						strokeWidth="5"
-					/>
-					{/* progress */}
-					<circle
-						cx="92"
-						cy="92"
-						fill="none"
-						r={RING_RADIUS}
-						stroke="#FF4001"
-						strokeDasharray={`${RING_CIRCUMFERENCE * PROGRESS} ${RING_CIRCUMFERENCE}`}
-						strokeLinecap="round"
-						strokeWidth="5"
-						transform="rotate(-90 92 92)"
-					/>
-				</svg>
+		<Panel className="w-[248px] px-4 py-4">
+			<span className="font-medium font-mono text-[10px] text-[var(--gray-11)] uppercase tracking-[0.14em]">
+				Sale ends in
+			</span>
 
-				<div className="absolute flex flex-col items-center">
-					<span className="text-[#a1a1aa] text-[11px]">Offer ends in</span>
-					<div className="mt-1.5 flex items-start gap-1.5">
-						<TimeUnit label="HRS" value="04" />
-						<span className="text-[#c9c9ce] text-[18px] leading-none">:</span>
-						<TimeUnit label="MIN" value="32" />
-						<span className="text-[#c9c9ce] text-[18px] leading-none">:</span>
-						<TimeUnit label="SEC" value="18" />
+			<div className="mt-3 flex items-end gap-1.5">
+				{UNITS.map((unit, index) => (
+					<div className="flex items-end gap-1.5" key={unit.label}>
+						<div className="flex flex-col items-center">
+							<span className="font-medium text-[30px] text-[var(--gray-12)] tabular-nums leading-none tracking-tight">
+								{unit.value}
+							</span>
+							<span className="mt-1.5 text-[9px] text-[var(--gray-11)] tracking-[0.12em]">
+								{unit.label}
+							</span>
+						</div>
+						{index < UNITS.length - 1 ? (
+							<span className="pb-4 font-medium text-[22px] text-[var(--gray-6)] leading-none">
+								:
+							</span>
+						) : null}
 					</div>
-				</div>
+				))}
 			</div>
-		</div>
+
+			<div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-[var(--gray-3)]">
+				<div
+					className="h-full rounded-full bg-brand"
+					style={{ width: `${ELAPSED * 100}%` }}
+				/>
+			</div>
+
+			<div className="mt-1.5 flex justify-between">
+				{TICKS.map((tick) => (
+					<span className="h-1 w-px bg-[var(--gray-5)]" key={tick} />
+				))}
+			</div>
+		</Panel>
 	);
 }

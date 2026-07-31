@@ -1,36 +1,54 @@
-import { ButtonLink } from "@edgecoms/ui/components/button";
+import {
+	Globe,
+	LifeBuoy,
+	Package,
+	Palette,
+	Repeat,
+	ShoppingCart,
+	Star,
+	Store,
+	Timer,
+	Zap,
+} from "lucide-react";
 import type { Route } from "next";
+import Link from "next/link";
+import {
+	type CtaRailItem,
+	MarketingCta,
+} from "@/components/marketing/marketing-cta";
+
+/** One decorative tile per app in the suite. */
+const STICKERS = [Package, ShoppingCart, Star, Timer, Globe, Repeat] as const;
+
+const RAIL_ITEMS: readonly CtaRailItem[] = [
+	{ icon: Store, label: "Billed on the Shopify invoice you already get" },
+	{ icon: Zap, label: "Live in minutes" },
+	{ icon: Palette, label: "Works with any theme" },
+	{ icon: LifeBuoy, label: "One team, one support inbox" },
+	{ icon: Repeat, label: "Start with one app, add the rest anytime" },
+];
 
 export function CtaHome() {
 	return (
-		<section className="relative w-full overflow-hidden">
-			<div className="mx-auto flex w-full max-w-7xl items-center px-6 py-24 lg:py-32">
-				<div className="flex w-full flex-col items-start justify-between gap-10 lg:flex-row lg:items-center lg:gap-16">
-					<h2 className="max-w-2xl text-balance font-medium text-display text-primary-foreground tracking-tight lg:text-display-lg">
-						One ecosystem. Endless possibilities.
-					</h2>
-
-					<div className="flex shrink-0 flex-wrap items-center gap-3">
-						<ButtonLink
-							className="rounded-full"
-							href={"/partners" as Route}
-							size="xl"
-							variant="primary"
-						>
-							Become a Partner
-						</ButtonLink>
-
-						<ButtonLink
-							className="rounded-full"
-							href={"/products" as Route}
-							size="xl"
-							variant="secondary"
-						>
-							Explore Products
-						</ButtonLink>
-					</div>
-				</div>
-			</div>
-		</section>
+		<MarketingCta
+			body="Start with one app or run the suite. Billed through Shopify, live in minutes, no developer required."
+			footnote={
+				<>
+					Manage Shopify stores for a living? Earn recurring commission on every
+					merchant you bring to Edge.{" "}
+					<Link
+						className="text-primary-foreground underline decoration-border underline-offset-4 transition-colors hover:decoration-current"
+						href={"/partners" as Route}
+					>
+						See the partner program
+					</Link>
+				</>
+			}
+			heading="Give your store the whole edge"
+			primary={{ href: "/products", label: "Explore the suite" }}
+			railItems={RAIL_ITEMS}
+			secondary={{ href: "/contact", label: "Talk to us" }}
+			stickers={STICKERS}
+		/>
 	);
 }

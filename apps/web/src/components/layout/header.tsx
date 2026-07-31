@@ -13,7 +13,12 @@ const links = [
 
 export default function Header() {
 	return (
-		<header className="sticky inset-x-0 top-0 z-50 h-(--header-height) items-stretch border-border-default/50 border-b bg-(--white-a1) backdrop-blur-2xl">
+		/* Opaque, not translucent. The homepage now scrolls full-bleed orange
+		   panels under this bar, and at --white-a1 the brand colour came
+		   straight through and dropped the grey nav links to unreadable. A
+		   blurred tint cannot be made safe against an arbitrary backdrop, so
+		   the bar owns its own surface instead. */
+		<header className="sticky inset-x-0 top-0 z-50 h-(--header-height) items-stretch border-border border-b bg-bg">
 			<div className="mx-auto flex h-(--header-height) w-full items-center py-3">
 				<div className="mx-auto flex w-full items-center justify-between px-6 sm:max-w-7xl">
 					<div className="flex flex-1 items-center justify-start">

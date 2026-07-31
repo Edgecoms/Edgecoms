@@ -1,18 +1,23 @@
+import type { Metadata } from "next";
 import { CtaHome } from "@/components/home/cta-home";
 import { HeroHome } from "@/components/home/hero-home";
-import { ManifestoHome } from "@/components/home/manifesto-home";
-import { PartnerHome } from "@/components/home/partner-home";
-import { ProductsHome } from "@/components/home/products-home";
+import { LogoTicker } from "@/components/home/logo-ticker";
+import { SuiteHome } from "@/components/home/suite-home";
+import { WhyEdge } from "@/components/home/why-edge";
+
+export const metadata: Metadata = {
+	title: "Edge",
+	description:
+		"Six focused Shopify apps from one team — bundles, cart, reviews, subscriptions, currency, and urgency. One bill, one design language, one place to get help.",
+};
 
 export default function HomePage() {
 	return (
 		<main className="flex flex-col">
-			<section className="container mx-auto px-6 sm:max-w-7xl">
-				<HeroHome />
-			</section>
-			<ManifestoHome />
-			<ProductsHome />
-			<PartnerHome />
+			<HeroHome />
+			<LogoTicker />
+			<SuiteHome />
+			<WhyEdge />
 			<CtaHome />
 		</main>
 	);

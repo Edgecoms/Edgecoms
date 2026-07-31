@@ -1,54 +1,126 @@
-import { ButtonLink } from "@edgecoms/ui/components/button";
-import { ArrowRight } from "lucide-react";
-import type { Metadata, Route } from "next";
-import { PageHeader } from "@/components/marketing/page-header";
+import type { Metadata } from "next";
+import { GridMarkers } from "@/components/home/grid-markers";
+import { MarketingCta } from "@/components/marketing/marketing-cta";
 
 export const metadata: Metadata = {
 	title: "About — Edge",
 	description:
-		"Edge builds thoughtfully crafted Shopify apps and a partner program that rewards the people who grow great merchants. Your edge starts here.",
+		"Edge is a studio of Shopify apps built by one team, and a partner program that pays the people who grow great merchants. Built for correctness and auditability.",
 };
 
-const values = [
+const VALUES = [
 	{
-		title: "Craft over clutter",
 		description:
 			"Every app does one job exceptionally well. No feature bloat, no dark patterns — software that respects the merchant and the shopper.",
+		title: "Craft over clutter",
 	},
 	{
-		title: "Aligned incentives",
 		description:
 			"Partners earn when merchants succeed. We win together, over the long term, or not at all.",
+		title: "Aligned incentives",
 	},
 	{
-		title: "Calm and considered",
 		description:
 			"We move deliberately and build for durability. The boring guarantees — correctness, clarity, trust — are the ones that matter.",
+		title: "Calm and considered",
+	},
+] as const;
+
+/* These are the platform's actual invariants, not aspirations — each one is
+   enforced in the data layer. Stated here because a company that moves other
+   people's money should be legible about how it handles it. */
+const GUARANTEES = [
+	{
+		description:
+			"Every amount is stored as an integer in minor units with its currency code. No floating-point arithmetic ever touches money — not in conversion, not in commission.",
+		label: "Money is never a float",
+	},
+	{
+		description:
+			"Commissions are immutable and the rate is frozen onto each one when it is generated. Renegotiating a partner's rate applies going forward and never rewrites unpaid history.",
+		label: "History is never rewritten",
+	},
+	{
+		description:
+			"The earnings ledger is append-only and ingestion is idempotent on the Shopify transaction id. Re-running a sync is a no-op; exactly one commission exists per earning event.",
+		label: "Nobody is ever paid twice",
+	},
+	{
+		description:
+			"Every commission traces back to the specific Shopify charge that produced it. A payout can be reconciled line by line instead of taken on trust.",
+		label: "Every number has a source",
 	},
 ] as const;
 
 export default function AboutPage() {
 	return (
 		<>
-			<section className="relative w-full overflow-hidden">
-				<div className="mx-auto w-full max-w-7xl px-6 pt-32 pb-16">
-					<PageHeader
-						eyebrow="About Edge"
-						lead="Edge is a studio of Shopify apps and the platform that fronts them. We help merchants sell more and convert better — and we pay the partners who bring them to us, for the long haul."
-						title="A Shopify growth platform, built with intention."
-					/>
+			<section className="relative isolate w-full overflow-hidden">
+				<div
+					aria-hidden="true"
+					className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(var(--gray-a4)_1px,transparent_1px)] [background-size:22px_22px] [mask-image:radial-gradient(ellipse_65%_60%_at_50%_40%,black_25%,transparent_78%)]"
+				/>
+				<div className="mx-auto flex w-full max-w-4xl flex-col items-center gap-6 px-6 pt-32 pb-24 text-center sm:gap-8">
+					<p className="font-medium font-mono text-label text-secondary-foreground uppercase tracking-[0.14em]">
+						About Edge
+					</p>
+					<h1 className="text-balance font-medium text-display text-primary-foreground sm:text-display-lg">
+						One team, six apps, and a program that pays for the long term
+					</h1>
 				</div>
 			</section>
 
-			<section className="relative w-full">
-				<div className="mx-auto w-full max-w-7xl px-6 pb-24">
-					<div className="grid grid-cols-1 gap-12 border-border border-t pt-16 lg:grid-cols-3">
-						<h2 className="font-medium text-h2 text-primary-foreground tracking-tight">
+			<section aria-labelledby="why-heading" className="w-full pb-24">
+				<div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-12 border-border border-t px-6 pt-16 lg:grid-cols-3 lg:gap-16">
+					<h2
+						className="font-medium text-h1 text-primary-foreground lg:sticky lg:top-24 lg:self-start"
+						id="why-heading"
+					>
+						Why Edge exists
+					</h2>
+					<div className="flex flex-col gap-6 lg:col-span-2">
+						<p className="text-pretty text-body-lg text-primary-foreground leading-relaxed">
+							A growing Shopify store ends up running six apps from six vendors.
+							Six subscriptions, six support inboxes, six scripts in the theme,
+							six things that break the next time the theme changes. Every one
+							of them was reasonable on its own. Together they are a tax.
+						</p>
+						<p className="text-pretty text-body-lg text-secondary-foreground leading-relaxed">
+							Edge is the other answer. One team building the apps a store
+							actually needs — bundles, cart, reviews, urgency, currency,
+							subscriptions — so they share a design language, a bill, and a
+							single place to get help. Nothing you install makes the storefront
+							look stitched together, because it was not stitched together.
+						</p>
+						<p className="text-pretty text-body-lg text-secondary-foreground leading-relaxed">
+							The second half is the partner program. The agencies and
+							consultants who run these stores are the reason merchants find
+							good software at all, and most programs pay them for a click and
+							then stop. We pay a share of revenue for as long as the merchant
+							stays — no referral links, no attribution windows, no expiry.
+						</p>
+					</div>
+				</div>
+			</section>
+
+			<section aria-labelledby="values-heading" className="w-full pb-24">
+				<div className="mx-auto w-full max-w-7xl px-6">
+					<div className="mx-auto flex max-w-2xl flex-col items-center gap-4 text-center">
+						<h2
+							className="text-balance font-medium text-display text-primary-foreground"
+							id="values-heading"
+						>
 							What we believe
 						</h2>
-						<div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:col-span-2">
-							{values.map((value) => (
-								<div className="flex flex-col gap-2" key={value.title}>
+					</div>
+
+					<div className="relative mt-16">
+						<div className="grid grid-cols-1 gap-px border border-border bg-border md:grid-cols-3">
+							{VALUES.map((value) => (
+								<div
+									className="flex flex-col gap-3 bg-bg p-8 sm:p-10"
+									key={value.title}
+								>
 									<h3 className="font-medium text-h3 text-primary-foreground">
 										{value.title}
 									</h3>
@@ -58,38 +130,63 @@ export default function AboutPage() {
 								</div>
 							))}
 						</div>
+
+						<GridMarkers cols={3} rows={1} />
 					</div>
 				</div>
 			</section>
 
-			<section className="relative w-full">
-				<div className="mx-auto w-full max-w-7xl px-6 pb-32">
-					<div className="flex flex-col items-start gap-6 rounded-[2rem] border border-border bg-page p-10 sm:p-16">
-						<p className="max-w-3xl text-balance font-medium text-display text-primary-foreground">
-							Your edge starts here.
+			<section
+				aria-labelledby="guarantees-heading"
+				className="relative w-full pb-24"
+			>
+				<div
+					aria-hidden="true"
+					className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(var(--gray-a3)_1px,transparent_1px)] [background-size:22px_22px]"
+				/>
+				<div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-12 px-6 pt-24 lg:grid-cols-3 lg:gap-16">
+					<div className="flex flex-col items-start gap-4 lg:sticky lg:top-24 lg:self-start">
+						<h2
+							className="text-balance font-medium text-h1 text-primary-foreground"
+							id="guarantees-heading"
+						>
+							How we build
+						</h2>
+						<p className="text-pretty text-body-sm text-secondary-foreground leading-relaxed">
+							Edge decides what partners get paid, so a wrong number is a real
+							dispute rather than a rounding error. These are the rules the
+							platform enforces, not the ones it intends to.
 						</p>
-						<div className="flex flex-wrap items-center gap-3">
-							<ButtonLink
-								className="rounded-full"
-								href={"/products" as Route}
-								size="xl"
-								variant="primary"
-							>
-								Explore the suite
-								<ArrowRight aria-hidden="true" />
-							</ButtonLink>
-							<ButtonLink
-								className="rounded-full"
-								href={"/partners" as Route}
-								size="xl"
-								variant="secondary"
-							>
-								Become a Partner
-							</ButtonLink>
-						</div>
+					</div>
+
+					<div className="relative lg:col-span-2">
+						<dl className="grid grid-cols-1 gap-px border border-border bg-border sm:grid-cols-2">
+							{GUARANTEES.map((guarantee) => (
+								<div
+									className="flex flex-col gap-2.5 bg-bg p-8"
+									key={guarantee.label}
+								>
+									<dt className="text-balance font-medium text-body text-primary-foreground">
+										{guarantee.label}
+									</dt>
+									<dd className="text-pretty text-body-sm text-secondary-foreground leading-relaxed">
+										{guarantee.description}
+									</dd>
+								</div>
+							))}
+						</dl>
+
+						<GridMarkers cols={2} rows={2} />
 					</div>
 				</div>
 			</section>
+
+			<MarketingCta
+				body="Explore the suite, or join the agencies and consultants earning recurring commission on every merchant they bring to Edge."
+				heading="Your edge starts here"
+				primary={{ href: "/products", label: "Explore the suite" }}
+				secondary={{ href: "/partners", label: "Become a partner" }}
+			/>
 		</>
 	);
 }

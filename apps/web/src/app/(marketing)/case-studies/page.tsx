@@ -59,45 +59,53 @@ export default function CaseStudiesPage() {
 				<div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-6 px-6 sm:grid-cols-2 lg:grid-cols-3">
 					{studies.map(([slug, study]) => (
 						<Link
-							className="group flex flex-col overflow-hidden rounded-[1.5rem] border border-border bg-page transition-colors hover:bg-bg"
+							className="group relative flex aspect-[4/5] flex-col justify-end overflow-hidden rounded-[1.5rem] border border-border bg-[linear-gradient(150deg,var(--gray-4),var(--gray-6))]"
 							href={`/case-studies/${slug}` as Route}
 							key={slug}
 						>
-							{/* Landscape image area, so wide storefront photography is not
-							    sliced through the middle by a portrait crop. */}
-							<div className="relative aspect-[16/10] overflow-hidden bg-[linear-gradient(150deg,var(--gray-4),var(--gray-6))]">
-								{study.banner ? (
-									<Image
-										alt={`${study.brand} storefront`}
-										className="object-cover transition-transform duration-500 group-hover:scale-105"
-										fill
-										sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 380px"
-										src={study.banner}
-									/>
-								) : null}
+							{study.banner ? (
+								<Image
+									alt={`${study.brand} storefront`}
+									className="object-cover transition-transform duration-500 group-hover:scale-105"
+									fill
+									sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 380px"
+									src={study.banner}
+								/>
+							) : null}
+
+							{/* Progressive blur. One masked `backdrop-blur` would give a
+							    constant blur that merely fades in, and the eye reads the
+							    point where it starts as an edge. Three layers — each
+							    shorter and blurrier than the one below it, each masked to
+							    fade out at its own top — make the radius itself ramp, which
+							    is what looks like depth rather than a frosted panel.
+							    The scrim on top is what actually buys the text its
+							    contrast; blur alone does not darken anything. */}
+							<div
+								aria-hidden="true"
+								className="pointer-events-none absolute inset-x-0 bottom-0 h-[62%]"
+							>
+								<div className="absolute inset-0 backdrop-blur-[2px] [mask-image:linear-gradient(to_bottom,transparent,black_45%)]" />
+								<div className="absolute inset-x-0 bottom-0 h-[72%] backdrop-blur-[6px] [mask-image:linear-gradient(to_bottom,transparent,black_45%)]" />
+								<div className="absolute inset-x-0 bottom-0 h-[44%] backdrop-blur-[14px] [mask-image:linear-gradient(to_bottom,transparent,black_45%)]" />
+								<div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/45 to-transparent" />
 							</div>
 
-							<div className="flex flex-1 flex-col gap-4 p-6">
-								<span className="font-medium font-mono text-label text-secondary-foreground uppercase tracking-[0.1em]">
+							{/* The brand set as text rather than `study.logo`: the wordmarks
+							    are dark-on-transparent and would disappear against this. */}
+							<div className="relative flex flex-col gap-2 p-6">
+								<span className="font-medium font-mono text-label text-white/65 uppercase tracking-[0.1em]">
 									{study.category}
 								</span>
-								{study.logo ? (
-									<Image
-										alt={study.brand}
-										className="h-9 w-auto object-contain object-left"
-										height={72}
-										src={study.logo}
-										width={220}
-									/>
-								) : (
-									<span className="font-medium text-h3 text-primary-foreground">
-										{study.brand}
-									</span>
-								)}
-								<p className="text-pretty text-body-sm text-secondary-foreground leading-relaxed">
-									{study.title ?? study.summary}
-								</p>
-								<div className="mt-auto flex flex-wrap gap-x-2 gap-y-1 border-border border-t pt-4">
+								<span className="font-medium text-h3 text-white">
+									{study.brand}
+								</span>
+								{(study.title ?? study.summary) ? (
+									<p className="line-clamp-2 text-pretty text-body-sm text-white/75 leading-relaxed">
+										{study.title ?? study.summary}
+									</p>
+								) : null}
+								<div className="mt-3 flex flex-wrap gap-x-2 gap-y-1 border-white/20 border-t pt-3">
 									{(study.results ?? []).slice(0, 3).map((result) => (
 										<span
 											className="font-medium font-mono text-[11px] text-brand uppercase tracking-[0.08em]"

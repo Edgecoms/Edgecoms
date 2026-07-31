@@ -110,7 +110,7 @@ export function WhyEdge() {
 												{friction.label}
 											</span>
 											{friction.note ? (
-												<span className="font-medium font-mono text-[10px] text-secondary-foreground uppercase tracking-[0.1em]">
+												<span className="font-medium text-[10px] text-secondary-foreground uppercase tracking-[0.1em]">
 													{friction.note}
 												</span>
 											) : null}

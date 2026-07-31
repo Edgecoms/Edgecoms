@@ -106,7 +106,7 @@ export function JourneyExplorer() {
 		<section aria-labelledby="journey-heading" className="w-full py-10">
 			<div className="mx-auto w-full max-w-7xl px-6">
 				<div className="mx-auto flex max-w-2xl flex-col items-center gap-4 text-center">
-					<p className="font-medium font-mono text-label text-secondary-foreground uppercase tracking-[0.14em]">
+					<p className="font-medium text-label text-secondary-foreground uppercase tracking-[0.14em]">
 						One visit, seven surfaces
 					</p>
 					<h2
@@ -149,7 +149,7 @@ export function JourneyExplorer() {
 									type="button"
 								>
 									<span
-										className={`font-medium font-mono text-[11px] uppercase tracking-[0.12em] transition-colors ${selected ? "text-brand" : "text-secondary-foreground"}`}
+										className={`font-medium text-[11px] uppercase tracking-[0.12em] transition-colors ${selected ? "text-brand" : "text-secondary-foreground"}`}
 									>
 										{entry.stage}
 									</span>
@@ -196,7 +196,7 @@ export function JourneyExplorer() {
 						<div className="mt-6 flex flex-wrap items-center justify-between gap-4">
 							<div className="flex flex-col gap-2">
 								{badge ? (
-									<span className="w-fit rounded-full bg-brand/12 px-2.5 py-1 font-medium font-mono text-[11px] text-brand uppercase tracking-[0.08em]">
+									<span className="w-fit rounded-full bg-brand/12 px-2.5 py-1 font-medium text-[11px] text-brand uppercase tracking-[0.08em]">
 										{badge.value}
 									</span>
 								) : null}

@@ -26,15 +26,12 @@ export function CaseStudies() {
 	return (
 		<section
 			aria-labelledby="case-studies-heading"
-			className="w-full pt-4 pb-20 sm:pt-6"
+			className="w-full pt-4 pb-10 sm:pt-6"
 		>
 			<div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-6 sm:flex-row sm:items-end sm:justify-between">
 				<div className="flex flex-col gap-3">
-					<p className="font-medium font-mono text-label text-secondary-foreground uppercase tracking-[0.14em]">
-						Proof
-					</p>
 					<h2
-						className="text-balance font-medium text-display text-primary-foreground"
+						className="text-balance font-medium text-h1 text-primary-foreground"
 						id="case-studies-heading"
 					>
 						Stores running Edge right now.

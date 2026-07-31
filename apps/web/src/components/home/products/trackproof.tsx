@@ -29,7 +29,7 @@ function Track({
 						<Check aria-hidden="true" className="size-2.5" strokeWidth={3} />
 					</span>
 				) : (
-					<span className="font-mono text-[9px] text-[var(--gray-9)] uppercase tracking-[0.1em]">
+					<span className="text-[9px] text-[var(--gray-9)] uppercase tracking-[0.1em]">
 						Gaps
 					</span>
 				)}
@@ -47,7 +47,7 @@ function Track({
 export default function TrackproofDiagram() {
 	return (
 		<Panel className="w-[248px] px-4 py-4">
-			<span className="font-medium font-mono text-[10px] text-[var(--gray-11)] uppercase tracking-[0.14em]">
+			<span className="font-medium text-[10px] text-[var(--gray-11)] uppercase tracking-[0.14em]">
 				Purchases reported
 			</span>
 

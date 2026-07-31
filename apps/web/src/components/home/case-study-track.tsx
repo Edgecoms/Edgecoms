@@ -26,7 +26,7 @@ function CardBody({ card }: { card: CaseStudyCard }) {
 				{card.banner ? (
 					<Image
 						alt={`${card.brand} storefront`}
-						className="object-cover transition-transform duration-500 group-hover:scale-105"
+						className="object-cover transition-transform duration-300 ease-[var(--ease-out-strong)] [@media(hover:hover)_and_(pointer:fine)]:group-hover:scale-[1.04]"
 						fill
 						sizes="(max-width: 640px) 80vw, 340px"
 						src={card.banner}
@@ -34,27 +34,39 @@ function CardBody({ card }: { card: CaseStudyCard }) {
 				) : null}
 			</div>
 
-			<div className="flex flex-1 flex-col gap-3 p-5">
-				<span className="font-medium font-mono text-label text-secondary-foreground uppercase tracking-[0.1em]">
+			{/* Three tiers, and the spacing is what says which is which. The
+			    category is metadata, so it sits hard against the brand it labels.
+			    The brand is the one thing the card is about. The metrics are the
+			    payoff, pushed to the bottom edge behind a rule so they read as a
+			    separate register rather than a third line of the same block.
+			    The uniform `gap-3` was the whole problem: even spacing tells the
+			    eye everything matters equally, which is the same as saying
+			    nothing does. */}
+			<div className="flex flex-1 flex-col p-5">
+				<span className="text-label text-secondary-foreground">
 					{card.category}
 				</span>
-				{card.logo ? (
-					<Image
-						alt={card.brand}
-						className="h-9 w-auto max-w-[70%] object-contain object-left"
-						height={72}
-						src={card.logo}
-						width={220}
-					/>
-				) : (
-					<span className="font-medium text-h3 text-primary-foreground">
-						{card.brand}
-					</span>
-				)}
-				<div className="mt-auto flex flex-wrap gap-x-2 gap-y-1 border-border border-t pt-3">
+
+				<div className="mt-1.5">
+					{card.logo ? (
+						<Image
+							alt={card.brand}
+							className="h-8 w-auto max-w-[70%] object-contain object-left"
+							height={72}
+							src={card.logo}
+							width={220}
+						/>
+					) : (
+						<span className="font-medium text-h3 text-primary-foreground">
+							{card.brand}
+						</span>
+					)}
+				</div>
+
+				<div className="mt-auto flex flex-wrap gap-x-2.5 gap-y-1 border-border border-t pt-3.5">
 					{metrics.slice(0, 3).map((metric) => (
 						<span
-							className="font-medium font-mono text-[11px] text-brand uppercase tracking-[0.08em]"
+							className="font-medium text-[11px] text-brand uppercase tracking-[0.08em]"
 							key={metric}
 						>
 							{metric}
@@ -66,8 +78,12 @@ function CardBody({ card }: { card: CaseStudyCard }) {
 	);
 }
 
+/* `transition-colors` named no properties worth animating and left the press
+   with no feedback at all. Naming transform explicitly and adding the scale
+   makes the card answer the finger; 150ms is inside the 100–160ms window a
+   press wants. Hover is gated so a tap on a phone does not latch it on. */
 const CARD_CLASS =
-	"group flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-border bg-page transition-colors hover:bg-bg";
+	"group flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-border bg-page transition-[transform,background-color,border-color] duration-150 ease-[var(--ease-out-strong)] active:scale-[0.985] motion-reduce:transition-none motion-reduce:active:scale-100 [@media(hover:hover)_and_(pointer:fine)]:hover:border-[var(--gray-7)] [@media(hover:hover)_and_(pointer:fine)]:hover:bg-bg";
 const ITEM_CLASS = "w-[78vw] shrink-0 sm:w-[340px]";
 
 function Card({ card }: { card: CaseStudyCard }) {

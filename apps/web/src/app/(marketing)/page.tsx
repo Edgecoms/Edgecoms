@@ -51,7 +51,11 @@ const HOME_FAQ: readonly AppFaq[] = [
 
 export default function HomePage() {
 	return (
-		<main className="flex flex-col">
+		/* The rhythm between sections lives here rather than in each section's own
+		   padding. Every section still owns its internal spacing, but the distance
+		   between any two of them is one number, so a section that sets its padding
+		   a notch light cannot collapse into the one below it. */
+		<main className="flex flex-col gap-y-8 sm:gap-y-14">
 			<HeroHome />
 			{/* The slot above the ticker — a merchant's numbers are stronger proof
 			    than a list of integrations. */}

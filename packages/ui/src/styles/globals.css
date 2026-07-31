@@ -105,6 +105,17 @@
 	--brand-solid: var(--brand);
 	--brand-solid-hover: color-mix(in oklab, var(--brand) 90%, black);
 	--brand-foreground: #fff;
+
+	/* Stronger than Tailwind's own `--ease-out` / `--ease-in-out`, which are
+	   gentle enough over 150ms to read as nearly linear. Deliberately NOT named
+	   `--ease-out`: that token already exists in Tailwind's theme, and
+	   redefining it here would silently restyle every `ease-out` utility in the
+	   app from one file. `-strong` for a press or an entrance, where the motion
+	   should land in the first frames; `-in-out-strong` for something already on
+	   screen moving from A to B. Nothing should use `ease-in` — starting slow
+	   reads as lag. */
+	--ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+	--ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
 }
 
 .dark {

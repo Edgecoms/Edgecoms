@@ -94,7 +94,7 @@ export function RpvEquation() {
 
 			<div className="mx-auto w-full max-w-7xl px-6">
 				<div className="mx-auto flex max-w-2xl flex-col items-center gap-4 text-center">
-					<p className="font-medium font-mono text-label text-secondary-foreground uppercase tracking-[0.14em]">
+					<p className="font-medium text-label text-secondary-foreground uppercase tracking-[0.14em]">
 						How a store actually grows
 					</p>
 					<h2
@@ -142,7 +142,7 @@ export function RpvEquation() {
 								className="flex flex-col gap-4 bg-bg p-8 sm:p-10"
 								key={lever.key}
 							>
-								<span className="w-fit rounded-full bg-brand/12 px-2.5 py-1 font-medium font-mono text-[11px] text-brand uppercase tracking-[0.1em]">
+								<span className="w-fit rounded-full bg-brand/12 px-2.5 py-1 font-medium text-[11px] text-brand uppercase tracking-[0.1em]">
 									{lever.label}
 								</span>
 								<h3 className="text-balance font-medium text-h3 text-primary-foreground">

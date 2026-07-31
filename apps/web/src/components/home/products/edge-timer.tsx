@@ -16,7 +16,7 @@ const TICKS = Array.from({ length: 24 }, (_, i) => i);
 export default function TimerDiagram() {
 	return (
 		<Panel className="w-[248px] px-4 py-4">
-			<span className="font-medium font-mono text-[10px] text-[var(--gray-11)] uppercase tracking-[0.14em]">
+			<span className="font-medium text-[10px] text-[var(--gray-11)] uppercase tracking-[0.14em]">
 				Sale ends in
 			</span>
 

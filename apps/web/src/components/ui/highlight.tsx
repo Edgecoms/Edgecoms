@@ -74,10 +74,17 @@ export function Highlight({ children }: { children: string }): ReactNode {
 		}
 
 		return (
-			/* `box-decoration-clone` so a term that wraps across two lines gets its
-			   own rounded background on each line rather than one ragged block. */
+			/* The fill is a rotated pseudo-element rather than the mark's own
+			   background, because a transform does nothing on a non-replaced inline
+			   box — tilting the mark itself would have to tilt the text with it.
+			   Square corners and the horizontal overhang are what read as a swipe of
+			   tape rather than a rounded UI chip.
+
+			   `inline-block` is the cost: a multi-word term now moves to the next
+			   line whole instead of wrapping mid-phrase. On headlines that is the
+			   better break anyway, and the terms are three words at most. */
 			<mark
-				className="rounded-[0.2em] bg-brand/20 px-[0.12em] text-inherit [box-decoration-break:clone]"
+				className="relative isolate inline-block bg-transparent text-inherit before:absolute before:inset-x-[-0.15em] before:inset-y-[0.05em] before:-z-10 before:-rotate-[1.5deg] before:bg-brand/20 before:content-['']"
 				key={key}
 			>
 				{part}

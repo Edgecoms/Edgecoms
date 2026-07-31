@@ -26,15 +26,22 @@ export default function Header() {
 			    horizontal overflow it used to have. Products and Case studies are
 			    both one tap away in the footer until there is a drawer. */}
 			<div className="mx-auto flex h-(--header-height) w-full items-center">
-				<div className="mx-auto flex w-full items-center justify-between gap-4 px-5 sm:max-w-7xl sm:px-6">
-					<Link className="flex shrink-0 items-center gap-2.5" href={"/"}>
+				{/* Three columns rather than `justify-between`: the outer two are equal
+				    fractions, so the auto-width nav in the middle sits on the container's
+				    true centre. Under `justify-between` it centred in the leftover space
+				    instead, which the wider button cluster pulled off to the left. */}
+				<div className="mx-auto grid w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-4 px-5 sm:max-w-7xl sm:px-6">
+					<Link
+						className="flex shrink-0 items-center gap-2.5 justify-self-start"
+						href={"/"}
+					>
 						<Logo height={24} width={"auto"} />
 						<span className="font-semibold text-h3 tracking-tight">
 							Edgecoms
 						</span>
 					</Link>
 
-					<nav className="hidden items-center gap-1 md:flex">
+					<nav className="hidden items-center gap-1 justify-self-center md:flex">
 						{links.map(({ to, label }) => (
 							<ButtonLink
 								className="px-3 font-medium text-[15px] text-secondary-foreground hover:text-foreground"
@@ -48,9 +55,9 @@ export default function Header() {
 						))}
 					</nav>
 
-					<div className="flex shrink-0 items-center gap-2">
+					<div className="flex shrink-0 items-center gap-2 justify-self-end">
 						<ButtonLink
-							className="h-10 rounded-full px-5 font-medium text-[15px]"
+							className="rounded-full px-4 font-medium text-sm"
 							href={BOOKING_URL as Route}
 							rel="noopener"
 							size="xl"
@@ -61,7 +68,7 @@ export default function Header() {
 							<span className="hidden sm:inline">{BOOKING_LABEL}</span>
 						</ButtonLink>
 						<ButtonLink
-							className="hidden h-10 rounded-full px-5 font-medium text-[15px] sm:inline-flex"
+							className="hidden rounded-full px-4 font-medium text-sm sm:inline-flex"
 							href={"/login" as Route}
 							size="xl"
 							variant="secondary"

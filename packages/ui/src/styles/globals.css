@@ -95,16 +95,15 @@
 	--surface-item-foreground: var(--black-a8);
 	--surface-item-foreground-active: var(--black-a11);
 
-	/* Edge brand orange. --brand is the identity colour, for accents and large
-	   display type. --brand-solid is the tuned fill for interactive surfaces:
-	   white on raw #ff5e1f is only 3.06:1, which fails WCAG AA for button-sized
-	   text, so solid surfaces darken to reach 4.55:1. Both derive from the one
-	   hex via color-mix, so changing --brand updates the whole ramp.
-	   Foreground is pure white, not --white-a12 — a translucent white would
-	   blend with the fill underneath and cut contrast back down. */
+	/* Edge brand orange, used raw everywhere including solid fills. Hover
+	   derives from the one hex via color-mix, so changing --brand updates the
+	   whole ramp. Foreground is pure white, not --white-a12 — a translucent
+	   white would blend with the fill underneath and cut contrast down.
+	   Note: white on #ff5e1f is 3.06:1 — AA for large text only, not the 4.5:1
+	   normal-text threshold. Brand match chosen over the darkened fill. */
 	--brand: #ff5e1f;
-	--brand-solid: color-mix(in oklab, var(--brand) 85%, black);
-	--brand-solid-hover: color-mix(in oklab, var(--brand) 75%, black);
+	--brand-solid: var(--brand);
+	--brand-solid-hover: color-mix(in oklab, var(--brand) 90%, black);
 	--brand-foreground: #fff;
 }
 
@@ -236,10 +235,13 @@
 		-webkit-app-region: no-drag;
 	}
 
+	/* The Highlight component's marker, a shade lighter. Selection is transient
+	   and can land on a whole paragraph, so it sits under the 20% the highlight
+	   uses on individual words rather than competing with it. */
 	::selection,
 	::-moz-selection {
 		color: var(--gray-12);
-		background: var(--gray-a6);
+		background: color-mix(in oklab, var(--brand) 15%, transparent);
 	}
 
 	:focus:not(:focus-visible) {

@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
+import { PanelTexture } from "@/components/home/panel-texture";
 
 /* Decorative floating tiles echoing the scattered arrangement in the reference.
    One per app in the suite. The copy column is a fixed 42rem, so on a 7xl panel
@@ -64,12 +65,7 @@ export function CtaHome() {
 	return (
 		<section aria-labelledby="cta-heading" className="w-full px-6 pb-24">
 			<div className="relative isolate mx-auto w-full max-w-7xl overflow-hidden rounded-[2rem] bg-brand">
-				{/* Fine woven mesh — two 1px gratings at 4px pitch, which reads as
-				    texture rather than as visible dots. */}
-				<div
-					aria-hidden="true"
-					className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.07)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:4px_4px]"
-				/>
+				<PanelTexture />
 				{/* Warm glow: a bright narrow core anchored just past the bottom edge,
 				    plus a wider soft halo. Stops at bottom-14 — the exact height of
 				    the rail below — so the glow rises off the rail rather than

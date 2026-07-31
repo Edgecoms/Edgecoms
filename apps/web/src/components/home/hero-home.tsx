@@ -1,6 +1,7 @@
 import { ButtonLink } from "@edgecoms/ui/components/button";
 import type { Route } from "next";
 import Link from "next/link";
+import { PanelTexture } from "@/components/home/panel-texture";
 
 export function HeroHome() {
 	return (
@@ -9,12 +10,7 @@ export function HeroHome() {
 			    still frames it and the corners can round. Height tracks the
 			    viewport minus the sticky header and this wrapper's own padding. */}
 			<div className="relative isolate flex min-h-[calc(100svh-var(--header-height)-0.75rem)] w-full items-center justify-center overflow-hidden rounded-[2rem] bg-brand">
-				{/* Fine woven mesh — two 1px gratings at 4px pitch, which reads as
-				    texture rather than as visible dots. */}
-				<div
-					aria-hidden="true"
-					className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.07)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:4px_4px]"
-				/>
+				<PanelTexture />
 				{/* Warm glow: a bright narrow core anchored just past the bottom edge,
 				    plus a wider soft halo. */}
 				<div

@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import { Check, ReceiptText, Shapes, Share2 } from "lucide-react";
 import { GridMarkers } from "@/components/home/grid-markers";
+import { PanelTexture } from "@/components/home/panel-texture";
 
 /* Left panel: what running six point solutions actually feels like. Positions
    are lg-only — below that the cards fall back to a normal wrapped flow, since
@@ -118,12 +119,7 @@ export function WhyEdge() {
 
 					{/* after */}
 					<div className="relative isolate flex min-h-[420px] flex-col items-center justify-center gap-8 overflow-hidden bg-brand p-8 sm:p-10 lg:min-h-[560px]">
-						{/* Fine woven mesh — two 1px gratings at 4px pitch, which reads as
-						    texture rather than as visible dots. */}
-						<div
-							aria-hidden="true"
-							className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.07)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:4px_4px]"
-						/>
+						<PanelTexture />
 						<div
 							aria-hidden="true"
 							className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-[radial-gradient(ellipse_40%_80%_at_50%_112%,rgba(255,232,178,0.9),transparent_70%)]"

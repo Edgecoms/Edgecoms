@@ -2,7 +2,7 @@ import type { Route } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { GridMarkers } from "@/components/home/grid-markers";
-import BundlesDiagramFull from "@/components/home/products/edge-bundles";
+import BundlesDiagram from "@/components/home/products/edge-bundles";
 import CartDiagram from "@/components/home/products/edge-cart";
 import CurrencyDiagram from "@/components/home/products/edge-currency";
 import ReviewsDiagram from "@/components/home/products/edge-reviews";
@@ -10,27 +10,8 @@ import SubscriptionsDiagram from "@/components/home/products/edge-subscriptions"
 import TimerDiagram from "@/components/home/products/edge-timer";
 import { EDGE_PRODUCTS } from "@/lib/products";
 
-/* The bundles diagram is drawn at a fixed 615×665 and is the only one that
-   needs scaling down to sit in a cell. Wrapper reserves the scaled box so it
-   does not overlap the copy underneath. */
-const BUNDLES_SCALE = 0.3;
-
-function BundlesDiagram() {
-	return (
-		<div
-			className="relative shrink-0"
-			style={{ width: 615 * BUNDLES_SCALE, height: 665 * BUNDLES_SCALE }}
-		>
-			<div
-				className="absolute top-0 left-0 origin-top-left"
-				style={{ transform: `scale(${BUNDLES_SCALE})` }}
-			>
-				<BundlesDiagramFull />
-			</div>
-		</div>
-	);
-}
-
+/* All six illustrations are drawn at card scale, so none of them needs a
+   transform to fit — they go straight into the visual band. */
 const DIAGRAMS: Record<string, ReactNode> = {
 	"edge-bundles": <BundlesDiagram />,
 	"edge-cart": <CartDiagram />,

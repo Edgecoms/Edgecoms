@@ -1,4 +1,4 @@
-import BundleFlowDiagram from "@/components/home/products/edge-bundles";
+import BundlesDiagram from "@/components/home/products/edge-bundles";
 import CartDiagram from "@/components/home/products/edge-cart";
 import CurrencyDiagram from "@/components/home/products/edge-currency";
 import ReviewsDiagram from "@/components/home/products/edge-reviews";
@@ -6,23 +6,9 @@ import SubscriptionsDiagram from "@/components/home/products/edge-subscriptions"
 import TimerDiagram from "@/components/home/products/edge-timer";
 import { ProductCard } from "@/components/home/products/product-card";
 
-const BUNDLES_SCALE = 0.34;
-
-function BundlesDiagram() {
-	return (
-		<div
-			className="relative shrink-0"
-			style={{ width: 615 * BUNDLES_SCALE, height: 665 * BUNDLES_SCALE }}
-		>
-			<div
-				className="absolute top-0 left-0 origin-top-left"
-				style={{ transform: `scale(${BUNDLES_SCALE})` }}
-			>
-				<BundleFlowDiagram />
-			</div>
-		</div>
-	);
-}
+/* The archived page shares the live illustrations, so it picked up the redesign
+   along with them. The old 615×665 bundles drawing it used to scale down is
+   gone; every illustration is now card-sized and needs no transform. */
 
 export function ProductsHome() {
 	return (

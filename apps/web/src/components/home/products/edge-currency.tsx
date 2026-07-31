@@ -1,84 +1,72 @@
-import { ArrowLeftRight } from "lucide-react";
+import { Globe } from "lucide-react";
+import { CONNECTOR, Focal, Panel } from "./parts";
 
-interface CurrencyPill {
-	amount: string;
-	code: string;
-	position: string;
-}
-
-const PILLS: CurrencyPill[] = [
-	{ code: "USD", amount: "$129.00", position: "top-0 left-0" },
-	{ code: "EUR", amount: "€119.00", position: "top-0 right-0" },
-	{ code: "GBP", amount: "£99.00", position: "bottom-0 left-2" },
-	{ code: "AUD", amount: "$199.00", position: "right-2 bottom-0" },
+/* Satellite prices, positioned against the 248×176 stage below. Each `at` pins
+   a corner; the matching connector in the SVG runs from that corner to the
+   centre node at (124, 88). Move one, move the other. */
+const MARKETS = [
+	{ amount: "$129.00", at: "top-0 left-0", code: "USD", d: "M40 26 L108 78" },
+	{ amount: "£99.00", at: "top-0 right-0", code: "GBP", d: "M208 26 L140 78" },
+	{
+		amount: "$199.00",
+		at: "bottom-0 left-2",
+		code: "AUD",
+		d: "M48 150 L108 98",
+	},
+	{
+		amount: "¥18,900",
+		at: "right-2 bottom-0",
+		code: "JPY",
+		d: "M200 150 L140 98",
+	},
 ];
 
 export default function CurrencyDiagram() {
 	return (
-		<div className="relative grid h-[210px] w-full max-w-[260px] place-items-center">
-			{/* dotted map backdrop */}
-			<svg
-				aria-hidden="true"
-				className="absolute inset-0 h-full w-full opacity-70"
-				viewBox="0 0 260 210"
-			>
-				<defs>
-					<pattern
-						height="9"
-						id="map-dots"
-						patternUnits="userSpaceOnUse"
-						width="9"
-					>
-						<circle cx="1.5" cy="1.5" fill="#D9D9DE" r="1.1" />
-					</pattern>
-					<ellipse cx="130" cy="105" id="map-shape" rx="118" ry="74" />
-					<clipPath id="map-clip">
-						<use href="#map-shape" />
-					</clipPath>
-				</defs>
-				<rect
-					clipPath="url(#map-clip)"
-					fill="url(#map-dots)"
-					height="210"
-					width="260"
-				/>
-			</svg>
-
-			{/* connectors */}
+		<div className="relative h-[176px] w-[248px]">
 			<svg
 				aria-hidden="true"
 				className="absolute inset-0 h-full w-full"
-				viewBox="0 0 260 210"
+				fill="none"
+				viewBox="0 0 248 176"
 			>
 				<g
-					fill="none"
-					stroke="#D4D4D8"
+					stroke={CONNECTOR}
 					strokeDasharray="4 4"
 					strokeLinecap="round"
-					strokeWidth="1.3"
+					strokeWidth="1.25"
 				>
-					<path d="M130 105 C 95 80, 70 55, 48 38" />
-					<path d="M130 105 C 165 80, 190 55, 212 38" />
-					<path d="M130 105 C 95 130, 70 155, 50 172" />
-					<path d="M130 105 C 165 130, 190 155, 210 172" />
+					{MARKETS.map((market) => (
+						<path d={market.d} key={market.code} />
+					))}
 				</g>
 			</svg>
 
-			{/* center swap node */}
-			<div className="z-10 grid size-12 place-items-center rounded-full border border-[#EDEDED] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.08)]">
-				<ArrowLeftRight aria-hidden="true" className="size-5 text-[#1c1c1e]" />
-			</div>
+			{/* Centre node — the shopper's own currency, resolved. */}
+			<Panel className="absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-2.5 px-3 py-2.5">
+				<Focal className="size-9">
+					<Globe aria-hidden="true" className="size-4.5" strokeWidth={1.6} />
+				</Focal>
+				<div className="flex flex-col">
+					<span className="font-semibold text-[13px] text-[var(--gray-12)] tabular-nums">
+						€119.00
+					</span>
+					<span className="text-[10px] text-[var(--gray-11)]">
+						Detected · EUR
+					</span>
+				</div>
+			</Panel>
 
-			{PILLS.map((pill) => (
+			{MARKETS.map((market) => (
 				<div
-					className={`absolute ${pill.position} z-10 rounded-xl border border-[#EDEDED] bg-white px-3 py-2 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_6px_16px_rgba(0,0,0,0.035)]`}
-					key={pill.code}
+					className={`absolute ${market.at} rounded-xl border border-border bg-page px-2.5 py-1.5 shadow-[0_1px_2px_var(--gray-a3),0_6px_14px_var(--gray-a4)]`}
+					key={market.code}
 				>
-					<div className="font-semibold text-[#1c1c1e] text-[12px]">
-						{pill.code}
+					<div className="font-semibold text-[11px] text-[var(--gray-12)]">
+						{market.code}
 					</div>
-					<div className="text-[#8a8a8e] text-[11px] tabular-nums">
-						{pill.amount}
+					<div className="text-[10px] text-[var(--gray-11)] tabular-nums">
+						{market.amount}
 					</div>
 				</div>
 			))}

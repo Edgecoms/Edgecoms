@@ -53,9 +53,8 @@ export default function HomePage() {
 	return (
 		<main className="flex flex-col">
 			<HeroHome />
-			{/* Renders nothing until a case study is marked `published`. When one
-			    is, it takes the slot above the ticker — a merchant's numbers are
-			    stronger proof than a list of integrations. */}
+			{/* The slot above the ticker — a merchant's numbers are stronger proof
+			    than a list of integrations. */}
 			<CaseStudies />
 			<LogoTicker />
 			<RpvEquation />

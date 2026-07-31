@@ -6,11 +6,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MarketingCta } from "@/components/marketing/marketing-cta";
 import { BOOKING_LABEL, BOOKING_URL } from "@/lib/booking";
-import {
-	CASE_STUDIES,
-	type CaseStudy,
-	isCaseStudyVisible,
-} from "@/lib/marketing-stats";
+import { CASE_STUDIES, type CaseStudy } from "@/lib/marketing-stats";
 
 interface CaseStudyPageProps {
 	params: Promise<{ slug: string }>;
@@ -117,7 +113,7 @@ function Narrative({
 
 function Related({ current }: { current: string }) {
 	const others = Object.entries(CASE_STUDIES)
-		.filter(([slug, study]) => slug !== current && isCaseStudyVisible(study))
+		.filter(([slug]) => slug !== current)
 		.slice(0, 3);
 
 	if (others.length === 0) {
@@ -166,7 +162,7 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
 	const { slug } = await params;
 	const study = CASE_STUDIES[slug];
 
-	if (!(study && isCaseStudyVisible(study))) {
+	if (!study) {
 		notFound();
 	}
 

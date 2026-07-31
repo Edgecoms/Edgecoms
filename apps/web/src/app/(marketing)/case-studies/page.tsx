@@ -4,7 +4,7 @@ import Link from "next/link";
 import { MarketingCta } from "@/components/marketing/marketing-cta";
 import { Highlight } from "@/components/ui/highlight";
 import { BOOKING_LABEL, BOOKING_URL } from "@/lib/booking";
-import { CASE_STUDIES, isCaseStudyVisible } from "@/lib/marketing-stats";
+import { CASE_STUDIES } from "@/lib/marketing-stats";
 
 export const metadata: Metadata = {
 	title: "Case studies · Edge",
@@ -18,9 +18,7 @@ export const metadata: Metadata = {
  * before they read a word of it.
  */
 export default function CaseStudiesPage() {
-	const studies = Object.entries(CASE_STUDIES).filter(([, study]) =>
-		isCaseStudyVisible(study)
-	);
+	const studies = Object.entries(CASE_STUDIES);
 
 	return (
 		<main className="flex flex-col">

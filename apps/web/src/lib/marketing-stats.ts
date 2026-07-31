@@ -126,12 +126,6 @@ export interface CaseStudy {
 	logo?: string;
 	overview?: string;
 	/**
-	 * True once the figures below are real and the merchant has agreed to be
-	 * named. A published study renders everywhere. An unpublished one renders
-	 * only where placeholders are allowed — see `SHOW_PLACEHOLDER_PROOF`.
-	 */
-	published: boolean;
-	/**
 	 * Measured outcomes. Optional on purpose: a card can ship with the merchant
 	 * and their stack while the numbers are still being collected. Three at most,
 	 * because a result band with six figures reads as noise.
@@ -145,27 +139,6 @@ export interface CaseStudy {
 	title?: string;
 	/** Their storefront. Used to verify the claim and to link the card. */
 	url?: string;
-}
-
-/**
- * Whether unpublished case studies are shown.
- *
- * On in development, so the proof layout can be built and reviewed against
- * realistic content. Off in production builds, so an invented merchant result
- * cannot reach the live site by way of somebody forgetting a boolean.
- *
- * Set `NEXT_PUBLIC_SHOW_PLACEHOLDER_PROOF=true` to force it on somewhere else —
- * a preview deploy you want to show someone, for instance. Anywhere it is on,
- * unpublished cards carry a visible "Placeholder" badge, so a screenshot of a
- * preview can never be mistaken for a screenshot of the real thing.
- */
-export const SHOW_PLACEHOLDER_PROOF =
-	process.env.NEXT_PUBLIC_SHOW_PLACEHOLDER_PROOF === "true" ||
-	process.env.NODE_ENV === "development";
-
-/** Should this study render here at all? */
-export function isCaseStudyVisible(study: CaseStudy): boolean {
-	return study.published || SHOW_PLACEHOLDER_PROOF;
 }
 
 /**
@@ -219,7 +192,6 @@ export const CASE_STUDIES: Readonly<Record<string, CaseStudy>> = {
 				value: "ROAS",
 			},
 		],
-		published: false,
 		url: "https://shopaurient.com",
 	},
 	vyssence: {
@@ -262,7 +234,6 @@ export const CASE_STUDIES: Readonly<Record<string, CaseStudy>> = {
 				value: "CVR",
 			},
 		],
-		published: false,
 		url: "https://vyssence.com",
 	},
 	klyrolight: {
@@ -298,7 +269,6 @@ export const CASE_STUDIES: Readonly<Record<string, CaseStudy>> = {
 				value: "Trust",
 			},
 		],
-		published: false,
 		url: "https://klyrolight.com",
 	},
 	celorah: {
@@ -333,7 +303,6 @@ export const CASE_STUDIES: Readonly<Record<string, CaseStudy>> = {
 				value: "Returns",
 			},
 		],
-		published: false,
 		url: "https://www.celorahshop.com",
 	},
 	jpetcentral: {
@@ -368,7 +337,6 @@ export const CASE_STUDIES: Readonly<Record<string, CaseStudy>> = {
 				value: "AOV",
 			},
 		],
-		published: false,
 		url: "https://jpetcentral.com",
 	},
 	matataxplore: {
@@ -403,7 +371,6 @@ export const CASE_STUDIES: Readonly<Record<string, CaseStudy>> = {
 				value: "AOV",
 			},
 		],
-		published: false,
 		url: "https://www.matataxplore.com",
 	},
 };

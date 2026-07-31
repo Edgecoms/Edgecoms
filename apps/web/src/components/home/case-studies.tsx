@@ -4,27 +4,20 @@ import {
 	type CaseStudyCard,
 	CaseStudyTrack,
 } from "@/components/home/case-study-track";
-import { CASE_STUDIES, isCaseStudyVisible } from "@/lib/marketing-stats";
+import { CASE_STUDIES } from "@/lib/marketing-stats";
 
 /**
  * The proof row: one card per merchant, each carrying the single number that
  * moved. Selection happens here on the server; the scrolling track is the only
  * part that has to be a client component.
- *
- * Unpublished studies render in development and are excluded from production
- * builds — see `SHOW_PLACEHOLDER_PROOF` in `marketing-stats.ts`.
  */
 
-/* Keyed by merchant now, not by app: a store runs several Edge apps, so one
-   card per merchant is the honest unit. */
-function visibleCards(): CaseStudyCard[] {
-	return Object.entries(CASE_STUDIES).flatMap(([key, study]) =>
-		isCaseStudyVisible(study) ? [{ ...study, slug: key }] : []
-	);
-}
-
 export function CaseStudies() {
-	const cards = visibleCards();
+	/* Keyed by merchant, not by app: a store runs several Edge apps, so one card
+	   per merchant is the honest unit. */
+	const cards: CaseStudyCard[] = Object.entries(CASE_STUDIES).map(
+		([key, study]) => ({ ...study, slug: key })
+	);
 
 	if (cards.length === 0) {
 		return null;

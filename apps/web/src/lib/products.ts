@@ -40,13 +40,6 @@ export interface AppFeature {
 	 * screenshots exist.
 	 */
 	image?: string;
-	/**
-	 * True when `image` is a stand-in rather than a shot of our own app. Comps
-	 * render in development and are dropped from production builds — the same
-	 * gate `screenshotIsComp` uses — so the intent to replace them is enforced
-	 * by the build rather than remembered.
-	 */
-	imageIsComp?: boolean;
 	/** The metric the block moves. Rendered as the eyebrow. */
 	metric: string;
 	title: string;
@@ -136,15 +129,6 @@ export interface EdgeProduct {
 	 * the Trackproof health score with live events.
 	 */
 	screenshot?: string;
-	/**
-	 * True when `screenshot` is a stand-in rather than a shot of our own app —
-	 * a comp pulled from elsewhere to judge the layout against.
-	 *
-	 * Comps render in development and are excluded from production builds, the
-	 * same gate the placeholder case studies use. That way the intent to replace
-	 * them is enforced by the build rather than remembered.
-	 */
-	screenshotIsComp?: boolean;
 	slug: string;
 	/** The H1 on the app page. Names the metric or the loss. */
 	tagline: string;
@@ -162,7 +146,6 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 		metric: "AOV",
 		appStoreUrl: "https://apps.shopify.com/edge-bundles",
 		screenshot: "/app-shots/edge-bundles.avif",
-		screenshotIsComp: true,
 		eyebrow: "Bundles, volume tiers & frequently-bought-together",
 		tagline: "Raise AOV without touching ad spend.",
 		heroLead:
@@ -194,21 +177,18 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 				metric: "Average order value",
 				title: "Buy two, get one free, with no discount code anywhere",
 				image: "/app-shots/bundles-tiers.avif",
-				imageIsComp: true,
 				body: "Volume tiers and buy-one-get-one offers, with an extra percentage stacked on the bigger packs so the saving visibly grows as the shopper moves up the list. They are not reading about a deal, they are watching one get better, and the next tier is always close enough to be worth reaching for.",
 			},
 			{
 				metric: "Every number above",
 				title: "The offer reports on itself",
 				image: "/app-shots/bundles-analytics.avif",
-				imageIsComp: true,
 				body: "Views, adds to cart, revenue and conversion rate sit on the bundle's own page with a trend line beside each one, not buried in a separate analytics area you have to go and find. When an offer is underperforming, you open it and the reason is already on screen.",
 			},
 			{
 				metric: "Conversion rate",
 				title: "See it on a real product before anyone else does",
 				image: "/app-shots/bundles-builder.avif",
-				imageIsComp: true,
 				body: "The live preview renders your offer against any reference product from your own catalog, in desktop and mobile, and it inherits your theme as it goes. Save it as a draft, look at it on the thing you are actually selling, publish when it is right.",
 			},
 			{
@@ -220,14 +200,12 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 				metric: "AOV · urgency",
 				title: "A countdown built into the offer itself",
 				image: "/app-shots/bundles-gift.avif",
-				imageIsComp: true,
 				body: "The timer belongs to the bundle rather than sitting in a banner somewhere else on the site. It expires with the deal it is attached to, so there is never a clock promising a price the cart will refuse to honour.",
 			},
 			{
 				metric: "Lifetime value",
 				title: "Turn the biggest pack into a subscription",
 				image: "/app-shots/bundles-subscription.avif",
-				imageIsComp: true,
 				body: "An automatic-refill option sits inside the bundle, so the shopper who has just chosen the best-value pack can also choose to have it arrive every month. Somebody buying three of something is the easiest subscriber you will ever get, and this is the one moment they are thinking about it.",
 			},
 		],
@@ -304,7 +282,6 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 		metric: "RPV",
 		appStoreUrl: "https://apps.shopify.com/edgecart",
 		screenshot: "/app-shots/cart-drawer.webp",
-		screenshotIsComp: true,
 		eyebrow: "Slide cart & cart upsells",
 		tagline: "The highest-intent moment in your funnel is doing nothing.",
 		heroLead:
@@ -336,35 +313,30 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 				metric: "Conversion rate",
 				title: "Keep them in the store, not on a cart page",
 				image: "/app-shots/cart-customization.webp",
-				imageIsComp: true,
 				body: "A cart page costs you a page load and gives the shopper a fresh chance to leave. The drawer opens over the product they were just looking at, so reviewing the order never means navigating away from it.",
 			},
 			{
 				metric: "AOV · attach rate",
 				title: "Offer by rule, not by guess",
 				image: "/app-shots/cart-drafts.webp",
-				imageIsComp: true,
 				body: "A forty-dollar cart and a two-hundred-dollar cart should not see the same add-on. Rules pick the offer from what is actually in the cart: its contents, its value, the collection, the country. The suggestion is one this particular shopper might plausibly want.",
 			},
 			{
 				metric: "Average order value",
 				title: "A progress bar that moves while they watch",
 				image: "/app-shots/cart-shipping.webp",
-				imageIsComp: true,
 				body: "Free-shipping progress fills in real time and shows exactly what is left to qualify. It is the oldest average-order-value lever in ecommerce and it still works, because it turns a threshold into something the shopper wants to finish.",
 			},
 			{
 				metric: "AOV · margin",
 				title: "One-tap add-ons at the margin you want",
 				image: "/app-shots/cart-addons.webp",
-				imageIsComp: true,
 				body: "Warranty, gift wrap and express shipping are accepted inside the drawer without restarting checkout. High margin, almost no friction, and never an extra screen between the shopper and paying you.",
 			},
 			{
 				metric: "Conversion rate",
 				title: "Answer the doubt where the doubt happens",
 				image: "/app-shots/cart-payments.png",
-				imageIsComp: true,
 				body: "Payment icons, the returns policy and your guarantee sit in the drawer at the moment of commitment, not three scrolls up a page the shopper has already scrolled past.",
 			},
 			{
@@ -441,7 +413,6 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 		metric: "CVR",
 		appStoreUrl: "https://apps.shopify.com/urgency-timer",
 		screenshot: "/app-shots/timer-storefront.webp",
-		screenshotIsComp: true,
 		eyebrow: "Countdown timers & urgency",
 		tagline: "Give them a deadline. Watch CVR move.",
 		heroLead:
@@ -470,7 +441,6 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 				title: "Put a real deadline wherever the decision happens",
 				body: "Product pages, cart, announcement bar and collection pages, from one app and one dashboard. Urgency belongs at the moment someone is deciding, not only on the page you happened to install it on first.",
 				image: "/app-shots/timer-templates.webp",
-				imageIsComp: true,
 			},
 			{
 				metric: "Conversion rate",
@@ -487,7 +457,6 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 				title: "It shouldn't look like something you installed",
 				body: "Start from a named template, then take it apart: solid or gradient background with an angle you set, corner radius, border weight and colour, your own fonts. The preview updates as you go, so you never publish something you have not already looked at.",
 				image: "/app-shots/timer-design.webp",
-				imageIsComp: true,
 			},
 			{
 				metric: "Risk",
@@ -607,28 +576,24 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 				title: "Collect the format that actually convinces",
 				body: "Photo and video reviews, uploaded in one tap from the phone the customer is already holding, each marked verified so nobody has to wonder. A thirty-second clip of your product in somebody's real kitchen does work that no product description you write will ever do.",
 				image: "/app-shots/reviews-widget.avif",
-				imageIsComp: true,
 			},
 			{
 				metric: "Conversion rate",
 				title: "One set of reviews, several shapes",
 				body: "The same reviews render as a wall of customer photos, a compact carousel under the buy button, or a full widget with the aggregate score on top. A landing page and a product page want different things from the same proof, and you should not have to collect it twice.",
 				image: "/app-shots/reviews-layouts.avif",
-				imageIsComp: true,
 			},
 			{
 				metric: "CVR · average order value",
 				title: "Put the proof where the doubt is",
 				body: "Reviews go on the product page, the collection cards, the cart drawer and the post-purchase page. The same review does a different job in each spot. On a collection card it earns the click; in the cart it stops the second thoughts.",
 				image: "/app-shots/reviews-spotlight.avif",
-				imageIsComp: true,
 			},
 			{
 				metric: "Reviews collected",
 				title: "A form people actually finish",
 				body: "Stars first, because tapping five of them costs nothing and commits the customer to finishing. Then the review itself, then an optional title. Every field you add before the star rating is a review you do not get.",
 				image: "/app-shots/reviews-form.avif",
-				imageIsComp: true,
 			},
 			{
 				metric: "Trust · conversion rate",
@@ -823,7 +788,6 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 		metric: "LTV",
 		appStoreUrl: "https://apps.shopify.com/edge-subscription",
 		screenshot: "/app-shots/edge-subscriptions.avif",
-		screenshotIsComp: true,
 		eyebrow: "Subscriptions & subscribe-and-save",
 		tagline: "Turn one sale into twelve.",
 		heroLead:
@@ -856,35 +820,30 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 				title: "Sell the subscription at the moment they are already buying",
 				body: "A product-page option that sits beside the one-time price and the bundle, not on a separate page and not in an email a week later. The shopper comparing a single, a two-pack and a subscription picks the subscription surprisingly often, because you asked while they were already deciding.",
 				image: "/app-shots/subs-bundle.avif",
-				imageIsComp: true,
 			},
 			{
 				metric: "LTV · churn",
 				title: "Make the discount grow the longer they stay",
 				body: "Set a subscription discount, then change it after a set number of orders, and do the same with delivery: free shipping from order two onward if you want it. A subscriber at order four is deciding whether to keep going, and a discount that improves is a reason not to go looking.",
 				image: "/app-shots/subs-plans.avif",
-				imageIsComp: true,
 			},
 			{
 				metric: "Churn",
 				title: "Let them swap and skip instead of cancelling",
 				body: "The portal lets a customer swap the product, skip a delivery, reschedule it, change the address and update the card, all without emailing you. Most cancellations are really \u201cnot this month\u201d or \u201cnot this flavour\u201d, and both of those have a button.",
 				image: "/app-shots/subs-portal.avif",
-				imageIsComp: true,
 			},
 			{
 				metric: "Recurring revenue",
 				title: "Every future charge, visible and movable",
 				body: "The billing schedule lists every delivery that has happened and every one still to come, and you can reschedule any of them, skip one, or charge it now. When a customer asks to shift a delivery a week, it is one click rather than a conversation.",
 				image: "/app-shots/subs-schedule.webp",
-				imageIsComp: true,
 			},
 			{
 				metric: "Lifetime value",
 				title: "Watch the base grow, and watch what leaves it",
 				body: "Active subscriptions over time, new subscriptions per day, and cancellations and pauses charted next to them. Growth on its own is flattering; growth beside churn is the number that tells you whether the base is actually compounding.",
 				image: "/app-shots/subs-analytics.png",
-				imageIsComp: true,
 			},
 			{
 				metric: "Ops time",

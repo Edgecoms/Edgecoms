@@ -7,10 +7,7 @@ import { useId, useRef, useState } from "react";
 import { DIAGRAMS } from "@/components/home/products/diagrams";
 import { AppIcon } from "@/components/ui/app-icon";
 import { Highlight } from "@/components/ui/highlight";
-import {
-	APP_RESULT_BADGES,
-	SHOW_PLACEHOLDER_PROOF,
-} from "@/lib/marketing-stats";
+import { APP_RESULT_BADGES } from "@/lib/marketing-stats";
 import { type EdgeProduct, getProduct, JOURNEY } from "@/lib/products";
 
 /**
@@ -40,11 +37,7 @@ const STEPS: JourneyStep[] = JOURNEY.flatMap((entry) => {
  * teaching image anyway. Swap it per app as the screenshots get taken.
  */
 function StepVisual({ product }: { product: EdgeProduct }) {
-	// A comp is withheld outside development, which drops this app back to its
-	// diagram in a production build. Assigning to a local rather than testing the
-	// property inline is what lets TypeScript narrow it to a string below.
-	const withheld = product.screenshotIsComp && !SHOW_PLACEHOLDER_PROOF;
-	const screenshot = withheld ? undefined : product.screenshot;
+	const screenshot = product.screenshot;
 
 	if (screenshot) {
 		return (

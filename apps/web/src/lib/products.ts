@@ -40,6 +40,13 @@ export interface AppFeature {
 	 * screenshots exist.
 	 */
 	image?: string;
+	/**
+	 * True when `image` is a stand-in rather than a shot of our own app. Comps
+	 * render in development and are dropped from production builds — the same
+	 * gate `screenshotIsComp` uses — so the intent to replace them is enforced
+	 * by the build rather than remembered.
+	 */
+	imageIsComp?: boolean;
 	/** The metric the block moves. Rendered as the eyebrow. */
 	metric: string;
 	title: string;
@@ -151,14 +158,15 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 		name: "Edge Bundles",
 		category: "Average order value",
 		lever: "aov",
-		live: false,
+		live: true,
 		metric: "AOV",
+		appStoreUrl: "https://apps.shopify.com/edge-bundles",
 		screenshot: "/app-shots/edge-bundles.avif",
 		screenshotIsComp: true,
 		eyebrow: "Bundles, volume tiers & frequently-bought-together",
 		tagline: "Raise AOV without touching ad spend.",
 		heroLead:
-			"Bundles, volume tiers, and frequently-bought-together offers that get a second item into the cart — no discount codes, no extra traffic, no new customers required.",
+			"Bundles, volume tiers, and frequently-bought-together offers that get a second item into the cart. No discount codes, no extra traffic, no new customers required.",
 		heroTrust: ["Free plan", "Live in 10 minutes", "Any OS 2.0 theme"],
 		description:
 			"Most orders contain one item. Edge Bundles turns that single line into two or three with mix-and-match sets, volume tiers that show the saving as it grows, and pairings built from what your customers actually buy together.",
@@ -169,48 +177,58 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 		],
 		how: [
 			{
-				title: "Pick the products",
-				body: "A fixed set, a volume tier, or let Edge pair them from your real order history instead of a guess.",
+				title: "Choose what it runs on",
+				body: "Every product, everything except a list, a specific few, or whole collections. This is the step that decides whether the discount lands where your margin can carry it.",
 			},
 			{
-				title: "Set the offer",
-				body: "Fixed price, percentage off, or buy-one-get-one. You see exactly what the shopper will see before it goes live.",
+				title: "Build the tiers",
+				body: "Add a bar for each pack: buy two get one free, buy three get two free, an extra percentage on the bigger ones. Then set the badge, the label and which variants the shopper picks.",
 			},
 			{
-				title: "Place it and read the lift",
-				body: "Product page, cart, or both. AOV and attach rate come back broken out per offer, so you know which one earned its place.",
+				title: "Preview it, then publish",
+				body: "Check it against a real product from your catalog on desktop and mobile, keep it as a draft while you are unsure, and publish when it looks right.",
 			},
 		],
 		features: [
 			{
 				metric: "Average order value",
-				title: "Turn the single-item order into a two-item order",
-				body: "Most orders contain exactly one thing, and that is the cheapest revenue in your store to go after. A bundle puts the natural second item in front of the shopper while they are already deciding — as a fixed set, a mix-and-match, or a build-your-own box, with per-variant rules so it never offers a size you cannot ship.",
-			},
-			{
-				metric: "AOV · units per order",
-				title: "Let them watch the discount grow",
-				body: "Volume tiers show the saving climbing as items go into the cart. The shopper is not reading about a deal, they are watching one happen, and the next tier is always close enough to be worth reaching for.",
-			},
-			{
-				metric: "Attach rate",
-				title: "Pair what your customers actually buy together",
-				body: "Frequently-bought-together suggestions are built from your own order history, not a category guess made by someone who has never seen your catalog. The pairing that works in your store is usually not the one you would have picked.",
-			},
-			{
-				metric: "Hours you get back",
-				title: "One line on the order, correct stock underneath",
-				body: "A bundle sells as a single SKU at a single price, while component inventory decrements individually behind it. Nothing to reconcile by hand, and no stock drift to discover at the end of the month.",
-			},
-			{
-				metric: "Conversion rate",
-				title: "It looks like your store, because it reads your theme",
-				body: "Fonts, colours and spacing are pulled from your theme automatically, and every one of them is overridable. It renders inline on the page, never in a popup a shopper has to dismiss before they can buy.",
+				title: "Buy two, get one free, with no discount code anywhere",
+				image: "/app-shots/bundles-tiers.avif",
+				imageIsComp: true,
+				body: "Volume tiers and buy-one-get-one offers, with an extra percentage stacked on the bigger packs so the saving visibly grows as the shopper moves up the list. They are not reading about a deal, they are watching one get better, and the next tier is always close enough to be worth reaching for.",
 			},
 			{
 				metric: "Every number above",
-				title: "See which offer earned its place",
-				body: "Revenue, attach rate and average order value are broken out per bundle instead of blended into a single figure. You find out which offer is carrying the lift, and which one has been sitting there doing nothing since launch.",
+				title: "The offer reports on itself",
+				image: "/app-shots/bundles-analytics.avif",
+				imageIsComp: true,
+				body: "Views, adds to cart, revenue and conversion rate sit on the bundle's own page with a trend line beside each one, not buried in a separate analytics area you have to go and find. When an offer is underperforming, you open it and the reason is already on screen.",
+			},
+			{
+				metric: "Conversion rate",
+				title: "See it on a real product before anyone else does",
+				image: "/app-shots/bundles-builder.avif",
+				imageIsComp: true,
+				body: "The live preview renders your offer against any reference product from your own catalog, in desktop and mobile, and it inherits your theme as it goes. Save it as a draft, look at it on the thing you are actually selling, publish when it is right.",
+			},
+			{
+				metric: "Margin",
+				title: "Run it exactly where it pays, and only when it should",
+				body: "Target every product, everything except a list, a specific handful, or whole collections, then schedule when the offer starts and stops. Margin decides where a discount runs, and an offer that ends by itself is one you cannot forget to switch off.",
+			},
+			{
+				metric: "AOV · urgency",
+				title: "A countdown built into the offer itself",
+				image: "/app-shots/bundles-gift.avif",
+				imageIsComp: true,
+				body: "The timer belongs to the bundle rather than sitting in a banner somewhere else on the site. It expires with the deal it is attached to, so there is never a clock promising a price the cart will refuse to honour.",
+			},
+			{
+				metric: "Lifetime value",
+				title: "Turn the biggest pack into a subscription",
+				image: "/app-shots/bundles-subscription.avif",
+				imageIsComp: true,
+				body: "An automatic-refill option sits inside the bundle, so the shopper who has just chosen the best-value pack can also choose to have it arrive every month. Somebody buying three of something is the easiest subscriber you will ever get, and this is the one moment they are thinking about it.",
 			},
 		],
 		worksWith: [
@@ -251,17 +269,22 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 			{
 				question: "How much AOV lift is realistic?",
 				answer:
-					"It depends on your catalog and your margin, and anyone quoting you a single number has not seen your store. Below a few hundred orders a month, read the figure monthly rather than weekly — daily AOV on low volume is noise, not signal.",
-			},
-			{
-				question: "Does inventory draw down correctly?",
-				answer:
-					"Yes. A bundle sells as one line to the customer, and component stock decrements individually behind it.",
+					"It depends on your catalog and your margin, and anyone quoting you a single number has not seen your store. Below a few hundred orders a month, read the figure monthly rather than weekly. Daily AOV on low volume is noise, not signal.",
 			},
 			{
 				question: "Can I run bundles on one collection only?",
 				answer:
-					"Yes. Target by product, collection, tag, or country, so you only run offers where the margin supports them.",
+					"Yes. Target every product, everything except a list you choose, specific products, or whole collections, and schedule when the offer opens and closes. It is the difference between a promotion and an accidental sitewide sale.",
+			},
+			{
+				question: "Can I see the offer before customers do?",
+				answer:
+					"Yes. The preview renders against any product in your catalog, on desktop and mobile, and you can leave the whole offer as a draft until you are happy with it.",
+			},
+			{
+				question: "Can a bundle also sell a subscription?",
+				answer:
+					"Yes. An automatic-refill option can sit inside the bundle, so the shopper choosing the largest pack can have it repeat. Someone buying three at once is the most likely subscriber you have, and that is the moment to ask.",
 			},
 			{
 				question: "Will this slow my product page down?",
@@ -277,12 +300,15 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 		name: "Edge Cart",
 		category: "Revenue per visitor",
 		lever: "aov",
-		live: false,
+		live: true,
 		metric: "RPV",
+		appStoreUrl: "https://apps.shopify.com/edgecart",
+		screenshot: "/app-shots/cart-drawer.webp",
+		screenshotIsComp: true,
 		eyebrow: "Slide cart & cart upsells",
 		tagline: "The highest-intent moment in your funnel is doing nothing.",
 		heroLead:
-			"A slide cart that opens without a page load, upsells chosen by rule instead of by guess, and free-shipping progress that moves as they add — all at the one moment the shopper has already decided to buy.",
+			"A slide cart that opens without a page load, upsells chosen by rule instead of by guess, and free-shipping progress that moves as they add, all at the one moment the shopper has already decided to buy.",
 		heroTrust: ["Free plan", "No theme edits", "Reversible in one click"],
 		description:
 			"A cart page is a dead end that costs you a page load. A cart drawer is the last offer you get to make, to the one shopper in the store who has already said yes. Edge Cart turns it from storage into a surface.",
@@ -309,27 +335,37 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 			{
 				metric: "Conversion rate",
 				title: "Keep them in the store, not on a cart page",
+				image: "/app-shots/cart-customization.webp",
+				imageIsComp: true,
 				body: "A cart page costs you a page load and gives the shopper a fresh chance to leave. The drawer opens over the product they were just looking at, so reviewing the order never means navigating away from it.",
 			},
 			{
 				metric: "AOV · attach rate",
 				title: "Offer by rule, not by guess",
-				body: "A forty-dollar cart and a two-hundred-dollar cart should not see the same add-on. Rules pick the offer from what is actually in the cart — its contents, its value, the collection, the country — so the suggestion is one this particular shopper might plausibly want.",
+				image: "/app-shots/cart-drafts.webp",
+				imageIsComp: true,
+				body: "A forty-dollar cart and a two-hundred-dollar cart should not see the same add-on. Rules pick the offer from what is actually in the cart: its contents, its value, the collection, the country. The suggestion is one this particular shopper might plausibly want.",
 			},
 			{
 				metric: "Average order value",
 				title: "A progress bar that moves while they watch",
+				image: "/app-shots/cart-shipping.webp",
+				imageIsComp: true,
 				body: "Free-shipping progress fills in real time and shows exactly what is left to qualify. It is the oldest average-order-value lever in ecommerce and it still works, because it turns a threshold into something the shopper wants to finish.",
 			},
 			{
 				metric: "AOV · margin",
 				title: "One-tap add-ons at the margin you want",
+				image: "/app-shots/cart-addons.webp",
+				imageIsComp: true,
 				body: "Warranty, gift wrap and express shipping are accepted inside the drawer without restarting checkout. High margin, almost no friction, and never an extra screen between the shopper and paying you.",
 			},
 			{
 				metric: "Conversion rate",
 				title: "Answer the doubt where the doubt happens",
-				body: "Payment icons, the returns policy and your guarantee sit in the drawer at the moment of commitment — not three scrolls up a page the shopper has already scrolled past.",
+				image: "/app-shots/cart-payments.png",
+				imageIsComp: true,
+				body: "Payment icons, the returns policy and your guarantee sit in the drawer at the moment of commitment, not three scrolls up a page the shopper has already scrolled past.",
 			},
 			{
 				metric: "Every number above",
@@ -376,12 +412,12 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 			{
 				question: "Do express checkout buttons still work?",
 				answer:
-					"Yes. Shop Pay, PayPal, and Apple Pay all carry through the drawer — an upsell never costs you a one-tap checkout.",
+					"Yes. Shop Pay, PayPal, and Apple Pay all carry through the drawer, so an upsell never costs you a one-tap checkout.",
 			},
 			{
 				question: "What acceptance rate should I expect?",
 				answer:
-					"Strong offers run in the single digits, and that is normal. If an offer is sitting near zero, the offer is wrong rather than the placement — swap the product before you change the rules.",
+					"Strong offers run in the single digits, and that is normal. If an offer is sitting near zero, the offer is wrong rather than the placement. Swap the product before you change the rules.",
 			},
 			{
 				question: "Can I run different offers per country?",
@@ -403,13 +439,16 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 		lever: "cvr",
 		live: true,
 		metric: "CVR",
+		appStoreUrl: "https://apps.shopify.com/urgency-timer",
+		screenshot: "/app-shots/timer-storefront.webp",
+		screenshotIsComp: true,
 		eyebrow: "Countdown timers & urgency",
 		tagline: "Give them a deadline. Watch CVR move.",
 		heroLead:
-			"Countdown timers on any page — product, cart, announcement bar, collection — tied to deadlines that are actually real. Live in about five minutes, with no code and no theme edits.",
+			"Countdown timers on product pages, the cart, the announcement bar and collections, tied to deadlines that are actually real. Live in about five minutes, with no code and no theme edits.",
 		heroTrust: ["From $4.99/mo", "Live in 5 minutes", "No code"],
 		description:
-			"“I'll come back later” is where conversion rate goes to die. A real deadline — a sale ending, a dispatch cutoff, a restock — turns later into now, and it is the cheapest CVR lever you have.",
+			"“I'll come back later” is where conversion rate goes to die. A real deadline, whether a sale ending, a dispatch cutoff or a restock, turns later into now, and it is the cheapest CVR lever you have.",
 		problemStats: ["cartAbandonment", "mobileCheckout", "reviewsBeforeBuying"],
 		how: [
 			{
@@ -430,11 +469,13 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 				metric: "Conversion rate",
 				title: "Put a real deadline wherever the decision happens",
 				body: "Product pages, cart, announcement bar and collection pages, from one app and one dashboard. Urgency belongs at the moment someone is deciding, not only on the page you happened to install it on first.",
+				image: "/app-shots/timer-templates.webp",
+				imageIsComp: true,
 			},
 			{
 				metric: "Conversion rate",
 				title: "Evergreen for new visitors, fixed dates for real sales",
-				body: "A fixed range for a promotion that genuinely ends, or a per-visitor countdown so someone arriving today sees a full clock instead of one that expired last month. Both are honest — they just do different jobs, and using the wrong one is how stores train shoppers to ignore them.",
+				body: "A fixed range for a promotion that genuinely ends, or a per-visitor countdown so someone arriving today sees a full clock instead of one that expired last month. Both are honest. They just do different jobs, and using the wrong one is how stores train shoppers to ignore them.",
 			},
 			{
 				metric: "Hours you get back",
@@ -444,24 +485,26 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 			{
 				metric: "Conversion rate",
 				title: "It shouldn't look like something you installed",
-				body: "Colours, fonts and layout are built in rather than bolted on. A countdown that reads as part of the page persuades; one that reads as an advert sitting on top of the page gets ignored.",
+				body: "Start from a named template, then take it apart: solid or gradient background with an angle you set, corner radius, border weight and colour, your own fonts. The preview updates as you go, so you never publish something you have not already looked at.",
+				image: "/app-shots/timer-design.webp",
+				imageIsComp: true,
 			},
 			{
 				metric: "Risk",
 				title: "No code, and nothing left behind",
-				body: "Everything is configured from a dashboard, with no theme edits at any point. Install and uninstall both leave your theme exactly as they found it — which is the thing you care about the first time you switch themes.",
+				body: "Everything is configured from a dashboard, with no theme edits at any point. Install and uninstall both leave your theme exactly as they found it, which is the thing you care about the first time you switch themes.",
 			},
 			{
 				metric: "Margin",
 				title: "Run urgency only where it pays for itself",
-				body: "Target by collection so the discount behind the deadline lands on products whose margin can carry it, instead of running a sitewide sale you did not really mean to run.",
+				body: "Set timers by product tag rather than one at a time, and target by location on the top plan. The deadline lands on the products whose margin can carry the discount behind it, instead of becoming a sitewide sale you did not mean to run.",
 			},
 		],
 		worksWith: [
 			"Any OS 2.0 theme",
+			"Shopify Admin",
 			"Edge Cart",
 			"Edge Bundles",
-			"Shopify Markets",
 		],
 		pricing: [
 			{
@@ -469,21 +512,24 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 				name: "Starter",
 				price: "$4.99",
 				priceNote: "/mo",
-				includes: "10,000 monthly views, every placement.",
+				includes:
+					"Up to 10,000 timer views a month, product and landing page timers, scheduled and recurring. $47.88 billed yearly saves 20%.",
 			},
 			{
 				confirmed: true,
 				name: "Standard",
 				price: "$7.99",
 				priceNote: "/mo",
-				includes: "50,000 monthly views.",
+				includes:
+					"Up to 50,000 views, plus cart and top-bar timers and product tag-based setup. $76.68 billed yearly saves 20%.",
 			},
 			{
 				confirmed: true,
 				name: "Premium",
 				price: "$14.99",
 				priceNote: "/mo",
-				includes: "Unlimited views, priority support.",
+				includes:
+					"Unlimited views and timers, geolocation targeting, priority email support. $143.88 billed yearly saves 20%.",
 			},
 		],
 		testimonial: {
@@ -507,7 +553,7 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 			{
 				question: "Does urgency actually lift conversion rate?",
 				answer:
-					"On genuine deadlines, yes. A permanent “sale ends in 10:00” that resets on every refresh trains repeat visitors to ignore you and costs more than it earns — use evergreen on new-visitor pages and fixed dates for real promotions.",
+					"On genuine deadlines, yes. A permanent “sale ends in 10:00” that resets on every refresh trains repeat visitors to ignore you and costs more than it earns. Use evergreen on new-visitor pages and fixed dates for real promotions.",
 			},
 			{
 				question: "Can I run more than one timer at a time?",
@@ -526,12 +572,13 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 		name: "Edge Reviews",
 		category: "Product page conversion",
 		lever: "cvr",
-		live: false,
+		live: true,
 		metric: "PDP CVR",
+		appStoreUrl: "https://apps.shopify.com/edge-reviews",
 		eyebrow: "Reviews & customer photos",
 		tagline: "Your product page doesn't close. Your last 200 buyers do.",
 		heroLead:
-			"Collect photo and video reviews automatically after delivery, then put them where the decision actually happens — the product page, the collection grid, the cart, and Google's results.",
+			"Collect photo and video reviews automatically after delivery, then put them where the decision actually happens: the product page, the collection grid, the cart, and Google's results.",
 		heroTrust: [
 			"Free plan",
 			"Import your existing reviews",
@@ -547,7 +594,7 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 			},
 			{
 				title: "Ask automatically, after delivery",
-				body: "Email and SMS requests fire a set number of days after the order actually arrives — not after it was billed.",
+				body: "Email and SMS requests fire a set number of days after the order actually arrives, not after it was billed.",
 			},
 			{
 				title: "Place them where they close",
@@ -558,34 +605,43 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 			{
 				metric: "Product page conversion",
 				title: "Collect the format that actually convinces",
-				body: "Photo and video reviews, uploaded in one tap from the phone the customer is already holding. A picture of your product in somebody's real kitchen does work that no product description you write will ever do.",
+				body: "Photo and video reviews, uploaded in one tap from the phone the customer is already holding, each marked verified so nobody has to wonder. A thirty-second clip of your product in somebody's real kitchen does work that no product description you write will ever do.",
+				image: "/app-shots/reviews-widget.avif",
+				imageIsComp: true,
+			},
+			{
+				metric: "Conversion rate",
+				title: "One set of reviews, several shapes",
+				body: "The same reviews render as a wall of customer photos, a compact carousel under the buy button, or a full widget with the aggregate score on top. A landing page and a product page want different things from the same proof, and you should not have to collect it twice.",
+				image: "/app-shots/reviews-layouts.avif",
+				imageIsComp: true,
+			},
+			{
+				metric: "CVR · average order value",
+				title: "Put the proof where the doubt is",
+				body: "Reviews go on the product page, the collection cards, the cart drawer and the post-purchase page. The same review does a different job in each spot. On a collection card it earns the click; in the cart it stops the second thoughts.",
+				image: "/app-shots/reviews-spotlight.avif",
+				imageIsComp: true,
+			},
+			{
+				metric: "Reviews collected",
+				title: "A form people actually finish",
+				body: "Stars first, because tapping five of them costs nothing and commits the customer to finishing. Then the review itself, then an optional title. Every field you add before the star rating is a review you do not get.",
+				image: "/app-shots/reviews-form.avif",
+				imageIsComp: true,
+			},
+			{
+				metric: "Trust · conversion rate",
+				title: "Answer the question before it becomes a bounce",
+				body: "Ask a question sits beside Write a review, so a shopper who is unsure asks instead of leaving. Your answer stays on the page for everyone who wonders the same thing afterwards, which is the part that compounds.",
 			},
 			{
 				metric: "Reviews collected",
 				title: "Ask the day the box arrives",
 				body: "Requests fire a set number of days after delivery, not after dispatch. Asking someone to review a product they have not received yet is the single most common reason stores end up with almost no reviews.",
 			},
-			{
-				metric: "Sessions · click-through",
-				title: "Stars in Google, without touching schema",
-				body: "Rich result markup is generated for you, so your organic listings carry ratings. It is the rare change that raises click-through on traffic you are already earning for free.",
-			},
-			{
-				metric: "CVR · average order value",
-				title: "Put the proof where the doubt is",
-				body: "Reviews go on the product page, the collection cards, the cart drawer and the post-purchase page. The same review does a different job in each spot — on a collection card it earns the click, in the cart it stops the second thoughts.",
-			},
-			{
-				metric: "Trust · conversion rate",
-				title: "Answer the critical ones in public",
-				body: "A well-handled three-star review sells harder than a five-star one, because it proves somebody is home and paying attention. Replies thread underneath, where the next shopper reads them.",
-			},
-			{
-				metric: "Switching cost",
-				title: "Bring your review count with you",
-				body: "Import by CSV or migrate directly from your current app. Starting again from zero throws away years of accumulated proof and costs you conversion from day one — the count itself is part of what persuades.",
-			},
 		],
+
 		worksWith: [
 			"Klaviyo",
 			"Google Shopping",
@@ -628,7 +684,7 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 			{
 				question: "Can I delete bad reviews?",
 				answer:
-					"You can hide spam and reply to anything. We would push back on deleting genuine criticism — shoppers read the negative reviews first, and a page with none reads as censored.",
+					"You can hide spam and reply to anything. We would push back on deleting genuine criticism. Shoppers read the negative reviews first, and a page with none reads as censored.",
 			},
 			{
 				question: "Do you send SMS requests?",
@@ -648,8 +704,9 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 		name: "Edge Currency",
 		category: "International conversion",
 		lever: "cvr",
-		live: false,
+		live: true,
 		metric: "Intl. CVR",
+		appStoreUrl: "https://apps.shopify.com/edge-currency",
 		eyebrow: "Multi-currency & geolocation",
 		tagline: "$47.83 isn't a price. It's arithmetic.",
 		heroLead:
@@ -669,7 +726,7 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 			},
 			{
 				title: "Set your rounding",
-				body: "End prices at .99, .00, or the nearest whole unit — configured per currency, because what looks right in yen does not look right in euros.",
+				body: "End prices at .99, .00, or the nearest whole unit, configured per currency, because what looks right in yen does not look right in euros.",
 			},
 			{
 				title: "Place the switcher",
@@ -700,7 +757,7 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 			{
 				metric: "Conversion rate",
 				title: "Yours, down to whether there are flags",
-				body: "Fonts, colours and placement are configurable, and flags are optional — plenty of brands would rather not put a flag next to a price. The switcher should read as part of the theme, not part of an app.",
+				body: "Fonts, colours and placement are configurable, and flags are optional, because plenty of brands would rather not put a flag next to a price. The switcher should read as part of the theme, not part of an app.",
 			},
 			{
 				metric: "Support tickets",
@@ -762,8 +819,9 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 		name: "Edge Subscriptions",
 		category: "Lifetime value",
 		lever: "ltv",
-		live: false,
+		live: true,
 		metric: "LTV",
+		appStoreUrl: "https://apps.shopify.com/edge-subscription",
 		screenshot: "/app-shots/edge-subscriptions.avif",
 		screenshotIsComp: true,
 		eyebrow: "Subscriptions & subscribe-and-save",
@@ -776,54 +834,65 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 			"Migration done for you",
 		],
 		description:
-			"Acquisition is the expensive part and you have already paid it. A subscription is the same customer buying again without you buying the click twice — which is why a subscriber is worth a multiple of a one-time buyer.",
+			"Acquisition is the expensive part and you have already paid it. A subscription is the same customer buying again without you buying the click twice, which is why a subscriber is worth a multiple of a one-time buyer.",
 		problemStats: ["subscriberLtv", "failedPaymentLoss", "cartAbandonment"],
 		how: [
 			{
-				title: "Choose the products",
-				body: "Any product, any variant. Subscribe-and-save appears on the product page and inherits your theme.",
+				title: "Build the plan",
+				body: "Billing type, delivery frequency and interval, and whether there is a minimum or maximum number of orders. Pay as you go, or prepaid up front.",
 			},
 			{
-				title: "Set the plan",
-				body: "Frequency, discount, and minimum commitment. Escalating discounts reward the customers who stay.",
+				title: "Set the discounts",
+				body: "A subscription discount, a delivery discount, and the option to change either one after a set number of orders. This is where a subscriber gets a reason to reach order five.",
 			},
 			{
-				title: "Hand over control",
-				body: "Skip, swap, pause, and reschedule happen in the customer's own account, not in your support inbox.",
+				title: "Hand over the controls",
+				body: "Swap, skip, reschedule, address and card all live in the customer's own portal, so the things that used to arrive in your inbox never leave their account.",
 			},
 		],
 		features: [
 			{
 				metric: "Subscriber rate",
-				title: "Put subscribe-and-save on the things people rebuy",
-				body: "A product-page widget that matches your theme, on whichever items a customer would naturally buy again. The offer has to be in front of them at the moment they are already buying it once — asking later, by email, converts a fraction as well.",
-			},
-			{
-				metric: "Churn",
-				title: "Give them a pause button",
-				body: "Most cancellations mean “not this month”, not “never again”, but a portal with only a cancel button turns the first into the second. Skip, swap and pause keep the relationship alive through the month somebody's cupboard is already full.",
-			},
-			{
-				metric: "Recurring revenue",
-				title: "Recover the card before the customer notices",
-				body: "Expired and declined cards are worked automatically with smart retries and dunning emails. This is revenue you have already earned and already delivered against, and most stores lose a slice of it every month without ever seeing it go.",
+				title: "Sell the subscription at the moment they are already buying",
+				body: "A product-page option that sits beside the one-time price and the bundle, not on a separate page and not in an email a week later. The shopper comparing a single, a two-pack and a subscription picks the subscription surprisingly often, because you asked while they were already deciding.",
+				image: "/app-shots/subs-bundle.avif",
+				imageIsComp: true,
 			},
 			{
 				metric: "LTV · churn",
-				title: "Reward the ones who stay",
-				body: "A discount that grows with each delivery gives a long-term subscriber a reason not to go looking around at order four, which is roughly where subscription churn actually happens.",
+				title: "Make the discount grow the longer they stay",
+				body: "Set a subscription discount, then change it after a set number of orders, and do the same with delivery: free shipping from order two onward if you want it. A subscriber at order four is deciding whether to keep going, and a discount that improves is a reason not to go looking.",
+				image: "/app-shots/subs-plans.avif",
+				imageIsComp: true,
+			},
+			{
+				metric: "Churn",
+				title: "Let them swap and skip instead of cancelling",
+				body: "The portal lets a customer swap the product, skip a delivery, reschedule it, change the address and update the card, all without emailing you. Most cancellations are really \u201cnot this month\u201d or \u201cnot this flavour\u201d, and both of those have a button.",
+				image: "/app-shots/subs-portal.avif",
+				imageIsComp: true,
+			},
+			{
+				metric: "Recurring revenue",
+				title: "Every future charge, visible and movable",
+				body: "The billing schedule lists every delivery that has happened and every one still to come, and you can reschedule any of them, skip one, or charge it now. When a customer asks to shift a delivery a week, it is one click rather than a conversation.",
+				image: "/app-shots/subs-schedule.webp",
+				imageIsComp: true,
 			},
 			{
 				metric: "Lifetime value",
-				title: "See churn coming while you can still act",
-				body: "Cancellation reasons, recurring revenue and cohort retention, in plain English rather than a chart nobody opens. Knowing which cohort is leaving is only useful while there is still time to do something about it.",
+				title: "Watch the base grow, and watch what leaves it",
+				body: "Active subscriptions over time, new subscriptions per day, and cancellations and pauses charted next to them. Growth on its own is flattering; growth beside churn is the number that tells you whether the base is actually compounding.",
+				image: "/app-shots/subs-analytics.png",
+				imageIsComp: true,
 			},
 			{
-				metric: "Switching cost",
-				title: "We move your contracts for you",
-				body: "Migration from your current app is work we do, not work we hand you, and customers are never asked to re-enter payment details. Contracts live in Shopify, so if you ever leave us, nothing is held hostage on the way out.",
+				metric: "Ops time",
+				title: "Swap what ships without touching the subscription",
+				body: "Automatic product swap moves a subscriber onto a different product after a set point, so a starter size can become the full size, or a discontinued line can roll onto its replacement. Nobody has to cancel and re-subscribe, which is where you lose them.",
 			},
 		],
+
 		worksWith: [
 			"Shopify Subscriptions APIs",
 			"Shop Pay",
@@ -864,9 +933,9 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 					"No. A flat monthly fee on every plan. A percentage fee is a tax that grows precisely as you succeed, and it is the reason most stores eventually migrate away from their first subscription app.",
 			},
 			{
-				question: "Can you migrate me from another subscription app?",
+				question: "Can a customer change what they receive?",
 				answer:
-					"Yes, and we do the work. Your contracts move without asking customers to re-enter payment details.",
+					"Yes. They can swap the product themselves from the portal, and you can set an automatic swap that moves them onto a different product after a set number of orders , a starter size onto the full size, say, without anyone having to cancel and start again.",
 			},
 			{
 				question: "What happens if I cancel?",
@@ -888,58 +957,59 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 		lever: "proof",
 		live: true,
 		metric: "Reported ROAS",
+		appStoreUrl: "https://apps.shopify.com/trackproof",
 		eyebrow: "Server-side conversion tracking",
 		tagline: "Your ROAS is better than Meta is telling you.",
 		heroLead:
-			"Server-side conversions for Meta, Google, and TikTok through each platform's Conversions API, deduplicated against your existing pixel — so every purchase is counted once, and none of them go missing.",
+			"Server-side conversions for Meta, Google, and TikTok through each platform's Conversions API, deduplicated against your existing pixel, so every purchase is counted once and none of them go missing.",
 		heroTrust: ["Free", "Meta, Google & TikTok", "Live tracking health score"],
 		description:
-			"Browser pixels miss conversions to ad blockers, privacy settings, and dropped sessions. You do not see the gap — you see a campaign that looks unprofitable, and you switch off an ad set that was working.",
+			"Browser pixels miss conversions to ad blockers, privacy settings, and dropped sessions. You do not see the gap. You see a campaign that looks unprofitable, and you switch off an ad set that was working.",
 		problemStats: ["pixelUnderreporting", "cartAbandonment", "mobileCheckout"],
 		how: [
 			{
-				title: "Connect your ad accounts",
-				body: "OAuth for all three platforms. No pasting access tokens between browser tabs.",
+				title: "Install the script, turn on the app embed",
+				body: "One click each. The embed is what captures first-party click IDs, and that is where a large part of your match quality comes from.",
 			},
 			{
-				title: "Events map themselves",
-				body: "Standard Shopify events arrive pre-mapped, so there is nothing to configure before data starts flowing.",
+				title: "Connect Meta, Google and TikTok",
+				body: "OAuth, no pasting access tokens between browser tabs. Every standard Shopify event is already mapped, so data starts flowing the moment a channel connects.",
 			},
 			{
-				title: "Watch the health score",
-				body: "Live diagnostics tell you something broke before your reported ROAS does.",
+				title: "Fire a test event and read the score",
+				body: "Confirm events land in each platform, then let the setup checklist and the health score tell you what is still worth fixing.",
 			},
 		],
 		features: [
 			{
 				metric: "Reported conversions",
-				title: "Send the purchase from your server, not the browser",
-				body: "The Conversions API for Meta, Google and TikTok, running alongside the pixel you already have. Ad blockers, privacy settings and dropped sessions stop being the thing that decides what your ad platform is allowed to know.",
+				title: "Every event, and which path it actually took",
+				body: "The Conversions API for Meta, Google and TikTok runs alongside your pixel, and the event log shows you whether each event went by pixel, by server, or both. Ad blockers and dropped sessions stop being the thing that decides what your ad platform is allowed to know, and you can see it happening rather than take it on trust.",
+			},
+			{
+				metric: "Match quality · trust",
+				title: "Open any event and see exactly what we sent",
+				body: "Every row opens onto the raw payload as it left your store, hashed identifiers and all, next to the platform's own response confirming it was received, and that event's match quality and dedup status. When Meta support asks you for a trace ID, it is already on the screen. Most tracking apps ask you to trust them. This one shows its working.",
 			},
 			{
 				metric: "ROAS accuracy",
-				title: "One purchase, one conversion",
-				body: "Automatic deduplication between the pixel and the server, whichever arrives first. Double-counting produces a return on ad spend that looks wonderful and is wrong, and acting on that costs more than the gap you started with.",
+				title: "One purchase, one conversion, reported as a fact",
+				body: "Every server event carries the deduplication key its platform expects, so the pixel and the API never both claim the same order. Purchase dedup gets its own line on the health card, because “probably not double-counting” is not a good enough basis for spending money.",
 			},
 			{
-				metric: "Attribution",
-				title: "More events find their person",
-				body: "Customer data is hashed before it leaves your store — both what the platforms require and what lifts match rates. A conversion the platform cannot tie back to a click may as well never have happened.",
+				metric: "Dynamic ads",
+				title: "Send the product ID your catalog actually uses",
+				body: "Choose whether content_ids sends the variant ID, the product ID or the SKU, so it matches the format in your catalog feed. Get this wrong and dynamic ads quietly retarget the wrong product or nothing at all. It is one of the most common reasons DPA underperforms, and one of the hardest to spot from inside Ads Manager.",
 			},
 			{
 				metric: "Optimisation",
-				title: "Optimise toward what you actually care about",
-				body: "Standard Shopify events arrive pre-mapped, and you can add your own. If a second order matters more to your business than a first, you can say so and let the platform bid for it.",
+				title: "See exactly what maps to what, on every platform",
+				body: "Every Shopify event next to its counterpart on Meta, Google and TikTok in one table, including the ones a platform has no equivalent for, marked as unmapped rather than silently dropped. Mapped parameters, value source and consent gating are all visible per event, and you can build custom events for anything Shopify does not emit natively.",
 			},
 			{
 				metric: "Risk",
 				title: "Find out before your ROAS does",
-				body: "A live health score with per-platform diagnostics and consent-mode gating. Tracking normally breaks silently and gets discovered a fortnight later in a report, after the budget has already moved somewhere worse.",
-			},
-			{
-				metric: "Cost per acquisition",
-				title: "Free, and not the kind of free that ends",
-				body: "No plan to choose, no card to add, no event cap to trip over on the best trading day of your year. It is free because accurate data makes the ad platforms better at spending your money, and that is payment enough.",
+				body: "A tracking health score out of a hundred, built from delivery coverage, connected channels and credential health, with a setup checklist that names what is still missing. Tracking normally breaks silently and gets discovered a fortnight later in a report, after the budget has already moved somewhere worse.",
 			},
 		],
 		worksWith: [
@@ -960,28 +1030,39 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 		],
 		faq: [
 			{
-				question: "What about GDPR?",
+				question: "Will my ROAS go up?",
 				answer:
-					"Consent-mode gating is built in and customer data is hashed before transmission. Events are not sent for shoppers who have not consented.",
+					"Your reported ROAS usually does, because fewer conversions go missing on the way to the platform. Your actual sales do not change. Your visibility of them does. That is the entire point: you stop switching off ad sets that were quietly working.",
+			},
+			{
+				question: "Is the match score Meta's official Event Match Quality?",
+				answer:
+					"No, and the app says so on the page rather than letting you assume otherwise. It is our estimate, calculated from the identifiers we actually send with each event, and it moves for the same reasons Meta's does. Meta's official EMQ lives in Events Manager and we link you straight to it.",
 			},
 			{
 				question: "Do I keep my pixel?",
 				answer:
-					"Yes. Server-side tracking runs alongside it, and deduplication is what stops the two from double-counting the same purchase.",
+					"Yes, and you should. Server-side runs alongside it and deduplication is what stops the two from both claiming the same purchase. The event log shows which events were sent by both paths.",
 			},
 			{
-				question: "Will my ROAS go up?",
+				question: "Which product ID should content_ids send?",
 				answer:
-					"Your reported ROAS usually does, because fewer conversions go missing. Your actual sales do not change — your visibility of them does. That is the entire point: you stop switching off ad sets that were quietly working.",
+					"Whichever one your catalog feed is built on: variant ID, product ID or SKU, switchable per store. If the two do not match, dynamic ads cannot resolve the product, so retargeting silently degrades while everything else looks fine.",
+			},
+			{
+				question: "What happens to events a platform does not support?",
+				answer:
+					"They are shown as unmapped in the event table rather than dropped without telling you. Google takes a few events Meta and TikTok do not, and vice versa, and you can see exactly which at a glance.",
+			},
+			{
+				question: "What about GDPR and Consent Mode v2?",
+				answer:
+					"Consent-mode gating is built in and can be set per event, customer data is hashed before it leaves your store, and TikTok events are gated alongside GA4 Consent Mode v2. Events are not sent for shoppers who have not consented.",
 			},
 			{
 				question: "How long does setup take?",
 				answer:
-					"Minutes rather than hours. Events are pre-mapped, and connecting an ad account is an OAuth click.",
-			},
-			{
-				question: "Do you support Consent Mode v2?",
-				answer: "Yes.",
+					"Minutes. Install the script, turn on the app embed, connect a channel by OAuth, fire a test event. Every standard Shopify event is mapped before you arrive.",
 			},
 		],
 		ctaHeading: "Stop optimising spend on incomplete data.",

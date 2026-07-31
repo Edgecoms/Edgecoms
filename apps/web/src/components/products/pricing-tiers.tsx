@@ -31,7 +31,7 @@ export function PricingTiers({
 	const gridCols = tiers.length === 1 ? "sm:grid-cols-1" : "sm:grid-cols-3";
 
 	return (
-		<section aria-labelledby="pricing-heading" className="w-full pb-24">
+		<section aria-labelledby="pricing-heading" className="w-full pb-16">
 			<div className="mx-auto w-full max-w-7xl px-6">
 				<div className="flex flex-col gap-4">
 					<h2

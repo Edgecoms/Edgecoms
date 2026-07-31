@@ -84,7 +84,7 @@ export function MarketingCta({
 	footnote,
 }: MarketingCtaProps) {
 	return (
-		<section aria-labelledby="cta-heading" className="w-full px-6 pb-24">
+		<section aria-labelledby="cta-heading" className="w-full px-6 pb-16">
 			<div className="relative isolate mx-auto w-full max-w-7xl overflow-hidden rounded-[2rem] bg-brand">
 				<PanelTexture />
 				{/* Warm glow: a bright narrow core anchored just past the bottom edge,
@@ -128,7 +128,9 @@ export function MarketingCta({
 						<ButtonLink
 							className="h-11 rounded-full bg-white px-6 text-[15px] text-neutral-900 hover:bg-white/90 active:bg-white/90"
 							href={primary.href as Route}
+							rel={primary.href.startsWith("http") ? "noopener" : undefined}
 							size="xl"
+							target={primary.href.startsWith("http") ? "_blank" : undefined}
 							variant="secondary"
 						>
 							{primary.label}
@@ -137,7 +139,11 @@ export function MarketingCta({
 							<ButtonLink
 								className="h-11 rounded-full border border-white/40 bg-white/10 px-6 text-[15px] text-white hover:bg-white/20 active:bg-white/20"
 								href={secondary.href as Route}
+								rel={secondary.href.startsWith("http") ? "noopener" : undefined}
 								size="xl"
+								target={
+									secondary.href.startsWith("http") ? "_blank" : undefined
+								}
 								variant="tertiary"
 							>
 								{secondary.label}

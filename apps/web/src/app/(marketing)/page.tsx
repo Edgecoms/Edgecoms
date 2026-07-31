@@ -11,7 +11,7 @@ import { FaqList } from "@/components/marketing/faq-list";
 import type { AppFaq } from "@/lib/products";
 
 export const metadata: Metadata = {
-	title: "Edge — raise AOV and conversion rate on the traffic you already have",
+	title: "Edge · Raise AOV and conversion rate on the traffic you already have",
 	description:
 		"Seven Shopify apps that move the two numbers your revenue is made of: how many visitors buy, and how much each one spends. Bundles, cart, timer, reviews, currency, subscriptions, and server-side tracking. Free plans on most of them.",
 };
@@ -20,12 +20,12 @@ const HOME_FAQ: readonly AppFaq[] = [
 	{
 		question: "Do I need all seven?",
 		answer:
-			"No, and most merchants do not start that way. Look at your own numbers and pick the weakest one — usually average order value, because it is the one nobody has touched in a year. Add the others once you can see the first one moving.",
+			"No, and most merchants do not start that way. Look at your own numbers and pick the weakest one, usually average order value, because it is the one nobody has touched in a year. Add the others once you can see the first one moving.",
 	},
 	{
 		question: "How fast will I see a change?",
 		answer:
-			"Bundles and cart upsells show up in your Shopify analytics within a couple of weeks at normal traffic. Below roughly a thousand sessions a month, give it a full month before you read anything into the number — at low volume, a good week and a bad week look like a trend and they are not.",
+			"Bundles and cart upsells show up in your Shopify analytics within a couple of weeks at normal traffic. Below roughly a thousand sessions a month, give it a full month before you read anything into the number. At low volume, a good week and a bad week look like a trend and they are not.",
 	},
 	{
 		question: "Will these slow my store down?",

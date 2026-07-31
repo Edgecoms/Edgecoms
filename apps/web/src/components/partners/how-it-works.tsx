@@ -3,7 +3,7 @@ import { GridMarkers } from "@/components/home/grid-markers";
 const STEPS = [
 	{
 		description:
-			"You already manage Shopify stores. Register the ones running Edge apps from your partner dashboard — no referral links, no tracking codes, nothing to place in a theme.",
+			"You already manage Shopify stores. Register the ones running Edge apps from your partner dashboard. No referral links, no tracking codes, nothing to place in a theme.",
 		step: "01",
 		title: "Register your merchants",
 	},
@@ -23,7 +23,7 @@ const STEPS = [
 
 export function HowItWorks() {
 	return (
-		<section aria-labelledby="how-heading" className="relative w-full py-24">
+		<section aria-labelledby="how-heading" className="relative w-full py-16">
 			<div
 				aria-hidden="true"
 				className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(var(--gray-a3)_1px,transparent_1px)] [background-size:22px_22px]"

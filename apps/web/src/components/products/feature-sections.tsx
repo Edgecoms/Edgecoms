@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Highlight } from "@/components/ui/highlight";
+import { SHOW_PLACEHOLDER_PROOF } from "@/lib/marketing-stats";
 import type { AppFeature } from "@/lib/products";
 
 /**
@@ -14,14 +15,20 @@ import type { AppFeature } from "@/lib/products";
  */
 
 function FeatureVisual({ feature }: { feature: AppFeature }) {
-	if (feature.image) {
+	// A comp is withheld outside development, dropping the block back to the
+	// metric panel in a production build. Assigning to a local rather than
+	// testing the property inline is what lets TypeScript narrow it below.
+	const withheld = feature.imageIsComp && !SHOW_PLACEHOLDER_PROOF;
+	const image = withheld ? undefined : feature.image;
+
+	if (image) {
 		return (
 			<Image
 				alt={feature.title}
 				className="h-auto w-full rounded-[2rem] border border-border object-cover"
 				height={720}
 				sizes="(max-width: 1024px) 100vw, 560px"
-				src={feature.image}
+				src={image}
 				width={960}
 			/>
 		);
@@ -31,7 +38,7 @@ function FeatureVisual({ feature }: { feature: AppFeature }) {
 	   stand-in rather than a grey box: it keeps the block's proportions honest
 	   for layout, and it still says the one thing the block is about. */
 	return (
-		<div className="relative isolate flex min-h-[300px] items-center justify-center overflow-hidden rounded-[2rem] border border-border bg-page p-10 lg:min-h-[380px]">
+		<div className="relative isolate flex min-h-[300px] items-center justify-center overflow-hidden rounded-[2rem] border border-border bg-page p-10 lg:min-h-[380px] dark:bg-transparent">
 			<div
 				aria-hidden="true"
 				className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(var(--gray-a4)_1px,transparent_1px)] [background-size:20px_20px] [mask-image:radial-gradient(ellipse_70%_70%_at_50%_50%,black_30%,transparent_80%)]"
@@ -51,7 +58,7 @@ export function FeatureSections({
 	title: string;
 }) {
 	return (
-		<section aria-labelledby="features-heading" className="w-full py-24">
+		<section aria-labelledby="features-heading" className="w-full py-16">
 			<div className="mx-auto w-full max-w-7xl px-6">
 				<h2
 					className="max-w-3xl text-balance font-medium text-display text-primary-foreground"
@@ -60,7 +67,7 @@ export function FeatureSections({
 					{title}
 				</h2>
 
-				<div className="mt-16 flex flex-col gap-20 lg:gap-28">
+				<div className="mt-12 flex flex-col gap-16 lg:gap-20">
 					{features.map((feature, index) => {
 						const flipped = index % 2 === 1;
 						return (
@@ -74,7 +81,7 @@ export function FeatureSections({
 									<span className="font-medium font-mono text-brand text-label uppercase tracking-[0.12em]">
 										{feature.metric}
 									</span>
-									<h3 className="max-w-md text-balance font-medium text-h1 text-primary-foreground">
+									<h3 className="max-w-lg text-balance font-medium text-display text-primary-foreground">
 										<Highlight>{feature.title}</Highlight>
 									</h3>
 									<p className="max-w-md text-pretty text-body-lg text-secondary-foreground leading-relaxed">

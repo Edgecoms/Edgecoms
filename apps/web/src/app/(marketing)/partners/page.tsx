@@ -17,13 +17,13 @@ import { PartnersHero } from "@/components/partners/partners-hero";
 import { ProgramCompare } from "@/components/partners/program-compare";
 
 export const metadata: Metadata = {
-	title: "Partner Program — Edge",
+	title: "Partner Program · Edge",
 	description:
-		"Register the merchants you manage and earn recurring commission for as long as they stay subscribed. No referral links, no attribution windows — a real, lifetime partnership.",
+		"Register the merchants you manage and earn recurring commission for as long as they stay subscribed. No referral links, no attribution windows, just a real lifetime partnership.",
 };
 
 const RAIL_ITEMS: readonly CtaRailItem[] = [
-	{ icon: InfinityIcon, label: "Lifetime — no expiry windows" },
+	{ icon: InfinityIcon, label: "Lifetime, no expiry windows" },
 	{ icon: Unlink, label: "No referral links or tracking codes" },
 	{ icon: ReceiptText, label: "Your rate frozen onto every commission" },
 	{
@@ -38,7 +38,7 @@ export default function PartnersPage() {
 		<>
 			<PartnersHero />
 
-			<section aria-labelledby="earnings-heading" className="w-full py-24">
+			<section aria-labelledby="earnings-heading" className="w-full py-16">
 				<div className="mx-auto w-full max-w-7xl px-6">
 					<div className="mx-auto flex max-w-2xl flex-col items-center gap-4 text-center">
 						<h2

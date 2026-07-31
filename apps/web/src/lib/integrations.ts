@@ -36,11 +36,39 @@ export interface Integration {
 	width?: number;
 }
 
+/*
+ * Shop Pay was dropped as its own entry: it is a Shopify product and the
+ * Shopify mark already stands for it, so a separate tile was one more thing to
+ * read for no extra information.
+ *
+ * Klaviyo has no mark here yet — its logo is not published as a standalone
+ * file anywhere we could take it from cleanly, so it renders as a wordmark
+ * until somebody pulls the asset from the Klaviyo brand kit.
+ */
 export const INTEGRATIONS: readonly Integration[] = [
-	{ name: "Shopify", provenance: "edge-currency" },
-	{ name: "Shop Pay", provenance: "edge-subscriptions" },
-	{ name: "Meta", provenance: "trackproof" },
-	{ name: "Google", provenance: "trackproof" },
-	{ name: "TikTok", provenance: "trackproof" },
+	{
+		name: "Shopify",
+		logo: "/logos/shopify.svg",
+		width: 40,
+		provenance: "edge-currency",
+	},
+	{
+		name: "Meta",
+		logo: "/logos/meta.svg",
+		width: 40,
+		provenance: "trackproof",
+	},
+	{
+		name: "Google",
+		logo: "/logos/google.svg",
+		width: 40,
+		provenance: "trackproof",
+	},
+	{
+		name: "TikTok",
+		logo: "/logos/tiktok.svg",
+		width: 40,
+		provenance: "trackproof",
+	},
 	{ name: "Klaviyo", provenance: "edge-reviews" },
 ] as const;

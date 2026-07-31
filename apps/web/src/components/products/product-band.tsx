@@ -2,6 +2,7 @@ import { ArrowRight, Check } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import { DIAGRAMS } from "@/components/home/products/diagrams";
+import { AppIcon } from "@/components/ui/app-icon";
 import { Highlight } from "@/components/ui/highlight";
 import { APP_RESULT_BADGES } from "@/lib/marketing-stats";
 import type { EdgeProduct } from "@/lib/products";
@@ -47,9 +48,10 @@ export function ProductBand({
 					</div>
 
 					<h2
-						className="font-medium text-h1 text-primary-foreground"
+						className="flex items-center gap-3 font-medium text-h1 text-primary-foreground"
 						id={`${product.slug}-heading`}
 					>
+						<AppIcon product={product} size="md" />
 						{product.name}
 					</h2>
 
@@ -74,7 +76,7 @@ export function ProductBand({
 									{feature.title}
 									<span className="text-secondary-foreground">
 										{" "}
-										— {feature.metric}
+										· {feature.metric}
 									</span>
 								</span>
 							</li>
@@ -94,7 +96,7 @@ export function ProductBand({
 				</div>
 
 				<div
-					className={`relative isolate flex min-h-[420px] items-center justify-center overflow-hidden rounded-[2rem] border border-border bg-bg ${flipped ? "lg:order-1" : ""}`}
+					className={`relative isolate flex min-h-[420px] items-center justify-center overflow-hidden rounded-[2rem] border border-border bg-bg dark:bg-transparent ${flipped ? "lg:order-1" : ""}`}
 				>
 					<div
 						aria-hidden="true"

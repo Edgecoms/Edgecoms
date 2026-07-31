@@ -26,7 +26,7 @@ export function PartnersHero() {
 
 					<p className="max-w-2xl text-pretty text-body-lg text-white leading-relaxed">
 						Register the Shopify stores you already run. Take a share of Edge's
-						revenue for as long as they stay subscribed — no referral links, no
+						revenue for as long as they stay subscribed. No referral links, no
 						tracking codes, no expiry windows.
 					</p>
 

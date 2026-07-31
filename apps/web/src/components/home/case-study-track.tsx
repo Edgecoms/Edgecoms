@@ -14,82 +14,66 @@ export interface CaseStudyCard extends CaseStudy {
 /** Pixels per second. Slow enough to read a card without chasing it. */
 const SCROLL_SPEED = 26;
 
-function CardMedia({ card }: { card: CaseStudyCard }) {
-	if (card.image) {
-		return (
-			<Image
-				alt={`${card.brand} products`}
-				className="object-cover transition-transform duration-500 group-hover:scale-105"
-				fill
-				sizes="(max-width: 640px) 80vw, 320px"
-				src={card.image}
-			/>
-		);
-	}
-
-	/* No photography yet. A tinted panel is honest about that; a stock photo
-	   would imply a product this merchant does not sell. */
-	return (
-		<div
-			aria-hidden="true"
-			className="absolute inset-0 bg-[linear-gradient(150deg,var(--gray-4),var(--gray-6))]"
-		/>
-	);
-}
-
 function CardBody({ card }: { card: CaseStudyCard }) {
-	const headline = card.results[0];
+	const metrics = card.results?.map((result) => result.value) ?? card.apps;
 
 	return (
 		<>
-			<CardMedia card={card} />
+			{/* Landscape image area with the copy beneath, rather than a portrait
+			    crop with the copy over it. These are wide storefront photographs;
+			    cropping them to portrait slices the subject through the middle. */}
+			<div className="relative aspect-[16/10] w-full shrink-0 overflow-hidden bg-[linear-gradient(150deg,var(--gray-4),var(--gray-6))]">
+				{card.banner ? (
+					<Image
+						alt={`${card.brand} storefront`}
+						className="object-cover transition-transform duration-500 group-hover:scale-105"
+						fill
+						sizes="(max-width: 640px) 80vw, 340px"
+						src={card.banner}
+					/>
+				) : null}
+			</div>
 
-			{/* Scrim. The copy sits on arbitrary photography, so it carries its own
-			    contrast rather than hoping the image is dark at the bottom. */}
-			<div
-				aria-hidden="true"
-				className="absolute inset-x-0 bottom-0 h-3/5 bg-[linear-gradient(to_top,rgba(0,0,0,0.88),rgba(0,0,0,0.55)_45%,transparent)]"
-			/>
-
-			{/* Unmistakable, and deliberately ugly. If this badge is on screen the
-			    numbers below it are invented, and a screenshot of this card can never
-			    be mistaken for a screenshot of a real result. */}
-			{card.published ? null : (
-				<span className="absolute top-4 left-4 rounded-full bg-amber-400 px-2.5 py-1 font-medium font-mono text-[10px] text-black uppercase tracking-[0.1em]">
-					Placeholder
-				</span>
-			)}
-
-			<div className="relative flex flex-col gap-3 p-5">
-				<span className="w-fit rounded-full border border-white/25 bg-white/15 px-2.5 py-1 font-medium font-mono text-[10px] text-white uppercase tracking-[0.1em] backdrop-blur-sm">
+			<div className="flex flex-1 flex-col gap-3 p-5">
+				<span className="font-medium font-mono text-label text-secondary-foreground uppercase tracking-[0.1em]">
 					{card.category}
 				</span>
-
-				<h3 className="font-medium text-h3 text-white">{card.brand}</h3>
-
-				{headline ? (
-					<div className="flex items-baseline justify-between gap-4 border-white/25 border-t pt-3">
-						<span className="text-caption text-white/75">{headline.label}</span>
-						{/* The one thing on the card a merchant is scanning for, so it is
-						    the one thing that is not white. */}
-						<span className="font-medium text-body-lg text-brand tabular-nums">
-							{headline.value}
+				{card.logo ? (
+					<Image
+						alt={card.brand}
+						className="h-9 w-auto max-w-[70%] object-contain object-left"
+						height={72}
+						src={card.logo}
+						width={220}
+					/>
+				) : (
+					<span className="font-medium text-h3 text-primary-foreground">
+						{card.brand}
+					</span>
+				)}
+				<div className="mt-auto flex flex-wrap gap-x-2 gap-y-1 border-border border-t pt-3">
+					{metrics.slice(0, 3).map((metric) => (
+						<span
+							className="font-medium font-mono text-[11px] text-brand uppercase tracking-[0.08em]"
+							key={metric}
+						>
+							{metric}
 						</span>
-					</div>
-				) : null}
+					))}
+				</div>
 			</div>
 		</>
 	);
 }
 
 const CARD_CLASS =
-	"group relative flex h-[460px] flex-col justify-end overflow-hidden rounded-[1.75rem] sm:h-[520px]";
-const ITEM_CLASS = "w-[78vw] shrink-0 sm:w-[320px]";
+	"group flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-border bg-page transition-colors hover:bg-bg";
+const ITEM_CLASS = "w-[78vw] shrink-0 sm:w-[340px]";
 
 function Card({ card }: { card: CaseStudyCard }) {
 	return (
 		<li className={ITEM_CLASS}>
-			<Link className={CARD_CLASS} href={`/products/${card.slug}` as Route}>
+			<Link className={CARD_CLASS} href={`/case-studies/${card.slug}` as Route}>
 				<CardBody card={card} />
 			</Link>
 		</li>

@@ -68,7 +68,7 @@ export default function TrackproofDiagram() {
 			</div>
 
 			<p className="mt-2 text-[9px] text-[var(--gray-11)] leading-relaxed">
-				Deduplicated — one purchase, one conversion.
+				Deduplicated: one purchase, one conversion.
 			</p>
 		</Panel>
 	);

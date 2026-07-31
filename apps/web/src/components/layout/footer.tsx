@@ -1,6 +1,7 @@
 import type { Route } from "next";
 import Link from "next/link";
 import { GridMarkers } from "@/components/home/grid-markers";
+import { AppIcon } from "@/components/ui/app-icon";
 import Logo from "@/components/ui/logo";
 import { EDGE_PRODUCTS } from "@/lib/products";
 
@@ -30,6 +31,7 @@ const COLUMNS: readonly FooterColumn[] = [
 	{
 		heading: "Company",
 		links: [
+			{ href: "/case-studies", label: "Case studies" },
 			{ href: "/about", label: "About Edge" },
 			{ href: "/contact", label: "Contact" },
 		],
@@ -68,10 +70,7 @@ export default function Footer() {
 								href={`/products/${product.slug}` as Route}
 								key={product.slug}
 							>
-								<span
-									aria-hidden="true"
-									className="size-1.5 rounded-full bg-brand"
-								/>
+								<AppIcon product={product} size="sm" />
 								<span className="font-medium font-mono text-label text-primary-foreground uppercase tracking-[0.08em]">
 									{product.name.replace("Edge ", "")}
 								</span>
@@ -85,7 +84,7 @@ export default function Footer() {
 					<GridMarkers cols={7} rows={1} />
 				</div>
 
-				<div className="mt-16 grid grid-cols-2 gap-y-10 lg:grid-cols-3 lg:gap-y-0 lg:divide-x lg:divide-border">
+				<div className="mt-12 grid grid-cols-2 gap-y-10 lg:grid-cols-3 lg:gap-y-0 lg:divide-x lg:divide-border">
 					{COLUMNS.map((column) => (
 						<div
 							className="flex flex-col gap-5 lg:px-8 lg:first:pl-0"
@@ -113,9 +112,9 @@ export default function Footer() {
 					))}
 				</div>
 
-				<div className="mt-16 flex flex-col gap-4 border-border border-t pt-8 text-caption text-secondary-foreground sm:flex-row sm:items-center sm:justify-between sm:gap-2">
+				<div className="mt-12 flex flex-col gap-4 border-border border-t pt-8 text-caption text-secondary-foreground sm:flex-row sm:items-center sm:justify-between sm:gap-2">
 					<Link
-						aria-label="Edgecoms — home"
+						aria-label="Edgecoms home"
 						className="flex items-center gap-2 text-primary-foreground transition-opacity hover:opacity-70"
 						href={"/" as Route}
 					>

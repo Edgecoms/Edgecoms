@@ -34,39 +34,44 @@ const PROOF_APPS = productsByLever("proof");
 
 function Term({
 	gloss,
+	outcome = false,
 	symbol,
 	term,
 }: {
 	gloss: string;
+	outcome?: boolean;
 	symbol: string;
 	term: string;
 }) {
+	/* RPV is the answer, not an input, so it carries the brand fill and the two
+	   inputs sit on the page surface. Without that the three read as a list of
+	   equals rather than as an equation with a result. */
 	return (
-		<div className="flex flex-col items-center gap-1.5 text-center">
-			<span className="font-medium text-h1 text-primary-foreground tracking-tight sm:text-display">
+		<div
+			className={`flex flex-1 flex-col items-center gap-2 rounded-2xl border p-6 text-center sm:p-8 ${
+				outcome ? "border-brand/30 bg-brand/8" : "border-border bg-page"
+			}`}
+		>
+			<span
+				className={`font-medium text-display leading-none tracking-tight ${outcome ? "text-brand" : "text-primary-foreground"}`}
+			>
 				{symbol}
 			</span>
-			<span className="font-medium text-body-sm text-primary-foreground">
+			<span className="font-medium text-body text-primary-foreground">
 				{term}
 			</span>
-			<span className="max-w-[16ch] text-pretty text-caption text-secondary-foreground leading-relaxed">
+			<span className="max-w-[18ch] text-pretty text-caption text-secondary-foreground leading-relaxed">
 				{gloss}
 			</span>
 		</div>
 	);
 }
 
-/*
- * The bottom padding only applies once the equation is a row: it lifts the
- * operator off the baseline to sit level with the symbols above the glosses.
- * Stacked on mobile there is nothing to align to, and the padding would leave
- * the operator hanging away from the terms it joins.
- */
 function Operator({ children }: { children: string }) {
 	return (
 		<span
 			aria-hidden="true"
-			className="font-medium text-[var(--gray-8)] text-h1 sm:pb-14 sm:text-display"
+			className="grid size-9 shrink-0 place-items-center rounded-full border border-border bg-bg font-medium text-[var(--gray-9)] text-h3"
 		>
 			{children}
 		</span>
@@ -79,7 +84,7 @@ export function RpvEquation() {
 	return (
 		<section
 			aria-labelledby="rpv-heading"
-			className="relative w-full scroll-mt-24 py-24"
+			className="relative w-full scroll-mt-24 py-10"
 			id="how-it-adds-up"
 		>
 			<div
@@ -115,9 +120,9 @@ export function RpvEquation() {
 
 				<div
 					aria-hidden="true"
-					className="mt-14 flex flex-col items-center gap-5 sm:flex-row sm:flex-wrap sm:items-start sm:justify-center sm:gap-x-9 sm:gap-y-8"
+					className="mx-auto mt-12 flex max-w-4xl flex-col items-stretch gap-3 sm:flex-row sm:items-center"
 				>
-					<Term gloss={rpv.gloss} symbol={rpv.symbol} term={rpv.term} />
+					<Term gloss={rpv.gloss} outcome symbol={rpv.symbol} term={rpv.term} />
 					<Operator>=</Operator>
 					<Term gloss={cvr.gloss} symbol={cvr.symbol} term={cvr.term} />
 					<Operator>×</Operator>

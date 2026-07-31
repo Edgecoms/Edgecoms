@@ -1,7 +1,9 @@
 import { ButtonLink } from "@edgecoms/ui/components/button";
 import type { Route } from "next";
 import { DIAGRAMS } from "@/components/home/products/diagrams";
+import { AppIcon } from "@/components/ui/app-icon";
 import { Highlight } from "@/components/ui/highlight";
+import { BOOKING_LABEL, BOOKING_URL } from "@/lib/booking";
 import { APP_RESULT_BADGES } from "@/lib/marketing-stats";
 import type { EdgeProduct } from "@/lib/products";
 
@@ -31,8 +33,9 @@ export function AppHero({ product }: { product: EdgeProduct }) {
 				className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(var(--gray-a4)_1px,transparent_1px)] [background-size:22px_22px] [mask-image:radial-gradient(ellipse_70%_60%_at_50%_35%,black_20%,transparent_80%)]"
 			/>
 
-			<div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-12 px-6 pt-28 pb-20 lg:grid-cols-2 lg:gap-16">
+			<div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-12 px-6 pt-24 pb-14 lg:grid-cols-2 lg:gap-16">
 				<div className="flex flex-col items-start gap-5">
+					<AppIcon product={product} size="lg" />
 					<span className="font-medium font-mono text-label text-secondary-foreground uppercase tracking-[0.12em]">
 						{product.eyebrow}
 					</span>
@@ -69,11 +72,13 @@ export function AppHero({ product }: { product: EdgeProduct }) {
 						</ButtonLink>
 						<ButtonLink
 							className="h-11 rounded-full px-6 text-[15px]"
-							href={"/contact" as Route}
+							href={BOOKING_URL as Route}
+							rel="noopener"
 							size="xl"
+							target="_blank"
 							variant="secondary"
 						>
-							Book a 15-min teardown
+							{BOOKING_LABEL}
 						</ButtonLink>
 					</div>
 
@@ -91,7 +96,7 @@ export function AppHero({ product }: { product: EdgeProduct }) {
 					</ul>
 				</div>
 
-				<div className="relative isolate flex min-h-[380px] items-center justify-center overflow-hidden rounded-[2rem] border border-border bg-bg lg:min-h-[440px]">
+				<div className="relative isolate flex min-h-[380px] items-center justify-center overflow-hidden rounded-[2rem] border border-border bg-bg lg:min-h-[440px] dark:bg-transparent">
 					<div
 						aria-hidden="true"
 						className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(var(--gray-a4)_1px,transparent_1px)] [background-size:20px_20px] [mask-image:radial-gradient(ellipse_70%_70%_at_50%_50%,black_30%,transparent_80%)]"

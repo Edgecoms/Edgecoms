@@ -4,7 +4,7 @@ import { MarketingCta } from "@/components/marketing/marketing-cta";
 import { Highlight } from "@/components/ui/highlight";
 
 export const metadata: Metadata = {
-	title: "About — Edge",
+	title: "About · Edge",
 	description:
 		"Edge is a studio of seven Shopify apps built by one team, and a partner program that pays the people who grow great merchants. Built for correctness and auditability.",
 };
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 const VALUES = [
 	{
 		description:
-			"Every app does one job exceptionally well. No feature bloat, no dark patterns — software that respects the merchant and the shopper.",
+			"Every app does one job exceptionally well. No feature bloat, no dark patterns. Software that respects the merchant and the shopper.",
 		title: "Craft over clutter",
 	},
 	{
@@ -22,7 +22,7 @@ const VALUES = [
 	},
 	{
 		description:
-			"We move deliberately and build for durability. The boring guarantees — correctness, clarity, trust — are the ones that matter.",
+			"We move deliberately and build for durability. The boring guarantees, correctness and clarity and trust, are the ones that matter.",
 		title: "Calm and considered",
 	},
 ] as const;
@@ -33,7 +33,7 @@ const VALUES = [
 const GUARANTEES = [
 	{
 		description:
-			"Every amount is stored as an integer in minor units with its currency code. No floating-point arithmetic ever touches money — not in conversion, not in commission.",
+			"Every amount is stored as an integer in minor units with its currency code. No floating-point arithmetic ever touches money, not in conversion and not in commission.",
 		label: "Money is never a float",
 	},
 	{
@@ -61,7 +61,7 @@ export default function AboutPage() {
 					aria-hidden="true"
 					className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(var(--gray-a4)_1px,transparent_1px)] [background-size:22px_22px] [mask-image:radial-gradient(ellipse_65%_60%_at_50%_40%,black_25%,transparent_78%)]"
 				/>
-				<div className="mx-auto flex w-full max-w-4xl flex-col items-center gap-6 px-6 pt-32 pb-24 text-center sm:gap-8">
+				<div className="mx-auto flex w-full max-w-4xl flex-col items-center gap-6 px-6 pt-24 pb-16 text-center sm:gap-8">
 					<p className="font-medium font-mono text-label text-secondary-foreground uppercase tracking-[0.14em]">
 						About Edge
 					</p>
@@ -73,7 +73,7 @@ export default function AboutPage() {
 				</div>
 			</section>
 
-			<section aria-labelledby="why-heading" className="w-full pb-24">
+			<section aria-labelledby="why-heading" className="w-full pb-16">
 				<div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-12 border-border border-t px-6 pt-16 lg:grid-cols-3 lg:gap-16">
 					<h2
 						className="font-medium text-h1 text-primary-foreground lg:sticky lg:top-24 lg:self-start"
@@ -91,11 +91,12 @@ export default function AboutPage() {
 						</p>
 						<p className="text-pretty text-body-lg text-secondary-foreground leading-relaxed">
 							Edge is the other answer. One team building the apps a store
-							actually needs — bundles, cart, urgency, reviews, currency,
-							subscriptions, and the server-side tracking that tells you whether
-							any of it worked — so they share a design language, a bill, and a
-							single place to get help. Nothing you install makes the storefront
-							look stitched together, because it was not stitched together.
+							actually needs, from bundles and cart to urgency, reviews,
+							currency, subscriptions, and the server-side tracking that tells
+							you whether any of it worked, so they share a design language, a
+							bill, and a single place to get help. Nothing you install makes
+							the storefront look stitched together, because it was not stitched
+							together.
 						</p>
 						<p className="text-pretty text-body-lg text-secondary-foreground leading-relaxed">
 							We build them in the order our own stores needed them. Every app
@@ -108,13 +109,13 @@ export default function AboutPage() {
 							consultants who run these stores are the reason merchants find
 							good software at all, and most programs pay them for a click and
 							then stop. We pay a share of revenue for as long as the merchant
-							stays — no referral links, no attribution windows, no expiry.
+							stays. No referral links, no attribution windows, no expiry.
 						</p>
 					</div>
 				</div>
 			</section>
 
-			<section aria-labelledby="values-heading" className="w-full pb-24">
+			<section aria-labelledby="values-heading" className="w-full pb-16">
 				<div className="mx-auto w-full max-w-7xl px-6">
 					<div className="mx-auto flex max-w-2xl flex-col items-center gap-4 text-center">
 						<h2
@@ -149,7 +150,7 @@ export default function AboutPage() {
 
 			<section
 				aria-labelledby="guarantees-heading"
-				className="relative w-full pb-24"
+				className="relative w-full pb-16"
 			>
 				<div
 					aria-hidden="true"

@@ -5,7 +5,7 @@ import { GridMarkers } from "@/components/home/grid-markers";
 const FAQS = [
 	{
 		answer:
-			"They are grandfathered out. At approval we record every Edge app the store was already subscribed to, and those apps never generate commission — not now, not on future charges for them. You earn on what you bring.",
+			"They are grandfathered out. At approval we record every Edge app the store was already subscribed to, and those apps never generate commission, not now and not on future charges for them. You earn on what you bring.",
 		question: "What if the store already pays for an Edge app?",
 	},
 	{
@@ -20,7 +20,7 @@ const FAQS = [
 	},
 	{
 		answer:
-			"Merchants are keyed on their canonical myshopify.com domain, which is globally unique. The first partner approved for a store holds it — two partners cannot both claim the same merchant.",
+			"Merchants are keyed on their canonical myshopify.com domain, which is globally unique. The first partner approved for a store holds it, so two partners cannot both claim the same merchant.",
 		question: "Can two partners claim the same store?",
 	},
 	{
@@ -37,7 +37,7 @@ const FAQS = [
 
 export function PartnerFaq() {
 	return (
-		<section aria-labelledby="faq-heading" className="w-full pb-24">
+		<section aria-labelledby="faq-heading" className="w-full pb-16">
 			<div className="mx-auto w-full max-w-7xl px-6">
 				<div className="mx-auto flex max-w-2xl flex-col items-center gap-4 text-center">
 					<h2

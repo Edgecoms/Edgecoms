@@ -22,13 +22,13 @@ const ROWS = [
 	},
 	{
 		edge: "Apps the store already paid for are excluded up front",
-		typical: "You earn on revenue you did not bring — until they claw it back",
+		typical: "You earn on revenue you did not bring, until they claw it back",
 	},
 ] as const;
 
 export function ProgramCompare() {
 	return (
-		<section aria-labelledby="compare-heading" className="w-full pb-24">
+		<section aria-labelledby="compare-heading" className="w-full pb-16">
 			<div className="mx-auto w-full max-w-7xl px-6">
 				<div className="mx-auto flex max-w-2xl flex-col items-center gap-4 text-center">
 					<h2
@@ -44,7 +44,7 @@ export function ProgramCompare() {
 					</p>
 				</div>
 
-				<div className="mt-16 grid grid-cols-1 overflow-hidden rounded-[2rem] border border-border lg:grid-cols-2">
+				<div className="mt-12 grid grid-cols-1 overflow-hidden rounded-[2rem] border border-border lg:grid-cols-2">
 					{/* typical */}
 					<div className="relative isolate flex flex-col bg-bg p-8 sm:p-10">
 						<div

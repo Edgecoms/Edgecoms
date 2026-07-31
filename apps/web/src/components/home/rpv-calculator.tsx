@@ -175,7 +175,7 @@ export function RpvCalculator() {
 	return (
 		<section
 			aria-labelledby="calculator-heading"
-			className="w-full scroll-mt-24 py-24"
+			className="w-full scroll-mt-24 py-10"
 			id="calculator"
 		>
 			<div className="mx-auto w-full max-w-7xl px-6">
@@ -195,7 +195,7 @@ export function RpvCalculator() {
 					</p>
 				</div>
 
-				<div className="mt-16 grid grid-cols-1 gap-px overflow-hidden rounded-[2rem] border border-border bg-border lg:grid-cols-5">
+				<div className="mt-10 grid grid-cols-1 gap-px overflow-hidden rounded-[2rem] border border-border bg-border lg:grid-cols-5">
 					<div className="flex flex-col gap-6 bg-page p-8 sm:p-10 lg:col-span-2">
 						<NumberField
 							hint="Shopify Analytics → Total sales, last 30 days"
@@ -293,7 +293,7 @@ export function RpvCalculator() {
 
 						<p className="mt-auto text-pretty text-caption text-secondary-foreground leading-relaxed">
 							Illustrative arithmetic, not a forecast. It shows what a lift of
-							this size is worth on your current numbers — it does not predict
+							this size is worth on your current numbers. It does not predict
 							that any app will produce one.
 						</p>
 					</div>

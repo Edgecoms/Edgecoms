@@ -51,7 +51,7 @@ const PILLARS: readonly {
 		icon: Shapes,
 		title: "No theme surgery",
 		description:
-			"Everything ships as a Shopify App Block. Install it, drag it where you want it, done — and uninstalling leaves zero code behind in your theme.",
+			"Everything ships as a Shopify App Block. Install it, drag it where you want it, done. Uninstalling leaves zero code behind in your theme.",
 	},
 	{
 		icon: Share2,
@@ -63,7 +63,7 @@ const PILLARS: readonly {
 
 export function WhyEdge() {
 	return (
-		<section aria-labelledby="why-heading" className="relative w-full pb-24">
+		<section aria-labelledby="why-heading" className="relative w-full pb-10">
 			<div className="mx-auto w-full max-w-7xl px-6">
 				<div className="mx-auto flex max-w-2xl flex-col items-center gap-4 text-center">
 					<h2
@@ -81,7 +81,7 @@ export function WhyEdge() {
 				</div>
 
 				{/* Before / after. Equal halves so neither side reads as the aside. */}
-				<div className="mt-16 grid grid-cols-1 overflow-hidden rounded-[2rem] border border-border lg:grid-cols-2">
+				<div className="mt-10 grid grid-cols-1 overflow-hidden rounded-[2rem] border border-border lg:grid-cols-2">
 					{/* before — mirrors the "after" half exactly: dotted texture,
 					    centred heading, one stack of cards underneath. */}
 					<div className="relative isolate flex min-h-[420px] flex-col items-center justify-center gap-8 bg-bg p-8 sm:p-10 lg:min-h-[560px]">

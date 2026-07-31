@@ -4,7 +4,7 @@ import { GridMarkers } from "@/components/home/grid-markers";
    apps involved, because a vague "they integrate" claim is worth nothing. */
 const PAIRINGS = [
 	{
-		body: "Cart and Bundles share one view of the cart, so a bundle offer never fights the upsell already on screen — and the two never double-discount the same line.",
+		body: "Cart and Bundles share one view of the cart, so a bundle offer never fights the upsell already on screen, and the two never double-discount the same line.",
 		title: "Bundles knows what's in the cart",
 	},
 	{
@@ -24,7 +24,7 @@ const PAIRINGS = [
 		title: "Trackproof measures what the others changed",
 	},
 	{
-		body: "Conversion rate, average order value, and revenue per visitor are reported in one place across every app — instead of four dashboards that each claim credit for the same order.",
+		body: "Conversion rate, average order value, and revenue per visitor are reported in one place across every app, instead of four dashboards that each claim credit for the same order.",
 		title: "One number for revenue per visitor, not four",
 	},
 ] as const;
@@ -33,7 +33,7 @@ export function BetterTogether() {
 	return (
 		<section
 			aria-labelledby="together-heading"
-			className="relative w-full scroll-mt-24 py-24"
+			className="relative w-full scroll-mt-24 py-16"
 			id="better-together"
 		>
 			<div
@@ -52,7 +52,7 @@ export function BetterTogether() {
 					<p className="text-pretty text-body-lg text-secondary-foreground leading-relaxed">
 						Seven apps from seven vendors can only sit next to each other, and
 						they will double-discount the same line and claim credit for the
-						same order. These were built by one team, so they actually talk —
+						same order. These were built by one team, so they actually talk,
 						which is behaviour you cannot assemble out of point solutions.
 					</p>
 				</div>

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { CtaHome } from "@/components/home/cta-home";
 import { HeroHome } from "@/components/home/hero-home";
+import { LogoTicker } from "@/components/home/logo-ticker";
 import { SuiteHome } from "@/components/home/suite-home";
-import { TrustStrip } from "@/components/home/trust-strip";
 import { WhyEdge } from "@/components/home/why-edge";
 
 export const metadata: Metadata = {
@@ -15,7 +15,7 @@ export default function HomePage() {
 	return (
 		<main className="flex flex-col">
 			<HeroHome />
-			<TrustStrip />
+			<LogoTicker />
 			<SuiteHome />
 			<WhyEdge />
 			<CtaHome />

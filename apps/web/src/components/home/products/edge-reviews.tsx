@@ -33,7 +33,7 @@ export default function ReviewsDiagram() {
 				</div>
 
 				<p className="mt-2.5 font-medium text-[13px] text-[var(--gray-12)] leading-snug">
-					“Exactly as described — shipped in two days.”
+					“Exactly as described, shipped in two days.”
 				</p>
 
 				<div className="mt-3 flex flex-col gap-1.5">

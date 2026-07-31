@@ -6,13 +6,12 @@ import { MarketingCta } from "@/components/marketing/marketing-cta";
 import { AppHero } from "@/components/products/app-hero";
 import {
 	HowItWorks,
-	ResultsBand,
 	TestimonialBlock,
 	WorksWith,
 } from "@/components/products/app-sections";
 import { FeatureSections } from "@/components/products/feature-sections";
 import { hasFreeTier, PricingTiers } from "@/components/products/pricing-tiers";
-import { CASE_STUDIES } from "@/lib/marketing-stats";
+import { BOOKING_LABEL, BOOKING_URL } from "@/lib/booking";
 import { EDGE_PRODUCTS, getProduct } from "@/lib/products";
 
 interface AppPageProps {
@@ -30,11 +29,11 @@ export async function generateMetadata({
 	const product = getProduct(slug);
 
 	if (!product) {
-		return { title: "Not found — Edge" };
+		return { title: "Not found · Edge" };
 	}
 
 	return {
-		title: `${product.name} — ${product.tagline}`,
+		title: `${product.name} · ${product.tagline}`,
 		// `description` no longer renders on the page, so it does its work here.
 		description: product.description,
 	};
@@ -48,8 +47,6 @@ export default async function AppPage({ params }: AppPageProps) {
 		notFound();
 	}
 
-	const study = CASE_STUDIES[product.slug];
-
 	return (
 		<main className="flex flex-col">
 			<AppHero product={product} />
@@ -62,7 +59,6 @@ export default async function AppPage({ params }: AppPageProps) {
 
 			<HowItWorks steps={product.how} title="Live in three steps" />
 
-			{study ? <ResultsBand study={study} /> : null}
 			{product.testimonial ? (
 				<TestimonialBlock testimonial={product.testimonial} />
 			) : null}
@@ -79,7 +75,7 @@ export default async function AppPage({ params }: AppPageProps) {
 						: "No contract, billed on the Shopify invoice you already get, and nothing left in your theme if you change your mind. Or send us your store URL and we will set it up for you."
 				}
 				heading={product.ctaHeading}
-				primary={{ href: "/contact", label: "Book a 15-min teardown" }}
+				primary={{ href: BOOKING_URL, label: BOOKING_LABEL }}
 				secondary={{ href: "/products", label: "See the other apps" }}
 			/>
 		</main>

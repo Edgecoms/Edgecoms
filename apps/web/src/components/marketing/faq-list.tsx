@@ -14,7 +14,7 @@ export function FaqList({
 	title?: string;
 }) {
 	return (
-		<section aria-labelledby="faq-heading" className="w-full py-24">
+		<section aria-labelledby="faq-heading" className="w-full py-10">
 			<div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-12 px-6 lg:grid-cols-3 lg:gap-16">
 				<h2
 					className="text-balance font-medium text-h1 text-primary-foreground lg:sticky lg:top-24 lg:self-start"

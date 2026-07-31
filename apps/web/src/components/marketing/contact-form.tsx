@@ -29,7 +29,7 @@ export function ContactForm() {
 	function handleSubmit(event: FormEvent<HTMLFormElement>) {
 		event.preventDefault();
 		setSubmitting(true);
-		toast.success("Got it — we'll send your teardown within two working days.");
+		toast.success("Got it. We'll send your teardown within two working days.");
 		event.currentTarget.reset();
 		setSubmitting(false);
 	}
@@ -81,8 +81,8 @@ export function ContactForm() {
 					Send my store
 				</Button>
 				<span className="text-caption text-secondary-foreground">
-					No call required — we send the teardown by email. If you would rather
-					talk it through, say so and we will book fifteen minutes.
+					We send the teardown by email, so there is nothing to attend. If you
+					would rather book a time, the audit link is on the left.
 				</span>
 			</div>
 		</form>

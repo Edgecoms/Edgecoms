@@ -110,7 +110,7 @@ export function JourneyExplorer() {
 	};
 
 	return (
-		<section aria-labelledby="journey-heading" className="w-full py-24">
+		<section aria-labelledby="journey-heading" className="w-full py-10">
 			<div className="mx-auto w-full max-w-7xl px-6">
 				<div className="mx-auto flex max-w-2xl flex-col items-center gap-4 text-center">
 					<p className="font-medium font-mono text-label text-secondary-foreground uppercase tracking-[0.14em]">
@@ -130,7 +130,7 @@ export function JourneyExplorer() {
 					</p>
 				</div>
 
-				<div className="mt-16 grid grid-cols-1 items-start gap-10 lg:grid-cols-2 lg:gap-16">
+				<div className="mt-10 grid grid-cols-1 items-start gap-10 lg:grid-cols-2 lg:gap-16">
 					<div
 						aria-label="Steps in a visit"
 						aria-orientation="vertical"
@@ -183,7 +183,7 @@ export function JourneyExplorer() {
 						role="tabpanel"
 						tabIndex={-1}
 					>
-						<div className="relative isolate flex min-h-[380px] items-center justify-center overflow-hidden rounded-[2rem] border border-border bg-bg lg:min-h-[480px]">
+						<div className="relative isolate flex min-h-[380px] items-center justify-center overflow-hidden rounded-[2rem] border border-border bg-bg lg:min-h-[480px] dark:bg-transparent">
 							<div
 								aria-hidden="true"
 								className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(var(--gray-a4)_1px,transparent_1px)] [background-size:20px_20px] [mask-image:radial-gradient(ellipse_70%_70%_at_50%_50%,black_30%,transparent_80%)]"

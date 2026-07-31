@@ -62,7 +62,7 @@ function IntegrationGroup({ hidden = false }: { hidden?: boolean }) {
  */
 export function LogoTicker() {
 	return (
-		<section aria-labelledby="ticker-heading" className="w-full py-10 sm:py-12">
+		<section aria-labelledby="ticker-heading" className="w-full py-6 sm:py-8">
 			<h2
 				className="mb-8 text-center font-medium font-mono text-label text-secondary-foreground uppercase tracking-[0.14em] sm:mb-10"
 				id="ticker-heading"

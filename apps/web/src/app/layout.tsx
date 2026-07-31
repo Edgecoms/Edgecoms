@@ -18,14 +18,14 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
 	title: {
-		default: "Edge — Your edge starts here",
+		default: "Edge · Your edge starts here",
 		template: "%s",
 	},
 	description:
 		"Edge is a Shopify growth platform: a suite of thoughtfully crafted apps and a partner program that pays recurring commission on the merchants you bring.",
 	applicationName: "Edge",
 	openGraph: {
-		title: "Edge — Your edge starts here",
+		title: "Edge · Your edge starts here",
 		description:
 			"A Shopify growth platform and a partner program that pays recurring commission.",
 		siteName: "Edge",

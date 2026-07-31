@@ -5,7 +5,6 @@ import {
 	CaseStudyTrack,
 } from "@/components/home/case-study-track";
 import { CASE_STUDIES, isCaseStudyVisible } from "@/lib/marketing-stats";
-import { EDGE_PRODUCTS } from "@/lib/products";
 
 /**
  * The proof row: one card per merchant, each carrying the single number that
@@ -16,16 +15,12 @@ import { EDGE_PRODUCTS } from "@/lib/products";
  * builds — see `SHOW_PLACEHOLDER_PROOF` in `marketing-stats.ts`.
  */
 
-/* flatMap rather than map-then-filter so there is no intermediate null to
-   narrow back out — the hidden ones simply never enter the list. */
+/* Keyed by merchant now, not by app: a store runs several Edge apps, so one
+   card per merchant is the honest unit. */
 function visibleCards(): CaseStudyCard[] {
-	return EDGE_PRODUCTS.flatMap((product) => {
-		const study = CASE_STUDIES[product.slug];
-		if (!(study && isCaseStudyVisible(study))) {
-			return [];
-		}
-		return [{ ...study, slug: product.slug }];
-	});
+	return Object.entries(CASE_STUDIES).flatMap(([key, study]) =>
+		isCaseStudyVisible(study) ? [{ ...study, slug: key }] : []
+	);
 }
 
 export function CaseStudies() {
@@ -49,14 +44,14 @@ export function CaseStudies() {
 						className="text-balance font-medium text-display text-primary-foreground"
 						id="case-studies-heading"
 					>
-						The numbers, from real stores.
+						Stores running Edge right now.
 					</h2>
 				</div>
 				<Link
 					className="shrink-0 text-body-sm text-primary-foreground underline decoration-border underline-offset-4 transition-colors hover:decoration-current"
 					href={"/products" as Route}
 				>
-					See which app did it
+					See what each app does
 				</Link>
 			</div>
 

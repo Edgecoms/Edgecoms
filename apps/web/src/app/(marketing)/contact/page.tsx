@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { ContactForm } from "@/components/marketing/contact-form";
 import { Highlight } from "@/components/ui/highlight";
+import { BOOKING_LABEL, BOOKING_URL } from "@/lib/booking";
 
 export const metadata: Metadata = {
-	title: "Get a 15-minute store teardown — Edge",
+	title: "Get a 15-minute store teardown · Edge",
 	description:
 		"Send us your store URL and we will tell you where revenue per visitor is leaking, which of the two numbers is weakest, and what we would change first. Free, no call required.",
 };
@@ -57,7 +58,7 @@ export default function ContactPage() {
 				className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(var(--gray-a4)_1px,transparent_1px)] [background-size:22px_22px] [mask-image:radial-gradient(ellipse_65%_50%_at_50%_25%,black_20%,transparent_78%)]"
 			/>
 
-			<div className="mx-auto w-full max-w-7xl px-6 pt-28 pb-28">
+			<div className="mx-auto w-full max-w-7xl px-6 pt-24 pb-20">
 				<div className="mx-auto flex max-w-3xl flex-col items-center gap-5 text-center">
 					<p className="font-medium font-mono text-label text-secondary-foreground uppercase tracking-[0.14em]">
 						Free store teardown
@@ -74,7 +75,7 @@ export default function ContactPage() {
 					</p>
 				</div>
 
-				<div className="mt-16 grid grid-cols-1 items-start gap-12 lg:grid-cols-5 lg:gap-16">
+				<div className="mt-12 grid grid-cols-1 items-start gap-12 lg:grid-cols-5 lg:gap-16">
 					<div className="flex flex-col gap-10 lg:col-span-2">
 						<ol className="flex flex-col gap-7">
 							{DELIVERABLES.map((item, index) => (
@@ -91,6 +92,20 @@ export default function ContactPage() {
 								</li>
 							))}
 						</ol>
+
+						<div className="flex flex-col gap-4 border-border border-t pt-8">
+							<h2 className="font-medium font-mono text-label text-secondary-foreground uppercase tracking-[0.12em]">
+								Would rather book a time?
+							</h2>
+							<a
+								className="w-fit text-body-sm text-primary-foreground underline decoration-border underline-offset-4 transition-colors hover:decoration-current"
+								href={BOOKING_URL}
+								rel="noopener"
+								target="_blank"
+							>
+								{BOOKING_LABEL}
+							</a>
+						</div>
 
 						<div className="flex flex-col gap-4 border-border border-t pt-8">
 							<h2 className="font-medium font-mono text-label text-secondary-foreground uppercase tracking-[0.12em]">

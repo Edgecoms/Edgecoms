@@ -32,7 +32,7 @@ export function ProductsHome() {
 				</div>
 
 				{/* product grid — Vercel-style band: visuals up top, content below */}
-				<div className="mt-16 grid grid-cols-1 sm:grid-cols-2 lg:mt-20 lg:grid-cols-3">
+				<div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:mt-20 lg:grid-cols-3">
 					<ProductCard
 						description="Increase average order value with curated, ready-to-buy product bundles."
 						diagram={<BundlesDiagram />}

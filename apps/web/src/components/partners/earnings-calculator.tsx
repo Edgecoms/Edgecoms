@@ -181,7 +181,7 @@ export function EarningsCalculator() {
 				</div>
 
 				<p className="text-pretty text-caption text-secondary-foreground leading-relaxed">
-					Illustrative only — not a quote. Your rate is agreed when you are
+					Illustrative only, not a quote. Your rate is agreed when you are
 					approved and frozen onto every commission generated from then on, so
 					renegotiating later never rewrites what you have already earned.
 				</p>

@@ -76,7 +76,7 @@ export function ProductBand({
 									{feature.title}
 									<span className="text-secondary-foreground">
 										{" "}
-										— {feature.metric}
+										· {feature.metric}
 									</span>
 								</span>
 							</li>
@@ -96,7 +96,7 @@ export function ProductBand({
 				</div>
 
 				<div
-					className={`relative isolate flex min-h-[420px] items-center justify-center overflow-hidden rounded-[2rem] border border-border bg-bg ${flipped ? "lg:order-1" : ""}`}
+					className={`relative isolate flex min-h-[420px] items-center justify-center overflow-hidden rounded-[2rem] border border-border bg-bg dark:bg-transparent ${flipped ? "lg:order-1" : ""}`}
 				>
 					<div
 						aria-hidden="true"

@@ -131,7 +131,8 @@
 }
 
 @theme inline {
-	--header-height: 2.75rem;
+	/* Tall enough for a bold wordmark and a real button, not a utility strip. */
+	--header-height: 4.5rem;
 
 	--animate-marquee-left: marquee-left 44s linear infinite;
 

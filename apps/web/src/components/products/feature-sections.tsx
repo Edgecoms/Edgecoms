@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { Highlight } from "@/components/ui/highlight";
 import type { AppFeature } from "@/lib/products";
 
 /**
@@ -74,7 +75,7 @@ export function FeatureSections({
 										{feature.metric}
 									</span>
 									<h3 className="max-w-md text-balance font-medium text-h1 text-primary-foreground">
-										{feature.title}
+										<Highlight>{feature.title}</Highlight>
 									</h3>
 									<p className="max-w-md text-pretty text-body-lg text-secondary-foreground leading-relaxed">
 										{feature.body}

@@ -1,5 +1,6 @@
 import { ButtonLink } from "@edgecoms/ui/components/button";
 import type { Route } from "next";
+import { Highlight } from "@/components/ui/highlight";
 
 /* Deliberately all true, all checkable. Note what is NOT here: "free plan on
    every app". Edge Timer's real App Store listing starts at $4.99, so that
@@ -42,7 +43,7 @@ export function HeroHome() {
 				    a message not aimed at the merchant. It is still reachable from the
 				    header, the footer, and the closing CTA. */}
 				<h1 className="text-balance font-medium text-display text-primary-foreground sm:text-display-lg lg:text-display-xl">
-					Same traffic. Higher AOV.
+					<Highlight>Same traffic. Higher AOV.</Highlight>
 				</h1>
 
 				<p className="max-w-2xl text-pretty text-body-lg text-secondary-foreground leading-relaxed">

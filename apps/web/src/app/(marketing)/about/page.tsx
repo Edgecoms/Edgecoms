@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { GridMarkers } from "@/components/home/grid-markers";
 import { MarketingCta } from "@/components/marketing/marketing-cta";
+import { Highlight } from "@/components/ui/highlight";
 
 export const metadata: Metadata = {
 	title: "About — Edge",
@@ -65,7 +66,9 @@ export default function AboutPage() {
 						About Edge
 					</p>
 					<h1 className="text-balance font-medium text-display text-primary-foreground sm:text-display-lg">
-						One team, seven apps, and a program that pays for the long term
+						<Highlight>
+							One team, seven apps, and a program that pays for the long term
+						</Highlight>
 					</h1>
 				</div>
 			</section>

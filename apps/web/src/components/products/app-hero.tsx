@@ -1,6 +1,7 @@
 import { ButtonLink } from "@edgecoms/ui/components/button";
 import type { Route } from "next";
 import { DIAGRAMS } from "@/components/home/products/diagrams";
+import { Highlight } from "@/components/ui/highlight";
 import { APP_RESULT_BADGES } from "@/lib/marketing-stats";
 import type { EdgeProduct } from "@/lib/products";
 
@@ -50,7 +51,7 @@ export function AppHero({ product }: { product: EdgeProduct }) {
 					</div>
 
 					<h1 className="text-balance font-medium text-display text-primary-foreground sm:text-display-lg">
-						{product.tagline}
+						<Highlight>{product.tagline}</Highlight>
 					</h1>
 
 					<p className="max-w-xl text-pretty text-body-lg text-secondary-foreground leading-relaxed">

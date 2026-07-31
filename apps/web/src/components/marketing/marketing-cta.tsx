@@ -3,6 +3,7 @@ import type { LucideIcon } from "lucide-react";
 import type { Route } from "next";
 import type { ReactNode } from "react";
 import { PanelTexture } from "@/components/home/panel-texture";
+import { Highlight } from "@/components/ui/highlight";
 
 export interface CtaAction {
 	href: string;
@@ -116,7 +117,7 @@ export function MarketingCta({
 						className="max-w-3xl text-balance font-medium text-display text-white sm:text-display-lg"
 						id="cta-heading"
 					>
-						{heading}
+						<Highlight>{heading}</Highlight>
 					</h2>
 
 					<p className="max-w-2xl text-pretty text-body-lg text-white leading-relaxed">

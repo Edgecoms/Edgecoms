@@ -1,6 +1,7 @@
 import type { Route } from "next";
 import Link from "next/link";
 import { GridMarkers } from "@/components/home/grid-markers";
+import { Highlight } from "@/components/ui/highlight";
 import { productsByLever, RPV_LEVERS } from "@/lib/products";
 
 /* The spine of the whole site. It works because it is arithmetic rather than
@@ -95,7 +96,9 @@ export function RpvEquation() {
 						className="text-balance font-medium text-display text-primary-foreground"
 						id="rpv-heading"
 					>
-						There are only two ways to make a visit worth more
+						<Highlight>
+							There are only two ways to make a visit worth more
+						</Highlight>
 					</h2>
 					<p className="text-pretty text-body-lg text-secondary-foreground leading-relaxed">
 						More of your visitors buy, or the ones who buy spend more. That is

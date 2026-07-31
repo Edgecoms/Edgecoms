@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useId, useRef, useState } from "react";
 import { DIAGRAMS } from "@/components/home/products/diagrams";
+import { Highlight } from "@/components/ui/highlight";
 import {
 	APP_RESULT_BADGES,
 	SHOW_PLACEHOLDER_PROOF,
@@ -118,7 +119,9 @@ export function JourneyExplorer() {
 						className="text-balance font-medium text-display text-primary-foreground"
 						id="journey-heading"
 					>
-						Every step of a visit has a number attached to it
+						<Highlight>
+							Every step of a visit has a number attached to it
+						</Highlight>
 					</h2>
 					<p className="text-pretty text-body-lg text-secondary-foreground leading-relaxed">
 						Each app works at a different point between landing and buying
@@ -163,7 +166,7 @@ export function JourneyExplorer() {
 									    stays scannable instead of becoming seven paragraphs. */}
 									{selected ? (
 										<span className="mt-1 max-w-md text-pretty text-body-sm text-secondary-foreground leading-relaxed">
-											{entry.product.tagline}
+											<Highlight>{entry.product.tagline}</Highlight>
 										</span>
 									) : null}
 								</button>

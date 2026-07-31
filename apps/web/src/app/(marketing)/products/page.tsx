@@ -19,6 +19,7 @@ import {
 } from "@/components/marketing/marketing-cta";
 import { BetterTogether } from "@/components/products/better-together";
 import { ProductBand } from "@/components/products/product-band";
+import { Highlight } from "@/components/ui/highlight";
 import { APP_RESULT_BADGES } from "@/lib/marketing-stats";
 import { EDGE_PRODUCTS } from "@/lib/products";
 
@@ -101,7 +102,7 @@ export default function ProductsPage() {
 											{product.name}
 										</span>
 										<span className="text-pretty text-body-sm text-secondary-foreground leading-relaxed sm:col-span-7">
-											{product.tagline}
+											<Highlight>{product.tagline}</Highlight>
 										</span>
 										<span className="font-medium font-mono text-[11px] text-brand uppercase tracking-[0.08em] sm:col-span-2 sm:text-right">
 											{badge?.value ?? product.metric}

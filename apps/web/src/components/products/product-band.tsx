@@ -2,6 +2,7 @@ import { ArrowRight, Check } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import { DIAGRAMS } from "@/components/home/products/diagrams";
+import { Highlight } from "@/components/ui/highlight";
 import { APP_RESULT_BADGES } from "@/lib/marketing-stats";
 import type { EdgeProduct } from "@/lib/products";
 
@@ -53,7 +54,7 @@ export function ProductBand({
 					</h2>
 
 					<p className="text-pretty text-body-lg text-primary-foreground leading-relaxed">
-						{product.tagline}
+						<Highlight>{product.tagline}</Highlight>
 					</p>
 					<p className="text-pretty text-body-sm text-secondary-foreground leading-relaxed">
 						{product.heroLead}

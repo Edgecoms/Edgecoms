@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
+import { Highlight } from "@/components/ui/highlight";
 
 /**
  * The maths block. It converts better than any testimonial, because the
@@ -186,7 +187,7 @@ export function RpvCalculator() {
 						className="text-balance font-medium text-display text-primary-foreground"
 						id="calculator-heading"
 					>
-						What a 10% lift is actually worth to you
+						<Highlight>What a 10% lift is actually worth to you</Highlight>
 					</h2>
 					<p className="text-pretty text-body-lg text-secondary-foreground leading-relaxed">
 						Three numbers from your Shopify dashboard. No email required, and

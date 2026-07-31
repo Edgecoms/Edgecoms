@@ -2,6 +2,7 @@ import type { LucideIcon } from "lucide-react";
 import { Check, ReceiptText, Shapes, Share2 } from "lucide-react";
 import { GridMarkers } from "@/components/home/grid-markers";
 import { PanelTexture } from "@/components/home/panel-texture";
+import { Highlight } from "@/components/ui/highlight";
 
 /* Left panel: what running six point solutions actually feels like. The pile
    is built from normal flow — each card only tilts and shifts off centre — so
@@ -69,7 +70,7 @@ export function WhyEdge() {
 						className="text-balance font-medium text-display text-primary-foreground"
 						id="why-heading"
 					>
-						Why merchants install the second one
+						<Highlight>Why merchants install the second one</Highlight>
 					</h2>
 					<p className="text-pretty text-body-lg text-secondary-foreground leading-relaxed">
 						Every app you add is another script, another subscription, another

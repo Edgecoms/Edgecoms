@@ -1,74 +1,101 @@
 import { ButtonLink } from "@edgecoms/ui/components/button";
-import { ArrowRight } from "lucide-react";
+import {
+	Globe,
+	LifeBuoy,
+	Package,
+	Palette,
+	Repeat,
+	ShoppingCart,
+	Star,
+	Store,
+	Timer,
+	Zap,
+} from "lucide-react";
 import type { Metadata, Route } from "next";
-import { PageHeader } from "@/components/marketing/page-header";
+import {
+	type CtaRailItem,
+	MarketingCta,
+} from "@/components/marketing/marketing-cta";
+import { BetterTogether } from "@/components/products/better-together";
+import { ProductBand } from "@/components/products/product-band";
 import { EDGE_PRODUCTS } from "@/lib/products";
 
 export const metadata: Metadata = {
 	title: "Products — Edge",
 	description:
-		"A growing suite of thoughtfully crafted Shopify apps that help merchants sell more, convert better, and grow with confidence.",
+		"Six focused Shopify apps — bundles, cart, reviews, timer, currency, and subscriptions. Each does one job exceptionally well, and they are built to work together.",
 };
+
+const STICKERS = [Package, ShoppingCart, Star, Timer, Globe, Repeat] as const;
+
+const RAIL_ITEMS: readonly CtaRailItem[] = [
+	{ icon: Store, label: "Billed on the Shopify invoice you already get" },
+	{ icon: Zap, label: "Live in minutes" },
+	{ icon: Palette, label: "Works with any theme" },
+	{ icon: LifeBuoy, label: "One team, one support inbox" },
+	{ icon: Repeat, label: "Start with one app, add the rest anytime" },
+];
 
 export default function ProductsPage() {
 	return (
 		<>
-			<section className="relative w-full overflow-hidden">
-				<div className="mx-auto w-full max-w-7xl px-6 pt-32 pb-16">
-					<PageHeader
-						eyebrow="The Edge suite"
-						lead="Six focused apps, one coherent platform. Each one does a single job exceptionally well — and they're built to work better together."
-						title="Built for modern commerce."
-					/>
-				</div>
-			</section>
+			<section className="relative isolate w-full overflow-hidden">
+				<div
+					aria-hidden="true"
+					className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(var(--gray-a4)_1px,transparent_1px)] [background-size:22px_22px] [mask-image:radial-gradient(ellipse_65%_60%_at_50%_40%,black_25%,transparent_78%)]"
+				/>
 
-			<section className="relative w-full">
-				<div className="mx-auto w-full max-w-7xl px-6 pb-24">
-					<ul className="grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
-						{EDGE_PRODUCTS.map((product) => (
-							<li
-								className="flex scroll-mt-24 flex-col gap-3 bg-page p-8 transition-colors hover:bg-surface-item-hover"
-								id={product.slug}
-								key={product.slug}
-							>
-								<span className="font-medium font-mono text-[11px] text-secondary-foreground uppercase tracking-[0.08em]">
-									{product.category}
-								</span>
-								<h2 className="font-medium text-h3 text-primary-foreground">
-									{product.name}
-								</h2>
-								<p className="text-pretty text-body-sm text-secondary-foreground leading-relaxed">
-									{product.description}
-								</p>
-							</li>
-						))}
-					</ul>
-				</div>
-			</section>
-
-			<section className="relative w-full">
-				<div className="mx-auto w-full max-w-7xl px-6 pb-32">
-					<div className="flex flex-col items-start gap-6 rounded-[2rem] border border-border bg-page p-10 sm:p-16">
-						<h2 className="max-w-2xl text-balance font-medium text-h1 text-primary-foreground tracking-tight">
-							One platform. Every stage of growth.
-						</h2>
-						<p className="max-w-xl text-pretty text-body-lg text-secondary-foreground leading-relaxed">
-							Start with one app or run the whole suite. Edge grows with your
-							merchants — from first sale to global scale.
-						</p>
+				<div className="mx-auto flex w-full max-w-4xl flex-col items-center gap-6 px-6 pt-32 pb-24 text-center sm:gap-8">
+					<p className="font-medium font-mono text-label text-secondary-foreground uppercase tracking-[0.14em]">
+						The Edge suite
+					</p>
+					<h1 className="text-balance font-medium text-display text-primary-foreground sm:text-display-lg">
+						Six apps. One suite. No bloat.
+					</h1>
+					<p className="max-w-2xl text-pretty text-body-lg text-secondary-foreground leading-relaxed">
+						Each one does a single job exceptionally well. Run one or run all
+						six — they are built by one team, on one bill, and they know about
+						each other.
+					</p>
+					<div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
 						<ButtonLink
-							className="rounded-full"
-							href={"/partners" as Route}
+							className="h-11 rounded-full px-6 text-[15px]"
+							href={"/contact" as Route}
 							size="xl"
-							variant="primary"
+							variant="brand"
 						>
-							Become a Partner
-							<ArrowRight aria-hidden="true" />
+							Talk to us
+						</ButtonLink>
+						<ButtonLink
+							className="h-11 rounded-full px-6 text-[15px]"
+							href={"/products#better-together" as Route}
+							size="xl"
+							variant="secondary"
+						>
+							See how they fit together
 						</ButtonLink>
 					</div>
 				</div>
 			</section>
+
+			{EDGE_PRODUCTS.map((product, index) => (
+				<ProductBand
+					flipped={index % 2 === 1}
+					key={product.slug}
+					product={product}
+				/>
+			))}
+
+			<BetterTogether />
+
+			<MarketingCta
+				body="Start with one app or run the suite. Billed through Shopify, live in minutes, no developer required."
+				heading="Give your store the whole edge"
+				primary={{ href: "/contact", label: "Talk to us" }}
+				railItems={RAIL_ITEMS}
+				secondary={{ href: "/partners", label: "Become a partner" }}
+				stickers={STICKERS}
+			/>
 		</>
 	);
 }

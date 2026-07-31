@@ -1,7 +1,7 @@
 import { ButtonLink } from "@edgecoms/ui/components/button";
 import type { Route } from "next";
 import Link from "next/link";
-import { PanelTexture } from "@/components/home/panel-texture";
+import { BrandPanel } from "@/components/marketing/brand-panel";
 
 export function HeroHome() {
 	return (
@@ -9,16 +9,8 @@ export function HeroHome() {
 			{/* Inset panel rather than a full-bleed band, so the page background
 			    still frames it and the corners can round. Height tracks the
 			    viewport minus the sticky header and this wrapper's own padding. */}
-			<div className="relative isolate flex min-h-[calc(100svh-var(--header-height)-0.75rem)] w-full items-center justify-center overflow-hidden rounded-[2rem] bg-brand">
-				<PanelTexture />
-				{/* Warm glow: a bright narrow core anchored just past the bottom edge,
-				    plus a wider soft halo. */}
-				<div
-					aria-hidden="true"
-					className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-[radial-gradient(ellipse_30%_82%_at_50%_112%,rgba(255,232,178,0.95),transparent_66%),radial-gradient(ellipse_58%_66%_at_50%_116%,rgba(255,198,138,0.5),transparent_72%)]"
-				/>
-
-				<div className="relative mx-auto flex w-full max-w-4xl flex-col items-center gap-6 px-6 py-20 text-center sm:gap-8 sm:py-28">
+			<BrandPanel className="flex min-h-[calc(100svh-var(--header-height)-0.75rem)] w-full items-center justify-center">
+				<div className="mx-auto flex w-full max-w-4xl flex-col items-center gap-6 px-6 py-20 text-center sm:gap-8 sm:py-28">
 					{/* Announcement pill — keeps the partner program one click from the
 					    fold without letting it take over a merchant-facing page. */}
 					<Link
@@ -63,7 +55,7 @@ export function HeroHome() {
 						</ButtonLink>
 					</div>
 				</div>
-			</div>
+			</BrandPanel>
 		</section>
 	);
 }

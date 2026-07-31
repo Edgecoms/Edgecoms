@@ -1,25 +1,8 @@
 import type { Route } from "next";
 import Link from "next/link";
-import type { ReactNode } from "react";
 import { GridMarkers } from "@/components/home/grid-markers";
-import BundlesDiagram from "@/components/home/products/edge-bundles";
-import CartDiagram from "@/components/home/products/edge-cart";
-import CurrencyDiagram from "@/components/home/products/edge-currency";
-import ReviewsDiagram from "@/components/home/products/edge-reviews";
-import SubscriptionsDiagram from "@/components/home/products/edge-subscriptions";
-import TimerDiagram from "@/components/home/products/edge-timer";
+import { DIAGRAMS } from "@/components/home/products/diagrams";
 import { EDGE_PRODUCTS } from "@/lib/products";
-
-/* All six illustrations are drawn at card scale, so none of them needs a
-   transform to fit — they go straight into the visual band. */
-const DIAGRAMS: Record<string, ReactNode> = {
-	"edge-bundles": <BundlesDiagram />,
-	"edge-cart": <CartDiagram />,
-	"edge-reviews": <ReviewsDiagram />,
-	"edge-timer": <TimerDiagram />,
-	"edge-currency": <CurrencyDiagram />,
-	"edge-subscriptions": <SubscriptionsDiagram />,
-};
 
 export function SuiteHome() {
 	return (

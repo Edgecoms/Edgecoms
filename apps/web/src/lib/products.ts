@@ -4,6 +4,8 @@
  * render it without a DB round-trip.
  */
 export interface EdgeProduct {
+	/** Concrete things the app does, for the product page. Three or four. */
+	capabilities: readonly string[];
 	category: string;
 	description: string;
 	name: string;
@@ -14,6 +16,12 @@ export interface EdgeProduct {
 export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 	{
 		slug: "edge-bundles",
+		capabilities: [
+			"Mix-and-match sets with per-variant rules",
+			"Tiered discounts that update live in the cart",
+			"Frequently-bought-together built from real order history",
+			"Renders inside your theme — no popup, no overlay",
+		],
 		name: "Edge Bundles",
 		category: "Average order value",
 		tagline: "Turn one item in the cart into three.",
@@ -22,6 +30,12 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 	},
 	{
 		slug: "edge-cart",
+		capabilities: [
+			"Slide cart that opens without a page load",
+			"Free-shipping progress and threshold nudges",
+			"One-tap upsells that stay above the checkout button",
+			"Sticky checkout bar on mobile",
+		],
 		name: "Edge Cart",
 		category: "Checkout",
 		tagline: "The shortest path from cart to paid.",
@@ -30,6 +44,12 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 	},
 	{
 		slug: "edge-reviews",
+		capabilities: [
+			"Automated post-purchase review requests",
+			"Photo and video reviews from verified buyers",
+			"Product page, collection grid, and Google rich results",
+			"Moderation queue with reply-in-thread",
+		],
 		name: "Edge Reviews",
 		category: "Trust",
 		tagline: "Proof, exactly where the doubt happens.",
@@ -38,6 +58,12 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 	},
 	{
 		slug: "edge-timer",
+		capabilities: [
+			"Scheduled start and end, timezone-aware",
+			"Dispatch-cutoff and restock countdowns",
+			"Product, collection, and cart placements",
+			"Disappears on its own the moment it expires",
+		],
 		name: "Edge Timer",
 		category: "Urgency",
 		tagline: "Urgency you won't be embarrassed by.",
@@ -46,6 +72,12 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 	},
 	{
 		slug: "edge-currency",
+		capabilities: [
+			"Automatic currency detection by region",
+			"Rounding rules that avoid prices like $47.83",
+			"A switcher that inherits your theme styles",
+			"Runs alongside Shopify Markets, not against it",
+		],
 		name: "Edge Currency",
 		category: "International",
 		tagline: "Every shopper sees a price that feels local.",
@@ -54,6 +86,12 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 	},
 	{
 		slug: "edge-subscriptions",
+		capabilities: [
+			"Flexible intervals, prepaid, and gift plans",
+			"Customer portal with skip, swap, and pause",
+			"Dunning that retries failed payments before churn",
+			"Retention and churn reporting per plan",
+		],
 		name: "Edge Subscriptions",
 		category: "Recurring revenue",
 		tagline: "Revenue that shows up without a new sale.",

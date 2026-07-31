@@ -28,7 +28,8 @@ export default function ProductsPage() {
 					<ul className="grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
 						{EDGE_PRODUCTS.map((product) => (
 							<li
-								className="flex flex-col gap-3 bg-page p-8 transition-colors hover:bg-surface-item-hover"
+								className="flex scroll-mt-24 flex-col gap-3 bg-page p-8 transition-colors hover:bg-surface-item-hover"
+								id={product.slug}
 								key={product.slug}
 							>
 								<span className="font-medium font-mono text-[11px] text-secondary-foreground uppercase tracking-[0.08em]">

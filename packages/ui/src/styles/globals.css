@@ -71,6 +71,17 @@
 	--bg: var(--gray-2);
 	--page: var(--white-a11);
 
+	/* Text colour. Light mode is pure #000000 for both levels, by request —
+	   headings and body copy render at the same true black rather than the
+	   near-black/mid-grey pair the Radix scale gives you.
+	   Trade-off: with both at #000, size and weight are the only things left
+	   separating a heading from a caption. To put the tonal hierarchy back,
+	   point --text-secondary at var(--gray-11) and change nothing else.
+	   Dark mode keeps the scale — #000 on a dark surface is invisible, and the
+	   theme defaults to "system", so real visitors do land there. */
+	--text-primary: #000000;
+	--text-secondary: #000000;
+
 	--secondary: var(--white-a12);
 	--secondary-hover: var(--white-a7);
 
@@ -100,6 +111,10 @@
 .dark {
 	--bg: oklch(0 0 0);
 	--page: var(--white-a1);
+
+	/* Inverted: the dark scale's 12 is near-white, 11 is mid-grey. */
+	--text-primary: var(--gray-12);
+	--text-secondary: var(--gray-11);
 
 	--secondary: var(--white-a1);
 	--secondary-hover: var(--gray-a3);
@@ -180,7 +195,7 @@
 
 	--color-primary: var(--black-a12);
 	--color-primary-hover: var(--black-a11);
-	--color-primary-foreground: var(--gray-12);
+	--color-primary-foreground: var(--text-primary);
 	--color-inverted-primary-foreground: var(--white-a12);
 
 	--color-brand: var(--brand);
@@ -190,7 +205,7 @@
 
 	--color-secondary: var(--secondary);
 	--color-secondary-hover: var(--secondary-hover);
-	--color-secondary-foreground: var(--gray-11);
+	--color-secondary-foreground: var(--text-secondary);
 
 	--color-tertiary-hover: var(--gray-a3);
 

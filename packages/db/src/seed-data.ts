@@ -1,5 +1,5 @@
 /**
- * The canonical Edge app catalog (6 apps). `partnerApiGid` is the Shopify
+ * The canonical Edge app catalog (7 apps). `partnerApiGid` is the Shopify
  * Partner API app GID used to map an incoming `transactions` row back to an Edge
  * app. The values below are PLACEHOLDERS — replace them with the real GIDs from
  * the Partner Dashboard. They can be overridden at seed time without code
@@ -45,6 +45,18 @@ export const EDGE_APPS: readonly EdgeAppSeed[] = [
 		slug: "edge-subscriptions",
 		name: "Edge Subscriptions",
 		partnerApiGid: "gid://partners/App/1000006",
+	},
+	/*
+	 * Trackproof is free, so it produces no `transactions` rows and therefore no
+	 * earnings or commissions. It is seeded anyway so the catalog stays the one
+	 * list of Edge apps — the marketing site mirrors this file, and an app that
+	 * exists on the site but not here is how the two drift apart. If it is ever
+	 * monetised, the GID below is already the mapping key.
+	 */
+	{
+		slug: "trackproof",
+		name: "Trackproof",
+		partnerApiGid: "gid://partners/App/1000007",
 	},
 ] as const;
 

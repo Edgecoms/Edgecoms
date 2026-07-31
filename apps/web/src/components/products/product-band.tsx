@@ -1,6 +1,12 @@
-import { Check } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
+import type { Route } from "next";
+import Link from "next/link";
 import { DIAGRAMS } from "@/components/home/products/diagrams";
+import { APP_RESULT_BADGES } from "@/lib/marketing-stats";
 import type { EdgeProduct } from "@/lib/products";
+
+/** Four is enough to show the shape of the app without previewing its whole page. */
+const BULLET_COUNT = 4;
 
 /**
  * One full-width band per app: illustration on one side, copy on the other,
@@ -17,6 +23,9 @@ export function ProductBand({
 	flipped: boolean;
 	product: EdgeProduct;
 }) {
+	const badge = APP_RESULT_BADGES[product.slug];
+	const bullets = product.features.slice(0, BULLET_COUNT);
+
 	return (
 		<section
 			aria-labelledby={`${product.slug}-heading`}
@@ -25,25 +34,34 @@ export function ProductBand({
 		>
 			<div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-12 px-6 py-20 lg:grid-cols-2 lg:gap-20">
 				<div className={`flex flex-col gap-5 ${flipped ? "lg:order-2" : ""}`}>
-					<span className="font-medium font-mono text-label text-secondary-foreground uppercase tracking-[0.1em]">
-						{product.category}
-					</span>
+					<div className="flex flex-wrap items-center gap-2">
+						<span className="font-medium font-mono text-label text-secondary-foreground uppercase tracking-[0.1em]">
+							{product.category}
+						</span>
+						{badge ? (
+							<span className="rounded-full bg-brand/12 px-2.5 py-1 font-medium font-mono text-[11px] text-brand uppercase tracking-[0.08em]">
+								{badge.value}
+							</span>
+						) : null}
+					</div>
+
 					<h2
 						className="font-medium text-h1 text-primary-foreground"
 						id={`${product.slug}-heading`}
 					>
 						{product.name}
 					</h2>
+
 					<p className="text-pretty text-body-lg text-primary-foreground leading-relaxed">
 						{product.tagline}
 					</p>
 					<p className="text-pretty text-body-sm text-secondary-foreground leading-relaxed">
-						{product.description}
+						{product.heroLead}
 					</p>
 
 					<ul className="mt-2 flex flex-col gap-2.5">
-						{product.capabilities.map((capability) => (
-							<li className="flex items-start gap-2.5" key={capability}>
+						{bullets.map((feature) => (
+							<li className="flex items-start gap-2.5" key={feature.title}>
 								<span className="mt-0.5 grid size-4.5 shrink-0 place-items-center rounded-full bg-brand/12">
 									<Check
 										aria-hidden="true"
@@ -52,11 +70,26 @@ export function ProductBand({
 									/>
 								</span>
 								<span className="text-pretty text-body-sm text-secondary-foreground leading-relaxed">
-									{capability}
+									{feature.title}
+									<span className="text-secondary-foreground">
+										{" "}
+										— {feature.metric}
+									</span>
 								</span>
 							</li>
 						))}
 					</ul>
+
+					<Link
+						className="group mt-2 inline-flex w-fit items-center gap-1.5 text-body-sm text-primary-foreground underline decoration-border underline-offset-4 transition-colors hover:decoration-current"
+						href={`/products/${product.slug}` as Route}
+					>
+						See {product.name} in full
+						<ArrowRight
+							aria-hidden="true"
+							className="size-3.5 transition-transform group-hover:translate-x-0.5"
+						/>
+					</Link>
 				</div>
 
 				<div

@@ -15,7 +15,7 @@ interface FooterColumn {
 	links: readonly FooterLink[];
 }
 
-/* The six apps get the index band above rather than a column here, so this
+/* The seven apps get the index band above rather than a column here, so this
    list stays short and nothing is named twice. Every href resolves to a route
    that exists today. */
 const COLUMNS: readonly FooterColumn[] = [
@@ -55,16 +55,17 @@ export default function Footer() {
 	return (
 		<footer className="w-full">
 			<div className="mx-auto w-full max-w-7xl px-6 pt-24 pb-10">
-				{/* Suite index. The six apps as a legend across the foot of the page,
+				{/* Suite index. The seven apps as a legend across the foot of the page,
 				    in the same hairline grid and corner markers the sections above
 				    use — so the page closes in the language it opened in. "Edge" is
-				    dropped from each name because the whole strip is Edge. */}
+				    dropped from each name because the whole strip is Edge, and each
+				    cell carries the metric that app owns rather than a category. */}
 				<div className="relative">
-					<div className="grid grid-cols-2 gap-px border border-border bg-border sm:grid-cols-3 lg:grid-cols-6">
+					<div className="grid grid-cols-2 gap-px border border-border bg-border sm:grid-cols-4 lg:grid-cols-7">
 						{EDGE_PRODUCTS.map((product) => (
 							<Link
 								className="flex flex-col gap-2.5 bg-bg px-4 py-5 transition-colors hover:bg-page"
-								href={`/products#${product.slug}` as Route}
+								href={`/products/${product.slug}` as Route}
 								key={product.slug}
 							>
 								<span
@@ -75,13 +76,13 @@ export default function Footer() {
 									{product.name.replace("Edge ", "")}
 								</span>
 								<span className="text-caption text-secondary-foreground">
-									{product.category}
+									{product.metric}
 								</span>
 							</Link>
 						))}
 					</div>
 
-					<GridMarkers cols={6} rows={1} />
+					<GridMarkers cols={7} rows={1} />
 				</div>
 
 				<div className="mt-16 grid grid-cols-2 gap-y-10 lg:grid-cols-3 lg:gap-y-0 lg:divide-x lg:divide-border">

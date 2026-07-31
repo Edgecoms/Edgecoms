@@ -42,21 +42,21 @@ const PILLARS: readonly {
 }[] = [
 	{
 		icon: ReceiptText,
-		title: "One bill, on the invoice you already get",
+		title: "One dashboard, seven apps",
 		description:
-			"Edge apps are billed through Shopify. No separate checkout, no new card on file, no vendor emailing you about a failed payment method.",
+			"One login, one bill on the Shopify invoice you already get, one support thread. No separate checkout, no new card on file, no vendor emailing you about a failed payment method.",
 	},
 	{
 		icon: Shapes,
-		title: "One design language",
+		title: "No theme surgery",
 		description:
-			"Cart, bundles, and reviews look like the same people built them, because they did. Nothing you install makes your theme look stitched together.",
+			"Everything ships as a Shopify App Block. Install it, drag it where you want it, done — and uninstalling leaves zero code behind in your theme.",
 	},
 	{
 		icon: Share2,
-		title: "They actually talk to each other",
+		title: "Built by operators, not an app studio",
 		description:
-			"Bundles knows what's in the cart. Reviews knows what a subscriber already bought. Cross-app behaviour you can't get from six separate vendors.",
+			"We run our own Shopify stores. Every feature here shipped because our own average order value needed it first, which is also why none of them ship with forty settings nobody uses.",
 	},
 ] as const;
 
@@ -69,12 +69,13 @@ export function WhyEdge() {
 						className="text-balance font-medium text-display text-primary-foreground"
 						id="why-heading"
 					>
-						Why choose Edge
+						Why merchants install the second one
 					</h2>
 					<p className="text-pretty text-body-lg text-secondary-foreground leading-relaxed">
-						Every app you install is another script, another subscription,
-						another inbox, another thing that breaks when you change themes.
-						Edge is one team's answer to that.
+						Every app you add is another script, another subscription, another
+						inbox, and another thing that breaks the next time you change
+						themes. That tax is why most stores stop at one. Edge is one team's
+						answer to it.
 					</p>
 				</div>
 

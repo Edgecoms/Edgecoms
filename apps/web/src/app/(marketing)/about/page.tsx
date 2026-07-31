@@ -5,7 +5,7 @@ import { MarketingCta } from "@/components/marketing/marketing-cta";
 export const metadata: Metadata = {
 	title: "About — Edge",
 	description:
-		"Edge is a studio of Shopify apps built by one team, and a partner program that pays the people who grow great merchants. Built for correctness and auditability.",
+		"Edge is a studio of seven Shopify apps built by one team, and a partner program that pays the people who grow great merchants. Built for correctness and auditability.",
 };
 
 const VALUES = [
@@ -65,7 +65,7 @@ export default function AboutPage() {
 						About Edge
 					</p>
 					<h1 className="text-balance font-medium text-display text-primary-foreground sm:text-display-lg">
-						One team, six apps, and a program that pays for the long term
+						One team, seven apps, and a program that pays for the long term
 					</h1>
 				</div>
 			</section>
@@ -83,14 +83,22 @@ export default function AboutPage() {
 							A growing Shopify store ends up running six apps from six vendors.
 							Six subscriptions, six support inboxes, six scripts in the theme,
 							six things that break the next time the theme changes. Every one
-							of them was reasonable on its own. Together they are a tax.
+							of them was reasonable on its own. Together they are a tax, and
+							that tax is why most stores stop installing anything at all.
 						</p>
 						<p className="text-pretty text-body-lg text-secondary-foreground leading-relaxed">
 							Edge is the other answer. One team building the apps a store
-							actually needs — bundles, cart, reviews, urgency, currency,
-							subscriptions — so they share a design language, a bill, and a
+							actually needs — bundles, cart, urgency, reviews, currency,
+							subscriptions, and the server-side tracking that tells you whether
+							any of it worked — so they share a design language, a bill, and a
 							single place to get help. Nothing you install makes the storefront
 							look stitched together, because it was not stitched together.
+						</p>
+						<p className="text-pretty text-body-lg text-secondary-foreground leading-relaxed">
+							We build them in the order our own stores needed them. Every app
+							here exists because a number we were watching would not move, and
+							the thing that would have moved it either did not exist or came
+							bundled with forty settings we did not want.
 						</p>
 						<p className="text-pretty text-body-lg text-secondary-foreground leading-relaxed">
 							The second half is the partner program. The agencies and

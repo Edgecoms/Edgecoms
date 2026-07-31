@@ -19,6 +19,14 @@ const PAIRINGS = [
 		body: "A countdown attached to a bundle expires with that bundle. No orphaned timer promising a deal the cart will refuse to honour.",
 		title: "Timer expires with the offer it belongs to",
 	},
+	{
+		body: "Trackproof reports the purchase server-side with the offer that produced it attached, so an AOV lift you see in Shopify is the same lift your ad platform is optimising toward.",
+		title: "Trackproof measures what the others changed",
+	},
+	{
+		body: "Conversion rate, average order value, and revenue per visitor are reported in one place across every app — instead of four dashboards that each claim credit for the same order.",
+		title: "One number for revenue per visitor, not four",
+	},
 ] as const;
 
 export function BetterTogether() {
@@ -42,9 +50,10 @@ export function BetterTogether() {
 						Better together
 					</h2>
 					<p className="text-pretty text-body-lg text-secondary-foreground leading-relaxed">
-						Six apps from six vendors can only sit next to each other. These
-						were built by one team, so they can actually talk — and that is
-						behaviour you cannot buy by assembling point solutions.
+						Seven apps from seven vendors can only sit next to each other, and
+						they will double-discount the same line and claim credit for the
+						same order. These were built by one team, so they actually talk —
+						which is behaviour you cannot assemble out of point solutions.
 					</p>
 				</div>
 
@@ -65,7 +74,7 @@ export function BetterTogether() {
 						))}
 					</div>
 
-					<GridMarkers cols={2} rows={2} />
+					<GridMarkers cols={2} rows={3} />
 				</div>
 			</div>
 		</section>

@@ -22,8 +22,8 @@ const STICKERS = [Package, ShoppingCart, Star, Timer, Globe, Repeat] as const;
 
 const RAIL_ITEMS: readonly CtaRailItem[] = [
 	{ icon: Store, label: "Billed on the Shopify invoice you already get" },
-	{ icon: Zap, label: "Live in minutes" },
-	{ icon: Palette, label: "Works with any theme" },
+	{ icon: Zap, label: "Live in minutes, no developer" },
+	{ icon: Palette, label: "Works with any OS 2.0 theme" },
 	{ icon: LifeBuoy, label: "One team, one support inbox" },
 	{ icon: Repeat, label: "Start with one app, add the rest anytime" },
 ];
@@ -31,7 +31,7 @@ const RAIL_ITEMS: readonly CtaRailItem[] = [
 export function CtaHome() {
 	return (
 		<MarketingCta
-			body="Start with one app or run the suite. Billed through Shopify, live in minutes, no developer required."
+			body="Most apps have a free plan and none of them have a contract. Billing runs through Shopify, and you cancel from your admin like any other app."
 			footnote={
 				<>
 					Manage Shopify stores for a living? Earn recurring commission on every
@@ -44,10 +44,10 @@ export function CtaHome() {
 					</Link>
 				</>
 			}
-			heading="Give your store the whole edge"
-			primary={{ href: "/products", label: "Explore the suite" }}
+			heading="Your traffic is already paid for. Get more out of it."
+			primary={{ href: "/products", label: "Browse the apps" }}
 			railItems={RAIL_ITEMS}
-			secondary={{ href: "/contact", label: "Talk to us" }}
+			secondary={{ href: "/contact", label: "Book a 15-min teardown" }}
 			stickers={STICKERS}
 		/>
 	);

@@ -1,38 +1,40 @@
 import { ButtonLink } from "@edgecoms/ui/components/button";
 import {
-	Database,
-	Gauge,
-	LayoutDashboard,
+	Globe,
 	LifeBuoy,
 	type LucideIcon,
+	Package,
+	Palette,
 	Repeat,
-	Rocket,
-	ShieldCheck,
-	Sparkles,
-	Unlink,
-	Wallet,
+	ShoppingCart,
+	Star,
+	Store,
+	Timer,
+	Zap,
 } from "lucide-react";
 import type { Route } from "next";
+import Link from "next/link";
 
 /* Decorative floating tiles echoing the scattered arrangement in the reference.
-   The copy column is a fixed 42rem, so on a 7xl panel it leaves ~22% of clear
-   margin each side — every tile therefore stays inside 15% to avoid colliding
-   with the text, and the whole set is gated to xl where that margin exists. */
+   One per app in the suite. The copy column is a fixed 42rem, so on a 7xl panel
+   it leaves ~22% of clear margin each side — every tile therefore stays inside
+   15% to avoid colliding with the text, and the whole set is gated to xl where
+   that margin exists. */
 const STICKERS: readonly { icon: LucideIcon; className: string }[] = [
-	{ icon: Wallet, className: "left-[13%] top-[9%] rotate-6" },
-	{ icon: Database, className: "left-[4%] top-[26%] -rotate-12" },
-	{ icon: Rocket, className: "left-[15%] top-[40%] -rotate-6" },
-	{ icon: Gauge, className: "right-[9%] top-[9%] rotate-12" },
-	{ icon: ShieldCheck, className: "right-[4%] top-[28%] rotate-6" },
-	{ icon: Sparkles, className: "right-[14%] top-[42%] -rotate-6" },
+	{ icon: Package, className: "left-[13%] top-[9%] rotate-6" },
+	{ icon: ShoppingCart, className: "left-[4%] top-[26%] -rotate-12" },
+	{ icon: Star, className: "left-[15%] top-[40%] -rotate-6" },
+	{ icon: Timer, className: "right-[9%] top-[9%] rotate-12" },
+	{ icon: Globe, className: "right-[4%] top-[28%] rotate-6" },
+	{ icon: Repeat, className: "right-[14%] top-[42%] -rotate-6" },
 ];
 
 const STRIP_ITEMS: readonly { icon: LucideIcon; label: string }[] = [
-	{ icon: Repeat, label: "Recurring commission, every month" },
-	{ icon: ShieldCheck, label: "Lifetime — no expiry windows" },
-	{ icon: Unlink, label: "No referral links or tracking codes" },
-	{ icon: LayoutDashboard, label: "One dashboard for merchants and payouts" },
-	{ icon: LifeBuoy, label: "Priority partner support" },
+	{ icon: Store, label: "Billed on the Shopify invoice you already get" },
+	{ icon: Zap, label: "Live in minutes" },
+	{ icon: Palette, label: "Works with any theme" },
+	{ icon: LifeBuoy, label: "One team, one support inbox" },
+	{ icon: Repeat, label: "Start with one app, add the rest anytime" },
 ];
 
 /* Both marquee halves must render identical markup: the track animates to
@@ -93,23 +95,22 @@ export function CtaHome() {
 						className="max-w-3xl text-balance font-medium text-display text-white sm:text-display-lg"
 						id="cta-heading"
 					>
-						Start earning with Edge
+						Give your store the whole edge
 					</h2>
 
 					<p className="max-w-2xl text-pretty text-body-lg text-white leading-relaxed">
-						Join the agencies and consultants earning recurring commission on
-						every merchant they bring to Edge — no referral links, no tracking
-						codes.
+						Start with one app or run the suite. Billed through Shopify, live in
+						minutes, no developer required.
 					</p>
 
 					<div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
 						<ButtonLink
 							className="h-11 rounded-full bg-white px-6 text-[15px] text-neutral-900 hover:bg-white/90 active:bg-white/90"
-							href={"/register" as Route}
+							href={"/products" as Route}
 							size="xl"
 							variant="secondary"
 						>
-							Apply to the program
+							Explore the suite
 						</ButtonLink>
 						<ButtonLink
 							className="h-11 rounded-full border border-white/40 bg-white/10 px-6 text-[15px] text-white hover:bg-white/20 active:bg-white/20"
@@ -132,6 +133,19 @@ export function CtaHome() {
 					</div>
 				</div>
 			</div>
+
+			{/* The partner program lives on its own page. It gets a footnote here,
+			    not a second CTA — this page is for merchants. */}
+			<p className="mx-auto mt-8 max-w-7xl text-pretty text-center text-body-sm text-secondary-foreground">
+				Manage Shopify stores for a living? Earn recurring commission on every
+				merchant you bring to Edge.{" "}
+				<Link
+					className="text-primary-foreground underline decoration-border underline-offset-4 transition-colors hover:decoration-current"
+					href={"/partners" as Route}
+				>
+					See the partner program
+				</Link>
+			</p>
 		</section>
 	);
 }

@@ -1,10 +1,10 @@
-import BundleFlowDiagram from "@/components/v1/products/edge-bundles";
-import CartDiagram from "@/components/v1/products/edge-cart";
-import CurrencyDiagram from "@/components/v1/products/edge-currency";
-import ReviewsDiagram from "@/components/v1/products/edge-reviews";
-import SubscriptionsDiagram from "@/components/v1/products/edge-subscriptions";
-import TimerDiagram from "@/components/v1/products/edge-timer";
-import { ProductCard } from "@/components/v1/products/product-card";
+import BundleFlowDiagram from "@/components/home/products/edge-bundles";
+import CartDiagram from "@/components/home/products/edge-cart";
+import CurrencyDiagram from "@/components/home/products/edge-currency";
+import ReviewsDiagram from "@/components/home/products/edge-reviews";
+import SubscriptionsDiagram from "@/components/home/products/edge-subscriptions";
+import TimerDiagram from "@/components/home/products/edge-timer";
+import { ProductCard } from "@/components/home/products/product-card";
 
 const BUNDLES_SCALE = 0.34;
 

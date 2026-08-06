@@ -43,9 +43,12 @@ const PILLARS: readonly {
 }[] = [
 	{
 		icon: ReceiptText,
-		title: "One dashboard, seven apps",
+		/* Not "one dashboard": each app is installed and configured on its own,
+		   inside Shopify admin. What is actually shared is the bill and the team,
+		   and both of those are checkable by the merchant on day one. */
+		title: "One team. One invoice.",
 		description:
-			"One login, one bill on the Shopify invoice you already get, one support thread. No separate checkout, no new card on file, no vendor emailing you about a failed payment method.",
+			"Every app bills through the Shopify invoice you already receive, and the same people answer every support email. No separate checkout, no new card on file, no vendor emailing you about a failed payment method.",
 	},
 	{
 		icon: Shapes,

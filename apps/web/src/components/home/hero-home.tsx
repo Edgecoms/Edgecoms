@@ -1,7 +1,7 @@
 import { ButtonLink } from "@edgecoms/ui/components/button";
 import type { Route } from "next";
 import { Highlight } from "@/components/ui/highlight";
-import { BOOKING_URL } from "@/lib/booking";
+import { BOOKING_LABEL, BOOKING_URL } from "@/lib/booking";
 
 /* Deliberately all true, all checkable. Note what is NOT here: "free plan on
    every app". Edge Timer's real App Store listing starts at $4.99, so that
@@ -80,7 +80,7 @@ export function HeroHome() {
 						target="_blank"
 						variant="secondary"
 					>
-						Book a Growth Audit
+						{BOOKING_LABEL}
 					</ButtonLink>
 				</div>
 

@@ -10,8 +10,12 @@ export const BOOKING_URL =
 	"https://calendly.com/anurag-edgecoms/book-a-free-loom-audit";
 
 /**
- * The label. It says Loom rather than call on purpose: the booking page offers
- * a recorded audit, and a merchant who expects a meeting and gets a video (or
- * the reverse) is a no-show either way.
+ * The label on every booking action. One string, because the same promise has
+ * to be made on nine surfaces — a button that says one thing in the header and
+ * another in the hero reads as two different offers.
+ *
+ * NOTE: the Calendly page it points at is titled "book a free Loom audit". A
+ * merchant who is promised a growth audit and lands on a Loom booking page is a
+ * no-show, so rename the Calendly event to match this.
  */
-export const BOOKING_LABEL = "Get a free Loom audit";
+export const BOOKING_LABEL = "Book a Growth Audit";

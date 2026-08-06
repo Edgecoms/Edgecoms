@@ -16,7 +16,7 @@ import {
 	type CtaRailItem,
 	MarketingCta,
 } from "@/components/marketing/marketing-cta";
-import { BOOKING_URL } from "@/lib/booking";
+import { BOOKING_LABEL, BOOKING_URL } from "@/lib/booking";
 
 /** One decorative tile per app in the suite. */
 const STICKERS = [Package, ShoppingCart, Star, Timer, Globe, Repeat] as const;
@@ -48,7 +48,7 @@ export function CtaHome() {
 			heading="Your traffic is already paid for. Get more out of it."
 			primary={{ href: "/products", label: "Explore the Edge Suite" }}
 			railItems={RAIL_ITEMS}
-			secondary={{ href: BOOKING_URL, label: "Book a Growth Audit" }}
+			secondary={{ href: BOOKING_URL, label: BOOKING_LABEL }}
 			stickers={STICKERS}
 		/>
 	);

@@ -1,40 +1,9 @@
 import type { LucideIcon } from "lucide-react";
 import { Check, ReceiptText, Shapes, Share2 } from "lucide-react";
+import { FrictionStack } from "@/components/home/friction-stack";
 import { GridMarkers } from "@/components/home/grid-markers";
 import { PanelTexture } from "@/components/home/panel-texture";
 import { Highlight } from "@/components/ui/highlight";
-
-/* Left panel: what running six point solutions actually feels like. The pile
-   is built from normal flow — each card only tilts and shifts off centre — so
-   it cannot collide with the heading or need re-tuning per breakpoint. */
-const FRICTIONS: readonly { label: string; note?: string; tilt: string }[] = [
-	{
-		label: "Theme update broke the cart drawer",
-		note: "Unresolved",
-		tilt: "-rotate-2 sm:-translate-x-5",
-	},
-	{
-		label: "5 invoices, 5 renewal dates",
-		tilt: "rotate-1 sm:translate-x-6",
-	},
-	{
-		label: "Which vendor owns this bug?",
-		tilt: "-rotate-1 sm:-translate-x-2",
-	},
-	{
-		label: "Six app scripts on every page load",
-		tilt: "rotate-2 sm:translate-x-4",
-	},
-	{
-		label: "Review widget doesn't match the brand",
-		tilt: "-rotate-1 sm:-translate-x-6",
-	},
-	{
-		label: "4 support inboxes, 4 different SLAs",
-		note: "Waiting",
-		tilt: "rotate-2 sm:translate-x-3",
-	},
-] as const;
 
 const PILLARS: readonly {
 	description: string;
@@ -97,31 +66,7 @@ export function WhyEdge() {
 							Six apps from six vendors
 						</h3>
 
-						<ul className="relative flex w-full max-w-sm flex-col gap-2">
-							{FRICTIONS.map((friction) => (
-								<li
-									className={`rounded-xl border border-border bg-page px-3.5 py-2.5 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_6px_16px_rgba(0,0,0,0.04)] ${friction.tilt}`}
-									key={friction.label}
-								>
-									<div className="flex items-start gap-2">
-										<span
-											aria-hidden="true"
-											className="mt-1.5 size-1.5 shrink-0 rounded-full bg-brand"
-										/>
-										<div className="flex flex-col gap-0.5">
-											<span className="text-caption text-primary-foreground leading-snug">
-												{friction.label}
-											</span>
-											{friction.note ? (
-												<span className="font-medium text-[10px] text-secondary-foreground uppercase tracking-[0.1em]">
-													{friction.note}
-												</span>
-											) : null}
-										</div>
-									</div>
-								</li>
-							))}
-						</ul>
+						<FrictionStack />
 					</div>
 
 					{/* after */}

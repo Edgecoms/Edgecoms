@@ -1,7 +1,7 @@
 import { ButtonLink } from "@edgecoms/ui/components/button";
 import type { Route } from "next";
 import { Highlight } from "@/components/ui/highlight";
-import { BOOKING_LABEL, BOOKING_URL } from "@/lib/booking";
+import { BOOKING_URL } from "@/lib/booking";
 
 /* Deliberately all true, all checkable. Note what is NOT here: "free plan on
    every app". Edge Timer's real App Store listing starts at $4.99, so that
@@ -10,9 +10,11 @@ import { BOOKING_LABEL, BOOKING_URL } from "@/lib/booking";
    down, where they read as a stats block rather than as a claim smuggled under
    the fold. */
 const TRUST_LINE = [
-	"Free plans on most apps",
-	"Billed through Shopify",
-	"Cancel from your admin",
+	"Built for Shopify",
+	"Used by growing Shopify brands",
+	"Install in minutes",
+	"No contracts",
+	"One team. One invoice.",
 ] as const;
 
 /**
@@ -48,9 +50,10 @@ export function HeroHome() {
 				</h1>
 
 				<p className="max-w-2xl text-pretty text-body-lg text-secondary-foreground leading-relaxed">
-					Seven Shopify apps that move the only two numbers your revenue is made
-					of: how many visitors buy, and how much each one spends. You already
-					paid for the traffic, so this is about getting more out of it.
+					Every visitor costs money to acquire. Edge helps Shopify brands earn
+					more from every one of them with apps for bundles, subscriptions,
+					carts, reviews, pricing, and more, all designed to increase average
+					order value and customer lifetime value.
 				</p>
 
 				<div className="flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:items-center">
@@ -60,7 +63,7 @@ export function HeroHome() {
 						size="xl"
 						variant="brand"
 					>
-						Browse the apps
+						Explore the Edge Suite
 					</ButtonLink>
 					<ButtonLink
 						className="h-11 rounded-full px-6 text-[15px]"
@@ -70,7 +73,7 @@ export function HeroHome() {
 						target="_blank"
 						variant="secondary"
 					>
-						{BOOKING_LABEL}
+						Book a Growth Audit
 					</ButtonLink>
 				</div>
 

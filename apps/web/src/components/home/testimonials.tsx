@@ -1,3 +1,11 @@
+"use client";
+
+import { motion, type Variants } from "motion/react";
+import {
+	STAGGER_CONTAINER,
+	STAGGER_VIEWPORT,
+	useStaggerItem,
+} from "@/components/ui/reveal";
 import { HOME_TESTIMONIALS, type HomeTestimonial } from "@/lib/marketing-stats";
 
 /* Which cells break the rhythm. A wall of six identical cards is read as
@@ -15,18 +23,21 @@ const ACCENT_INDEX = 3;
 function Card({
 	testimonial,
 	tone,
+	variants,
 }: {
 	testimonial: HomeTestimonial;
 	tone: "accent" | "feature" | "plain";
+	variants: Variants;
 }) {
 	const isAccent = tone === "accent";
 	const isFeature = tone === "feature";
 
 	return (
-		<li
+		<motion.li
 			className={`flex flex-col rounded-[1.5rem] border p-6 sm:p-7 ${
 				isAccent ? "border-transparent bg-brand" : "border-border bg-page"
 			}`}
+			variants={variants}
 		>
 			{/* The quote is the whole card, so it gets the size. The attribution is
 			    pushed to the bottom edge, which is what keeps a two-line quote and a
@@ -46,7 +57,7 @@ function Card({
 			>
 				{testimonial.attribution}
 			</p>
-		</li>
+		</motion.li>
 	);
 }
 
@@ -71,16 +82,25 @@ function toneFor(index: number): "accent" | "feature" | "plain" {
  * See `HOME_TESTIMONIALS` for the rule these have to satisfy before launch.
  */
 export function Testimonials() {
+	const itemVariants = useStaggerItem();
+
 	if (HOME_TESTIMONIALS.length === 0) {
 		return null;
 	}
 
 	return (
-		<section
+		<motion.section
 			aria-labelledby="testimonials-heading"
 			className="w-full py-10 sm:py-14"
+			initial="hidden"
+			variants={STAGGER_CONTAINER}
+			viewport={STAGGER_VIEWPORT}
+			whileInView="show"
 		>
-			<div className="mx-auto flex w-full max-w-7xl flex-col gap-3 px-6 sm:items-center sm:text-center">
+			<motion.div
+				className="mx-auto flex w-full max-w-7xl flex-col gap-3 px-6 sm:items-center sm:text-center"
+				variants={itemVariants}
+			>
 				<p className="font-medium text-body-sm text-brand">
 					What merchants say
 				</p>
@@ -94,17 +114,21 @@ export function Testimonials() {
 					Every quote here names a number the merchant can point at in their own
 					Shopify dashboard.
 				</p>
-			</div>
+			</motion.div>
 
-			<ul className="mx-auto mt-10 grid w-full max-w-7xl auto-rows-auto gap-4 px-6 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
+			<motion.ul
+				className="mx-auto mt-10 grid w-full max-w-7xl auto-rows-auto gap-4 px-6 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3"
+				variants={STAGGER_CONTAINER}
+			>
 				{HOME_TESTIMONIALS.map((testimonial, index) => (
 					<Card
 						key={testimonial.quote}
 						testimonial={testimonial}
 						tone={toneFor(index)}
+						variants={itemVariants}
 					/>
 				))}
-			</ul>
-		</section>
+			</motion.ul>
+		</motion.section>
 	);
 }

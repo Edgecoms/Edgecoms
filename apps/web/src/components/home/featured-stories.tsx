@@ -1,6 +1,14 @@
+"use client";
+
 import { ButtonLink } from "@edgecoms/ui/components/button";
 import { ArrowRight } from "lucide-react";
+import { motion, type Variants } from "motion/react";
 import type { Route } from "next";
+import {
+	STAGGER_CONTAINER,
+	STAGGER_VIEWPORT,
+	useStaggerItem,
+} from "@/components/ui/reveal";
 import {
 	type BeforeAfterStat,
 	FEATURED_STORIES,
@@ -38,9 +46,18 @@ function StatRow({ stat }: { stat: BeforeAfterStat }) {
 	);
 }
 
-function StoryCard({ story }: { story: FeaturedStory }) {
+function StoryCard({
+	story,
+	variants,
+}: {
+	story: FeaturedStory;
+	variants: Variants;
+}) {
 	return (
-		<li className="flex flex-col gap-6 rounded-[1.5rem] border border-border bg-page p-6">
+		<motion.li
+			className="flex flex-col gap-6 rounded-[1.5rem] border border-border bg-page p-6"
+			variants={variants}
+		>
 			<h3 className="font-medium text-h3 text-primary-foreground">
 				{story.label}
 			</h3>
@@ -77,7 +94,7 @@ function StoryCard({ story }: { story: FeaturedStory }) {
 			>
 				Read story
 			</ButtonLink>
-		</li>
+		</motion.li>
 	);
 }
 
@@ -89,18 +106,27 @@ function StoryCard({ story }: { story: FeaturedStory }) {
  * shape of the question a merchant is actually asking.
  */
 export function FeaturedStories() {
+	const itemVariants = useStaggerItem();
+
 	if (FEATURED_STORIES.length === 0) {
 		return null;
 	}
 
 	return (
-		<section
+		<motion.section
 			aria-labelledby="featured-stories-heading"
 			className="w-full py-10 sm:py-14"
+			initial="hidden"
+			variants={STAGGER_CONTAINER}
+			viewport={STAGGER_VIEWPORT}
+			whileInView="show"
 		>
 			{/* Centred from `sm` up, left below it — same rule as the hero: centred
 			    text in a phone-width column gives every line a different left edge. */}
-			<div className="mx-auto flex w-full max-w-7xl flex-col gap-3 px-6 sm:items-center sm:text-center">
+			<motion.div
+				className="mx-auto flex w-full max-w-7xl flex-col gap-3 px-6 sm:items-center sm:text-center"
+				variants={itemVariants}
+			>
 				<h2
 					className="text-balance font-medium text-h1 text-primary-foreground"
 					id="featured-stories-heading"
@@ -111,13 +137,16 @@ export function FeaturedStories() {
 					Every number below comes from a real Shopify store using Edge to
 					improve revenue, not from a marketing spreadsheet.
 				</p>
-			</div>
+			</motion.div>
 
-			<ul className="mx-auto mt-10 grid w-full max-w-7xl gap-4 px-6 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
+			<motion.ul
+				className="mx-auto mt-10 grid w-full max-w-7xl gap-4 px-6 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3"
+				variants={STAGGER_CONTAINER}
+			>
 				{FEATURED_STORIES.map((story) => (
-					<StoryCard key={story.slug} story={story} />
+					<StoryCard key={story.slug} story={story} variants={itemVariants} />
 				))}
-			</ul>
-		</section>
+			</motion.ul>
+		</motion.section>
 	);
 }

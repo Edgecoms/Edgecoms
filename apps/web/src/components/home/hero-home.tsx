@@ -1,7 +1,41 @@
+"use client";
+
 import { ButtonLink } from "@edgecoms/ui/components/button";
+import { motion, useReducedMotion, type Variants } from "motion/react";
 import type { Route } from "next";
 import { Highlight } from "@/components/ui/highlight";
+import { REVEAL_EASE } from "@/components/ui/reveal";
 import { BOOKING_LABEL, BOOKING_URL } from "@/lib/booking";
+
+/* The hero animates on load rather than on scroll — it is already in view, so
+   there is nothing to reveal. The stagger is what does the work: headline,
+   then lead, then buttons, then the trust line, in the order the eye reads
+   them anyway. 120ms apart is enough to be a sequence rather than a flicker, and
+   the long expo tail means each element is still settling as the next starts,
+   which is what makes four movements read as one.
+
+   The blur is what makes 20px of travel read as arriving rather than as a
+   twitch. Anyone who has asked the OS for less motion gets `FADE` instead:
+   opacity only, no travel and no filter. */
+const CONTAINER: Variants = {
+	hidden: {},
+	show: { transition: { delayChildren: 0.1, staggerChildren: 0.12 } },
+};
+
+const ITEM: Variants = {
+	hidden: { filter: "blur(10px)", opacity: 0, y: 20 },
+	show: {
+		filter: "blur(0px)",
+		opacity: 1,
+		transition: { duration: 0.9, ease: REVEAL_EASE },
+		y: 0,
+	},
+};
+
+const FADE: Variants = {
+	hidden: { opacity: 0 },
+	show: { opacity: 1, transition: { duration: 0.5 } },
+};
 
 /* Deliberately all true, all checkable. Note what is NOT here: "free plan on
    every app". Edge Timer's real App Store listing starts at $4.99, so that
@@ -29,6 +63,9 @@ const TRUST_LINE_MOBILE_COUNT = 2;
  * badges) and on the single closing CTA panel.
  */
 export function HeroHome() {
+	const reduced = useReducedMotion();
+	const itemVariants = reduced ? FADE : ITEM;
+
 	return (
 		<section className="relative isolate w-full overflow-hidden">
 			<div
@@ -48,22 +85,36 @@ export function HeroHome() {
 			    line a different left edge, so the eye has to re-find the start of
 			    each one; the ragged edge lands on the right instead, where nothing
 			    starts. */}
-			<div className="mx-auto flex w-full max-w-4xl flex-col items-start gap-6 px-6 pt-20 pb-6 text-left sm:min-h-[calc(100svh-var(--header-height)-18rem)] sm:items-center sm:justify-center sm:gap-8 sm:pt-16 sm:pb-4 sm:text-center">
+			<motion.div
+				animate="show"
+				className="mx-auto flex w-full max-w-4xl flex-col items-start gap-6 px-6 pt-20 pb-6 text-left sm:min-h-[calc(100svh-var(--header-height)-18rem)] sm:items-center sm:justify-center sm:gap-8 sm:pt-16 sm:pb-4 sm:text-center"
+				initial="hidden"
+				variants={CONTAINER}
+			>
 				{/* No announcement pill. The partner program is a second audience, and
 				    putting it above the headline made a merchant-facing hero open with
 				    a message not aimed at the merchant. It is still reachable from the
 				    header, the footer, and the closing CTA. */}
-				<h1 className="text-balance font-medium text-display text-primary-foreground sm:text-display-lg lg:text-display-xl">
+				<motion.h1
+					className="text-balance font-medium text-display text-primary-foreground sm:text-display-lg lg:text-display-xl"
+					variants={itemVariants}
+				>
 					<Highlight>Same traffic. Higher AOV.</Highlight>
-				</h1>
+				</motion.h1>
 
-				<p className="max-w-2xl text-pretty text-body-lg text-secondary-foreground leading-relaxed">
+				<motion.p
+					className="max-w-2xl text-pretty text-body-lg text-secondary-foreground leading-relaxed"
+					variants={itemVariants}
+				>
 					Every visitor costs money to acquire. Edge apps for bundles,
 					subscriptions, carts, reviews and pricing help Shopify brands earn
 					more from each one.
-				</p>
+				</motion.p>
 
-				<div className="flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:items-center">
+				<motion.div
+					className="flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:items-center"
+					variants={itemVariants}
+				>
 					<ButtonLink
 						className="h-11 rounded-full px-6 text-[15px]"
 						href={"/products" as Route}
@@ -82,11 +133,14 @@ export function HeroHome() {
 					>
 						{BOOKING_LABEL}
 					</ButtonLink>
-				</div>
+				</motion.div>
 
 				{/* The only centred thing in a left-aligned mobile hero: it is a
 				    footnote under the buttons, not part of the reading column. */}
-				<ul className="flex w-full flex-wrap items-center justify-center gap-x-3 gap-y-1.5 text-caption text-secondary-foreground">
+				<motion.ul
+					className="flex w-full flex-wrap items-center justify-center gap-x-3 gap-y-1.5 text-caption text-secondary-foreground"
+					variants={itemVariants}
+				>
 					{TRUST_LINE.map((item, index) => (
 						<li
 							className={
@@ -104,8 +158,8 @@ export function HeroHome() {
 							{item}
 						</li>
 					))}
-				</ul>
-			</div>
+				</motion.ul>
+			</motion.div>
 		</section>
 	);
 }

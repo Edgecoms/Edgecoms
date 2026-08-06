@@ -16,7 +16,7 @@ import {
 	type CtaRailItem,
 	MarketingCta,
 } from "@/components/marketing/marketing-cta";
-import { BOOKING_LABEL, BOOKING_URL } from "@/lib/booking";
+import { BOOKING_URL } from "@/lib/booking";
 
 /** One decorative tile per app in the suite. */
 const STICKERS = [Package, ShoppingCart, Star, Timer, Globe, Repeat] as const;
@@ -32,7 +32,7 @@ const RAIL_ITEMS: readonly CtaRailItem[] = [
 export function CtaHome() {
 	return (
 		<MarketingCta
-			body="Most apps have a free plan and none of them have a contract. Billing runs through Shopify, and you cancel from your admin like any other app."
+			body="Install only the apps you need today, add more as your business grows, and manage everything from one connected platform."
 			footnote={
 				<>
 					Manage Shopify stores for a living? Earn recurring commission on every
@@ -46,9 +46,9 @@ export function CtaHome() {
 				</>
 			}
 			heading="Your traffic is already paid for. Get more out of it."
-			primary={{ href: "/products", label: "Browse the apps" }}
+			primary={{ href: "/products", label: "Explore the Edge Suite" }}
 			railItems={RAIL_ITEMS}
-			secondary={{ href: BOOKING_URL, label: BOOKING_LABEL }}
+			secondary={{ href: BOOKING_URL, label: "Book a Growth Audit" }}
 			stickers={STICKERS}
 		/>
 	);

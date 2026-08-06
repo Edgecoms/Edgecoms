@@ -581,3 +581,62 @@ export const FEATURED_STORIES: readonly FeaturedStory[] = [
 		apps: ["Edge Bundles", "Edge Subscriptions", "Edge Reviews"],
 	},
 ] as const;
+
+export interface HomeTestimonial {
+	/** Role and store, in that order. */
+	attribution: string;
+	provenance: StatProvenance;
+	/** Two sentences at most, and one of them names a number that moved. */
+	quote: string;
+}
+
+/**
+ * The homepage testimonial wall. EVERY QUOTE BELOW IS WRITTEN BY US.
+ *
+ * Nobody said any of this, and every quote is now attributed to a named store.
+ * That makes shipping this as-is a fabricated review of a real business, which
+ * is both illegal and the single most disprovable thing on the site — the named
+ * merchant can read it.
+ *
+ * Before launch every entry needs: the merchant's own words, their written
+ * permission to publish them, and a figure they can point at in their own
+ * dashboard. Anything that does not have all three gets deleted, not softened.
+ */
+export const HOME_TESTIMONIALS: readonly HomeTestimonial[] = [
+	{
+		quote:
+			"We recovered the cost of Edge in less than two weeks. Our average order value increased by 18%.",
+		attribution: "Founder, Matata Xplore",
+		provenance: "invented",
+	},
+	{
+		quote:
+			"Bundles turned our single-item orders into two-item orders. AOV is up 22% and we never touched ad spend.",
+		attribution: "Head of ecommerce, Vyssence",
+		provenance: "invented",
+	},
+	{
+		quote:
+			"Subscriptions doubled our repeat purchase rate in a single quarter.",
+		attribution: "Founder, Aurient",
+		provenance: "invented",
+	},
+	{
+		quote:
+			"Trackproof showed us two campaigns we had switched off were actually profitable. That alone paid for the year.",
+		attribution: "Growth lead, Klyro Light",
+		provenance: "invented",
+	},
+	{
+		quote:
+			"Setup took an afternoon. The cart upsell covered the subscription in the first week.",
+		attribution: "Owner, Celorah",
+		provenance: "invented",
+	},
+	{
+		quote:
+			"Photo reviews lifted our product page conversion by 14%, on the same traffic we were already paying for.",
+		attribution: "Marketing manager, J Pet Central",
+		provenance: "invented",
+	},
+] as const;

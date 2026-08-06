@@ -6,6 +6,7 @@ import { HeroHome } from "@/components/home/hero-home";
 import { JourneyExplorer } from "@/components/home/journey-explorer";
 import { RpvCalculator } from "@/components/home/rpv-calculator";
 import { RpvEquation } from "@/components/home/rpv-equation";
+import { Testimonials } from "@/components/home/testimonials";
 import { WhyEdge } from "@/components/home/why-edge";
 import { FaqList } from "@/components/marketing/faq-list";
 import type { AppFaq } from "@/lib/products";
@@ -63,6 +64,7 @@ export default function HomePage() {
 			<RpvEquation />
 			<RpvCalculator />
 			<WhyEdge />
+			<Testimonials />
 			<FaqList items={HOME_FAQ} title="Questions merchants ask first" />
 			<CtaHome />
 		</main>

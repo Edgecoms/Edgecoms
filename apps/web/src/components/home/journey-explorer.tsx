@@ -114,12 +114,13 @@ export function JourneyExplorer() {
 						id="journey-heading"
 					>
 						<Highlight>
-							Every step of a visit has a number attached to it
+							Every buying journey is an opportunity to earn more.
 						</Highlight>
 					</h2>
 					<p className="text-pretty text-body-lg text-secondary-foreground leading-relaxed">
-						Each app works at a different point between landing and buying
-						again. Pick a moment to see what happens there.
+						Different moments require different tools. Edge helps you improve
+						each one, from the first product view to the second purchase months
+						later.
 					</p>
 				</div>
 

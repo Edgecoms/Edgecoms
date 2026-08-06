@@ -184,11 +184,14 @@ export function RpvCalculator() {
 						className="text-balance font-medium text-display text-primary-foreground"
 						id="calculator-heading"
 					>
-						<Highlight>What a 10% lift is actually worth to you</Highlight>
+						<Highlight>
+							Small improvements become surprisingly large revenue.
+						</Highlight>
 					</h2>
 					<p className="text-pretty text-body-lg text-secondary-foreground leading-relaxed">
-						Three numbers from your Shopify dashboard. No email required, and
-						nothing leaves your browser.
+						Enter three numbers from your Shopify dashboard and see what a
+						modest increase in conversion rate or average order value could mean
+						for your business.
 					</p>
 				</div>
 

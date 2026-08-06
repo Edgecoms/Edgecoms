@@ -19,7 +19,7 @@ export function PageHeader({
 			{eyebrow ? (
 				<span className="font-medium text-body-sm text-brand">{eyebrow}</span>
 			) : null}
-			<h1 className="max-w-3xl text-balance font-medium text-display text-primary-foreground">
+			<h1 className="max-w-3xl text-balance font-medium text-h1 text-primary-foreground sm:text-display">
 				{title}
 			</h1>
 			{lead ? (

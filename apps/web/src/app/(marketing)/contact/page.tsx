@@ -59,7 +59,7 @@ export default function ContactPage() {
 			/>
 
 			<div className="mx-auto w-full max-w-7xl px-6 pt-24 pb-20">
-				<div className="mx-auto flex max-w-3xl flex-col items-center gap-5 text-center">
+				<div className="mx-auto flex max-w-3xl flex-col items-start gap-5 text-left sm:items-center sm:text-center">
 					<p className="font-medium text-body-sm text-brand">
 						Free store teardown
 					</p>
@@ -68,7 +68,7 @@ export default function ContactPage() {
 							Send us your store. We'll tell you where the revenue is leaking.
 						</Highlight>
 					</h1>
-					<p className="max-w-xl text-pretty text-body-lg text-secondary-foreground leading-relaxed">
+					<p className="max-w-xl text-pretty text-body text-secondary-foreground leading-relaxed sm:text-body-lg">
 						Fifteen minutes of our time on your storefront, written up and sent
 						back to you. No call required, no charge, and no obligation to
 						install anything.

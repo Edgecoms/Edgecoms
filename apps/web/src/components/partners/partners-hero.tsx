@@ -15,7 +15,7 @@ export function PartnersHero() {
 	return (
 		<section className="w-full px-3 pb-3">
 			<BrandPanel className="flex w-full items-center justify-center">
-				<div className="mx-auto flex w-full max-w-4xl flex-col items-center gap-6 px-6 py-24 text-center sm:gap-8 sm:py-32">
+				<div className="mx-auto flex w-full max-w-4xl flex-col items-start gap-6 px-6 py-24 text-left sm:items-center sm:gap-8 sm:py-32 sm:text-center">
 					<p className="font-medium text-body-sm text-white/80">
 						Partner program
 					</p>
@@ -30,7 +30,7 @@ export function PartnersHero() {
 						tracking codes, no expiry windows.
 					</p>
 
-					<div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
+					<div className="flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:items-center">
 						<ButtonLink
 							className="h-11 rounded-full bg-white px-6 text-[15px] text-neutral-900 hover:bg-white/90 active:bg-white/90"
 							href={"/register" as Route}

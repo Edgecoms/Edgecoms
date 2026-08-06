@@ -12,7 +12,7 @@ export function HowItWorks({
 		<section aria-labelledby="how-heading" className="w-full py-16">
 			<div className="mx-auto w-full max-w-7xl px-6">
 				<h2
-					className="max-w-2xl text-balance font-medium text-display text-primary-foreground"
+					className="max-w-2xl text-balance font-medium text-h1 text-primary-foreground sm:text-display"
 					id="how-heading"
 				>
 					{title}

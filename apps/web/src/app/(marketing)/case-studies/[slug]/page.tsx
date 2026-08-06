@@ -94,7 +94,7 @@ function Narrative({
 	}
 	return (
 		<section className="flex scroll-mt-28 flex-col gap-5" id={id}>
-			<h2 className="font-medium text-display text-primary-foreground">
+			<h2 className="font-medium text-h1 text-primary-foreground sm:text-display">
 				{title}
 			</h2>
 			{/* Short paragraphs, split on blank lines. A case study is skimmed

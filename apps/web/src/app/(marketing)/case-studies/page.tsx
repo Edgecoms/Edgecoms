@@ -27,7 +27,7 @@ export default function CaseStudiesPage() {
 					aria-hidden="true"
 					className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(var(--gray-a4)_1px,transparent_1px)] [background-size:22px_22px] [mask-image:radial-gradient(ellipse_65%_60%_at_50%_35%,black_20%,transparent_78%)]"
 				/>
-				<div className="mx-auto flex w-full max-w-4xl flex-col items-center gap-5 px-6 pt-24 pb-12 text-center">
+				<div className="mx-auto flex w-full max-w-4xl flex-col items-start gap-5 px-6 pt-24 pb-12 text-left sm:items-center sm:text-center">
 					<p className="font-medium text-body-sm text-brand">Case studies</p>
 					<h1 className="text-balance font-medium text-display text-primary-foreground sm:text-display-lg">
 						<Highlight>
@@ -46,8 +46,8 @@ export default function CaseStudiesPage() {
 					All case studies
 				</h2>
 				{studies.length === 0 ? (
-					<div className="mx-auto w-full max-w-2xl px-6 text-center">
-						<p className="text-pretty text-body-lg text-secondary-foreground leading-relaxed">
+					<div className="mx-auto w-full max-w-2xl px-6 text-left sm:text-center">
+						<p className="text-pretty text-body text-secondary-foreground leading-relaxed sm:text-body-lg">
 							We are writing these up now. If you want to see what Edge does to
 							a store before they are published, send us your URL and we will
 							pull yours apart instead.

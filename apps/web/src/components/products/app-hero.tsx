@@ -57,11 +57,11 @@ export function AppHero({ product }: { product: EdgeProduct }) {
 						<Highlight>{product.tagline}</Highlight>
 					</h1>
 
-					<p className="max-w-xl text-pretty text-body-lg text-secondary-foreground leading-relaxed">
+					<p className="max-w-xl text-pretty text-body text-secondary-foreground leading-relaxed sm:text-body-lg">
 						{product.heroLead}
 					</p>
 
-					<div className="flex flex-col items-stretch gap-3 pt-1 sm:flex-row sm:items-center">
+					<div className="flex w-full flex-col items-stretch gap-3 pt-1 sm:w-auto sm:flex-row sm:items-center">
 						<ButtonLink
 							className="h-11 rounded-full px-6 text-[15px]"
 							href={primary.href as Route}

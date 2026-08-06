@@ -50,7 +50,9 @@ export default function ProductsPage() {
 					className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(var(--gray-a4)_1px,transparent_1px)] [background-size:22px_22px] [mask-image:radial-gradient(ellipse_65%_60%_at_50%_40%,black_25%,transparent_78%)]"
 				/>
 
-				<div className="mx-auto flex w-full max-w-4xl flex-col items-center gap-6 px-6 pt-24 pb-14 text-center sm:gap-8">
+				{/* Left-aligned below `sm`, same as the homepage hero: centred text in
+				    a phone-width column gives every line a different left edge. */}
+				<div className="mx-auto flex w-full max-w-4xl flex-col items-start gap-6 px-6 pt-24 pb-14 text-left sm:items-center sm:gap-8 sm:text-center">
 					<p className="font-medium text-body-sm text-brand">The Edge suite</p>
 					<h1 className="text-balance font-medium text-display text-primary-foreground sm:text-display-lg">
 						Pick the lever you need.
@@ -60,7 +62,7 @@ export default function ProductsPage() {
 						seven. They are built by one team, on one bill, and they know about
 						each other.
 					</p>
-					<div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
+					<div className="flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:items-center">
 						<ButtonLink
 							className="h-11 rounded-full px-6 text-[15px]"
 							href={BOOKING_URL as Route}

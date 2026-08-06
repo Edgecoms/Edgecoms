@@ -35,7 +35,7 @@ export function PricingTiers({
 			<div className="mx-auto w-full max-w-7xl px-6">
 				<div className="flex flex-col gap-4">
 					<h2
-						className="max-w-2xl text-balance font-medium text-display text-primary-foreground"
+						className="max-w-2xl text-balance font-medium text-h1 text-primary-foreground sm:text-display"
 						id="pricing-heading"
 					>
 						{title}

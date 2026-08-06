@@ -40,14 +40,14 @@ export default function PartnersPage() {
 
 			<section aria-labelledby="earnings-heading" className="w-full py-16">
 				<div className="mx-auto w-full max-w-7xl px-6">
-					<div className="mx-auto flex max-w-2xl flex-col items-center gap-4 text-center">
+					<div className="mx-auto flex max-w-2xl flex-col items-start gap-4 text-left sm:items-center sm:text-center">
 						<h2
-							className="text-balance font-medium text-display text-primary-foreground"
+							className="text-balance font-medium text-h1 text-primary-foreground sm:text-display"
 							id="earnings-heading"
 						>
 							What the book is worth
 						</h2>
-						<p className="text-pretty text-body-lg text-secondary-foreground leading-relaxed">
+						<p className="text-pretty text-body text-secondary-foreground leading-relaxed sm:text-body-lg">
 							Commission is recurring and has no end date, so every merchant you
 							register raises a floor that never drops. Move the sliders to see
 							the shape of it.

@@ -56,7 +56,7 @@ export function FeatureSections({
 		<section aria-labelledby="features-heading" className="w-full py-16">
 			<div className="mx-auto w-full max-w-7xl px-6">
 				<h2
-					className="max-w-3xl text-balance font-medium text-display text-primary-foreground"
+					className="max-w-3xl text-balance font-medium text-h1 text-primary-foreground sm:text-display"
 					id="features-heading"
 				>
 					{title}
@@ -76,7 +76,7 @@ export function FeatureSections({
 									<span className="font-medium text-body-sm text-brand">
 										{feature.metric}
 									</span>
-									<h3 className="max-w-lg text-balance font-medium text-display text-primary-foreground">
+									<h3 className="max-w-lg text-balance font-medium text-h1 text-primary-foreground sm:text-display">
 										<Highlight>{feature.title}</Highlight>
 									</h3>
 									<p className="max-w-md text-pretty text-body-lg text-secondary-foreground leading-relaxed">

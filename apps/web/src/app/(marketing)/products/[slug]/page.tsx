@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { LogoTicker } from "@/components/home/logo-ticker";
 import { FaqList } from "@/components/marketing/faq-list";
 import { MarketingCta } from "@/components/marketing/marketing-cta";
 import { AppHero } from "@/components/products/app-hero";
@@ -50,7 +49,6 @@ export default async function AppPage({ params }: AppPageProps) {
 	return (
 		<main className="flex flex-col">
 			<AppHero product={product} />
-			<LogoTicker />
 
 			<FeatureSections
 				features={product.features}

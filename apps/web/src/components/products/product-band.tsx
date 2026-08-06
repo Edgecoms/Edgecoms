@@ -55,7 +55,7 @@ export function ProductBand({
 						{product.name}
 					</h2>
 
-					<p className="text-pretty text-body-lg text-primary-foreground leading-relaxed">
+					<p className="text-pretty text-body text-primary-foreground leading-relaxed sm:text-body-lg">
 						<Highlight>{product.tagline}</Highlight>
 					</p>
 					<p className="text-pretty text-body-sm text-secondary-foreground leading-relaxed">

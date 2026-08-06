@@ -34,7 +34,7 @@ export function CaseStudies() {
 						className="text-balance font-medium text-h1 text-primary-foreground"
 						id="case-studies-heading"
 					>
-						Stores running Edge right now.
+						Trusted by brands focused on profitable growth.
 					</h2>
 				</div>
 				<Link

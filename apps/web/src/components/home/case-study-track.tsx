@@ -15,7 +15,9 @@ export interface CaseStudyCard extends CaseStudy {
 const SCROLL_SPEED = 26;
 
 function CardBody({ card }: { card: CaseStudyCard }) {
-	const metrics = card.results?.map((result) => result.value) ?? card.apps;
+	/* One figure per card. Three of them on a card 340px wide is a scoreboard,
+	   and a reader skimming a moving row takes nothing from a scoreboard. */
+	const metric = card.metric?.value;
 
 	return (
 		<>
@@ -34,20 +36,15 @@ function CardBody({ card }: { card: CaseStudyCard }) {
 				) : null}
 			</div>
 
-			{/* Three tiers, and the spacing is what says which is which. The
-			    category is metadata, so it sits hard against the brand it labels.
-			    The brand is the one thing the card is about. The metrics are the
-			    payoff, pushed to the bottom edge behind a rule so they read as a
-			    separate register rather than a third line of the same block.
-			    The uniform `gap-3` was the whole problem: even spacing tells the
-			    eye everything matters equally, which is the same as saying
-			    nothing does. */}
+			{/* Three tiers, and the spacing is what says which is which. The store
+			    is the one thing the card is about. The metric is the payoff. The
+			    stack is proof, pushed to the bottom edge behind a rule so it reads
+			    as a separate register rather than as a third line of the same block.
+			    The uniform `gap-3` was the whole problem: even spacing tells the eye
+			    everything matters equally, which is the same as saying nothing
+			    does. */}
 			<div className="flex flex-1 flex-col p-5">
-				<span className="text-body-sm text-secondary-foreground">
-					{card.category}
-				</span>
-
-				<div className="mt-1.5">
+				<div>
 					{card.logo ? (
 						<Image
 							alt={card.brand}
@@ -63,13 +60,23 @@ function CardBody({ card }: { card: CaseStudyCard }) {
 					)}
 				</div>
 
-				<div className="mt-auto flex flex-wrap gap-x-2.5 gap-y-1 border-border border-t pt-3.5">
-					{metrics.slice(0, 3).map((metric) => (
+				{metric ? (
+					<span className="mt-3 font-medium text-brand text-h2">{metric}</span>
+				) : null}
+
+				{/* Pinned under the metric, not to the bottom of the card. `mt-auto`
+				    let the rule float to wherever the pills happened to end, so a
+				    store running six apps drew its separator a row higher than the one
+				    next to it. Everything above it is fixed-height, so anchoring it
+				    here lines the rules up across the row and lets the pills spill
+				    into the slack instead. */}
+				<div className="mt-4 flex flex-wrap gap-1.5 border-border border-t pt-3.5">
+					{card.apps.map((app) => (
 						<span
-							className="font-medium text-[11px] text-brand uppercase tracking-[0.08em]"
-							key={metric}
+							className="rounded-full bg-brand/10 px-2.5 py-1 font-medium text-[12px] text-brand"
+							key={app}
 						>
-							{metric}
+							{app}
 						</span>
 					))}
 				</div>

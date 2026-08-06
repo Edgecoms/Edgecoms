@@ -124,6 +124,13 @@ export interface CaseStudy {
 	image?: string;
 	/** Their wordmark, under `public/case-studies/`. Shown above the name. */
 	logo?: string;
+	/**
+	 * The single figure the homepage card leads with. Separate from `results`
+	 * because a card carries one number and a case study page carries three, and
+	 * because this is the one that has to be a hard figure — the entries in
+	 * `results` are allowed to state a capability instead.
+	 */
+	metric?: MarketingStat;
 	overview?: string;
 	/**
 	 * Measured outcomes. Optional on purpose: a card can ship with the merchant
@@ -163,6 +170,11 @@ export const CASE_STUDIES: Readonly<Record<string, CaseStudy>> = {
 		brand: "Aurient",
 		category: "Supplements",
 		logo: "/case-studies/aurient-logo.png",
+		metric: {
+			label: "Lifetime value of a subscriber",
+			provenance: "invented",
+			value: "LTV 2.8×",
+		},
 		title:
 			"A supplement that needs twelve weeks to work, sold in a market with a one-bottle habit",
 		summary:
@@ -206,6 +218,11 @@ export const CASE_STUDIES: Readonly<Record<string, CaseStudy>> = {
 		brand: "Vyssence",
 		category: "Beauty",
 		logo: "/case-studies/vyssence-logo.png",
+		metric: {
+			label: "Average order value",
+			provenance: "invented",
+			value: "+22% AOV",
+		},
 		title:
 			"Beauty, where the second product is easier to sell than the second customer",
 		summary:
@@ -242,6 +259,11 @@ export const CASE_STUDIES: Readonly<Record<string, CaseStudy>> = {
 		brand: "Klyro Light",
 		category: "Home",
 		logo: "/case-studies/klyrolight-logo.png",
+		metric: {
+			label: "Product page conversion",
+			provenance: "invented",
+			value: "+18% CVR",
+		},
 		title:
 			"A considered home purchase, and the two apps that shorten the thinking",
 		summary:
@@ -277,6 +299,11 @@ export const CASE_STUDIES: Readonly<Record<string, CaseStudy>> = {
 		brand: "Celorah",
 		category: "Apparel",
 		logo: "/case-studies/celorah-logo.png",
+		metric: {
+			label: "Average order value",
+			provenance: "invented",
+			value: "+26% AOV",
+		},
 		title: "A free-gift offer with a deadline, built as one page",
 		summary:
 			"Celorah run a viral hoodie with the track pants free, today only. The whole offer, the pairing and the deadline together, is a single product page doing the work of a campaign.",
@@ -311,6 +338,11 @@ export const CASE_STUDIES: Readonly<Record<string, CaseStudy>> = {
 		brand: "J Pet Central",
 		category: "Pets",
 		logo: "/case-studies/jpetcentral-logo.png",
+		metric: {
+			label: "Average order value",
+			provenance: "invented",
+			value: "+24% AOV",
+		},
 		title: "Pet supplies, where the customer already intends to buy",
 		summary:
 			"J Pet Central run Timer, Cart and Subscriptions. In a category where the shopper has already decided they need the thing, the job is not persuasion. It is scheduling, and then making sure the next one arrives without being asked for.",
@@ -345,6 +377,11 @@ export const CASE_STUDIES: Readonly<Record<string, CaseStudy>> = {
 		brand: "Matata Xplore",
 		category: "Outdoor",
 		logo: "/case-studies/matataxplore-logo.png",
+		metric: {
+			label: "Conversion rate",
+			provenance: "invented",
+			value: "+19% CVR",
+		},
 		title: "Outdoor gear, where the season is the deadline",
 		summary:
 			"Matata Xplore run Timer, Cart and Subscriptions. Outdoor retail already has natural deadlines built into it, and a timer makes them visible.",

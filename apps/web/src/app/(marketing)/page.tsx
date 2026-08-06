@@ -3,7 +3,6 @@ import { CaseStudies } from "@/components/home/case-studies";
 import { CtaHome } from "@/components/home/cta-home";
 import { HeroHome } from "@/components/home/hero-home";
 import { JourneyExplorer } from "@/components/home/journey-explorer";
-import { LogoTicker } from "@/components/home/logo-ticker";
 import { RpvCalculator } from "@/components/home/rpv-calculator";
 import { RpvEquation } from "@/components/home/rpv-equation";
 import { WhyEdge } from "@/components/home/why-edge";
@@ -57,10 +56,7 @@ export default function HomePage() {
 		   a notch light cannot collapse into the one below it. */
 		<main className="flex flex-col gap-y-8 sm:gap-y-14">
 			<HeroHome />
-			{/* The slot above the ticker — a merchant's numbers are stronger proof
-			    than a list of integrations. */}
 			<CaseStudies />
-			<LogoTicker />
 			<RpvEquation />
 			<JourneyExplorer />
 			<RpvCalculator />

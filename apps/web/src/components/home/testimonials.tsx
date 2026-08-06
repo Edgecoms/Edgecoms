@@ -90,7 +90,7 @@ export function Testimonials() {
 				>
 					Paid for itself, then kept going.
 				</h2>
-				<p className="max-w-2xl text-pretty text-body-lg text-secondary-foreground leading-relaxed">
+				<p className="max-w-2xl text-pretty text-body text-secondary-foreground leading-relaxed sm:text-body-lg">
 					Every quote here names a number the merchant can point at in their own
 					Shopify dashboard.
 				</p>

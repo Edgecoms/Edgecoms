@@ -112,19 +112,19 @@ export function MarketingCta({
 					</div>
 				) : null}
 
-				<div className="relative flex flex-col items-center gap-5 px-6 py-20 text-center sm:py-24">
+				<div className="relative flex flex-col items-start gap-5 px-6 py-14 text-left sm:items-center sm:py-24 sm:text-center">
 					<h2
-						className="max-w-3xl text-balance font-medium text-display text-white sm:text-display-lg"
+						className="max-w-3xl text-balance font-medium text-h1 text-white sm:text-display lg:text-display-lg"
 						id="cta-heading"
 					>
 						<Highlight>{heading}</Highlight>
 					</h2>
 
-					<p className="max-w-2xl text-pretty text-body-lg text-white leading-relaxed">
+					<p className="max-w-2xl text-pretty text-body text-white leading-relaxed sm:text-body-lg">
 						{body}
 					</p>
 
-					<div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
+					<div className="flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:items-center">
 						<ButtonLink
 							className="h-11 rounded-full bg-white px-6 text-[15px] text-neutral-900 hover:bg-white/90 active:bg-white/90"
 							href={primary.href as Route}

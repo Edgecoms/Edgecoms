@@ -107,7 +107,7 @@ export function FeaturedStories() {
 				>
 					Growth you can measure.
 				</h2>
-				<p className="max-w-2xl text-pretty text-body-lg text-secondary-foreground leading-relaxed">
+				<p className="max-w-2xl text-pretty text-body text-secondary-foreground leading-relaxed sm:text-body-lg">
 					Every number below comes from a real Shopify store using Edge to
 					improve revenue, not from a marketing spreadsheet.
 				</p>

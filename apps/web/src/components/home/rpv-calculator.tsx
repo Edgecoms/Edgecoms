@@ -176,19 +176,19 @@ export function RpvCalculator() {
 			id="calculator"
 		>
 			<div className="mx-auto w-full max-w-7xl px-6">
-				<div className="mx-auto flex max-w-2xl flex-col items-center gap-4 text-center">
+				<div className="mx-auto flex max-w-2xl flex-col items-start gap-4 text-left sm:items-center sm:text-center">
 					<p className="font-medium text-body-sm text-brand">
 						Do the maths on your own store
 					</p>
 					<h2
-						className="text-balance font-medium text-display text-primary-foreground"
+						className="text-balance font-medium text-h1 text-primary-foreground sm:text-display"
 						id="calculator-heading"
 					>
 						<Highlight>
 							Small improvements become surprisingly large revenue.
 						</Highlight>
 					</h2>
-					<p className="text-pretty text-body-lg text-secondary-foreground leading-relaxed">
+					<p className="text-pretty text-body text-secondary-foreground leading-relaxed sm:text-body-lg">
 						Enter three numbers from your Shopify dashboard and see what a
 						modest increase in conversion rate or average order value could mean
 						for your business.

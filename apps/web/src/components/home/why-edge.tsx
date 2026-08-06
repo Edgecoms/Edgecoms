@@ -65,14 +65,14 @@ export function WhyEdge() {
 	return (
 		<section aria-labelledby="why-heading" className="relative w-full pb-10">
 			<div className="mx-auto w-full max-w-7xl px-6">
-				<div className="mx-auto flex max-w-2xl flex-col items-center gap-4 text-center">
+				<div className="mx-auto flex max-w-2xl flex-col items-start gap-4 text-left sm:items-center sm:text-center">
 					<h2
-						className="text-balance font-medium text-display text-primary-foreground"
+						className="text-balance font-medium text-h1 text-primary-foreground sm:text-display"
 						id="why-heading"
 					>
 						<Highlight>Why merchants install the second one</Highlight>
 					</h2>
-					<p className="text-pretty text-body-lg text-secondary-foreground leading-relaxed">
+					<p className="text-pretty text-body text-secondary-foreground leading-relaxed sm:text-body-lg">
 						Every app you add is another script, another subscription, another
 						inbox, and another thing that breaks the next time you change
 						themes. That tax is why most stores stop at one. Edge is one team's

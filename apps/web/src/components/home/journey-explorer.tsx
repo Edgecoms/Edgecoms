@@ -105,19 +105,19 @@ export function JourneyExplorer() {
 	return (
 		<section aria-labelledby="journey-heading" className="w-full py-10">
 			<div className="mx-auto w-full max-w-7xl px-6">
-				<div className="mx-auto flex max-w-2xl flex-col items-center gap-4 text-center">
+				<div className="mx-auto flex max-w-2xl flex-col items-start gap-4 text-left sm:items-center sm:text-center">
 					<p className="font-medium text-body-sm text-brand">
 						One visit, seven surfaces
 					</p>
 					<h2
-						className="text-balance font-medium text-display text-primary-foreground"
+						className="text-balance font-medium text-h1 text-primary-foreground sm:text-display"
 						id="journey-heading"
 					>
 						<Highlight>
 							Every buying journey is an opportunity to earn more.
 						</Highlight>
 					</h2>
-					<p className="text-pretty text-body-lg text-secondary-foreground leading-relaxed">
+					<p className="text-pretty text-body text-secondary-foreground leading-relaxed sm:text-body-lg">
 						Different moments require different tools. Edge helps you improve
 						each one, from the first product view to the second purchase months
 						later.

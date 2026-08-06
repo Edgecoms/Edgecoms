@@ -30,14 +30,14 @@ export function ProgramCompare() {
 	return (
 		<section aria-labelledby="compare-heading" className="w-full pb-16">
 			<div className="mx-auto w-full max-w-7xl px-6">
-				<div className="mx-auto flex max-w-2xl flex-col items-center gap-4 text-center">
+				<div className="mx-auto flex max-w-2xl flex-col items-start gap-4 text-left sm:items-center sm:text-center">
 					<h2
-						className="text-balance font-medium text-display text-primary-foreground"
+						className="text-balance font-medium text-h1 text-primary-foreground sm:text-display"
 						id="compare-heading"
 					>
 						Not an affiliate scheme
 					</h2>
-					<p className="text-pretty text-body-lg text-secondary-foreground leading-relaxed">
+					<p className="text-pretty text-body text-secondary-foreground leading-relaxed sm:text-body-lg">
 						Most programs pay you for a click and stop paying the moment a
 						window closes. This one pays you for the relationship you already
 						have, and keeps paying.

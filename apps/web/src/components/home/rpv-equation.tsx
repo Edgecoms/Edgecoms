@@ -108,17 +108,17 @@ export function RpvEquation() {
 			/>
 
 			<div className="mx-auto w-full max-w-7xl px-6">
-				<div className="mx-auto flex max-w-2xl flex-col items-center gap-4 text-center">
+				<div className="mx-auto flex max-w-2xl flex-col items-start gap-4 text-left sm:items-center sm:text-center">
 					<p className="font-medium text-body-sm text-brand">
 						How a store actually grows
 					</p>
 					<h2
-						className="text-balance font-medium text-display text-primary-foreground"
+						className="text-balance font-medium text-h1 text-primary-foreground sm:text-display"
 						id="rpv-heading"
 					>
 						<Highlight>Every Shopify store grows the same way.</Highlight>
 					</h2>
-					<p className="text-pretty text-body-lg text-secondary-foreground leading-relaxed">
+					<p className="text-pretty text-body text-secondary-foreground leading-relaxed sm:text-body-lg">
 						Revenue doesn’t become unpredictable because there are hundreds of
 						metrics. It grows when you improve just a few of them consistently.
 					</p>
@@ -147,7 +147,7 @@ export function RpvEquation() {
 					<Term gloss={aov.gloss} symbol={aov.symbol} term={aov.term} />
 				</div>
 
-				<p className="mx-auto mt-14 max-w-2xl text-balance text-center text-body-lg text-primary-foreground leading-relaxed">
+				<p className="mx-auto mt-14 max-w-2xl text-balance text-left text-body-lg text-primary-foreground leading-relaxed sm:text-center">
 					Most merchants spend months buying more traffic before realizing their
 					existing visitors were already worth more.
 				</p>

@@ -8,14 +8,18 @@ import { BOOKING_URL } from "@/lib/booking";
    claim is false, and a merchant discovers it one click later. The house
    figures — store count, average rating — live in the numbers band further
    down, where they read as a stats block rather than as a claim smuggled under
-   the fold. */
+   the fold.
+
+   Ordered shortest-claims-first because only the first two survive below `sm`.
+   Anything that wraps to a second line on a phone reads as fine print rather
+   than as reassurance, and is not worth the height. */
 const TRUST_LINE = [
 	"Built for Shopify",
-	"Used by growing Shopify brands",
 	"Install in minutes",
-	"No contracts",
-	"One team. One invoice.",
+	"Used by growing Shopify brands",
 ] as const;
+
+const TRUST_LINE_MOBILE_COUNT = 2;
 
 /**
  * The hero sits on the page surface rather than on a brand-filled panel. A
@@ -40,7 +44,11 @@ export function HeroHome() {
 			    above and below it, and the band below was reading as a gap rather
 			    than as breathing room. Short enough now that the proof row peeks at
 			    the fold and pulls the scroll. */}
-			<div className="mx-auto flex w-full max-w-4xl flex-col items-center gap-6 px-6 pt-20 pb-6 text-center sm:min-h-[calc(100svh-var(--header-height)-18rem)] sm:justify-center sm:gap-8 sm:pt-16 sm:pb-4">
+			{/* Left-aligned below `sm`. Centred text on a 375px column gives every
+			    line a different left edge, so the eye has to re-find the start of
+			    each one; the ragged edge lands on the right instead, where nothing
+			    starts. */}
+			<div className="mx-auto flex w-full max-w-4xl flex-col items-start gap-6 px-6 pt-20 pb-6 text-left sm:min-h-[calc(100svh-var(--header-height)-18rem)] sm:items-center sm:justify-center sm:gap-8 sm:pt-16 sm:pb-4 sm:text-center">
 				{/* No announcement pill. The partner program is a second audience, and
 				    putting it above the headline made a merchant-facing hero open with
 				    a message not aimed at the merchant. It is still reachable from the
@@ -50,10 +58,9 @@ export function HeroHome() {
 				</h1>
 
 				<p className="max-w-2xl text-pretty text-body-lg text-secondary-foreground leading-relaxed">
-					Every visitor costs money to acquire. Edge helps Shopify brands earn
-					more from every one of them with apps for bundles, subscriptions,
-					carts, reviews, pricing, and more, all designed to increase average
-					order value and customer lifetime value.
+					Every visitor costs money to acquire. Edge apps for bundles,
+					subscriptions, carts, reviews and pricing help Shopify brands earn
+					more from each one.
 				</p>
 
 				<div className="flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:items-center">
@@ -77,9 +84,18 @@ export function HeroHome() {
 					</ButtonLink>
 				</div>
 
-				<ul className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 text-caption text-secondary-foreground">
+				{/* The only centred thing in a left-aligned mobile hero: it is a
+				    footnote under the buttons, not part of the reading column. */}
+				<ul className="flex w-full flex-wrap items-center justify-center gap-x-3 gap-y-1.5 text-caption text-secondary-foreground">
 					{TRUST_LINE.map((item, index) => (
-						<li className="flex items-center gap-3" key={item}>
+						<li
+							className={
+								index < TRUST_LINE_MOBILE_COUNT
+									? "flex items-center gap-3"
+									: "hidden items-center gap-3 sm:flex"
+							}
+							key={item}
+						>
 							{index > 0 ? (
 								<span aria-hidden="true" className="text-[var(--gray-7)]">
 									·

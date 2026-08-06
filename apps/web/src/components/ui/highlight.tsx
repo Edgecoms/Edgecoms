@@ -57,6 +57,12 @@ const TERM_PATTERN = new RegExp(
 	"gi"
 );
 
+/* An inline-block is a line-break opportunity, so "Same traffic. Higher AOV."
+   was free to break between the mark and the full stop and start a phone-width
+   line with a lone ".". Punctuation that follows a term is rendered inside the
+   term's own nowrap wrapper instead. */
+const TRAILING_PUNCTUATION = /^[.,;:!?)\]]+/;
+
 export function Highlight({ children }: { children: string }): ReactNode {
 	const parts = children.split(TERM_PATTERN);
 
@@ -70,8 +76,16 @@ export function Highlight({ children }: { children: string }): ReactNode {
 		const key = `${index}-${part}`;
 
 		if (!isTerm) {
-			return <span key={key}>{part}</span>;
+			// Anything at an even index past 0 follows a term, which has already
+			// rendered this part's leading punctuation.
+			return (
+				<span key={key}>
+					{index === 0 ? part : part.replace(TRAILING_PUNCTUATION, "")}
+				</span>
+			);
 		}
+
+		const trailing = parts[index + 1]?.match(TRAILING_PUNCTUATION)?.[0] ?? "";
 
 		return (
 			/* The fill is a rotated pseudo-element rather than the mark's own
@@ -83,12 +97,12 @@ export function Highlight({ children }: { children: string }): ReactNode {
 			   `inline-block` is the cost: a multi-word term now moves to the next
 			   line whole instead of wrapping mid-phrase. On headlines that is the
 			   better break anyway, and the terms are three words at most. */
-			<mark
-				className="relative isolate inline-block bg-transparent text-inherit before:absolute before:inset-x-[-0.15em] before:inset-y-[0.05em] before:-z-10 before:-rotate-[1.5deg] before:bg-brand/20 before:content-['']"
-				key={key}
-			>
-				{part}
-			</mark>
+			<span className="whitespace-nowrap" key={key}>
+				<mark className="relative isolate inline-block bg-transparent text-inherit before:absolute before:inset-x-[-0.15em] before:inset-y-[0.05em] before:-z-10 before:-rotate-[1.5deg] before:bg-brand/20 before:content-['']">
+					{part}
+				</mark>
+				{trailing}
+			</span>
 		);
 	});
 }

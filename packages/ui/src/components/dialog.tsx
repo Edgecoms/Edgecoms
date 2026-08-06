@@ -16,6 +16,28 @@ function DialogClose(props: ComponentProps<typeof DialogPrimitive.Close>) {
 	return <DialogPrimitive.Close {...props} />;
 }
 
+/* Unstyled passthroughs, for surfaces that are dialogs mechanically but not
+   visually — the mobile nav sheet, which is full-bleed and has no title row.
+   They get Base UI's focus trap, Escape handling and scroll lock without
+   `DialogContent` growing a flag for every one-off shape. */
+export function DialogPortal(
+	props: ComponentProps<typeof DialogPrimitive.Portal>
+) {
+	return <DialogPrimitive.Portal {...props} />;
+}
+
+export function DialogPopup(
+	props: ComponentProps<typeof DialogPrimitive.Popup>
+) {
+	return <DialogPrimitive.Popup {...props} />;
+}
+
+export function DialogTitle(
+	props: ComponentProps<typeof DialogPrimitive.Title>
+) {
+	return <DialogPrimitive.Title {...props} />;
+}
+
 function DialogContent({
 	className,
 	title,

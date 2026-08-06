@@ -59,8 +59,8 @@ export default function HomePage() {
 			<HeroHome />
 			<CaseStudies />
 			<FeaturedStories />
-			<RpvEquation />
 			<JourneyExplorer />
+			<RpvEquation />
 			<RpvCalculator />
 			<WhyEdge />
 			<FaqList items={HOME_FAQ} title="Questions merchants ask first" />

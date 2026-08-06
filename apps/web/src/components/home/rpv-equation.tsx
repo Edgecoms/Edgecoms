@@ -116,13 +116,11 @@ export function RpvEquation() {
 						className="text-balance font-medium text-display text-primary-foreground"
 						id="rpv-heading"
 					>
-						<Highlight>
-							There are only two ways to make a visit worth more
-						</Highlight>
+						<Highlight>Every Shopify store grows the same way.</Highlight>
 					</h2>
 					<p className="text-pretty text-body-lg text-secondary-foreground leading-relaxed">
-						More of your visitors buy, or the ones who buy spend more. That is
-						the entire equation, and every Edge app pulls on one side of it.
+						Revenue doesn’t become unpredictable because there are hundreds of
+						metrics. It grows when you improve just a few of them consistently.
 					</p>
 				</div>
 
@@ -150,8 +148,8 @@ export function RpvEquation() {
 				</div>
 
 				<p className="mx-auto mt-14 max-w-2xl text-balance text-center text-body-lg text-primary-foreground leading-relaxed">
-					Most stores spend a year optimising the first number and never touch
-					the second. That is why their revenue per visitor is flat.
+					Most merchants spend months buying more traffic before realizing their
+					existing visitors were already worth more.
 				</p>
 
 				{/* Which app pulls which lever. Held further from the statement above

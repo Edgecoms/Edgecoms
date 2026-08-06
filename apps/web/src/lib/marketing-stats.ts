@@ -475,3 +475,109 @@ export const INDUSTRY_STATS: Readonly<Record<string, MarketingStat>> = {
 		value: "3.4×",
 	},
 };
+
+/**
+ * A before/after pair. Kept apart from `MarketingStat` because two figures and
+ * the movement between them is a different claim from a single number: it says
+ * what changed, over some window, and both ends have to come from the same
+ * report or the delta is meaningless.
+ */
+export interface BeforeAfterStat {
+	/** The reading after, unit included. */
+	after: string;
+	/** The reading before Edge, unit included. */
+	before: string;
+	/** Rendered verbatim. Never computed here — no float math over money. */
+	delta: string;
+	/** What was measured. */
+	label: string;
+	provenance: StatProvenance;
+}
+
+export interface FeaturedStory {
+	/** Verified from the storefront, same rule as `CaseStudy.apps`. */
+	apps: readonly string[];
+	/**
+	 * The merchant, named. Same rule as `CaseStudy.brand`: only once they have
+	 * agreed in writing, since this card also puts figures against the name.
+	 */
+	label: string;
+	/** The case study this card reads through to. Must exist in `CASE_STUDIES`. */
+	slug: string;
+	/** Two at most. A third pair turns the card into a report. */
+	stats: readonly BeforeAfterStat[];
+}
+
+/**
+ * The three featured stories on the homepage. EVERY FIGURE IS INVENTED.
+ *
+ * Both ends of each pair have to come from the same Shopify report over the
+ * same window before this ships, because the section's own subheading promises
+ * exactly that. A before/after that quietly compares a peak month to a trough
+ * is the single most disprovable thing on the site.
+ */
+export const FEATURED_STORIES: readonly FeaturedStory[] = [
+	{
+		label: "Matata Xplore",
+		slug: "matataxplore",
+		stats: [
+			{
+				label: "Revenue",
+				before: "$84k",
+				after: "$119k",
+				delta: "+41%",
+				provenance: "invented",
+			},
+			{
+				label: "Average order value",
+				before: "$61",
+				after: "$79",
+				delta: "+30%",
+				provenance: "invented",
+			},
+		],
+		apps: ["Edge Timer", "Edge Cart", "Edge Subscriptions"],
+	},
+	{
+		label: "Vyssence",
+		slug: "vyssence",
+		stats: [
+			{
+				label: "Revenue",
+				before: "$126k",
+				after: "$168k",
+				delta: "+33%",
+				provenance: "invented",
+			},
+			{
+				label: "Average order value",
+				before: "$48",
+				after: "$62",
+				delta: "+29%",
+				provenance: "invented",
+			},
+		],
+		apps: ["Edge Bundles", "Edge Cart", "Edge Reviews"],
+	},
+	{
+		label: "Aurient",
+		slug: "aurient",
+		stats: [
+			{
+				label: "Revenue",
+				before: "$210k",
+				after: "$284k",
+				delta: "+35%",
+				provenance: "invented",
+			},
+			{
+				label: "Average order value",
+				before: "$72",
+				after: "$94",
+				delta: "+31%",
+				provenance: "invented",
+			},
+		],
+		apps: ["Edge Bundles", "Edge Subscriptions", "Edge Reviews"],
+	},
+] as const;

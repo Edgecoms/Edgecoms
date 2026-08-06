@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { CaseStudies } from "@/components/home/case-studies";
 import { CtaHome } from "@/components/home/cta-home";
+import { FeaturedStories } from "@/components/home/featured-stories";
 import { HeroHome } from "@/components/home/hero-home";
 import { JourneyExplorer } from "@/components/home/journey-explorer";
 import { RpvCalculator } from "@/components/home/rpv-calculator";
@@ -57,6 +58,7 @@ export default function HomePage() {
 		<main className="flex flex-col gap-y-8 sm:gap-y-14">
 			<HeroHome />
 			<CaseStudies />
+			<FeaturedStories />
 			<RpvEquation />
 			<JourneyExplorer />
 			<RpvCalculator />

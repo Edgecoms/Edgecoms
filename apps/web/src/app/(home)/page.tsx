@@ -13,7 +13,6 @@ import {
 import { ProductPreview } from "@/components/landing/product-preview";
 import { RewardCards } from "@/components/landing/reward-cards";
 import { Scale } from "@/components/landing/scale";
-import { ShipFast } from "@/components/landing/ship-fast";
 import { Statement } from "@/components/landing/statement";
 import { Trusted } from "@/components/landing/trusted";
 import { HOME_TESTIMONIALS } from "@/lib/marketing-stats";
@@ -152,7 +151,6 @@ export default function HomePage() {
 
 			<Scale />
 			<Trusted />
-			<ShipFast />
 			<CtaDark />
 		</main>
 	);

@@ -1,100 +1,156 @@
 import {
-	BadgePercent,
-	BarChart3,
-	CalendarClock,
-	Coins,
-	Globe,
-	Layers,
+	Activity,
+	CheckCircle2,
 	Package,
-	Repeat,
 	ShoppingCart,
-	Star,
-	Timer,
-	Truck,
+	TrendingUp,
 } from "lucide-react";
-import type { ComponentType } from "react";
-
-/**
- * The capability field: everything the suite does, laid out as a grid with the
- * promise sitting in the middle of it.
- *
- * Deliberately wider than the frame. It is masked at both edges instead of
- * being made to fit, because a field that visibly continues past the cut reads
- * as "and more" without a line of copy saying so — and because shrinking it to
- * fit 375px would put twelve labels at six pixels.
- */
-interface Tile {
-	icon: ComponentType<{ className?: string }>;
-	label: string;
-	/** 0-based cell in the 7×5 grid. */
-	slot: number;
-	tone: string;
-}
-
-const TILES: readonly Tile[] = [
-	{ icon: CalendarClock, label: "Scheduling", slot: 2, tone: "#F97316" },
-	{ icon: Timer, label: "Countdown", slot: 3, tone: "#F97316" },
-	{ icon: Layers, label: "Volume tiers", slot: 9, tone: "#16A34A" },
-	{ icon: Package, label: "Bundles", slot: 10, tone: "#16A34A" },
-	{ icon: Truck, label: "Free shipping bar", slot: 11, tone: "#16A34A" },
-	{ icon: ShoppingCart, label: "Cart upsells", slot: 15, tone: "#7C3AED" },
-	{ icon: Globe, label: "Multi-currency", slot: 19, tone: "#7C3AED" },
-	{ icon: Star, label: "Photo reviews", slot: 23, tone: "#F97316" },
-	{ icon: Repeat, label: "Auto refill", slot: 24, tone: "#F97316" },
-	{ icon: BarChart3, label: "Offer analytics", slot: 25, tone: "#16A34A" },
-	{ icon: BadgePercent, label: "Free plans", slot: 30, tone: "#a3a3a3" },
-	{ icon: Coins, label: "Server-side events", slot: 31, tone: "#a3a3a3" },
-];
-
-const CELLS = 35;
-const CENTRE_SLOT = 17;
 
 export function AppsField() {
 	return (
-		<div className="relative overflow-hidden py-10">
-			<div className="mx-auto grid w-[860px] grid-cols-7 gap-3 px-4 [mask-image:radial-gradient(ellipse_62%_78%_at_50%_50%,black_45%,transparent)]">
-				{Array.from({ length: CELLS }, (_, index) => {
-					const tile = TILES.find((item) => item.slot === index);
-
-					if (index === CENTRE_SLOT) {
-						return (
-							<div
-								className="flex h-[68px] items-center justify-center gap-2 rounded-lg border border-neutral-300 bg-white px-3 shadow-[0_8px_24px_-10px_rgba(0,0,0,0.25)]"
-								key="centre"
-							>
-								<span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-neutral-900 font-semibold text-[11px] text-white">
-									E
+		<div className="relative w-full border-neutral-200 border-t bg-[#F8FAFC] px-4 py-12 sm:px-8 sm:py-16">
+			<div className="mx-auto flex max-w-[680px] flex-col gap-3">
+				{/* Top Card - Edge Bundles */}
+				<div className="flex flex-col gap-3 rounded-xl border border-neutral-200 bg-white p-4 shadow-[0_2px_8px_rgba(0,0,0,0.04)] sm:flex-row sm:items-center sm:justify-between sm:p-4.5">
+					<div className="flex items-center gap-3">
+						<div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-orange-50 font-bold text-orange-600">
+							<Package className="size-5" />
+						</div>
+						<div className="flex flex-col">
+							<div className="flex items-center gap-2">
+								<span className="font-medium text-[14px] text-neutral-900">
+									bundles.edgecoms.com
 								</span>
-								<span className="whitespace-nowrap font-medium text-[13px] text-neutral-900">
-									Higher AOV
+								<span className="rounded bg-orange-100/80 px-2 py-0.5 font-semibold text-[10px] text-orange-700">
+									Primary App
 								</span>
 							</div>
-						);
-					}
-
-					if (!tile) {
-						return (
-							<div
-								className="h-[68px] rounded-lg border border-neutral-200/70"
-								key={`empty-${index}`}
-							/>
-						);
-					}
-
-					const Icon = tile.icon;
-
-					return (
-						<div
-							className="flex h-[68px] flex-col items-center justify-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-1"
-							key={tile.label}
-						>
-							<Icon aria-hidden="true" className="size-4" />
-							<span className="text-center text-[11px] text-neutral-600 leading-tight">
-								{tile.label}
+							<span className="text-[12px] text-neutral-400">
+								Volume Tiers &amp; Buy-One-Get-One Offers
 							</span>
 						</div>
-					);
-				})}
+					</div>
+					<div className="flex items-center gap-3 self-end sm:self-auto">
+						<div className="flex items-center gap-1 rounded-md bg-neutral-100 px-2.5 py-1 font-medium text-[12px] text-neutral-600">
+							<TrendingUp className="size-3.5 text-orange-600" />
+							<span>+27% AOV</span>
+						</div>
+						<span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 font-medium text-[11px] text-emerald-700">
+							<CheckCircle2 className="size-3.5 text-emerald-600" />
+							Active
+						</span>
+					</div>
+				</div>
+
+				{/* Middle Card - Edge Cart */}
+				<div className="flex flex-col gap-3 rounded-xl border border-neutral-200 bg-white p-4 shadow-[0_2px_8px_rgba(0,0,0,0.04)] sm:flex-row sm:items-center sm:justify-between sm:p-4.5">
+					<div className="flex items-center gap-3">
+						<div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-purple-50 font-bold text-purple-600">
+							<ShoppingCart className="size-5" />
+						</div>
+						<div className="flex flex-col">
+							<div className="flex items-center gap-2">
+								<span className="font-medium text-[14px] text-neutral-900">
+									cart.edgecoms.com
+								</span>
+							</div>
+							<span className="text-[12px] text-neutral-400">
+								Slide Cart &amp; One-Click In-Cart Upsells
+							</span>
+						</div>
+					</div>
+					<div className="flex items-center gap-3 self-end sm:self-auto">
+						<div className="flex items-center gap-1 rounded-md bg-neutral-100 px-2.5 py-1 font-medium text-[12px] text-neutral-600">
+							<TrendingUp className="size-3.5 text-purple-600" />
+							<span>+19% RPV</span>
+						</div>
+						<span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 font-medium text-[11px] text-emerald-700">
+							<CheckCircle2 className="size-3.5 text-emerald-600" />
+							Active
+						</span>
+					</div>
+				</div>
+
+				{/* Bottom Card - Trackproof Attribution */}
+				<div className="flex flex-col gap-4 rounded-xl border border-neutral-200 bg-white p-4 shadow-[0_4px_16px_-4px_rgba(0,0,0,0.06)] sm:p-5">
+					<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+						<div className="flex items-center gap-3">
+							<div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-emerald-50 font-bold text-emerald-600">
+								<Activity className="size-5" />
+							</div>
+							<div className="flex flex-col">
+								<span className="font-medium text-[14px] text-neutral-900">
+									trackproof.edgecoms.com
+								</span>
+								<span className="text-[12px] text-neutral-400">
+									Server-Side Meta CAPI &amp; Multi-Touch Attribution
+								</span>
+							</div>
+						</div>
+						<div className="flex items-center gap-3 self-end sm:self-auto">
+							<div className="flex items-center gap-1 rounded-md bg-neutral-100 px-2.5 py-1 font-medium text-[12px] text-neutral-600">
+								<span>Accurate ROAS</span>
+							</div>
+							<span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 font-medium text-[11px] text-emerald-700">
+								<CheckCircle2 className="size-3.5 text-emerald-600" />
+								Verified
+							</span>
+						</div>
+					</div>
+
+					<div className="h-px w-full bg-neutral-100" />
+
+					<div className="flex flex-col gap-3">
+						<div className="flex items-center justify-between">
+							<span className="text-[12px] text-neutral-500">
+								Server-side conversion records:
+							</span>
+							<div className="flex items-center gap-2">
+								<span className="rounded bg-neutral-100 px-2 py-0.5 font-medium text-[11px] text-neutral-700">
+									Meta CAPI
+								</span>
+								<span className="rounded bg-neutral-50 px-2 py-0.5 font-medium text-[11px] text-neutral-400">
+									Google Pixel
+								</span>
+							</div>
+						</div>
+
+						<div className="overflow-x-auto">
+							<table className="w-full text-left text-[12px]">
+								<thead>
+									<tr className="border-neutral-100 border-b font-medium text-neutral-400">
+										<th className="pb-1.5 font-medium">Event</th>
+										<th className="pb-1.5 font-medium">Method</th>
+										<th className="pb-1.5 font-medium">Match Rate</th>
+										<th className="pb-1.5 font-medium">Status</th>
+									</tr>
+								</thead>
+								<tbody className="divide-y divide-neutral-50 text-neutral-600">
+									<tr>
+										<td className="py-2 font-medium text-neutral-900">
+											Purchase
+										</td>
+										<td className="py-2 text-neutral-500">Server CAPI</td>
+										<td className="py-2 text-neutral-500">99.4%</td>
+										<td className="py-2 font-medium text-emerald-600">
+											Synced
+										</td>
+									</tr>
+									<tr>
+										<td className="py-2 font-medium text-neutral-900">
+											AddToCart
+										</td>
+										<td className="py-2 text-neutral-500">Browser + Server</td>
+										<td className="py-2 text-neutral-500">98.8%</td>
+										<td className="py-2 font-medium text-emerald-600">
+											Synced
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	);

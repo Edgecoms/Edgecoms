@@ -74,7 +74,7 @@ export function PillarSection({
 				<FeatureTabs features={features} pillar={pillar} />
 			</Frame>
 
-			<Frame className="relative overflow-hidden border-neutral-200 border-t">
+			<Frame className="relative overflow-hidden border-neutral-200 border-y">
 				<DottedField />
 				<figure className="relative flex flex-col gap-8 px-6 py-16 lg:flex-row lg:items-start lg:justify-between lg:gap-12">
 					<blockquote className="max-w-[720px] text-balance text-[22px] text-neutral-900 leading-[1.4] tracking-[-0.02em] sm:text-[26px]">

@@ -20,35 +20,10 @@ const MERCHANTS = Object.entries(CASE_STUDIES)
 export function LogoCloud() {
 	return (
 		<section className="relative bg-white">
-			{/* Full-bleed banner, so it breaks the 1080px rules the way the rest of
-			    the page does not — that is what makes it read as an announcement
-			    rather than as another section. */}
-			<div className="mx-auto w-full max-w-[1080px] px-6">
-				<Link
-					className="flex flex-col gap-4 rounded-xl bg-neutral-900 px-6 py-5 transition-colors hover:bg-neutral-800 sm:flex-row sm:items-center sm:justify-between"
-					href={"/partners" as Route}
-				>
-					<span className="flex items-center gap-4">
-						<span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-white/10 font-semibold text-[15px] text-white">
-							%
-						</span>
-						<span className="flex flex-col">
-							<span className="font-medium text-[15px] text-white">
-								Edge Partner Program
-							</span>
-							<span className="text-[14px] text-neutral-400">
-								Register the merchants you manage and earn a recurring share of
-								Edge revenue, every month
-							</span>
-						</span>
-					</span>
-					<span className="shrink-0 self-start rounded-lg bg-white px-4 py-2 font-medium text-[14px] text-neutral-900 sm:self-auto">
-						Learn more
-					</span>
-				</Link>
-			</div>
-
-			<Frame className="mt-14 py-14">
+			{/* The partner banner used to sit here. It now overlaps the preview
+			    artwork one section up, where it interrupts something rather than
+			    occupying a band of its own. */}
+			<Frame className="py-14">
 				<ul className="grid grid-cols-2 items-center gap-x-6 gap-y-10 px-6 sm:grid-cols-3 lg:grid-cols-6">
 					{MERCHANTS.map((merchant) => (
 						<li

@@ -48,7 +48,7 @@ export const PILLARS = {
 	results: {
 		accent: "#16A34A",
 		icon: "/app-icons/trackproof.webp",
-		label: "Edge Results",
+		label: "Trackproof",
 	},
 	partners: {
 		accent: "#7C3AED",

@@ -35,7 +35,7 @@ function FloatCard({
 
 export function Statement() {
 	return (
-		<section className="relative bg-white">
+		<section className="relative border-neutral-200 border-b bg-white">
 			<Frame className="relative overflow-hidden py-20 sm:py-28">
 				<DottedField />
 

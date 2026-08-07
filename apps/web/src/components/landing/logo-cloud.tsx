@@ -15,8 +15,8 @@ const MERCHANTS = Object.entries(CASE_STUDIES)
 
 export function LogoCloud() {
 	return (
-		<section className="relative bg-white">
-			<Frame className="border-neutral-200 border-y py-10 sm:py-12">
+		<section className="relative border-neutral-200 border-y bg-white">
+			<Frame className="py-10 sm:py-12">
 				<ul className="grid grid-cols-2 items-center justify-items-center gap-x-8 gap-y-8 px-6 sm:grid-cols-3 lg:grid-cols-6">
 					{MERCHANTS.map((merchant) => (
 						<li

@@ -56,7 +56,7 @@ function QuoteCell({
 export function Trusted() {
 	return (
 		<section className="bg-white">
-			<Frame className="border-neutral-200 border-t">
+			<Frame>
 				<div className="flex flex-col items-center gap-6 px-6 py-20 text-center sm:py-24">
 					<h2 className="max-w-[620px] text-balance font-medium text-[36px] text-neutral-900 leading-[1.08] tracking-[-0.03em] sm:text-[46px]">
 						Trusted by growing Shopify brands

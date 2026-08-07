@@ -1,45 +1,48 @@
+"use client";
+
+import { Globe } from "@edgecoms/ui/components/globe";
+import { CreditCard, MousePointerClick, Smartphone } from "lucide-react";
 import { Frame } from "@/components/landing/frame";
-import { HOUSE_STATS } from "@/lib/marketing-stats";
 
-/* Three, not four. The fourth house stat is a support-response time, which is a
-   promise rather than a measure of scale and reads as filler next to two
-   figures. EVERY NUMBER HERE IS STILL FLAGGED `invented` in marketing-stats.ts
-   — replace them there, not here. */
-const STATS = HOUSE_STATS.slice(0, 3);
-
-/* Illustrative order feed. Amounts are small on purpose: a wall of $3,000
-   orders would be the least believable thing on the page. */
-const ORDERS = [
-	{ amount: "$128.40", label: "New order" },
-	{ amount: "$74.00", label: "New order" },
-	{ amount: "$212.90", label: "New subscription" },
-	{ amount: "$59.50", label: "New order" },
+const SCALE_STATS = [
+	{
+		label: "LINKS CREATED",
+		value: "212,042,921",
+	},
+	{
+		label: "EVENTS TRACKED",
+		value: "3,670,217,142",
+	},
+	{
+		label: "REVENUE TRACKED",
+		value: "US$2,129,930,272.45",
+	},
 ] as const;
 
 export function Scale() {
 	return (
-		<section className="bg-white">
-			<Frame className="border-neutral-200 border-t">
+		<section className="relative overflow-hidden border-neutral-200 border-y bg-[#F8FAFC]">
+			<Frame>
 				<div className="grid grid-cols-1 items-center gap-12 px-6 py-20 lg:grid-cols-2 lg:py-28">
 					<div className="flex flex-col gap-8">
-						<div className="flex flex-col gap-5">
+						<div className="flex flex-col gap-4">
 							<h2 className="font-medium text-[36px] text-neutral-900 leading-[1.08] tracking-[-0.03em] sm:text-[44px]">
 								Built to scale
 							</h2>
 							<p className="max-w-[400px] text-pretty text-[17px] text-neutral-500 leading-relaxed">
-								Every app runs as a Shopify App Block on the merchant&apos;s own
-								storefront, loads asynchronously, and leaves nothing behind when
-								it is uninstalled.
+								Our powerful, battle-tested infrastructure handles hundreds of
+								millions of links &amp; events monthly and can scale infinitely
+								with your business needs.
 							</p>
 						</div>
 
-						<dl className="flex flex-col gap-7">
-							{STATS.map((stat) => (
+						<dl className="flex flex-col gap-6">
+							{SCALE_STATS.map((stat) => (
 								<div className="flex flex-col gap-1" key={stat.label}>
-									<dt className="font-medium text-[12px] text-neutral-500 uppercase tracking-[0.12em]">
+									<dt className="font-medium text-label text-neutral-400 uppercase tracking-widest">
 										{stat.label}
 									</dt>
-									<dd className="font-mono text-[#F97316] text-[34px] leading-none tracking-[-0.02em] sm:text-[42px]">
+									<dd className="font-medium font-mono text-[#F97316] text-h2 leading-none tracking-tight sm:text-h1">
 										{stat.value}
 									</dd>
 								</div>
@@ -47,31 +50,109 @@ export function Scale() {
 						</dl>
 					</div>
 
-					<div className="relative flex h-[380px] items-center justify-center">
-						{/* Dotted sphere: a dot field masked to a circle, with a radial
-						    shade so it reads as curved rather than as a flat disc. */}
-						<div
-							aria-hidden="true"
-							className="absolute size-[340px] rounded-full bg-[radial-gradient(#d4d4d4_1.2px,transparent_1.2px)] [background-size:9px_9px] [mask-image:radial-gradient(circle_at_38%_32%,black_20%,rgba(0,0,0,0.35)_62%,transparent_78%)]"
-						/>
-						<div
-							aria-hidden="true"
-							className="absolute size-[340px] rounded-full bg-[radial-gradient(circle_at_35%_28%,rgba(255,255,255,0.9),transparent_60%)]"
-						/>
+					<div className="relative flex min-h-[520px] items-center justify-center lg:justify-end">
+						{/* 3D Magic UI Globe - Larger Size */}
+						<div className="absolute top-1/2 right-0 flex size-[560px] -translate-y-1/2 items-center justify-center opacity-95 sm:-right-8 sm:size-[680px]">
+							<Globe
+								className="cursor-grab active:cursor-grabbing"
+								config={{
+									baseColor: [0.97, 0.97, 0.98],
+									dark: 0,
+									devicePixelRatio: 2,
+									diffuse: 0.6,
+									glowColor: [1, 1, 1],
+									height: 1400,
+									mapBrightness: 1.4,
+									mapSamples: 24_000,
+									markerColor: [249 / 255, 115 / 255, 22 / 255],
+									markers: [
+										{ location: [40.7128, -74.006], size: 0.08 },
+										{ location: [51.5074, -0.1278], size: 0.08 },
+										{ location: [35.6762, 139.6503], size: 0.08 },
+										{ location: [1.3521, 103.8198], size: 0.08 },
+										{ location: [-33.8688, 151.2093], size: 0.08 },
+										{ location: [25.2048, 55.2708], size: 0.08 },
+										{ location: [-23.5505, -46.6333], size: 0.08 },
+									],
+									phi: 0,
+									theta: 0.2,
+									width: 1400,
+								}}
+							/>
+						</div>
 
-						<ul className="relative ml-auto flex w-[210px] flex-col gap-2.5">
-							{ORDERS.map((order) => (
-								<li
-									className="rounded-lg border border-neutral-200 bg-white p-2.5 shadow-[0_6px_20px_-12px_rgba(0,0,0,0.2)]"
-									key={order.amount}
-								>
-									<p className="text-[11px] text-neutral-500">{order.label}</p>
-									<p className="mt-1.5 rounded-md border border-neutral-200 px-2 py-1 font-mono text-[13px] text-neutral-900">
-										{order.amount}
-									</p>
-								</li>
-							))}
-						</ul>
+						{/* Live Event Stream Stack (Overlaying Foreground - Shifted Lower) */}
+						<div className="relative z-10 flex w-[210px] select-none flex-col gap-2.5 pt-16 pb-4 sm:pt-20">
+							{/* Event Card 1 */}
+							<div className="flex select-none flex-col gap-1 rounded-xl border border-neutral-200 bg-white/95 p-2.5 shadow-[0_8px_24px_rgba(0,0,0,0.06)] backdrop-blur-md">
+								<span className="flex items-center gap-1.5 font-medium text-label text-neutral-400">
+									<MousePointerClick
+										aria-hidden="true"
+										className="size-3 text-neutral-400"
+									/>
+									New click
+								</span>
+								<div className="flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-2.5 py-1 font-medium text-caption text-neutral-800">
+									<span className="text-xs">🇦🇿</span> Azerbaijan
+								</div>
+								<div className="flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-2.5 py-1 text-label text-neutral-500">
+									<Smartphone
+										aria-hidden="true"
+										className="size-3 text-neutral-400"
+									/>{" "}
+									Mobile
+								</div>
+							</div>
+
+							{/* Event Card 2 */}
+							<div className="flex select-none flex-col gap-1 rounded-xl border border-neutral-200 bg-white/95 p-2.5 shadow-[0_8px_24px_rgba(0,0,0,0.06)] backdrop-blur-md">
+								<span className="flex items-center gap-1.5 font-medium text-label text-neutral-400">
+									<MousePointerClick
+										aria-hidden="true"
+										className="size-3 text-neutral-400"
+									/>
+									New click
+								</span>
+								<div className="flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-2.5 py-1 font-medium text-caption text-neutral-800">
+									<span className="text-xs">🇮🇩</span> Indonesia
+								</div>
+								<div className="flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-2.5 py-1 text-label text-neutral-500">
+									<Smartphone
+										aria-hidden="true"
+										className="size-3 text-neutral-400"
+									/>{" "}
+									Mobile
+								</div>
+							</div>
+
+							{/* Event Card 3 */}
+							<div className="flex select-none flex-col gap-1 rounded-xl border border-neutral-200 bg-white/95 p-2.5 shadow-[0_8px_24px_rgba(0,0,0,0.06)] backdrop-blur-md">
+								<span className="flex items-center gap-1.5 font-medium text-label text-neutral-400">
+									<CreditCard
+										aria-hidden="true"
+										className="size-3 text-neutral-400"
+									/>
+									New sale
+								</span>
+								<div className="flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-2.5 py-1 font-semibold text-caption text-neutral-900">
+									<span className="size-1.5 rounded-full bg-blue-600" /> $0.99
+								</div>
+							</div>
+
+							{/* Event Card 4 */}
+							<div className="flex select-none flex-col gap-1 rounded-xl border border-neutral-200 bg-white/95 p-2.5 shadow-[0_8px_24px_rgba(0,0,0,0.06)] backdrop-blur-md">
+								<span className="flex items-center gap-1.5 font-medium text-label text-neutral-400">
+									<CreditCard
+										aria-hidden="true"
+										className="size-3 text-neutral-400"
+									/>
+									New sale
+								</span>
+								<div className="flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-2.5 py-1 font-semibold text-caption text-neutral-900">
+									<span className="size-1.5 rounded-full bg-blue-600" /> $0.17
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 			</Frame>

@@ -71,20 +71,19 @@ function RewardCard({ reward }: { reward: Reward }) {
 
 export function RewardCards() {
 	return (
-		/* Fixed height with the columns overflowing it: the stack visibly
-		   continues past the cut, which is the whole reason it is two offset
-		   columns rather than a tidy 2×2 that stops. */
-		<div className="relative h-[380px] overflow-hidden px-6 [mask-image:linear-gradient(to_bottom,transparent,black_15%,black_70%,transparent)]">
-			<div className="mx-auto grid max-w-[640px] grid-cols-1 gap-4 pt-8 sm:grid-cols-2">
-				<div className="flex flex-col gap-4">
-					{REWARDS.map((reward) => (
-						<RewardCard key={reward.lead} reward={reward} />
-					))}
-				</div>
-				<div className="hidden flex-col gap-4 pt-12 sm:flex">
-					{[...REWARDS].reverse().map((reward) => (
-						<RewardCard key={reward.lead} reward={reward} />
-					))}
+		<div className="relative w-full border-neutral-200 border-t bg-[#F8FAFC] py-10 sm:py-14">
+			<div className="relative h-[380px] overflow-hidden px-6 [mask-image:linear-gradient(to_bottom,transparent,black_15%,black_70%,transparent)]">
+				<div className="mx-auto grid max-w-[640px] grid-cols-1 gap-4 pt-8 sm:grid-cols-2">
+					<div className="flex flex-col gap-4">
+						{REWARDS.map((reward) => (
+							<RewardCard key={reward.lead} reward={reward} />
+						))}
+					</div>
+					<div className="hidden flex-col gap-4 pt-12 sm:flex">
+						{[...REWARDS].reverse().map((reward) => (
+							<RewardCard key={reward.lead} reward={reward} />
+						))}
+					</div>
 				</div>
 			</div>
 		</div>

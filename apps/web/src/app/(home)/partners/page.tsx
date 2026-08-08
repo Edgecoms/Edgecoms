@@ -807,9 +807,9 @@ export default function PartnersPage() {
 				</Frame>
 			</section>
 
-			{/* SECTION 7: REWARD VIRAL CONTENT (Matching Screenshot 2) */}
+			{/* SECTION 7: REWARD VIRAL CONTENT (Matching Target Reference Screenshot) */}
 			<section className="relative w-full bg-white">
-				<Frame className="border-neutral-200 border-b py-16">
+				<Frame className="border-neutral-200 border-b pt-16 pb-0 sm:pt-20">
 					<div className="flex flex-col items-center text-center">
 						<h2 className="font-medium font-satoshi text-3xl text-neutral-900 tracking-tight sm:text-4xl">
 							Reward viral content
@@ -821,7 +821,7 @@ export default function PartnersPage() {
 						</p>
 
 						<ButtonLink
-							className="mt-5 h-8 rounded-lg border border-neutral-200 bg-white px-4 font-medium text-neutral-800 text-xs hover:bg-neutral-50"
+							className="mt-5 h-8 rounded-lg border border-neutral-200 bg-white px-4 font-medium text-neutral-800 text-xs shadow-2xs transition-colors hover:bg-neutral-50"
 							href={"/register" as Route}
 							size="sm"
 							variant="secondary"
@@ -829,54 +829,77 @@ export default function PartnersPage() {
 							Learn more about bounties
 						</ButtonLink>
 
-						{/* 2-Column Cards Grid */}
-						<div className="mt-10 grid w-full grid-cols-1 gap-6 md:grid-cols-2">
-							{/* Left Card: 3D Heart YouTube Bounty */}
-							<div className="flex flex-col justify-between rounded-3xl border border-neutral-200/80 bg-white p-6 shadow-xs">
-								<div className="flex h-52 items-center justify-center rounded-2xl bg-neutral-100/80 p-4">
-									<div className="flex size-20 items-center justify-center rounded-3xl bg-white shadow-md">
-										<Heart className="size-10 fill-red-500 text-red-500" />
+						{/* 2-Column Grid matching Section 3/5 border grid design */}
+						<div className="mt-12 grid w-full grid-cols-1 divide-y border-neutral-200 border-t md:grid-cols-2 md:divide-x md:divide-y-0">
+							{/* Card 1: 3D Heart YouTube Bounty (Left Column) */}
+							<div className="flex flex-col justify-between bg-white p-8 text-left transition-colors hover:bg-neutral-50/50">
+								<div>
+									{/* Soft Green Preview Box */}
+									<div className="relative flex h-56 w-full flex-col items-center justify-center rounded-2xl border border-emerald-100/60 bg-[#F0FDF4] p-4">
+										{/* Top Status Badge */}
+										<div className="absolute top-4 flex items-center gap-1.5 rounded-full border border-emerald-200/80 bg-emerald-100/90 px-3 py-1 font-semibold text-emerald-800 text-[11px] shadow-2xs">
+											<span className="flex size-3.5 items-center justify-center rounded-full bg-emerald-600 font-bold text-[8px] text-white">
+												✓
+											</span>
+											<span>Reward earned</span>
+										</div>
+
+										{/* Glossy 3D Heart */}
+										<div className="mt-4 flex items-center justify-center">
+											<Heart className="size-16 fill-red-500 text-red-500 drop-shadow-md" />
+										</div>
 									</div>
-								</div>
-								<div className="mt-5 text-left">
-									<h3 className="font-medium text-neutral-900 text-sm">
+
+									{/* Content Below Graphic */}
+									<h3 className="mt-5 font-bold font-satoshi text-base text-neutral-900">
 										Get rewarded for YouTube views about Edge
 									</h3>
-									<div className="mt-3 flex items-center justify-between text-[11px] text-neutral-500">
-										<span>7,261 of 10,000 views</span>
-										<span className="font-semibold text-emerald-600">72%</span>
+									<div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-neutral-100">
+										<div className="h-full w-full rounded-full bg-emerald-500" />
 									</div>
-									<div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-neutral-100">
-										<div className="h-full w-[72%] rounded-full bg-emerald-500" />
+									<div className="mt-2 font-bold text-neutral-900 text-xs">
+										10,000 <span className="font-normal text-neutral-500">of 10,000 views</span>
 									</div>
 								</div>
 							</div>
 
-							{/* Right Card: Video Creator Review */}
-							<div className="flex flex-col justify-between rounded-3xl border border-neutral-200/80 bg-white p-6 shadow-xs">
-								<div className="relative h-52 overflow-hidden rounded-2xl bg-neutral-900">
-									<Image
-										alt="Video review creator"
-										className="object-cover opacity-80"
-										fill
-										src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&auto=format&fit=crop&q=80"
-									/>
-									<div className="absolute inset-0 flex items-center justify-center">
-										<div className="flex size-12 items-center justify-center rounded-full bg-white/90 text-neutral-900 shadow-lg backdrop-blur-md">
-											<Play className="ml-0.5 size-5 fill-current" />
-										</div>
+							{/* Card 2: Creator Video Review (Right Column) */}
+							<div className="flex flex-col justify-between bg-white p-8 text-left transition-colors hover:bg-neutral-50/50">
+								<div>
+									{/* Video Thumbnail Graphic */}
+									<div className="relative h-56 w-full overflow-hidden rounded-2xl border border-neutral-200/60 bg-neutral-900">
+										<Image
+											alt="Video review creator"
+											className="object-cover"
+											fill
+											src="https://images.unsplash.com/photo-1593062096033-9a26b09da705?w=800&auto=format&fit=crop&q=80"
+										/>
 									</div>
-								</div>
-								<div className="mt-5 text-left">
-									<h3 className="font-medium text-neutral-900 text-sm">
-										The best product reviews of the week
-									</h3>
-									<div className="mt-2 flex items-center gap-2 text-[11px] text-neutral-500">
-										<span className="font-medium text-neutral-800">
-											Evan Brooks ✓
-										</span>
-										<span>•</span>
-										<span>4.8k views • 6 hours ago</span>
+
+									{/* Creator Row & Title Below Graphic */}
+									<div className="mt-5 flex items-start gap-3 text-left">
+										<Image
+											alt="Evan Brooks"
+											className="mt-0.5 size-9 rounded-full object-cover shrink-0 ring-1 ring-neutral-900/10"
+											height={36}
+											src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=80"
+											unoptimized
+											width={36}
+										/>
+										<div className="flex flex-col">
+											<h3 className="font-bold font-satoshi text-base text-neutral-900 leading-snug">
+												The best product reviews of the week
+											</h3>
+											<div className="mt-1 flex items-center gap-1 font-medium text-neutral-700 text-xs">
+												<span>Evan Brooks</span>
+												<span className="flex size-3.5 items-center justify-center rounded-full bg-neutral-200 font-bold text-[9px] text-neutral-700">
+													✓
+												</span>
+											</div>
+											<span className="mt-0.5 text-[11px] text-neutral-500">
+												11,000 views &bull; 6 hours ago
+											</span>
+										</div>
 									</div>
 								</div>
 							</div>

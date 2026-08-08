@@ -1,10 +1,5 @@
 import Image from "next/image";
-import {
-	DottedField,
-	Frame,
-	PartnersIcon,
-	PILLARS,
-} from "@/components/landing/frame";
+import { DottedField, Frame, PILLARS } from "@/components/landing/frame";
 
 /* The floating cards are the page's only decorative furniture. They carry real
    figures rather than lorem: each pair is one of the featured stories' own
@@ -40,7 +35,7 @@ function FloatCard({
 
 export function Statement() {
 	return (
-		<section className="relative overflow-hidden border-neutral-200 border-b bg-white">
+		<section className="relative w-full overflow-hidden border-neutral-200 border-b bg-white">
 			<Frame className="relative overflow-hidden py-20 sm:py-28">
 				<DottedField />
 

@@ -27,7 +27,7 @@ export function Integrations() {
 	const tiles = [...APP_TILES, ...PLATFORMS.map((p) => ({ ...p, href: null }))];
 
 	return (
-		<section className="relative overflow-hidden border-neutral-200 border-b bg-slate-50/60">
+		<section className="relative w-full overflow-hidden border-neutral-200 border-b bg-slate-50/60">
 			{/* OpenAI-inspired Marketing Mesh Gradient Background */}
 			<div
 				aria-hidden="true"

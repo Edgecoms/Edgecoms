@@ -18,7 +18,7 @@ export function ProductPreview() {
 	const [active, setActive] = useState<PillarKey>("apps");
 
 	return (
-		<section className="relative isolate overflow-hidden border-neutral-200 border-b bg-neutral-50">
+		<section className="relative isolate w-full overflow-hidden border-neutral-200 border-b bg-neutral-50">
 			{/* Faint wash on the right, so the panel is not a flat grey rectangle. */}
 			<div
 				aria-hidden="true"

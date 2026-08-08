@@ -49,7 +49,7 @@ export function PillarSection({
 	title: string;
 }) {
 	return (
-		<section className="overflow-hidden bg-white">
+		<section className="w-full overflow-hidden border-neutral-200 border-b bg-white">
 			<Frame>
 				<div className="flex flex-col gap-6 px-6 pt-20 pb-14 sm:pt-24">
 					<PillarEyebrow pillar={pillar} />
@@ -74,28 +74,30 @@ export function PillarSection({
 				<FeatureTabs features={features} pillar={pillar} />
 			</Frame>
 
-			<Frame className="relative overflow-hidden border-neutral-200 border-y">
-				<DottedField />
-				<figure className="relative flex flex-col items-center justify-center gap-6 px-6 py-14 text-center lg:flex-row lg:items-start lg:justify-between lg:gap-12 lg:py-16 lg:text-left">
-					<blockquote className="max-w-[720px] text-balance text-center font-normal text-[20px] text-neutral-900 leading-[1.4] tracking-[-0.02em] sm:text-[26px] lg:text-left">
-						&ldquo;{quote.quote}&rdquo;
-					</blockquote>
-					<figcaption className="flex shrink-0 flex-col items-center justify-center gap-2 text-center lg:items-end lg:text-right">
-						{quote.logo ? (
-							<Image
-								alt={quote.logoAlt ?? ""}
-								className="h-6 w-auto object-contain lg:self-end"
-								height={96}
-								src={quote.logo}
-								width={220}
-							/>
-						) : null}
-						<span className="text-center text-[14px] text-neutral-500 lg:text-right">
-							{quote.attribution}
-						</span>
-					</figcaption>
-				</figure>
-			</Frame>
+			<div className="w-full border-neutral-200 border-t">
+				<Frame className="relative overflow-hidden">
+					<DottedField />
+					<figure className="relative flex flex-col items-center justify-center gap-6 px-6 py-14 text-center lg:flex-row lg:items-start lg:justify-between lg:gap-12 lg:py-16 lg:text-left">
+						<blockquote className="max-w-[720px] text-balance text-center font-normal text-[20px] text-neutral-900 leading-[1.4] tracking-[-0.02em] sm:text-[26px] lg:text-left">
+							&ldquo;{quote.quote}&rdquo;
+						</blockquote>
+						<figcaption className="flex shrink-0 flex-col items-center justify-center gap-2 text-center lg:items-end lg:text-right">
+							{quote.logo ? (
+								<Image
+									alt={quote.logoAlt ?? ""}
+									className="h-6 w-auto object-contain lg:self-end"
+									height={96}
+									src={quote.logo}
+									width={220}
+								/>
+							) : null}
+							<span className="text-center text-[14px] text-neutral-500 lg:text-right">
+								{quote.attribution}
+							</span>
+						</figcaption>
+					</figure>
+				</Frame>
+			</div>
 		</section>
 	);
 }

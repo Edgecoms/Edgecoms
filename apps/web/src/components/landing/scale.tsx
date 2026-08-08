@@ -21,7 +21,7 @@ const SCALE_STATS = [
 
 export function Scale() {
 	return (
-		<section className="relative overflow-hidden border-neutral-200 border-b bg-[#F8FAFC]">
+		<section className="relative w-full overflow-hidden border-neutral-200 border-b bg-[#F8FAFC]">
 			<Frame>
 				<div className="grid grid-cols-1 items-center gap-12 px-6 py-20 lg:grid-cols-2 lg:py-28">
 					<div className="flex flex-col gap-8">

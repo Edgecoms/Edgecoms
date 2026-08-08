@@ -7,7 +7,7 @@ import { BOOKING_LABEL, BOOKING_URL } from "@/lib/booking";
 
 export function Hero() {
 	return (
-		<section className="relative isolate overflow-hidden bg-white">
+		<section className="relative isolate w-full overflow-hidden bg-white">
 			{/* Halved on top of the mask. The grid is meant to say the page has a
 			    structure, not to be read — at full strength the lines were competing
 			    with the headline sitting on them. */}

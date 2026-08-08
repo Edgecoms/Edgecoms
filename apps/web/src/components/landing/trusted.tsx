@@ -153,7 +153,7 @@ function QuoteCell({
 
 export function Trusted() {
 	return (
-		<section className="overflow-hidden bg-white">
+		<section className="w-full overflow-hidden border-neutral-200 border-b bg-white">
 			<Frame>
 				<div className="flex flex-col items-center gap-6 px-6 py-20 text-center sm:py-24">
 					<h2 className="max-w-[620px] text-balance font-medium text-[36px] text-neutral-900 leading-[1.08] tracking-[-0.03em] sm:text-[46px]">

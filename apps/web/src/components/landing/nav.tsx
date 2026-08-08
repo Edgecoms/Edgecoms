@@ -68,7 +68,7 @@ const MENUS = [
 ] as const;
 
 const FLAT_LINKS = [
-	{ href: "/case-studies", label: "Customers" },
+	{ href: "/customers", label: "Customers" },
 	{ href: "/partners", label: "Partners" },
 ] as const;
 

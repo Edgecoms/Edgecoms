@@ -120,15 +120,9 @@ const PARTNER_CARDS = [
 
 export function PartnersHero() {
 	return (
-		<section className="relative isolate w-full overflow-hidden bg-white">
-			{/* Faint background grid outside the frame */}
-			<div
-				aria-hidden="true"
-				className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(to_right,#f3f4f6_1px,transparent_1px),linear-gradient(to_bottom,#f3f4f6_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-30"
-			/>
-
+		<section className="relative isolate w-full overflow-hidden border-b border-neutral-200 bg-white">
 			{/* Frame container matching homepage 1080px column with side hairline rules */}
-			<Frame className="relative border-b border-neutral-200 pb-16 pt-12 sm:pt-20">
+			<Frame className="relative pb-16 pt-12 sm:pt-20">
 				{/* Inner background grid lines */}
 				<div
 					aria-hidden="true"

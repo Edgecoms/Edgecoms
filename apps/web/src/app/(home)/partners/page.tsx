@@ -157,21 +157,32 @@ export default function PartnersPage() {
 			{/* SECTION 1: HERO HEADER & FLOATING AFFILIATE CARDS GRID */}
 			<PartnersHero />
 
-			{/* SECTION 2: 4-COLUMN MIGRATION TABS & LOGOS (Matching Target Image 2 bottom layout) */}
-			<section className="relative w-full overflow-hidden bg-white">
-				<Frame className="border-neutral-200 border-b">
-					<div className="grid grid-cols-1 divide-y border-neutral-200 sm:grid-cols-2 md:grid-cols-4 md:divide-x md:divide-y-0">
-						{MIGRATION_GRID_COLUMNS.map((col) => (
-							<div className="flex flex-col bg-white" key={col.header}>
-								{/* Column Tab Header Pill Box */}
-								<div className="border-neutral-200 border-b bg-neutral-50/60 p-2.5">
+			{/* SECTION 2: 4-COLUMN MIGRATION TABS & LOGOS (Full screen width horizontal border lines) */}
+			<section className="relative w-full bg-white">
+				{/* Full-width tab headers row */}
+				<div className="w-full border-b border-neutral-200 bg-neutral-50/60">
+					<Frame className="border-neutral-200 border-x">
+						<div className="grid grid-cols-1 divide-y border-neutral-200 sm:grid-cols-2 md:grid-cols-4 md:divide-x md:divide-y-0 p-2.5">
+							{MIGRATION_GRID_COLUMNS.map((col) => (
+								<div className="px-1.5 py-0.5" key={col.header}>
 									<div className="w-full rounded-lg border border-neutral-200/80 bg-neutral-100/90 px-3 py-1.5 text-center font-medium text-neutral-700 text-xs">
 										{col.header}
 									</div>
 								</div>
+							))}
+						</div>
+					</Frame>
+				</div>
 
-								{/* Column 2x2 Logo Grid */}
-								<div className="grid grid-cols-2 items-center justify-items-center gap-6 p-6">
+				{/* Full-width logo grid row */}
+				<div className="w-full border-b border-neutral-200 bg-white">
+					<Frame className="border-neutral-200 border-x">
+						<div className="grid grid-cols-1 divide-y border-neutral-200 sm:grid-cols-2 md:grid-cols-4 md:divide-x md:divide-y-0">
+							{MIGRATION_GRID_COLUMNS.map((col) => (
+								<div
+									className="grid grid-cols-2 items-center justify-items-center gap-6 p-6"
+									key={col.header}
+								>
 									{col.logos.map((item) => (
 										<div
 											className="flex flex-col items-center gap-1"
@@ -197,10 +208,10 @@ export default function PartnersPage() {
 										</div>
 									))}
 								</div>
-							</div>
-						))}
-					</div>
-				</Frame>
+							))}
+						</div>
+					</Frame>
+				</div>
 			</section>
 
 			{/* SECTION 3: REVENUE ON AUTOPILOT 3-FEATURE CARDS */}

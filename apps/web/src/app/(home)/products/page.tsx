@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { MigrationGrid } from "@/components/home/migration-grid";
 import { ProductsHero } from "@/components/products/products-hero";
 
 export const metadata: Metadata = {
@@ -11,6 +12,7 @@ export default function ProductsPage() {
 	return (
 		<main>
 			<ProductsHero />
+			<MigrationGrid />
 		</main>
 	);
 }

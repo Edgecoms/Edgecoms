@@ -3,6 +3,7 @@
 import { ButtonLink } from "@edgecoms/ui/components/button";
 import {
 	ArrowUpRight,
+	BookOpen,
 	CheckCircle2,
 	Heart,
 	Layers,
@@ -227,7 +228,7 @@ export default function PartnersPage() {
 						</p>
 
 						{/* 3-Column Grid */}
-						<div className="mt-12 grid w-full grid-cols-1 divide-y border-neutral-200 border-y md:grid-cols-3 md:divide-x md:divide-y-0">
+						<div className="mt-12 grid w-full grid-cols-1 divide-y border-neutral-200 border-t md:grid-cols-3 md:divide-x md:divide-y-0">
 							{/* Card 1: Flexible reward structure */}
 							<div className="flex flex-col justify-between bg-white p-8 text-left transition-colors hover:bg-neutral-50/50">
 								<div>
@@ -349,33 +350,48 @@ export default function PartnersPage() {
 
 			{/* SECTION 4: TESTIMONIAL QUOTE */}
 			<section className="relative w-full bg-white">
-				<Frame className="border-neutral-200 border-b py-16">
+				<Frame className="border-neutral-200 border-b py-16 sm:py-20">
 					<div className="mx-auto flex max-w-2xl flex-col items-center px-6 text-center">
-						<span className="font-bold font-satoshi text-neutral-900 text-xl">
-							❖ Framer
-						</span>
-						<p className="mt-6 font-satoshi text-lg text-neutral-800 leading-relaxed sm:text-xl">
+						<div className="flex items-center justify-center">
+							<Image
+								alt="Aurient"
+								className="h-6 w-auto object-contain"
+								height={32}
+								src="/case-studies/aurient-logo.png"
+								width={120}
+							/>
+						</div>
+
+						<p className="mt-6 max-w-xl font-satoshi font-normal text-neutral-800 text-lg leading-relaxed sm:text-xl md:text-[22px] md:leading-[1.4]">
 							&ldquo;Edge is the ultimate partner infrastructure for every
 							startup. If you&apos;re looking to 10x your community /
-							product-led growth – I cannot recommend building a partner program
+							product-led growth &ndash; I cannot recommend building a partner program
 							with Edge enough.&rdquo;
 						</p>
 
 						<div className="mt-6 flex flex-col items-center gap-1">
-							<div className="flex size-10 items-center justify-center rounded-full bg-neutral-200 font-bold text-neutral-800 text-xs">
-								KB
-							</div>
-							<span className="mt-2 font-medium text-neutral-900 text-xs">
-								Koen Bok
+							<Image
+								alt="Marcus Vance"
+								className="size-11 rounded-full object-cover shadow-2xs ring-1 ring-neutral-900/10"
+								height={44}
+								src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&h=120&q=80"
+								unoptimized
+								width={44}
+							/>
+							<span className="mt-1.5 font-medium text-neutral-900 text-xs sm:text-sm">
+								Marcus Vance
 							</span>
-							<span className="text-[11px] text-neutral-500">CEO, Framer</span>
+							<span className="text-[11px] font-normal text-neutral-500">
+								Founder, Aurient
+							</span>
 						</div>
 
 						<Link
-							className="mt-6 inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-neutral-50 px-3.5 py-1.5 font-medium text-neutral-700 text-xs hover:bg-neutral-100"
+							className="mt-6 inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-1 font-medium text-blue-600 text-xs shadow-2xs transition-colors hover:bg-neutral-50 hover:border-neutral-300"
 							href={"/case-studies/aurient" as Route}
 						>
-							Read the story <ArrowUpRight className="size-3.5" />
+							<BookOpen className="size-3.5 text-blue-600" />
+							Read the story
 						</Link>
 					</div>
 				</Frame>
@@ -394,7 +410,7 @@ export default function PartnersPage() {
 						</p>
 
 						{/* 3-Column Grid */}
-						<div className="mt-12 grid w-full grid-cols-1 divide-y border-neutral-200 border-y md:grid-cols-3 md:divide-x md:divide-y-0">
+						<div className="mt-12 grid w-full grid-cols-1 divide-y border-neutral-200 border-t md:grid-cols-3 md:divide-x md:divide-y-0">
 							{/* Card 1: 1-click global payouts */}
 							<div className="flex flex-col justify-between bg-white p-8 text-left transition-colors hover:bg-neutral-50/50">
 								<div>

@@ -43,7 +43,7 @@ export const PILLARS = {
 	apps: {
 		accent: "#F97316",
 		icon: "/app-icons/edge-bundles.webp",
-		label: "Edge Apps",
+		label: "All Apps",
 	},
 	results: {
 		accent: "#16A34A",

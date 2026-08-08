@@ -146,6 +146,12 @@
 
 	--animate-marquee-left: marquee-left 44s linear infinite;
 
+	/* Slow vertical drift for decorative floating objects. Long and shallow on
+	   purpose: anything faster than ~6s reads as a loading state, and anything
+	   further than ~10px reads as the layout being broken. Each user varies the
+	   delay and duration so a field of them never pulses in unison. */
+	--animate-drift: drift 7s ease-in-out infinite;
+
 	--font-sans:
 		var(--font-inter), "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
 	--font-satoshi:
@@ -330,5 +336,18 @@
 
 	to {
 		transform: translate3d(-50%, 0, 0);
+	}
+}
+
+/* Decorative drift. Transform-only so it stays on the compositor, and paired
+   with `motion-reduce:animate-none` at every call site. */
+@keyframes drift {
+	0%,
+	100% {
+		transform: translate3d(0, 0, 0);
+	}
+
+	50% {
+		transform: translate3d(0, -10px, 0);
 	}
 }

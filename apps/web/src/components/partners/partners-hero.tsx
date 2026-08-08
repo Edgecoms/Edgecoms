@@ -120,9 +120,9 @@ const PARTNER_CARDS = [
 
 export function PartnersHero() {
 	return (
-		<section className="relative isolate w-full overflow-hidden border-b border-neutral-200 bg-white">
+		<section className="relative isolate w-full overflow-hidden border-neutral-200 border-b bg-white">
 			{/* Frame container matching homepage 1080px column with side hairline rules */}
-			<Frame className="relative pb-16 pt-12 sm:pt-20">
+			<Frame className="relative pt-12 pb-16 sm:pt-20">
 				{/* Inner background grid lines */}
 				<div
 					aria-hidden="true"
@@ -149,8 +149,8 @@ export function PartnersHero() {
 
 					{/* Paragraph */}
 					<p className="mt-5 max-w-xl text-balance text-base text-neutral-600 leading-relaxed sm:text-lg">
-						Edge Partners is the modern affiliate and partner program for
-						agency partners, creators, and Shopify experts.
+						Edge Partners is the modern affiliate and partner program for agency
+						partners, creators, and Shopify experts.
 					</p>
 
 					{/* CTA Buttons */}

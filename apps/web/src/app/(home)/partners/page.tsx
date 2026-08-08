@@ -9,8 +9,6 @@ import {
 	Heart,
 	Layers,
 	Layout,
-	Play,
-	ShieldCheck,
 	Sparkles,
 	Users,
 } from "lucide-react";
@@ -19,11 +17,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { CtaDark } from "@/components/landing/cta-dark";
-import { Frame, PartnersIcon } from "@/components/landing/frame";
+import { Frame } from "@/components/landing/frame";
 import { PartnersHero } from "@/components/partners/partners-hero";
-import { BOOKING_URL } from "@/lib/booking";
-
-
 
 const MIGRATION_GRID_COLUMNS = [
 	{
@@ -162,9 +157,9 @@ export default function PartnersPage() {
 			{/* SECTION 2: 4-COLUMN MIGRATION TABS & LOGOS (Full screen width horizontal border lines) */}
 			<section className="relative w-full bg-white">
 				{/* Full-width tab headers row */}
-				<div className="w-full border-b border-neutral-200 bg-neutral-50/60">
+				<div className="w-full border-neutral-200 border-b bg-neutral-50/60">
 					<Frame className="border-neutral-200 border-x">
-						<div className="grid grid-cols-1 divide-y border-neutral-200 sm:grid-cols-2 md:grid-cols-4 md:divide-x md:divide-y-0 p-2.5">
+						<div className="grid grid-cols-1 divide-y border-neutral-200 p-2.5 sm:grid-cols-2 md:grid-cols-4 md:divide-x md:divide-y-0">
 							{MIGRATION_GRID_COLUMNS.map((col) => (
 								<div className="px-1.5 py-0.5" key={col.header}>
 									<div className="w-full rounded-lg border border-neutral-200/80 bg-neutral-100/90 px-3 py-1.5 text-center font-medium text-neutral-700 text-xs">
@@ -177,7 +172,7 @@ export default function PartnersPage() {
 				</div>
 
 				{/* Full-width logo grid row */}
-				<div className="w-full border-b border-neutral-200 bg-white">
+				<div className="w-full border-neutral-200 border-b bg-white">
 					<Frame className="border-neutral-200 border-x">
 						<div className="grid grid-cols-1 divide-y border-neutral-200 sm:grid-cols-2 md:grid-cols-4 md:divide-x md:divide-y-0">
 							{MIGRATION_GRID_COLUMNS.map((col) => (
@@ -351,7 +346,7 @@ export default function PartnersPage() {
 
 			{/* SECTION 4: TESTIMONIAL QUOTE */}
 			<section className="relative w-full">
-				<Frame className="bg-white border-neutral-200 border-b py-16 sm:py-20">
+				<Frame className="border-neutral-200 border-b bg-white py-16 sm:py-20">
 					<div className="mx-auto flex max-w-2xl flex-col items-center px-6 text-center">
 						<div className="flex items-center justify-center">
 							<Image
@@ -363,11 +358,11 @@ export default function PartnersPage() {
 							/>
 						</div>
 
-						<p className="mt-6 max-w-xl font-satoshi font-normal text-neutral-800 text-lg leading-relaxed sm:text-xl md:text-[22px] md:leading-[1.4]">
+						<p className="mt-6 max-w-xl font-normal font-satoshi text-lg text-neutral-800 leading-relaxed sm:text-xl md:text-[22px] md:leading-[1.4]">
 							&ldquo;Edge is the ultimate partner infrastructure for every
 							startup. If you&apos;re looking to 10x your community /
-							product-led growth &ndash; I cannot recommend building a partner program
-							with Edge enough.&rdquo;
+							product-led growth &ndash; I cannot recommend building a partner
+							program with Edge enough.&rdquo;
 						</p>
 
 						<div className="mt-6 flex flex-col items-center gap-1">
@@ -382,13 +377,13 @@ export default function PartnersPage() {
 							<span className="mt-1.5 font-medium text-neutral-900 text-xs sm:text-sm">
 								Marcus Vance
 							</span>
-							<span className="text-[11px] font-normal text-neutral-500">
+							<span className="font-normal text-[11px] text-neutral-500">
 								Founder, Aurient
 							</span>
 						</div>
 
 						<Link
-							className="mt-6 inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-1 font-medium text-blue-600 text-xs shadow-2xs transition-colors hover:bg-neutral-50 hover:border-neutral-300"
+							className="mt-6 inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-1 font-medium text-blue-600 text-xs shadow-2xs transition-colors hover:border-neutral-300 hover:bg-neutral-50"
 							href={"/case-studies/aurient" as Route}
 						>
 							<BookOpen className="size-3.5 text-blue-600" />
@@ -425,7 +420,9 @@ export default function PartnersPage() {
 														$
 													</div>
 													<div className="flex flex-col">
-														<span className="text-[9px] text-neutral-400">Revenue</span>
+														<span className="text-[9px] text-neutral-400">
+															Revenue
+														</span>
 														<span className="font-bold text-[11px] text-neutral-900 leading-tight">
 															US$1.6k
 														</span>
@@ -436,7 +433,9 @@ export default function PartnersPage() {
 														💳
 													</div>
 													<div className="flex flex-col">
-														<span className="text-[9px] text-neutral-400">Payouts</span>
+														<span className="text-[9px] text-neutral-400">
+															Payouts
+														</span>
 														<span className="font-bold text-[11px] text-neutral-900 leading-tight">
 															US$195
 														</span>
@@ -450,58 +449,66 @@ export default function PartnersPage() {
 											<span className="flex size-4 items-center justify-center rounded-full bg-white/20 text-[9px]">
 												↻
 											</span>
-											<span className="font-medium text-xs">Payout US$84.00</span>
+											<span className="font-medium text-xs">
+												Payout US$84.00
+											</span>
 										</div>
 
 										{/* Partner Rows Container */}
 										<div className="-mt-1.5 w-full max-w-[240px] space-y-1.5 rounded-xl border border-neutral-200/80 bg-white/90 p-2 shadow-2xs backdrop-blur-xs">
 											<div className="flex items-center justify-between px-1.5">
-												<div className="flex items-center gap-2 min-w-0">
+												<div className="flex min-w-0 items-center gap-2">
 													<Image
 														alt="Lucia"
-														className="size-4.5 rounded-full object-cover shrink-0"
+														className="size-4.5 shrink-0 rounded-full object-cover"
 														height={18}
 														src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80"
 														unoptimized
 														width={18}
 													/>
-													<span className="truncate text-[10px] font-medium text-neutral-700">
+													<span className="truncate font-medium text-[10px] text-neutral-700">
 														Lucia Gonzalez
 													</span>
 												</div>
-												<span className="text-[9px] font-mono text-neutral-400">$0.10</span>
+												<span className="font-mono text-[9px] text-neutral-400">
+													$0.10
+												</span>
 											</div>
 											<div className="flex items-center justify-between px-1.5">
-												<div className="flex items-center gap-2 min-w-0">
+												<div className="flex min-w-0 items-center gap-2">
 													<Image
 														alt="Samantha"
-														className="size-4.5 rounded-full object-cover shrink-0"
+														className="size-4.5 shrink-0 rounded-full object-cover"
 														height={18}
 														src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&auto=format&fit=crop&q=80"
 														unoptimized
 														width={18}
 													/>
-													<span className="truncate text-[10px] font-medium text-neutral-700">
+													<span className="truncate font-medium text-[10px] text-neutral-700">
 														Samantha Johns
 													</span>
 												</div>
-												<span className="text-[9px] font-mono text-neutral-400">$1.13</span>
+												<span className="font-mono text-[9px] text-neutral-400">
+													$1.13
+												</span>
 											</div>
 											<div className="flex items-center justify-between px-1.5 opacity-60">
-												<div className="flex items-center gap-2 min-w-0">
+												<div className="flex min-w-0 items-center gap-2">
 													<Image
 														alt="Derek"
-														className="size-4.5 rounded-full object-cover shrink-0"
+														className="size-4.5 shrink-0 rounded-full object-cover"
 														height={18}
 														src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80"
 														unoptimized
 														width={18}
 													/>
-													<span className="truncate text-[10px] font-medium text-neutral-700">
+													<span className="truncate font-medium text-[10px] text-neutral-700">
 														Derek Forbes
 													</span>
 												</div>
-												<span className="text-[9px] font-mono text-neutral-400">$0.15</span>
+												<span className="font-mono text-[9px] text-neutral-400">
+													$0.15
+												</span>
 											</div>
 										</div>
 									</div>
@@ -510,8 +517,8 @@ export default function PartnersPage() {
 										1-click global payouts
 									</h3>
 									<p className="mt-2.5 text-neutral-600 text-xs leading-relaxed">
-										Save upwards of 40 hours/month with our powerful global payouts
-										platform – no more manual spreadsheets/invoices.
+										Save upwards of 40 hours/month with our powerful global
+										payouts platform – no more manual spreadsheets/invoices.
 									</p>
 								</div>
 
@@ -533,7 +540,7 @@ export default function PartnersPage() {
 										{/* Top Avatars Row */}
 										<div className="flex items-center gap-3">
 											{/* Ghost Avatar Left */}
-											<div className="flex size-9 items-center justify-center rounded-xl border border-neutral-200/60 bg-white/60 shadow-2xs opacity-40">
+											<div className="flex size-9 items-center justify-center rounded-xl border border-neutral-200/60 bg-white/60 opacity-40 shadow-2xs">
 												<Users className="size-4 text-neutral-400" />
 											</div>
 
@@ -541,37 +548,37 @@ export default function PartnersPage() {
 											<div className="relative">
 												<Image
 													alt="Verified Partner"
-													className="size-11 rounded-xl object-cover border-2 border-white shadow-sm ring-1 ring-neutral-200"
+													className="size-11 rounded-xl border-2 border-white object-cover shadow-sm ring-1 ring-neutral-200"
 													height={44}
 													src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
 													unoptimized
 													width={44}
 												/>
-												<span className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-emerald-500 text-white text-[9px] font-bold ring-2 ring-white">
+												<span className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-emerald-500 font-bold text-[9px] text-white ring-2 ring-white">
 													✓
 												</span>
 											</div>
 
 											{/* Ghost Avatar Right */}
-											<div className="flex size-9 items-center justify-center rounded-xl border border-neutral-200/60 bg-white/60 shadow-2xs opacity-40">
+											<div className="flex size-9 items-center justify-center rounded-xl border border-neutral-200/60 bg-white/60 opacity-40 shadow-2xs">
 												<Users className="size-4 text-neutral-400" />
 											</div>
 										</div>
 
 										{/* Vertical Connector Line */}
-										<div className="h-4 w-px bg-neutral-300 my-1" />
+										<div className="my-1 h-4 w-px bg-neutral-300" />
 
 										{/* Tax Document Box */}
 										<div className="flex w-full max-w-[170px] flex-col items-center gap-1.5 rounded-xl border border-neutral-200/90 bg-white p-3 text-center shadow-2xs">
-											<div className="flex items-center gap-1 font-serif font-bold text-[11px] text-neutral-900 tracking-wider">
+											<div className="flex items-center gap-1 font-bold font-serif text-[11px] text-neutral-900 tracking-wider">
 												🏛️ IRS
 											</div>
-											<span className="text-[10px] font-medium text-neutral-500">
+											<span className="font-medium text-[10px] text-neutral-500">
 												1099-NEC
 											</span>
 											<div className="my-0.5 w-full space-y-1 px-2">
 												<div className="h-1 w-full rounded-full bg-neutral-100" />
-												<div className="h-1 w-3/4 rounded-full bg-neutral-100 mx-auto" />
+												<div className="mx-auto h-1 w-3/4 rounded-full bg-neutral-100" />
 											</div>
 											<span className="inline-flex items-center gap-1 rounded-full border border-emerald-200/60 bg-emerald-50 px-2 py-0.5 font-medium text-[9px] text-emerald-700">
 												<span className="size-1.5 rounded-full bg-emerald-500" />
@@ -617,7 +624,7 @@ export default function PartnersPage() {
 														unoptimized
 														width={28}
 													/>
-													<span className="font-semibold text-xs text-neutral-900">
+													<span className="font-semibold text-neutral-900 text-xs">
 														Derek Forbes
 													</span>
 												</div>
@@ -646,16 +653,16 @@ export default function PartnersPage() {
 														12
 													</span>
 												</div>
-												<div className="flex items-center justify-between border-t border-neutral-200/60 text-neutral-500 pt-1">
+												<div className="flex items-center justify-between border-neutral-200/60 border-t pt-1 text-neutral-500">
 													<span>Amount</span>
-													<span className="font-bold text-xs text-neutral-900">
+													<span className="font-bold text-neutral-900 text-xs">
 														$1,538.50
 													</span>
 												</div>
 											</div>
 
 											{/* Action Button */}
-											<div className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-neutral-900 py-1.5 font-medium text-xs text-white shadow-2xs">
+											<div className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-neutral-900 py-1.5 font-medium text-white text-xs shadow-2xs">
 												<CheckCircle2 className="size-3.5 text-white" />
 												Confirm payout
 											</div>
@@ -686,14 +693,14 @@ export default function PartnersPage() {
 			</section>
 
 			{/* SECTION 6: GLOBE SECTION & LIVE REFERRAL POPUPS (Matching Screenshot 1) */}
-			<section className="relative w-full border-y border-neutral-200 bg-neutral-50/70 overflow-hidden">
+			<section className="relative w-full overflow-hidden border-neutral-200 border-y bg-neutral-50/70">
 				<Frame className="py-16 sm:py-24">
 					<div className="flex flex-col items-center text-center">
 						{/* 3D WebGL Globe Visual with Live Conversion Popups */}
-						<div className="relative flex h-[240px] sm:h-[270px] w-full max-w-2xl items-center justify-center overflow-hidden">
+						<div className="relative flex h-[240px] w-full max-w-2xl items-center justify-center overflow-hidden sm:h-[270px]">
 							{/* 3D Globe Canvas with Bottom Gradient Fade Mask */}
 							<div
-								className="absolute top-0 flex size-[500px] sm:size-[580px] items-center justify-center pointer-events-auto cursor-grab active:cursor-grabbing opacity-95"
+								className="pointer-events-auto absolute top-0 flex size-[500px] cursor-grab items-center justify-center opacity-95 active:cursor-grabbing sm:size-[580px]"
 								style={{
 									maskImage:
 										"linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.95) 15%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,0.1) 40%, rgba(0,0,0,0) 45%)",
@@ -729,20 +736,20 @@ export default function PartnersPage() {
 							</div>
 
 							{/* Live Referral Popups Stack on right side of Globe */}
-							<div className="pointer-events-none absolute right-2 sm:right-10 top-8 z-10 flex flex-col gap-2.5">
+							<div className="pointer-events-none absolute top-8 right-2 z-10 flex flex-col gap-2.5 sm:right-10">
 								{LIVE_SALES.map((sale, idx) => (
 									<div
-										className="flex flex-col gap-1.5 rounded-xl border border-neutral-200/80 bg-white/95 p-3 shadow-md backdrop-blur-xs w-[200px] sm:w-[220px] text-left transition-all hover:scale-102"
+										className="flex w-[200px] flex-col gap-1.5 rounded-xl border border-neutral-200/80 bg-white/95 p-3 text-left shadow-md backdrop-blur-xs transition-all hover:scale-102 sm:w-[220px]"
 										key={sale.flag}
 										style={{ opacity: 1 - idx * 0.12 }}
 									>
 										<div className="flex items-center gap-1.5 font-medium text-neutral-800 text-xs">
 											<span className="text-sm">{sale.flag}</span>
-											<span className="font-semibold text-neutral-900 text-[11px]">
+											<span className="font-semibold text-[11px] text-neutral-900">
 												New referral sale
 											</span>
 										</div>
-										<div className="grid grid-cols-2 text-[10px] pt-1 border-t border-neutral-100">
+										<div className="grid grid-cols-2 border-neutral-100 border-t pt-1 text-[10px]">
 											<div className="flex flex-col">
 												<span className="text-[9px] text-neutral-400">
 													Revenue
@@ -780,7 +787,7 @@ export default function PartnersPage() {
 								<span className="font-bold font-satoshi text-4xl text-purple-600 sm:text-5xl">
 									$33M+
 								</span>
-								<span className="mt-2 text-purple-600/90 text-xs font-medium">
+								<span className="mt-2 font-medium text-purple-600/90 text-xs">
 									commissions earned by partners
 								</span>
 							</div>
@@ -789,7 +796,7 @@ export default function PartnersPage() {
 								<span className="font-bold font-satoshi text-4xl text-purple-600 sm:text-5xl">
 									$168M+
 								</span>
-								<span className="mt-2 text-purple-600/90 text-xs font-medium">
+								<span className="mt-2 font-medium text-purple-600/90 text-xs">
 									revenue driven by partners
 								</span>
 							</div>
@@ -798,7 +805,7 @@ export default function PartnersPage() {
 								<span className="font-bold font-satoshi text-4xl text-purple-600 sm:text-5xl">
 									7,000+
 								</span>
-								<span className="mt-2 text-purple-600/90 text-xs font-medium">
+								<span className="mt-2 font-medium text-purple-600/90 text-xs">
 									active partners in our network
 								</span>
 							</div>
@@ -809,7 +816,7 @@ export default function PartnersPage() {
 
 			{/* SECTION 7: REWARD VIRAL CONTENT (Matching Target Reference Screenshot) */}
 			<section className="relative w-full">
-				<Frame className="bg-white border-neutral-200 border-b pt-16 pb-0 sm:pt-20">
+				<Frame className="border-neutral-200 border-b bg-white pt-16 pb-0 sm:pt-20">
 					<div className="flex flex-col items-center text-center">
 						<h2 className="font-bold font-satoshi text-3xl text-neutral-900 tracking-tight sm:text-4xl">
 							Reward viral content
@@ -837,7 +844,7 @@ export default function PartnersPage() {
 									{/* Soft Green Preview Box */}
 									<div className="relative flex h-56 w-full flex-col items-center justify-center rounded-2xl border border-emerald-100/60 bg-[#F0FDF4] p-4">
 										{/* Top Status Badge */}
-										<div className="absolute top-4 flex items-center gap-1.5 rounded-full border border-emerald-200/80 bg-emerald-100/90 px-3 py-1 font-semibold text-emerald-800 text-[11px] shadow-2xs">
+										<div className="absolute top-4 flex items-center gap-1.5 rounded-full border border-emerald-200/80 bg-emerald-100/90 px-3 py-1 font-semibold text-[11px] text-emerald-800 shadow-2xs">
 											<span className="flex size-3.5 items-center justify-center rounded-full bg-emerald-600 font-bold text-[8px] text-white">
 												✓
 											</span>
@@ -858,7 +865,10 @@ export default function PartnersPage() {
 										<div className="h-full w-full rounded-full bg-emerald-500" />
 									</div>
 									<div className="mt-2 font-bold text-neutral-900 text-xs">
-										10,000 <span className="font-normal text-neutral-500">of 10,000 views</span>
+										10,000{" "}
+										<span className="font-normal text-neutral-500">
+											of 10,000 views
+										</span>
 									</div>
 								</div>
 							</div>
@@ -880,7 +890,7 @@ export default function PartnersPage() {
 									<div className="mt-5 flex items-start gap-3 text-left">
 										<Image
 											alt="Evan Brooks"
-											className="mt-0.5 size-9 rounded-full object-cover shrink-0 ring-1 ring-neutral-900/10"
+											className="mt-0.5 size-9 shrink-0 rounded-full object-cover ring-1 ring-neutral-900/10"
 											height={36}
 											src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=80"
 											unoptimized
@@ -1034,7 +1044,7 @@ export default function PartnersPage() {
 			</section>
 
 			{/* SECTION 9: LOVED BY MODERN COMPANIES SUCCESS STORY (Matching Screenshot 4 & Image 2) */}
-			<section className="relative w-full border-y border-neutral-200 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] overflow-hidden">
+			<section className="relative w-full overflow-hidden border-neutral-200 border-y bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]">
 				<Frame className="bg-white py-16 sm:py-20">
 					<div className="flex flex-col items-center text-center">
 						<h2 className="font-bold font-satoshi text-3xl text-neutral-900 tracking-tight sm:text-4xl">

@@ -181,10 +181,10 @@ function ProductMenuPanel() {
 					</div>
 				</Link>
 
-				{/* Column 3: Edge Apps */}
+				{/* Column 3: All Apps */}
 				<Link
 					className="group flex flex-col justify-between rounded-2xl border border-neutral-100 bg-neutral-50/50 p-4 transition-colors hover:border-neutral-200 hover:bg-neutral-50"
-					href={"/products/edge-bundles" as Route}
+					href={"/products" as Route}
 				>
 					<div>
 						<Image
@@ -195,7 +195,7 @@ function ProductMenuPanel() {
 							width={64}
 						/>
 						<h3 className="mt-3 font-semibold text-[15px] text-neutral-900">
-							Edge Apps
+							All Apps
 						</h3>
 						<p className="mt-1 text-[13px] text-neutral-500 leading-snug">
 							Bundles, volume tiers & slide cart for high-converting stores.

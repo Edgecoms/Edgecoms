@@ -45,7 +45,7 @@ export function Hero() {
 						</div>
 					</Link>
 
-					<h1 className="text-balance font-medium font-satoshi text-3xl text-primary-foreground leading-[1.1] tracking-tight sm:text-[44px] sm:leading-[1.05] lg:text-display-xl">
+					<h1 className="text-balance font-satoshi text-3xl text-primary-foreground leading-[1.1] tracking-tight sm:text-[44px] sm:leading-[1.05] lg:text-display-xl">
 						Turn traffic into revenue
 					</h1>
 

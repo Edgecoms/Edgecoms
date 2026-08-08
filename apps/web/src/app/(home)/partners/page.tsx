@@ -217,7 +217,7 @@ export default function PartnersPage() {
 
 			{/* SECTION 3: REVENUE ON AUTOPILOT 3-FEATURE CARDS */}
 			<section className="relative w-full bg-white">
-				<Frame className="border-neutral-200 border-b py-16">
+				<Frame className="border-neutral-200 border-b pt-16 pb-0 sm:pt-20">
 					<div className="flex flex-col items-center text-center">
 						<h2 className="font-medium font-satoshi text-3xl text-neutral-900 tracking-tight sm:text-4xl">
 							Revenue on autopilot
@@ -262,10 +262,10 @@ export default function PartnersPage() {
 
 								<div className="mt-6">
 									<Link
-										className="inline-flex items-center gap-1 font-medium text-neutral-900 text-xs hover:underline"
+										className="inline-flex items-center justify-center rounded-lg border border-neutral-200 bg-white px-3 py-1 font-medium text-neutral-700 text-xs shadow-2xs transition-colors hover:bg-neutral-50 hover:text-neutral-900"
 										href={"/register" as Route}
 									>
-										Learn more <ArrowUpRight className="size-3.5" />
+										Learn more
 									</Link>
 								</div>
 							</div>
@@ -298,10 +298,10 @@ export default function PartnersPage() {
 
 								<div className="mt-6">
 									<Link
-										className="inline-flex items-center gap-1 font-medium text-neutral-900 text-xs hover:underline"
+										className="inline-flex items-center justify-center rounded-lg border border-neutral-200 bg-white px-3 py-1 font-medium text-neutral-700 text-xs shadow-2xs transition-colors hover:bg-neutral-50 hover:text-neutral-900"
 										href={"/register" as Route}
 									>
-										Learn more <ArrowUpRight className="size-3.5" />
+										Learn more
 									</Link>
 								</div>
 							</div>
@@ -336,10 +336,10 @@ export default function PartnersPage() {
 
 								<div className="mt-6">
 									<Link
-										className="inline-flex items-center gap-1 font-medium text-neutral-900 text-xs hover:underline"
+										className="inline-flex items-center justify-center rounded-lg border border-neutral-200 bg-white px-3 py-1 font-medium text-neutral-700 text-xs shadow-2xs transition-colors hover:bg-neutral-50 hover:text-neutral-900"
 										href={"/register" as Route}
 									>
-										Learn more <ArrowUpRight className="size-3.5" />
+										Learn more
 									</Link>
 								</div>
 							</div>
@@ -399,7 +399,7 @@ export default function PartnersPage() {
 
 			{/* SECTION 5: EFFORTLESS PAYOUTS 3-FEATURE CARDS */}
 			<section className="relative w-full bg-white">
-				<Frame className="border-neutral-200 border-b py-16">
+				<Frame className="border-neutral-200 border-b pt-16 pb-0 sm:pt-20">
 					<div className="flex flex-col items-center text-center">
 						<h2 className="font-medium font-satoshi text-3xl text-neutral-900 tracking-tight sm:text-4xl">
 							Effortless payouts
@@ -414,19 +414,93 @@ export default function PartnersPage() {
 							{/* Card 1: 1-click global payouts */}
 							<div className="flex flex-col justify-between bg-white p-8 text-left transition-colors hover:bg-neutral-50/50">
 								<div>
-									<div className="flex h-40 items-center justify-center rounded-2xl border border-neutral-200/80 bg-neutral-50 p-4">
-										<div className="flex w-full flex-col gap-2 rounded-xl border border-neutral-200 bg-white p-3 shadow-2xs">
-											<div className="flex items-center justify-between">
-												<span className="font-medium text-neutral-600 text-xs">
-													Payout US$84.00
-												</span>
-												<span className="rounded bg-emerald-50 px-1.5 py-0.5 font-medium text-[10px] text-emerald-700">
-													Paid
-												</span>
+									{/* Visual Graphic 1 */}
+									<div className="relative flex h-60 w-full flex-col items-center justify-center overflow-hidden rounded-2xl border border-neutral-200/80 bg-gradient-to-b from-neutral-50 to-neutral-100/40 p-4">
+										{/* Top Metrics Header Box */}
+										<div className="w-full max-w-[240px] rounded-xl border border-neutral-200/90 bg-white p-2.5 shadow-2xs">
+											<div className="grid grid-cols-2 divide-x divide-neutral-100">
+												<div className="flex items-center gap-2 pr-2">
+													<div className="flex size-6 shrink-0 items-center justify-center rounded-md bg-neutral-100 font-semibold text-[11px] text-neutral-700">
+														$
+													</div>
+													<div className="flex flex-col">
+														<span className="text-[9px] text-neutral-400">Revenue</span>
+														<span className="font-bold text-[11px] text-neutral-900 leading-tight">
+															US$1.6k
+														</span>
+													</div>
+												</div>
+												<div className="flex items-center gap-2 pl-2">
+													<div className="flex size-6 shrink-0 items-center justify-center rounded-md bg-neutral-100 text-[11px] text-neutral-700">
+														💳
+													</div>
+													<div className="flex flex-col">
+														<span className="text-[9px] text-neutral-400">Payouts</span>
+														<span className="font-bold text-[11px] text-neutral-900 leading-tight">
+															US$195
+														</span>
+													</div>
+												</div>
 											</div>
-											<div className="flex items-center justify-between text-[10px] text-neutral-400">
-												<span>Automated batch payout</span>
-												<span>1-Click</span>
+										</div>
+
+										{/* Dark Floating Payout Badge */}
+										<div className="z-10 -mt-2.5 mb-1 flex items-center gap-1.5 rounded-full bg-neutral-900 px-3.5 py-1 text-white shadow-md">
+											<span className="flex size-4 items-center justify-center rounded-full bg-white/20 text-[9px]">
+												↻
+											</span>
+											<span className="font-medium text-xs">Payout US$84.00</span>
+										</div>
+
+										{/* Partner Rows Container */}
+										<div className="-mt-1.5 w-full max-w-[240px] space-y-1.5 rounded-xl border border-neutral-200/80 bg-white/90 p-2 shadow-2xs backdrop-blur-xs">
+											<div className="flex items-center justify-between px-1.5">
+												<div className="flex items-center gap-2 min-w-0">
+													<Image
+														alt="Lucia"
+														className="size-4.5 rounded-full object-cover shrink-0"
+														height={18}
+														src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80"
+														unoptimized
+														width={18}
+													/>
+													<span className="truncate text-[10px] font-medium text-neutral-700">
+														Lucia Gonzalez
+													</span>
+												</div>
+												<span className="text-[9px] font-mono text-neutral-400">$0.10</span>
+											</div>
+											<div className="flex items-center justify-between px-1.5">
+												<div className="flex items-center gap-2 min-w-0">
+													<Image
+														alt="Samantha"
+														className="size-4.5 rounded-full object-cover shrink-0"
+														height={18}
+														src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&auto=format&fit=crop&q=80"
+														unoptimized
+														width={18}
+													/>
+													<span className="truncate text-[10px] font-medium text-neutral-700">
+														Samantha Johns
+													</span>
+												</div>
+												<span className="text-[9px] font-mono text-neutral-400">$1.13</span>
+											</div>
+											<div className="flex items-center justify-between px-1.5 opacity-60">
+												<div className="flex items-center gap-2 min-w-0">
+													<Image
+														alt="Derek"
+														className="size-4.5 rounded-full object-cover shrink-0"
+														height={18}
+														src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80"
+														unoptimized
+														width={18}
+													/>
+													<span className="truncate text-[10px] font-medium text-neutral-700">
+														Derek Forbes
+													</span>
+												</div>
+												<span className="text-[9px] font-mono text-neutral-400">$0.15</span>
 											</div>
 										</div>
 									</div>
@@ -435,17 +509,17 @@ export default function PartnersPage() {
 										1-click global payouts
 									</h3>
 									<p className="mt-2.5 text-neutral-600 text-xs leading-relaxed">
-										Save upwards of 40 hours/month with our powerful global
-										payouts platform – no more manual spreadsheets/invoices.
+										Save upwards of 40 hours/month with our powerful global payouts
+										platform – no more manual spreadsheets/invoices.
 									</p>
 								</div>
 
 								<div className="mt-6">
 									<Link
-										className="inline-flex items-center gap-1 font-medium text-neutral-900 text-xs hover:underline"
+										className="inline-flex items-center justify-center rounded-lg border border-neutral-200 bg-white px-3 py-1 font-medium text-neutral-700 text-xs shadow-2xs transition-colors hover:bg-neutral-50 hover:text-neutral-900"
 										href={"/register" as Route}
 									>
-										Learn more <ArrowUpRight className="size-3.5" />
+										Learn more
 									</Link>
 								</div>
 							</div>
@@ -453,14 +527,54 @@ export default function PartnersPage() {
 							{/* Card 2: Tax compliance */}
 							<div className="flex flex-col justify-between bg-white p-8 text-left transition-colors hover:bg-neutral-50/50">
 								<div>
-									<div className="flex h-40 items-center justify-center rounded-2xl border border-neutral-200/80 bg-neutral-50 p-4">
-										<div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-neutral-200 bg-white p-4 shadow-2xs">
-											<ShieldCheck className="size-8 text-emerald-600" />
-											<span className="font-medium text-neutral-900 text-xs">
-												Tax Compliance Handled
+									{/* Visual Graphic 2 */}
+									<div className="relative flex h-60 w-full flex-col items-center justify-center overflow-hidden rounded-2xl border border-neutral-200/80 bg-gradient-to-b from-neutral-50 to-neutral-100/40 p-4">
+										{/* Top Avatars Row */}
+										<div className="flex items-center gap-3">
+											{/* Ghost Avatar Left */}
+											<div className="flex size-9 items-center justify-center rounded-xl border border-neutral-200/60 bg-white/60 shadow-2xs opacity-40">
+												<Users className="size-4 text-neutral-400" />
+											</div>
+
+											{/* Center Featured Partner Avatar */}
+											<div className="relative">
+												<Image
+													alt="Verified Partner"
+													className="size-11 rounded-xl object-cover border-2 border-white shadow-sm ring-1 ring-neutral-200"
+													height={44}
+													src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
+													unoptimized
+													width={44}
+												/>
+												<span className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-emerald-500 text-white text-[9px] font-bold ring-2 ring-white">
+													✓
+												</span>
+											</div>
+
+											{/* Ghost Avatar Right */}
+											<div className="flex size-9 items-center justify-center rounded-xl border border-neutral-200/60 bg-white/60 shadow-2xs opacity-40">
+												<Users className="size-4 text-neutral-400" />
+											</div>
+										</div>
+
+										{/* Vertical Connector Line */}
+										<div className="h-4 w-px bg-neutral-300 my-1" />
+
+										{/* Tax Document Box */}
+										<div className="flex w-full max-w-[170px] flex-col items-center gap-1.5 rounded-xl border border-neutral-200/90 bg-white p-3 text-center shadow-2xs">
+											<div className="flex items-center gap-1 font-serif font-bold text-[11px] text-neutral-900 tracking-wider">
+												🏛️ IRS
+											</div>
+											<span className="text-[10px] font-medium text-neutral-500">
+												1099-NEC
 											</span>
-											<span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] text-emerald-700">
-												W-9 / W-8 BEN Verified
+											<div className="my-0.5 w-full space-y-1 px-2">
+												<div className="h-1 w-full rounded-full bg-neutral-100" />
+												<div className="h-1 w-3/4 rounded-full bg-neutral-100 mx-auto" />
+											</div>
+											<span className="inline-flex items-center gap-1 rounded-full border border-emerald-200/60 bg-emerald-50 px-2 py-0.5 font-medium text-[9px] text-emerald-700">
+												<span className="size-1.5 rounded-full bg-emerald-500" />
+												Completed
 											</span>
 										</div>
 									</div>
@@ -470,16 +584,16 @@ export default function PartnersPage() {
 									</h3>
 									<p className="mt-2.5 text-neutral-600 text-xs leading-relaxed">
 										We automatically handle tax compliance for you – no need to
-										worry about sending W-9, 1099, W-8 forms manually.
+										worry about sending W-9, 1099, W-8 forms.
 									</p>
 								</div>
 
 								<div className="mt-6">
 									<Link
-										className="inline-flex items-center gap-1 font-medium text-neutral-900 text-xs hover:underline"
+										className="inline-flex items-center justify-center rounded-lg border border-neutral-200 bg-white px-3 py-1 font-medium text-neutral-700 text-xs shadow-2xs transition-colors hover:bg-neutral-50 hover:text-neutral-900"
 										href={"/register" as Route}
 									>
-										Learn more <ArrowUpRight className="size-3.5" />
+										Learn more
 									</Link>
 								</div>
 							</div>
@@ -487,19 +601,62 @@ export default function PartnersPage() {
 							{/* Card 3: Built-in invoicing */}
 							<div className="flex flex-col justify-between bg-white p-8 text-left transition-colors hover:bg-neutral-50/50">
 								<div>
-									<div className="flex h-40 items-center justify-center rounded-2xl border border-neutral-200/80 bg-neutral-50 p-4">
-										<div className="flex w-full flex-col gap-2 rounded-xl border border-neutral-200 bg-white p-3 shadow-2xs">
-											<div className="flex items-center justify-between text-xs">
-												<span className="font-medium text-neutral-900">
-													Invoice #SUB-0001
-												</span>
-												<span className="font-bold font-mono text-purple-600">
-													$1,538.50
+									{/* Visual Graphic 3 */}
+									<div className="relative flex h-60 w-full flex-col items-center justify-center overflow-hidden rounded-2xl border border-neutral-200/80 bg-gradient-to-b from-neutral-50 to-neutral-100/40 p-4">
+										{/* Invoice Modal Box */}
+										<div className="flex w-full max-w-[240px] flex-col gap-2.5 rounded-2xl border border-neutral-200/90 bg-white p-3.5 shadow-2xs">
+											{/* Top Header */}
+											<div className="flex items-center justify-between">
+												<div className="flex items-center gap-2">
+													<Image
+														alt="Derek Forbes"
+														className="size-7 rounded-full object-cover"
+														height={28}
+														src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80"
+														unoptimized
+														width={28}
+													/>
+													<span className="font-semibold text-xs text-neutral-900">
+														Derek Forbes
+													</span>
+												</div>
+												<span className="rounded-full border border-amber-200/60 bg-amber-50 px-2 py-0.5 font-medium text-[9px] text-amber-700">
+													Pending
 												</span>
 											</div>
-											<div className="flex items-center gap-1 text-[10px] text-neutral-400">
-												<CheckCircle2 className="size-3 text-emerald-500" />
-												<span>Auto-generated PDF</span>
+
+											{/* Invoice Details Box */}
+											<div className="space-y-1 rounded-xl border border-neutral-100 bg-neutral-50/80 p-2.5 text-[10px]">
+												<div className="flex items-center justify-between text-neutral-500">
+													<span>Period</span>
+													<span className="font-medium text-neutral-800">
+														Mar 1 &ndash; Mar 31
+													</span>
+												</div>
+												<div className="flex items-center justify-between text-neutral-500">
+													<span>Invoice</span>
+													<span className="font-medium text-neutral-800">
+														#EDGE-0001
+													</span>
+												</div>
+												<div className="flex items-center justify-between text-neutral-500">
+													<span>Sales</span>
+													<span className="font-medium text-neutral-800">
+														12
+													</span>
+												</div>
+												<div className="flex items-center justify-between border-t border-neutral-200/60 text-neutral-500 pt-1">
+													<span>Amount</span>
+													<span className="font-bold text-xs text-neutral-900">
+														$1,538.50
+													</span>
+												</div>
+											</div>
+
+											{/* Action Button */}
+											<div className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-neutral-900 py-1.5 font-medium text-xs text-white shadow-2xs">
+												<CheckCircle2 className="size-3.5 text-white" />
+												Confirm payout
 											</div>
 										</div>
 									</div>
@@ -515,10 +672,10 @@ export default function PartnersPage() {
 
 								<div className="mt-6">
 									<Link
-										className="inline-flex items-center gap-1 font-medium text-neutral-900 text-xs hover:underline"
+										className="inline-flex items-center justify-center rounded-lg border border-neutral-200 bg-white px-3 py-1 font-medium text-neutral-700 text-xs shadow-2xs transition-colors hover:bg-neutral-50 hover:text-neutral-900"
 										href={"/register" as Route}
 									>
-										Learn more <ArrowUpRight className="size-3.5" />
+										Learn more
 									</Link>
 								</div>
 							</div>

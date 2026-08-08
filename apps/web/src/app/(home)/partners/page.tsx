@@ -220,7 +220,7 @@ export default function PartnersPage() {
 			<section className="relative w-full bg-white">
 				<Frame className="border-neutral-200 border-b pt-16 pb-0 sm:pt-20">
 					<div className="flex flex-col items-center text-center">
-						<h2 className="font-medium font-satoshi text-3xl text-neutral-900 tracking-tight sm:text-4xl">
+						<h2 className="font-bold font-satoshi text-3xl text-neutral-900 tracking-tight sm:text-4xl">
 							Revenue on autopilot
 						</h2>
 						<p className="mt-3 max-w-lg text-neutral-500 text-sm leading-relaxed sm:text-base">
@@ -402,7 +402,7 @@ export default function PartnersPage() {
 			<section className="relative w-full">
 				<Frame className="bg-white pt-16 pb-0 sm:pt-20">
 					<div className="flex flex-col items-center text-center">
-						<h2 className="font-medium font-satoshi text-3xl text-neutral-900 tracking-tight sm:text-4xl">
+						<h2 className="font-bold font-satoshi text-3xl text-neutral-900 tracking-tight sm:text-4xl">
 							Effortless payouts
 						</h2>
 						<p className="mt-3 max-w-lg text-neutral-500 text-sm leading-relaxed sm:text-base">
@@ -765,7 +765,7 @@ export default function PartnersPage() {
 							</div>
 						</div>
 
-						<h2 className="mt-8 font-medium font-satoshi text-3xl text-neutral-900 tracking-tight sm:text-4xl">
+						<h2 className="mt-8 font-bold font-satoshi text-3xl text-neutral-900 tracking-tight sm:text-4xl">
 							Battle-tested tracking and payouts infrastructure
 						</h2>
 
@@ -811,7 +811,7 @@ export default function PartnersPage() {
 			<section className="relative w-full">
 				<Frame className="bg-white border-neutral-200 border-b pt-16 pb-0 sm:pt-20">
 					<div className="flex flex-col items-center text-center">
-						<h2 className="font-medium font-satoshi text-3xl text-neutral-900 tracking-tight sm:text-4xl">
+						<h2 className="font-bold font-satoshi text-3xl text-neutral-900 tracking-tight sm:text-4xl">
 							Reward viral content
 						</h2>
 						<p className="mt-3 max-w-lg text-neutral-500 text-sm leading-relaxed sm:text-base">
@@ -912,7 +912,7 @@ export default function PartnersPage() {
 			<section className="relative w-full">
 				<Frame className="bg-white pt-16 pb-0 sm:pt-20">
 					<div className="flex flex-col items-center text-center">
-						<h2 className="font-medium font-satoshi text-3xl text-neutral-900 tracking-tight sm:text-4xl">
+						<h2 className="font-bold font-satoshi text-3xl text-neutral-900 tracking-tight sm:text-4xl">
 							Seamless integration
 						</h2>
 						<p className="mt-3 max-w-lg text-neutral-500 text-sm leading-relaxed sm:text-base">
@@ -1037,7 +1037,7 @@ export default function PartnersPage() {
 			<section className="relative w-full border-y border-neutral-200 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] overflow-hidden">
 				<Frame className="bg-white py-16 sm:py-20">
 					<div className="flex flex-col items-center text-center">
-						<h2 className="font-medium font-satoshi text-3xl text-neutral-900 tracking-tight sm:text-4xl">
+						<h2 className="font-bold font-satoshi text-3xl text-neutral-900 tracking-tight sm:text-4xl">
 							Loved by modern <br /> e-commerce companies
 						</h2>
 						<p className="mt-3 max-w-lg text-neutral-500 text-sm leading-relaxed sm:text-base">

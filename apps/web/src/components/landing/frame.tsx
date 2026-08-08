@@ -59,19 +59,48 @@ export const PILLARS = {
 
 export type PillarKey = keyof typeof PILLARS;
 
+/** Custom 4-dot SVG icon badge for Edge Partners */
+export function PartnersIcon({ className }: { className?: string }) {
+	return (
+		<span
+			className={cn(
+				"inline-flex size-2 items-center justify-center rounded-[5px] border border-black/5 bg-purple-400 text-purple-950 transition-all",
+				className
+			)}
+		>
+			<svg
+				aria-hidden="true"
+				className="size-3.5"
+				fill="none"
+				viewBox="0 0 32 32"
+				xmlns="http://www.w3.org/2000/svg"
+			>
+				<circle cx="26" cy="16" fill="currentColor" r="4.5" />
+				<circle cx="6" cy="16" fill="currentColor" r="4.5" />
+				<circle cx="16" cy="26" fill="currentColor" r="4.5" />
+				<circle cx="16" cy="6" fill="currentColor" r="4.5" />
+			</svg>
+		</span>
+	);
+}
+
 /** Eyebrow: the pillar's icon and name, above every section headline. */
 export function PillarEyebrow({ pillar }: { pillar: PillarKey }) {
 	const { icon, label } = PILLARS[pillar];
 
 	return (
 		<p className="flex items-center gap-2 font-medium text-[13px] text-neutral-600">
-			<Image
-				alt=""
-				className="size-[18px] rounded-[5px]"
-				height={64}
-				src={icon}
-				width={64}
-			/>
+			{pillar === "partners" ? (
+				<PartnersIcon className="size-[18px]" />
+			) : (
+				<Image
+					alt=""
+					className="size-[18px] rounded-[5px]"
+					height={64}
+					src={icon}
+					width={64}
+				/>
+			)}
 			{label}
 		</p>
 	);

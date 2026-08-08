@@ -5,7 +5,12 @@ import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { Frame, PILLARS, type PillarKey } from "@/components/landing/frame";
+import {
+	Frame,
+	PartnersIcon,
+	PILLARS,
+	type PillarKey,
+} from "@/components/landing/frame";
 
 const TABS: readonly PillarKey[] = ["apps", "results", "partners"];
 
@@ -60,13 +65,7 @@ export function ProductPreview() {
 									onClick={() => setActive("partners")}
 									type="button"
 								>
-									<Image
-										alt=""
-										className="size-4 rounded-[5px]"
-										height={64}
-										src={pillar.icon}
-										width={64}
-									/>
+									<PartnersIcon className="size-4" />
 									{pillar.label}
 								</button>
 							);
@@ -122,13 +121,17 @@ export function ProductPreview() {
 									onClick={() => setActive(key)}
 									type="button"
 								>
-									<Image
-										alt=""
-										className="size-4 rounded-[5px]"
-										height={64}
-										src={pillar.icon}
-										width={64}
-									/>
+									{key === "partners" ? (
+										<PartnersIcon className="size-4" />
+									) : (
+										<Image
+											alt=""
+											className="size-4 rounded-[5px]"
+											height={64}
+											src={pillar.icon}
+											width={64}
+										/>
+									)}
 									{pillar.label}
 								</button>
 							);

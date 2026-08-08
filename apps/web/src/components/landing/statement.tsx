@@ -1,5 +1,10 @@
 import Image from "next/image";
-import { DottedField, Frame, PILLARS } from "@/components/landing/frame";
+import {
+	DottedField,
+	Frame,
+	PartnersIcon,
+	PILLARS,
+} from "@/components/landing/frame";
 
 /* The floating cards are the page's only decorative furniture. They carry real
    figures rather than lorem: each pair is one of the featured stories' own

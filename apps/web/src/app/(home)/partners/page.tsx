@@ -350,8 +350,8 @@ export default function PartnersPage() {
 			</section>
 
 			{/* SECTION 4: TESTIMONIAL QUOTE */}
-			<section className="relative w-full bg-white">
-				<Frame className="border-neutral-200 border-b py-16 sm:py-20">
+			<section className="relative w-full">
+				<Frame className="bg-white border-neutral-200 border-b py-16 sm:py-20">
 					<div className="mx-auto flex max-w-2xl flex-col items-center px-6 text-center">
 						<div className="flex items-center justify-center">
 							<Image
@@ -399,8 +399,8 @@ export default function PartnersPage() {
 			</section>
 
 			{/* SECTION 5: EFFORTLESS PAYOUTS 3-FEATURE CARDS */}
-			<section className="relative w-full bg-white">
-				<Frame className="pt-16 pb-0 sm:pt-20">
+			<section className="relative w-full">
+				<Frame className="bg-white pt-16 pb-0 sm:pt-20">
 					<div className="flex flex-col items-center text-center">
 						<h2 className="font-medium font-satoshi text-3xl text-neutral-900 tracking-tight sm:text-4xl">
 							Effortless payouts
@@ -808,8 +808,8 @@ export default function PartnersPage() {
 			</section>
 
 			{/* SECTION 7: REWARD VIRAL CONTENT (Matching Target Reference Screenshot) */}
-			<section className="relative w-full bg-white">
-				<Frame className="border-neutral-200 border-b pt-16 pb-0 sm:pt-20">
+			<section className="relative w-full">
+				<Frame className="bg-white border-neutral-200 border-b pt-16 pb-0 sm:pt-20">
 					<div className="flex flex-col items-center text-center">
 						<h2 className="font-medium font-satoshi text-3xl text-neutral-900 tracking-tight sm:text-4xl">
 							Reward viral content
@@ -909,8 +909,8 @@ export default function PartnersPage() {
 			</section>
 
 			{/* SECTION 8: SEAMLESS INTEGRATION 3-FEATURE CARDS (Matching Screenshot 3) */}
-			<section className="relative w-full bg-white">
-				<Frame className="border-neutral-200 border-b py-16">
+			<section className="relative w-full">
+				<Frame className="bg-white pt-16 pb-0 sm:pt-20">
 					<div className="flex flex-col items-center text-center">
 						<h2 className="font-medium font-satoshi text-3xl text-neutral-900 tracking-tight sm:text-4xl">
 							Seamless integration
@@ -921,7 +921,7 @@ export default function PartnersPage() {
 						</p>
 
 						{/* 3-Column Grid */}
-						<div className="mt-12 grid w-full grid-cols-1 divide-y border-neutral-200 border-y md:grid-cols-3 md:divide-x md:divide-y-0">
+						<div className="mt-12 grid w-full grid-cols-1 divide-y border-neutral-200 border-t md:grid-cols-3 md:divide-x md:divide-y-0">
 							{/* Card 1: AI landing page generator */}
 							<div className="flex flex-col justify-between bg-white p-8 text-left transition-colors hover:bg-neutral-50/50">
 								<div>
@@ -1033,12 +1033,12 @@ export default function PartnersPage() {
 				</Frame>
 			</section>
 
-			{/* SECTION 9: LOVED BY MODERN COMPANIES SUCCESS STORY (Matching Screenshot 4) */}
-			<section className="relative w-full bg-white">
-				<Frame className="border-neutral-200 border-b py-16">
+			{/* SECTION 9: LOVED BY MODERN COMPANIES SUCCESS STORY (Matching Screenshot 4 & Image 2) */}
+			<section className="relative w-full border-y border-neutral-200 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] overflow-hidden">
+				<Frame className="bg-white py-16 sm:py-20">
 					<div className="flex flex-col items-center text-center">
 						<h2 className="font-medium font-satoshi text-3xl text-neutral-900 tracking-tight sm:text-4xl">
-							Loved by modern e-commerce companies
+							Loved by modern <br /> e-commerce companies
 						</h2>
 						<p className="mt-3 max-w-lg text-neutral-500 text-sm leading-relaxed sm:text-base">
 							Trusted by leading Shopify brands to manage partner programs and

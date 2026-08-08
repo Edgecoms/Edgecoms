@@ -1,6 +1,7 @@
 "use client";
 
 import { ButtonLink } from "@edgecoms/ui/components/button";
+import { Globe } from "@edgecoms/ui/components/globe";
 import {
 	ArrowUpRight,
 	BookOpen,
@@ -111,9 +112,9 @@ const MIGRATION_GRID_COLUMNS = [
 ] as const;
 
 const LIVE_SALES = [
-	{ commission: "$0.20", flag: "🇮🇳", revenue: "$0.88" },
-	{ commission: "$0.05", flag: "🇯🇵", revenue: "$0.15" },
-	{ commission: "$0.33", flag: "🇺🇸", revenue: "$1.10" },
+	{ commission: "$0.05", flag: "🇳🇱", revenue: "$0.17" },
+	{ commission: "$0.03", flag: "🇿🇦", revenue: "$0.09" },
+	{ commission: "$0.04", flag: "🇮🇱", revenue: "$0.11" },
 ] as const;
 
 const SUCCESS_STORIES = [
@@ -399,7 +400,7 @@ export default function PartnersPage() {
 
 			{/* SECTION 5: EFFORTLESS PAYOUTS 3-FEATURE CARDS */}
 			<section className="relative w-full bg-white">
-				<Frame className="border-neutral-200 border-b pt-16 pb-0 sm:pt-20">
+				<Frame className="pt-16 pb-0 sm:pt-20">
 					<div className="flex flex-col items-center text-center">
 						<h2 className="font-medium font-satoshi text-3xl text-neutral-900 tracking-tight sm:text-4xl">
 							Effortless payouts
@@ -685,39 +686,73 @@ export default function PartnersPage() {
 			</section>
 
 			{/* SECTION 6: GLOBE SECTION & LIVE REFERRAL POPUPS (Matching Screenshot 1) */}
-			<section className="relative w-full bg-white">
-				<Frame className="border-neutral-200 border-b py-16">
+			<section className="relative w-full border-y border-neutral-200 bg-neutral-50/70 overflow-hidden">
+				<Frame className="py-16 sm:py-24">
 					<div className="flex flex-col items-center text-center">
-						{/* Dotted Globe Visual with Live Conversion Popups */}
-						<div className="relative flex h-64 w-full max-w-lg items-center justify-center overflow-hidden rounded-3xl border border-neutral-200/60 bg-gradient-to-b from-purple-50/40 via-white to-white p-4 sm:h-72">
-							{/* Dotted Globe Graphic Background */}
-							<div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-30">
-								<div className="size-60 rounded-full border border-purple-300/60 bg-[radial-gradient(#9333ea_1px,transparent_1px)] [background-size:12px_12px] sm:size-72" />
+						{/* 3D WebGL Globe Visual with Live Conversion Popups */}
+						<div className="relative flex h-[240px] sm:h-[270px] w-full max-w-2xl items-center justify-center overflow-hidden">
+							{/* 3D Globe Canvas with Bottom Gradient Fade Mask */}
+							<div
+								className="absolute top-0 flex size-[500px] sm:size-[580px] items-center justify-center pointer-events-auto cursor-grab active:cursor-grabbing opacity-95"
+								style={{
+									maskImage:
+										"linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.95) 15%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,0.1) 40%, rgba(0,0,0,0) 45%)",
+									WebkitMaskImage:
+										"linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.95) 15%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,0.1) 40%, rgba(0,0,0,0) 45%)",
+								}}
+							>
+								<Globe
+									className="size-full"
+									config={{
+										baseColor: [0.98, 0.98, 0.99],
+										dark: 0,
+										devicePixelRatio: 2,
+										diffuse: 0.6,
+										glowColor: [0.96, 0.94, 1],
+										height: 1150,
+										mapBrightness: 1.5,
+										mapSamples: 24_000,
+										markerColor: [147 / 255, 51 / 255, 234 / 255],
+										markers: [
+											{ location: [52.3676, 4.9041], size: 0.08 },
+											{ location: [-26.2041, 28.0473], size: 0.08 },
+											{ location: [31.0461, 34.8516], size: 0.08 },
+											{ location: [40.7128, -74.006], size: 0.08 },
+											{ location: [51.5074, -0.1278], size: 0.08 },
+											{ location: [35.6762, 139.6503], size: 0.08 },
+										],
+										phi: 0.4,
+										theta: 0.2,
+										width: 1150,
+									}}
+								/>
 							</div>
 
-							{/* Live Referral Popups Stack (Matching Screenshot 1) */}
-							<div className="relative z-10 flex flex-col gap-2.5">
+							{/* Live Referral Popups Stack on right side of Globe */}
+							<div className="pointer-events-none absolute right-2 sm:right-10 top-8 z-10 flex flex-col gap-2.5">
 								{LIVE_SALES.map((sale, idx) => (
 									<div
-										className="flex items-center justify-between gap-4 rounded-xl border border-neutral-200 bg-white/90 px-4 py-2.5 shadow-md backdrop-blur-md transition-all hover:scale-102"
+										className="flex flex-col gap-1.5 rounded-xl border border-neutral-200/80 bg-white/95 p-3 shadow-md backdrop-blur-xs w-[200px] sm:w-[220px] text-left transition-all hover:scale-102"
 										key={sale.flag}
-										style={{ opacity: 1 - idx * 0.15 }}
+										style={{ opacity: 1 - idx * 0.12 }}
 									>
-										<div className="flex items-center gap-2 font-medium text-neutral-800 text-xs">
+										<div className="flex items-center gap-1.5 font-medium text-neutral-800 text-xs">
 											<span className="text-sm">{sale.flag}</span>
-											<span>New referral sale</span>
+											<span className="font-semibold text-neutral-900 text-[11px]">
+												New referral sale
+											</span>
 										</div>
-										<div className="flex items-center gap-3 text-[11px]">
-											<div className="flex flex-col text-right">
-												<span className="text-[9px] text-neutral-400 uppercase">
+										<div className="grid grid-cols-2 text-[10px] pt-1 border-t border-neutral-100">
+											<div className="flex flex-col">
+												<span className="text-[9px] text-neutral-400">
 													Revenue
 												</span>
-												<span className="font-semibold text-neutral-800">
+												<span className="font-semibold text-neutral-900">
 													{sale.revenue}
 												</span>
 											</div>
-											<div className="flex flex-col text-right">
-												<span className="text-[9px] text-neutral-400 uppercase">
+											<div className="flex flex-col">
+												<span className="text-[9px] text-neutral-400">
 													Commission
 												</span>
 												<span className="font-semibold text-purple-600">
@@ -734,36 +769,36 @@ export default function PartnersPage() {
 							Battle-tested tracking and payouts infrastructure
 						</h2>
 
-						<p className="mt-3 max-w-md text-neutral-500 text-sm leading-relaxed sm:text-base">
+						<p className="mt-3 max-w-lg text-neutral-500 text-sm leading-relaxed sm:text-base">
 							We currently track 1.5M+ million conversion events and send over
-							$2 million in partner payouts – <em>every single month</em>.
+							$2 million in partner payouts &ndash; <em>every single month</em>.
 						</p>
 
-						{/* 3 Big Stat Numbers */}
-						<div className="mt-12 grid w-full grid-cols-1 divide-y border-neutral-200 border-t sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-							<div className="flex flex-col items-center py-8">
+						{/* 3 Big Stat Numbers (No border boxes, matching Image 1) */}
+						<div className="mt-12 grid w-full grid-cols-1 gap-8 sm:grid-cols-3 sm:gap-4">
+							<div className="flex flex-col items-center">
 								<span className="font-bold font-satoshi text-4xl text-purple-600 sm:text-5xl">
 									$33M+
 								</span>
-								<span className="mt-2 text-neutral-500 text-xs">
+								<span className="mt-2 text-purple-600/90 text-xs font-medium">
 									commissions earned by partners
 								</span>
 							</div>
 
-							<div className="flex flex-col items-center py-8">
+							<div className="flex flex-col items-center">
 								<span className="font-bold font-satoshi text-4xl text-purple-600 sm:text-5xl">
 									$168M+
 								</span>
-								<span className="mt-2 text-neutral-500 text-xs">
+								<span className="mt-2 text-purple-600/90 text-xs font-medium">
 									revenue driven by partners
 								</span>
 							</div>
 
-							<div className="flex flex-col items-center py-8">
+							<div className="flex flex-col items-center">
 								<span className="font-bold font-satoshi text-4xl text-purple-600 sm:text-5xl">
 									7,000+
 								</span>
-								<span className="mt-2 text-neutral-500 text-xs">
+								<span className="mt-2 text-purple-600/90 text-xs font-medium">
 									active partners in our network
 								</span>
 							</div>

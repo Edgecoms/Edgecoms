@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { MigrationGrid } from "@/components/home/migration-grid";
 import { ProductsHero } from "@/components/products/products-hero";
+import { ScaleConfidence } from "@/components/products/scale-confidence";
 
 export const metadata: Metadata = {
 	title: "Edge Apps · Every app here moves one number",
@@ -13,6 +14,7 @@ export default function ProductsPage() {
 		<main>
 			<ProductsHero />
 			<MigrationGrid />
+			<ScaleConfidence />
 		</main>
 	);
 }

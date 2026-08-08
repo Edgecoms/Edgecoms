@@ -1,5 +1,6 @@
 "use client";
 
+import { Button, ButtonLink } from "@edgecoms/ui/components/button";
 import {
 	Dialog,
 	DialogClose,
@@ -8,15 +9,23 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@edgecoms/ui/components/dialog";
+import {
+	NavigationMenu,
+	NavigationMenuContent,
+	NavigationMenuItem,
+	NavigationMenuList,
+	NavigationMenuTrigger,
+} from "@edgecoms/ui/components/navigation-menu";
 import { cn } from "@edgecoms/ui/lib/utils";
 import { ChevronDown, Menu, X } from "lucide-react";
 import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { PartnersIcon } from "@/components/landing/frame";
 import Logo from "@/components/ui/logo";
 import { BOOKING_LABEL, BOOKING_URL } from "@/lib/booking";
-import { EDGE_PRODUCTS, RPV_LEVERS } from "@/lib/products";
+import { EDGE_PRODUCTS } from "@/lib/products";
 
 interface MenuItem {
 	description: string;
@@ -35,33 +44,26 @@ const PRODUCT_ITEMS: readonly MenuItem[] = EDGE_PRODUCTS.map((product) => ({
 	label: product.name,
 }));
 
-const SOLUTION_ITEMS: readonly MenuItem[] = RPV_LEVERS.map((lever) => ({
-	description: lever.description,
-	href: "/products",
-	label: lever.title,
-}));
-
 const RESOURCE_ITEMS: readonly MenuItem[] = [
 	{
-		description: "Real stores, and the apps they actually run.",
+		description: "See how merchants scale with Edge.",
 		href: "/case-studies",
 		label: "Case studies",
 	},
 	{
-		description: "Why we build focused apps instead of one large one.",
-		href: "/about",
-		label: "About Edge",
+		description: "Join the partner program and earn recurring revenue.",
+		href: "/partners",
+		label: "Partner program",
 	},
 	{
-		description: "Send us a store URL and we will look at it.",
+		description: "Get in touch with our team.",
 		href: "/contact",
-		label: "Contact",
+		label: "Contact us",
 	},
-];
+] as const;
 
 const MENUS = [
 	{ items: PRODUCT_ITEMS, key: "product", label: "Product", wide: true },
-	{ items: SOLUTION_ITEMS, key: "solutions", label: "Solutions", wide: false },
 	{ items: RESOURCE_ITEMS, key: "resources", label: "Resources", wide: false },
 ] as const;
 
@@ -70,8 +72,168 @@ const FLAT_LINKS = [
 	{ href: "/partners", label: "Partners" },
 ] as const;
 
-const TRIGGER_CLASS =
-	"flex h-8 items-center gap-1 rounded-md px-3 font-medium text-[15px] text-neutral-600 transition-colors hover:text-neutral-900";
+function ProductMenuPanel() {
+	return (
+		<div className="w-[860px] rounded-3xl border border-neutral-200/80 bg-white p-3 shadow-[0_24px_60px_-15px_rgba(0,0,0,0.12)]">
+			{/* Top 3-Column Grid matching Dub design */}
+			<div className="grid grid-cols-3 gap-3">
+				{/* Column 1: Edge Partners */}
+				<Link
+					className="group flex flex-col justify-between rounded-2xl border border-neutral-100 bg-neutral-50/50 p-4 transition-colors hover:border-neutral-200 hover:bg-neutral-50"
+					href={"/partners" as Route}
+				>
+					<div>
+						<PartnersIcon className="size-6 rounded-md p-1" />
+						<h3 className="mt-3 font-semibold text-[15px] text-neutral-900">
+							Edge Partners
+						</h3>
+						<p className="mt-1 text-[13px] text-neutral-500 leading-snug">
+							Grow your revenue on auto-pilot with partnerships.
+						</p>
+					</div>
+
+					{/* Mock Visual Card Block for Partners */}
+					<div className="relative mt-4 flex h-[140px] w-full flex-col justify-end overflow-hidden rounded-xl border border-neutral-200/60 bg-white/80 p-2.5 shadow-2xs backdrop-blur-xs">
+						<div className="grid grid-cols-2 gap-1.5 opacity-90 transition-transform duration-300 group-hover:scale-[1.02]">
+							<div className="flex flex-col gap-0.5 rounded-lg border border-neutral-200/50 bg-neutral-50 p-1.5">
+								<span className="truncate font-medium text-[10px] text-neutral-700">
+									Lauren A.
+								</span>
+								<span className="font-semibold text-[11px] text-neutral-900">
+									$1.8K
+								</span>
+							</div>
+							<div className="flex flex-col gap-0.5 rounded-lg border border-neutral-200/50 bg-neutral-50 p-1.5">
+								<span className="truncate font-medium text-[10px] text-neutral-700">
+									Mia T.
+								</span>
+								<span className="font-semibold text-[11px] text-purple-700">
+									$22.6K
+								</span>
+							</div>
+							<div className="flex flex-col gap-0.5 rounded-lg border border-neutral-200/50 bg-neutral-50 p-1.5">
+								<span className="truncate font-medium text-[10px] text-neutral-700">
+									Sophie L.
+								</span>
+								<span className="font-semibold text-[11px] text-neutral-900">
+									$11.0K
+								</span>
+							</div>
+							<div className="flex flex-col gap-0.5 rounded-lg border border-neutral-200/50 bg-neutral-50 p-1.5">
+								<span className="truncate font-medium text-[10px] text-neutral-700">
+									Hiroshi T.
+								</span>
+								<span className="font-semibold text-[11px] text-purple-700">
+									$19.2K
+								</span>
+							</div>
+						</div>
+					</div>
+				</Link>
+
+				{/* Column 2: Trackproof */}
+				<Link
+					className="group flex flex-col justify-between rounded-2xl border border-neutral-100 bg-neutral-50/50 p-4 transition-colors hover:border-neutral-200 hover:bg-neutral-50"
+					href={"/products/trackproof" as Route}
+				>
+					<div>
+						<Image
+							alt=""
+							className="size-6 rounded-md border border-neutral-200/80 object-contain"
+							height={64}
+							src="/app-icons/trackproof.webp"
+							width={64}
+						/>
+						<h3 className="mt-3 font-semibold text-[15px] text-neutral-900">
+							Trackproof
+						</h3>
+						<p className="mt-1 text-[13px] text-neutral-500 leading-snug">
+							Server-side attribution and conversion tracking delivered.
+						</p>
+					</div>
+
+					{/* Mock Visual Card Block for Trackproof */}
+					<div className="relative mt-4 flex h-[140px] w-full flex-col justify-between overflow-hidden rounded-xl border border-neutral-200/60 bg-white/80 p-2.5 shadow-2xs backdrop-blur-xs">
+						<svg
+							aria-hidden="true"
+							className="absolute inset-0 h-full w-full stroke-emerald-500/30"
+							fill="none"
+							viewBox="0 0 200 100"
+						>
+							<path d="M0 80 Q 50 70 100 40 T 200 10" strokeWidth="3" />
+						</svg>
+
+						<div className="relative flex items-center justify-between rounded-lg border border-neutral-200/60 bg-neutral-50 px-2 py-1">
+							<span className="font-mono text-[10px] text-neutral-600">
+								d.to/conversions
+							</span>
+							<span className="size-1.5 rounded-full bg-emerald-500" />
+						</div>
+
+						<div className="relative flex items-center justify-between text-[11px]">
+							<span className="text-neutral-500">Clicks</span>
+							<span className="font-semibold text-neutral-900">12.5K</span>
+						</div>
+						<div className="relative flex items-center justify-between text-[11px]">
+							<span className="text-neutral-500">Sales</span>
+							<span className="font-semibold text-emerald-600">$12,400</span>
+						</div>
+					</div>
+				</Link>
+
+				{/* Column 3: Edge Apps */}
+				<Link
+					className="group flex flex-col justify-between rounded-2xl border border-neutral-100 bg-neutral-50/50 p-4 transition-colors hover:border-neutral-200 hover:bg-neutral-50"
+					href={"/products/edge-bundles" as Route}
+				>
+					<div>
+						<Image
+							alt=""
+							className="size-6 rounded-md border border-neutral-200/80 object-contain"
+							height={64}
+							src="/app-icons/edge-bundles.webp"
+							width={64}
+						/>
+						<h3 className="mt-3 font-semibold text-[15px] text-neutral-900">
+							Edge Apps
+						</h3>
+						<p className="mt-1 text-[13px] text-neutral-500 leading-snug">
+							Bundles, volume tiers & slide cart for high-converting stores.
+						</p>
+					</div>
+
+					{/* Mock Visual Card Block for Edge Links / Apps */}
+					<div className="relative mt-4 flex h-[140px] w-full flex-col gap-1.5 overflow-hidden rounded-xl border border-neutral-200/60 bg-white/80 p-2.5 shadow-2xs backdrop-blur-xs">
+						<div className="flex items-center justify-between rounded-lg border border-neutral-200/50 bg-neutral-50 p-1.5 text-[10px]">
+							<span className="truncate font-medium text-neutral-700">
+								d.to/bundles
+							</span>
+							<span className="rounded-md bg-neutral-200/70 px-1.5 py-0.5 font-semibold text-neutral-800">
+								151.8K clicks
+							</span>
+						</div>
+						<div className="flex items-center justify-between rounded-lg border border-neutral-200/50 bg-neutral-50 p-1.5 text-[10px]">
+							<span className="truncate font-medium text-neutral-700">
+								d.to/cart-upsell
+							</span>
+							<span className="rounded-md bg-neutral-200/70 px-1.5 py-0.5 font-semibold text-neutral-800">
+								100K clicks
+							</span>
+						</div>
+						<div className="flex items-center justify-between rounded-lg border border-neutral-200/50 bg-neutral-50 p-1.5 text-[10px]">
+							<span className="truncate font-medium text-neutral-700">
+								d.to/volume-tier
+							</span>
+							<span className="rounded-md bg-neutral-200/70 px-1.5 py-0.5 font-semibold text-neutral-800">
+								65.8K clicks
+							</span>
+						</div>
+					</div>
+				</Link>
+			</div>
+		</div>
+	);
+}
 
 function MenuPanel({
 	items,
@@ -117,7 +279,6 @@ function MenuPanel({
 }
 
 export function LandingNav() {
-	const [openMenu, setOpenMenu] = useState<string | null>(null);
 	const [sheetOpen, setSheetOpen] = useState(false);
 	const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
 
@@ -136,83 +297,52 @@ export function LandingNav() {
 					</span>
 				</Link>
 
-				<nav className="hidden items-center gap-0.5 lg:flex">
-					{/* Opening on hover is CSS rather than a mouse handler, and it is
-					    scoped to devices that actually have a pointer so it cannot stick
-					    open on a tap. The click path stays in React because that is what
-					    carries `aria-expanded` — a keyboard user tabs to the trigger and
-					    presses it, and never touches the hover branch at all. The panel is
-					    a sibling inside the same `group`, so the padding above it is part
-					    of the hover target and the diagonal from trigger to first item
-					    does not cross dead space. */}
-					{MENUS.map((menu) => (
-						<div className="group relative" key={menu.key}>
-							<button
-								aria-expanded={openMenu === menu.key}
-								className={cn(
-									TRIGGER_CLASS,
-									"[@media(hover:hover)]:group-hover:text-neutral-900"
-								)}
-								onClick={() =>
-									setOpenMenu(openMenu === menu.key ? null : menu.key)
-								}
-								type="button"
-							>
-								{menu.label}
-								<ChevronDown
-									aria-hidden="true"
-									className={cn(
-										"size-3.5 transition-transform duration-200 [@media(hover:hover)]:group-hover:rotate-180",
-										openMenu === menu.key && "rotate-180"
+				<NavigationMenu align="center" className="hidden lg:flex">
+					<NavigationMenuList className="gap-0.5">
+						{MENUS.map((menu) => (
+							<NavigationMenuItem key={menu.key}>
+								<NavigationMenuTrigger className="h-8 px-3 text-caption text-neutral-600 hover:text-neutral-900 data-[state=open]:text-neutral-900">
+									{menu.label}
+								</NavigationMenuTrigger>
+								<NavigationMenuContent className="border-none bg-transparent p-0 shadow-none">
+									{menu.key === "product" ? (
+										<ProductMenuPanel />
+									) : (
+										<MenuPanel items={menu.items} wide={menu.wide} />
 									)}
-								/>
-							</button>
+								</NavigationMenuContent>
+							</NavigationMenuItem>
+						))}
 
-							<div
-								className={cn(
-									"absolute top-full left-1/2 hidden -translate-x-1/2 pt-3 [@media(hover:hover)]:group-hover:block",
-									openMenu === menu.key && "block"
-								)}
-							>
-								<MenuPanel items={menu.items} wide={menu.wide} />
-							</div>
-						</div>
-					))}
-
-					{FLAT_LINKS.map((link) => (
-						<Link
-							className={TRIGGER_CLASS}
-							href={link.href as Route}
-							key={link.href}
-						>
-							{link.label}
-						</Link>
-					))}
-				</nav>
+						{FLAT_LINKS.map((link) => (
+							<NavigationMenuItem key={link.href}>
+								<Button
+									className="h-8 px-3 font-medium text-caption text-neutral-600 hover:text-neutral-900"
+									nativeButton={false}
+									render={<Link href={link.href as Route} />}
+									variant={"tertiary"}
+								>
+									{link.label}
+								</Button>
+							</NavigationMenuItem>
+						))}
+					</NavigationMenuList>
+				</NavigationMenu>
 
 				<div className="flex shrink-0 items-center gap-2">
-					<Link
-						className="hidden h-9 items-center rounded-lg border border-neutral-200 bg-white px-4 font-medium text-[14px] text-neutral-900 shadow-sm transition-colors hover:bg-neutral-50 sm:inline-flex"
-						href={"/login" as Route}
-					>
+					<ButtonLink href={"/login" as Route} size="lg" variant="tertiary">
 						Partner login
-					</Link>
-					{/* Mobile view (< sm): Primary button shows Partners Login */}
-					<Link
-						className="inline-flex h-9 items-center rounded-lg bg-neutral-900 px-4 font-medium text-[14px] text-white transition-colors hover:bg-neutral-800 sm:hidden"
-						href={"/login" as Route}
-					>
-						Partners Login
-					</Link>
-					{/* Desktop view (sm and above): Primary button shows Book a Growth Audit */}
-					<a
-						className="hidden h-9 items-center rounded-lg bg-neutral-900 px-4 font-medium text-[14px] text-white transition-colors hover:bg-neutral-800 sm:inline-flex"
+					</ButtonLink>
+					<ButtonLink
+						className="hidden sm:inline-flex"
 						href={BOOKING_URL}
 						rel="noopener"
+						size={"lg"}
 						target="_blank"
+						variant={"secondary"}
 					>
 						{BOOKING_LABEL}
-					</a>
+					</ButtonLink>
 
 					<Dialog onOpenChange={setSheetOpen} open={sheetOpen}>
 						<DialogTrigger

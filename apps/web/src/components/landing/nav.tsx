@@ -119,6 +119,7 @@ function MenuPanel({
 export function LandingNav() {
 	const [openMenu, setOpenMenu] = useState<string | null>(null);
 	const [sheetOpen, setSheetOpen] = useState(false);
+	const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
 
 	return (
 		/* Opaque rather than translucent: the closing panel is near-black and a
@@ -196,8 +197,16 @@ export function LandingNav() {
 					>
 						Partner login
 					</Link>
+					{/* Mobile view (< sm): Primary button shows Partners Login */}
+					<Link
+						className="inline-flex h-9 items-center rounded-lg bg-neutral-900 px-4 font-medium text-[14px] text-white transition-colors hover:bg-neutral-800 sm:hidden"
+						href={"/login" as Route}
+					>
+						Partners Login
+					</Link>
+					{/* Desktop view (sm and above): Primary button shows Book a Growth Audit */}
 					<a
-						className="inline-flex h-9 items-center rounded-lg bg-neutral-900 px-4 font-medium text-[14px] text-white transition-colors hover:bg-neutral-800"
+						className="hidden h-9 items-center rounded-lg bg-neutral-900 px-4 font-medium text-[14px] text-white transition-colors hover:bg-neutral-800 sm:inline-flex"
 						href={BOOKING_URL}
 						rel="noopener"
 						target="_blank"
@@ -214,78 +223,101 @@ export function LandingNav() {
 						</DialogTrigger>
 
 						<DialogPortal>
-							<DialogPopup className="fixed inset-0 z-50 flex flex-col overflow-y-auto bg-white transition-opacity duration-200 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0 lg:hidden">
+							<DialogPopup className="fixed inset-0 z-50 flex flex-col overflow-y-auto bg-white px-6 py-5 transition-opacity duration-200 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0 lg:hidden">
 								<DialogTitle className="sr-only">Menu</DialogTitle>
 
-								<div className="flex h-[72px] shrink-0 items-center justify-between border-neutral-200 border-b px-5">
-									<Link
-										className="flex items-center gap-2.5"
-										href={"/" as Route}
-										onClick={() => setSheetOpen(false)}
-									>
-										<Logo className="h-6 w-auto" />
-										<span className="font-semibold text-[19px] text-neutral-900 tracking-tight">
-											Edgecoms
-										</span>
-									</Link>
+								{/* Top bar with Close button on top right matching Image 1 */}
+								<div className="flex items-center justify-end pb-3">
 									<DialogClose
 										aria-label="Close menu"
-										className="-mr-2 flex size-10 items-center justify-center rounded-lg text-neutral-900"
+										className="-mr-2 flex size-10 items-center justify-center rounded-lg text-neutral-600 transition-colors hover:text-neutral-900"
 									>
-										<X aria-hidden="true" className="size-5" />
+										<X aria-hidden="true" className="size-6" />
 									</DialogClose>
 								</div>
 
-								<nav className="flex flex-col gap-6 px-5 py-6">
-									{MENUS.map((menu) => (
-										<div className="flex flex-col gap-2" key={menu.key}>
-											<p className="font-medium text-[13px] text-neutral-500">
-												{menu.label}
-											</p>
-											{menu.items.map((item) => (
-												<Link
-													className="py-1 font-medium text-[17px] text-neutral-900"
-													href={item.href as Route}
-													key={item.label}
-													onClick={() => setSheetOpen(false)}
-												>
-													{item.label}
-												</Link>
-											))}
-										</div>
-									))}
-
-									<div className="flex flex-col gap-2">
-										{FLAT_LINKS.map((link) => (
-											<Link
-												className="py-1 font-medium text-[17px] text-neutral-900"
-												href={link.href as Route}
-												key={link.href}
-												onClick={() => setSheetOpen(false)}
+								{/* Accordion Categories & Flat Links matching Image 1 */}
+								<nav className="flex flex-col">
+									{MENUS.map((menu) => {
+										const isExpanded = expandedCategory === menu.key;
+										return (
+											<div
+												className="border-neutral-100 border-b"
+												key={menu.key}
 											>
-												{link.label}
-											</Link>
-										))}
-									</div>
-								</nav>
+												<button
+													className="flex w-full items-center justify-between py-4 font-semibold text-lg text-neutral-900 transition-colors hover:text-neutral-600"
+													onClick={() =>
+														setExpandedCategory(isExpanded ? null : menu.key)
+													}
+													type="button"
+												>
+													<span>{menu.label}</span>
+													<ChevronDown
+														className={cn(
+															"size-5 text-neutral-500 transition-transform duration-200",
+															isExpanded && "rotate-180"
+														)}
+													/>
+												</button>
 
-								<div className="mt-auto flex flex-col gap-2 px-5 pt-6 pb-8">
-									<Link
-										className="flex h-11 items-center justify-center rounded-lg border border-neutral-200 font-medium text-[15px] text-neutral-900"
-										href={"/login" as Route}
-										onClick={() => setSheetOpen(false)}
-									>
-										Partner login
-									</Link>
-									<a
-										className="flex h-11 items-center justify-center rounded-lg bg-neutral-900 font-medium text-[15px] text-white"
-										href={BOOKING_URL}
-										rel="noopener"
-										target="_blank"
-									>
-										{BOOKING_LABEL}
-									</a>
-								</div>
+												{isExpanded ? (
+													<div className="flex flex-col gap-3 pt-1 pb-5">
+														{menu.items.map((item) => (
+															<Link
+																className="flex items-start gap-3 rounded-xl p-2 transition-colors hover:bg-neutral-50"
+																href={item.href as Route}
+																key={item.label}
+																onClick={() => setSheetOpen(false)}
+															>
+																<div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-neutral-100">
+																	{item.icon ? (
+																		<Image
+																			alt=""
+																			className="size-6 rounded-[5px] object-contain"
+																			height={48}
+																			src={item.icon}
+																			width={48}
+																		/>
+																	) : (
+																		<span className="font-semibold text-caption text-neutral-700">
+																			{item.label[0]}
+																		</span>
+																	)}
+																</div>
+																<div className="flex flex-col gap-0.5">
+																	<span className="font-semibold text-[15px] text-neutral-900">
+																		{item.label}
+																	</span>
+																	<span className="text-[13px] text-neutral-500 leading-snug">
+																		{item.description}
+																	</span>
+																</div>
+															</Link>
+														))}
+													</div>
+												) : null}
+											</div>
+										);
+									})}
+
+									{/* Flat links matching Image 1: Customers, Partners, About, Contact */}
+									{[
+										{ href: "/case-studies", label: "Customers" },
+										{ href: "/partners", label: "Partners" },
+										{ href: "/about", label: "About" },
+										{ href: "/contact", label: "Contact" },
+									].map((link) => (
+										<Link
+											className="border-neutral-100 border-b py-4 font-semibold text-lg text-neutral-900 transition-colors hover:text-neutral-600"
+											href={link.href as Route}
+											key={link.href}
+											onClick={() => setSheetOpen(false)}
+										>
+											{link.label}
+										</Link>
+									))}
+								</nav>
 							</DialogPopup>
 						</DialogPortal>
 					</Dialog>

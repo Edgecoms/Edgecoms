@@ -49,7 +49,7 @@ export function PillarSection({
 	title: string;
 }) {
 	return (
-		<section className="bg-white">
+		<section className="overflow-hidden bg-white">
 			<Frame>
 				<div className="flex flex-col gap-6 px-6 pt-20 pb-14 sm:pt-24">
 					<PillarEyebrow pillar={pillar} />
@@ -74,13 +74,13 @@ export function PillarSection({
 				<FeatureTabs features={features} pillar={pillar} />
 			</Frame>
 
-			<Frame className="relative overflow-hidden border-neutral-200 border-t">
+			<Frame className="relative overflow-hidden border-neutral-200 border-y">
 				<DottedField />
-				<figure className="relative flex flex-col gap-8 px-6 py-16 lg:flex-row lg:items-start lg:justify-between lg:gap-12">
-					<blockquote className="max-w-[720px] text-balance text-[22px] text-neutral-900 leading-[1.4] tracking-[-0.02em] sm:text-[26px]">
+				<figure className="relative flex flex-col items-center justify-center gap-6 px-6 py-14 text-center lg:flex-row lg:items-start lg:justify-between lg:gap-12 lg:py-16 lg:text-left">
+					<blockquote className="max-w-[720px] text-balance text-center font-normal text-[20px] text-neutral-900 leading-[1.4] tracking-[-0.02em] sm:text-[26px] lg:text-left">
 						&ldquo;{quote.quote}&rdquo;
 					</blockquote>
-					<figcaption className="flex shrink-0 flex-col gap-2 lg:items-end lg:text-right">
+					<figcaption className="flex shrink-0 flex-col items-center justify-center gap-2 text-center lg:items-end lg:text-right">
 						{quote.logo ? (
 							<Image
 								alt={quote.logoAlt ?? ""}
@@ -90,7 +90,7 @@ export function PillarSection({
 								width={220}
 							/>
 						) : null}
-						<span className="text-[14px] text-neutral-500">
+						<span className="text-center text-[14px] text-neutral-500 lg:text-right">
 							{quote.attribution}
 						</span>
 					</figcaption>

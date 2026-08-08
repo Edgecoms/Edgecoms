@@ -105,7 +105,7 @@ const PARTNER_QUOTE: PillarQuote = {
 
 export default function HomePage() {
 	return (
-		<main className="flex flex-col">
+		<main className="flex flex-col overflow-x-clip px-3 sm:px-6 lg:px-0">
 			<Hero />
 			<ProductPreview />
 			<LogoCloud />

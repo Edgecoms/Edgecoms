@@ -21,7 +21,7 @@ const SCALE_STATS = [
 
 export function Scale() {
 	return (
-		<section className="relative overflow-hidden border-neutral-200 border-y bg-[#F8FAFC]">
+		<section className="relative overflow-hidden border-neutral-200 border-b bg-[#F8FAFC]">
 			<Frame>
 				<div className="grid grid-cols-1 items-center gap-12 px-6 py-20 lg:grid-cols-2 lg:py-28">
 					<div className="flex flex-col gap-8">
@@ -50,7 +50,7 @@ export function Scale() {
 						</dl>
 					</div>
 
-					<div className="relative flex min-h-[520px] items-center justify-center lg:justify-end">
+					<div className="relative hidden min-h-[520px] items-center justify-center lg:flex lg:justify-end">
 						{/* 3D Magic UI Globe - Larger Size */}
 						<div className="absolute top-1/2 right-0 flex size-[560px] -translate-y-1/2 items-center justify-center opacity-95 sm:-right-8 sm:size-[680px]">
 							<Globe

@@ -1,4 +1,4 @@
-import { ArrowUpRight } from "lucide-react";
+import { cn } from "@edgecoms/ui/lib/utils";
 import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -88,15 +88,16 @@ function QuoteCell({
 
 	return (
 		<div
-			className={`group relative flex flex-1 flex-col justify-between p-8 transition-all duration-300 hover:bg-gradient-to-br hover:from-blue-50/70 hover:via-indigo-50/30 hover:to-slate-50/50 sm:p-9 ${
-				className ?? ""
-			}`}
+			className={cn(
+				"group relative flex flex-1 flex-col justify-between p-6 transition-all duration-300 hover:bg-gradient-to-br hover:from-blue-50/70 hover:via-indigo-50/30 hover:to-slate-50/50 sm:p-8",
+				className
+			)}
 		>
-			<div className="flex flex-col gap-5">
+			<div className="flex flex-col gap-4">
 				{study.logo ? (
 					<Image
 						alt={study.brand}
-						className="h-6 w-auto object-contain"
+						className="h-6 w-auto self-start object-contain"
 						height={96}
 						src={study.logo}
 						width={220}
@@ -106,41 +107,39 @@ function QuoteCell({
 						{study.brand}
 					</span>
 				)}
-				<p className="text-[15px] text-neutral-600 leading-relaxed sm:text-[16px]">
+				<p className="text-pretty text-[15px] text-neutral-600 leading-relaxed sm:text-[16px]">
 					{testimonial.highlightQuote}
 				</p>
 			</div>
 
-			<div className="mt-8 flex items-end justify-between gap-4">
-				<div className="flex flex-col gap-2">
+			<div className="mt-6 flex items-end justify-between gap-3 sm:mt-8 sm:gap-4">
+				<div className="flex min-w-0 flex-col gap-1.5">
 					<div className="flex items-center gap-1.5 font-medium text-[12px] text-neutral-700">
-						<span className="flex size-4 items-center justify-center rounded-[4px] bg-[#F97316] font-bold text-[9px] text-white">
+						<span className="flex size-4 shrink-0 items-center justify-center rounded-[4px] bg-[#F97316] font-bold text-[9px] text-white">
 							A
 						</span>
-						<span>{study.brand.toLowerCase()}.link</span>
-						<ArrowUpRight className="size-3 text-neutral-400" />
+						<span className="truncate">Edge Links</span>
 					</div>
 					<div className="flex items-center gap-1.5 font-medium text-[12px] text-neutral-700">
-						<span className="flex size-4 items-center justify-center rounded-[4px] bg-[#8B5CF6] font-bold text-[9px] text-white">
+						<span className="flex size-4 shrink-0 items-center justify-center rounded-[4px] bg-[#8B5CF6] font-bold text-[9px] text-white">
 							❖
 						</span>
-						<span>edge.com/customers/{testimonial.slug}</span>
-						<ArrowUpRight className="size-3 text-neutral-400" />
+						<span className="truncate">Edge Partners</span>
 					</div>
 				</div>
 
-				<div className="flex items-center gap-3">
+				<div className="flex shrink-0 items-center gap-2.5">
 					<div className="flex flex-col text-right">
-						<span className="font-semibold text-[13px] text-neutral-900 leading-tight">
+						<span className="whitespace-nowrap font-semibold text-[13px] text-neutral-900 leading-tight">
 							{testimonial.authorName}
 						</span>
-						<span className="text-[11px] text-neutral-500 leading-tight">
+						<span className="max-w-[120px] truncate text-[11px] text-neutral-500 leading-tight sm:max-w-none">
 							{testimonial.authorRole}, {study.brand}
 						</span>
 					</div>
 					<Image
 						alt={testimonial.authorName}
-						className="size-10 rounded-xl object-cover shadow-2xs ring-1 ring-neutral-900/10"
+						className="size-10 shrink-0 rounded-xl object-cover shadow-2xs ring-1 ring-neutral-900/10"
 						height={80}
 						src={testimonial.avatarUrl}
 						unoptimized
@@ -154,7 +153,7 @@ function QuoteCell({
 
 export function Trusted() {
 	return (
-		<section className="bg-white">
+		<section className="overflow-hidden bg-white">
 			<Frame>
 				<div className="flex flex-col items-center gap-6 px-6 py-20 text-center sm:py-24">
 					<h2 className="max-w-[620px] text-balance font-medium text-[36px] text-neutral-900 leading-[1.08] tracking-[-0.03em] sm:text-[46px]">

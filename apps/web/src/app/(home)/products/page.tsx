@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { MigrationGrid } from "@/components/home/migration-grid";
+import { CtaDark } from "@/components/landing/cta-dark";
 import { AppsStack } from "@/components/products/apps-stack";
+import { FaqSection } from "@/components/products/faq-section";
 import { HaapstaTestimonial } from "@/components/products/haapsta-testimonial";
 import { ProductsHero } from "@/components/products/products-hero";
 import { ScaleConfidence } from "@/components/products/scale-confidence";
@@ -21,9 +23,13 @@ export default function ProductsPage() {
 			<AppsStack />
 			<HaapstaTestimonial />
 			<StartExcel />
+			<FaqSection />
+			<CtaDark />
 		</main>
 	);
 }
+
+
 
 
 

@@ -17,9 +17,9 @@ import { LogoCloud } from "@/components/landing/logo-cloud";
 import { Globe } from "@edgecoms/ui/components/globe";
 
 export const metadata: Metadata = {
-	title: "About Edge · Powering Marketing Attribution for the Modern Web",
+	title: "About Edgecoms · Turning Store Traffic Into Maximum Revenue Per Visitor",
 	description:
-		"We're a dedicated, fully-remote global team building the all-in-one revenue attribution and storefront growth platform for modern marketing teams.",
+		"We're a dedicated, fully-remote global team building the ultimate 7-app Shopify suite. We help DTC brands lift average order value, boost conversion rates, and prove revenue moves with server-side attribution.",
 };
 
 interface TeamMember {
@@ -250,18 +250,18 @@ export default function AboutPage() {
 			{/* SECTION 2: LOGO CLOUD BAR */}
 			<LogoCloud />
 
-			{/* SECTION 3: WHAT IS EDGE & VIDEO CARD */}
+			{/* SECTION 3: WHAT IS EDGECOMS & VIDEO CARD */}
 			<section className="relative w-full border-neutral-200 border-b bg-neutral-50/40 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]">
 				<Frame className="py-16 sm:py-20">
 					<div className="flex flex-col items-center px-6 text-center sm:px-8">
 						{/* Title */}
 						<h2 className="font-bold font-satoshi text-3xl text-neutral-900 leading-tight tracking-tight sm:text-4xl">
-							What is Edge?
+							What is Edgecoms?
 						</h2>
 
 						{/* Subtitle */}
 						<p className="mt-4 max-w-xl text-neutral-600 text-xs sm:text-sm leading-relaxed">
-							Edge is a high-performance suite of 7 specialized Shopify apps. We power{" "}
+							Edgecoms is a high-performance suite of 7 specialized Shopify apps. We power{" "}
 							<span className="underline decoration-neutral-400 decoration-dotted underline-offset-4">
 								volume bundles
 							</span>
@@ -283,7 +283,7 @@ export default function AboutPage() {
 						{/* Video Banner Card */}
 						<div className="group relative mt-10 w-full max-w-2xl overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-900 shadow-xl cursor-pointer aspect-video">
 							<Image
-								alt="Get to know Edge"
+								alt="Get to know Edgecoms"
 								className="size-full object-cover opacity-85 transition-opacity group-hover:opacity-100"
 								height={720}
 								src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=1200"
@@ -294,7 +294,7 @@ export default function AboutPage() {
 							{/* Bottom Left Info Pill */}
 							<div className="absolute bottom-4 left-4 z-10 flex items-center gap-2 rounded-lg bg-black/70 px-3 py-1.5 backdrop-blur-md">
 								<span className="font-semibold text-xs text-white">
-									Get to know Edge with Founder Anurag Chandra
+									Get to know Edgecoms with Founder Anurag Chandra
 								</span>
 							</div>
 
@@ -314,7 +314,7 @@ export default function AboutPage() {
 								bloat your theme code and slow down your store while focusing on only a single touchpoint.
 							</p>
 							<p className="mt-3 text-neutral-500 text-xs sm:text-sm leading-relaxed">
-								We're building Edge with zero Liquid theme bloat and sub-50ms edge latency – giving
+								We're building Edgecoms with zero Liquid theme bloat and sub-50ms edge latency – giving
 								merchants a seamless suite where six apps directly lift revenue per visitor, and{" "}
 								<span className="underline decoration-neutral-400 decoration-dotted underline-offset-4">
 									Trackproof
@@ -384,7 +384,7 @@ export default function AboutPage() {
 
 						{/* Subtitle */}
 						<p className="mt-2 max-w-lg text-neutral-500 text-xs sm:text-sm leading-relaxed">
-							Edge is a fully-remote, small but mighty global team united by
+							Edgecoms is a fully-remote, small but mighty global team united by
 							speed, action, and a shared passion for reshaping marketing attribution.
 						</p>
 					</div>
@@ -458,7 +458,7 @@ export default function AboutPage() {
 				</Frame>
 			</section>
 
-			{/* SECTION 5: LIFE AT EDGE PHOTO MOSAIC */}
+			{/* SECTION 5: LIFE AT EDGECOMS PHOTO MOSAIC */}
 			<section className="relative w-full border-neutral-200 border-b bg-neutral-50/40 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]">
 				<Frame className="py-16 sm:py-20">
 					<div className="flex flex-col items-center px-6 text-center sm:px-8">
@@ -470,7 +470,7 @@ export default function AboutPage() {
 
 						{/* Headline */}
 						<h2 className="mt-2 font-bold font-satoshi text-3xl text-neutral-900 tracking-tight sm:text-4xl">
-							Life at Edge
+							Life at Edgecoms
 						</h2>
 
 						{/* Subtitle */}

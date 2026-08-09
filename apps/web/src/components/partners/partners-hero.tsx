@@ -123,10 +123,10 @@ export function PartnersHero() {
 		<section className="relative isolate w-full overflow-hidden border-neutral-200 border-b bg-white">
 			{/* Frame container matching homepage 1080px column with side hairline rules */}
 			<Frame className="relative pt-12 pb-16 sm:pt-20">
-				{/* Inner background grid lines */}
+				{/* Inner background grid lines with radial mask to fade out upper title area */}
 				<div
 					aria-hidden="true"
-					className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(to_right,#e5e7eb_1px,transparent_1px),linear-gradient(to_bottom,#e5e7eb_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-50"
+					className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(to_right,#e5e7eb_1px,transparent_1px),linear-gradient(to_bottom,#e5e7eb_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-50 [mask-image:radial-gradient(ellipse_100%_65%_at_50%_100%,black_30%,transparent_80%)]"
 				/>
 
 				{/* Soft pink/purple ambient glow fill behind cards */}

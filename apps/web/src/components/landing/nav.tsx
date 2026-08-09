@@ -17,7 +17,19 @@ import {
 	NavigationMenuTrigger,
 } from "@edgecoms/ui/components/navigation-menu";
 import { cn } from "@edgecoms/ui/lib/utils";
-import { ChevronDown, Menu, X } from "lucide-react";
+import {
+	BookOpen,
+	Briefcase,
+	ChevronDown,
+	FileText,
+	HelpCircle,
+	ListFilter,
+	Mail,
+	Menu,
+	Sparkles,
+	Users,
+	X,
+} from "lucide-react";
 import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -46,19 +58,29 @@ const PRODUCT_ITEMS: readonly MenuItem[] = EDGE_PRODUCTS.map((product) => ({
 
 const RESOURCE_ITEMS: readonly MenuItem[] = [
 	{
-		description: "See how merchants scale with Edge.",
-		href: "/case-studies",
-		label: "Case studies",
+		description: "Platform documentation.",
+		href: "/docs",
+		label: "Docs",
 	},
 	{
-		description: "Join the partner program and earn recurring revenue.",
-		href: "/partners",
-		label: "Partner program",
-	},
-	{
-		description: "Get in touch with our team.",
+		description: "Answers to your questions.",
 		href: "/contact",
-		label: "Contact us",
+		label: "Help Center",
+	},
+	{
+		description: "Company, values, and team.",
+		href: "/about",
+		label: "About",
+	},
+	{
+		description: "Join our global, remote team.",
+		href: "/careers",
+		label: "Careers",
+	},
+	{
+		description: "Reach out to support or sales.",
+		href: "/contact",
+		label: "Contact",
 	},
 ] as const;
 
@@ -235,6 +257,124 @@ function ProductMenuPanel() {
 	);
 }
 
+function ResourceMenuPanel() {
+	return (
+		<div className="w-[660px] rounded-3xl border border-neutral-200/80 bg-white p-4 shadow-[0_24px_60px_-15px_rgba(0,0,0,0.12)]">
+			<div className="grid grid-cols-12 divide-x divide-neutral-100">
+				{/* Column 1: EXPLORE (Span 7) */}
+				<div className="col-span-7 pr-4 flex flex-col">
+					<span className="mb-3 px-1 font-semibold text-[11px] text-neutral-400 uppercase tracking-wider">
+						Explore
+					</span>
+					<div className="grid grid-cols-2 gap-3 h-full">
+						{/* Docs Card */}
+						<Link
+							className="group flex flex-col justify-between rounded-2xl border border-neutral-100 bg-neutral-50/60 p-4.5 transition-colors hover:border-neutral-200 hover:bg-neutral-50"
+							href={"/docs" as Route}
+						>
+							<div>
+								<div className="flex size-9 items-center justify-center rounded-xl border border-neutral-200/70 bg-white shadow-2xs">
+									<BookOpen className="size-4 text-neutral-800" />
+								</div>
+							</div>
+							<div className="mt-8">
+								<h3 className="font-semibold text-[15px] text-neutral-900">
+									Docs
+								</h3>
+								<p className="mt-0.5 text-[12px] text-neutral-500 leading-snug">
+									Platform documentation
+								</p>
+							</div>
+						</Link>
+
+						{/* Help Center Card */}
+						<Link
+							className="group flex flex-col justify-between rounded-2xl border border-neutral-100 bg-neutral-50/60 p-4.5 transition-colors hover:border-neutral-200 hover:bg-neutral-50"
+							href={"/contact" as Route}
+						>
+							<div>
+								<div className="flex size-9 items-center justify-center rounded-xl border border-neutral-200/70 bg-white shadow-2xs">
+									<HelpCircle className="size-4 text-neutral-800" />
+								</div>
+							</div>
+							<div className="mt-8">
+								<h3 className="font-semibold text-[15px] text-neutral-900">
+									Help Center
+								</h3>
+								<p className="mt-0.5 text-[12px] text-neutral-500 leading-snug">
+									Answers to your questions
+								</p>
+							</div>
+						</Link>
+					</div>
+				</div>
+
+				{/* Column 2: COMPANY (Span 5) */}
+				<div className="col-span-5 pl-4 flex flex-col">
+					<span className="mb-3 px-2 font-semibold text-[11px] text-neutral-400 uppercase tracking-wider">
+						Company
+					</span>
+					<div className="flex flex-col gap-1">
+						{/* About */}
+						<Link
+							className="group flex items-center gap-3 rounded-xl p-2 transition-colors hover:bg-neutral-50"
+							href={"/about" as Route}
+						>
+							<div className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-neutral-200/80 bg-white shadow-2xs">
+								<Users className="size-4 text-neutral-700" />
+							</div>
+							<div className="flex flex-col">
+								<span className="font-semibold text-[13px] text-neutral-900">
+									About
+								</span>
+								<span className="text-[12px] text-neutral-500 leading-tight">
+									Company, values, and team
+								</span>
+							</div>
+						</Link>
+
+						{/* Careers */}
+						<Link
+							className="group flex items-center gap-3 rounded-xl p-2 transition-colors hover:bg-neutral-50"
+							href={"/careers" as Route}
+						>
+							<div className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-neutral-200/80 bg-white shadow-2xs">
+								<Briefcase className="size-4 text-neutral-700" />
+							</div>
+							<div className="flex flex-col">
+								<span className="font-semibold text-[13px] text-neutral-900">
+									Careers
+								</span>
+								<span className="text-[12px] text-neutral-500 leading-tight">
+									Join our global, remote team
+								</span>
+							</div>
+						</Link>
+
+						{/* Contact */}
+						<Link
+							className="group flex items-center gap-3 rounded-xl p-2 transition-colors hover:bg-neutral-50"
+							href={"/contact" as Route}
+						>
+							<div className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-neutral-200/80 bg-white shadow-2xs">
+								<Mail className="size-4 text-neutral-700" />
+							</div>
+							<div className="flex flex-col">
+								<span className="font-semibold text-[13px] text-neutral-900">
+									Contact
+								</span>
+								<span className="text-[12px] text-neutral-500 leading-tight">
+									Reach out to support or sales
+								</span>
+							</div>
+						</Link>
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+}
+
 function MenuPanel({
 	items,
 	wide,
@@ -308,7 +448,7 @@ export function LandingNav() {
 									{menu.key === "product" ? (
 										<ProductMenuPanel />
 									) : (
-										<MenuPanel items={menu.items} wide={menu.wide} />
+										<ResourceMenuPanel />
 									)}
 								</NavigationMenuContent>
 							</NavigationMenuItem>

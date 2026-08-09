@@ -57,9 +57,9 @@ const EDGE_SUITE_FEATURES = [
 
 export function ScaleConfidence() {
 	return (
-		<section className="relative w-full border-neutral-200 border-b bg-white py-8 sm:py-12">
+		<section className="relative w-full border-neutral-200 border-b bg-white">
 			<Frame>
-				<div className="px-4 sm:px-6">
+				<div className="px-4 py-8 sm:px-6 sm:py-12">
 					{/* Section Header */}
 					<div className="mx-auto max-w-2xl text-center">
 						<h2 className="font-bold font-satoshi text-3xl text-neutral-900 leading-[1.1] tracking-tight sm:text-4xl lg:text-[44px]">

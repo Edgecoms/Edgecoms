@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { MigrationGrid } from "@/components/home/migration-grid";
+import { AppsStack } from "@/components/products/apps-stack";
 import { ProductsHero } from "@/components/products/products-hero";
 import { ScaleConfidence } from "@/components/products/scale-confidence";
 
@@ -15,6 +16,8 @@ export default function ProductsPage() {
 			<ProductsHero />
 			<MigrationGrid />
 			<ScaleConfidence />
+			<AppsStack />
 		</main>
 	);
 }
+

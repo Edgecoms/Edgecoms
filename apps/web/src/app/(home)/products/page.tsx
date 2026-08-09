@@ -4,6 +4,7 @@ import { AppsStack } from "@/components/products/apps-stack";
 import { HaapstaTestimonial } from "@/components/products/haapsta-testimonial";
 import { ProductsHero } from "@/components/products/products-hero";
 import { ScaleConfidence } from "@/components/products/scale-confidence";
+import { StartExcel } from "@/components/products/start-excel";
 
 export const metadata: Metadata = {
 	title: "Edge Apps · Every app here moves one number",
@@ -19,8 +20,10 @@ export default function ProductsPage() {
 			<ScaleConfidence />
 			<AppsStack />
 			<HaapstaTestimonial />
+			<StartExcel />
 		</main>
 	);
 }
+
 
 

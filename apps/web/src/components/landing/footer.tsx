@@ -32,8 +32,9 @@ const COLUMNS: readonly { heading: string; links: readonly FooterLink[] }[] = [
 		heading: "Resources",
 		links: [
 			{ href: "/case-studies", label: "Case studies" },
-			{ href: "/products", label: "Pricing" },
+			{ href: "/docs", label: "Documentation" },
 			{ href: "/contact", label: "Contact" },
+			{ href: "/products", label: "Products" },
 		],
 	},
 	{

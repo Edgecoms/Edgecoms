@@ -142,7 +142,7 @@ export function AppsStack() {
 							</div>
 							<div className="mt-6">
 								<Link
-									href={"/#apps" as Route}
+									href={"/products/edge-bundles" as Route}
 									className="inline-flex items-center justify-center rounded-lg border border-neutral-200/90 bg-white px-3.5 py-1.5 font-medium text-xs text-neutral-700 shadow-2xs transition-colors hover:bg-neutral-50 hover:text-neutral-900"
 								>
 									Learn more
@@ -261,7 +261,7 @@ export function AppsStack() {
 							</div>
 							<div className="mt-6">
 								<Link
-									href={"/#apps" as Route}
+									href={"/products/trackproof" as Route}
 									className="inline-flex items-center justify-center rounded-lg border border-neutral-200/90 bg-white px-3.5 py-1.5 font-medium text-xs text-neutral-700 shadow-2xs transition-colors hover:bg-neutral-50 hover:text-neutral-900"
 								>
 									Learn more
@@ -348,7 +348,7 @@ export function AppsStack() {
 							</div>
 							<div className="mt-6">
 								<Link
-									href={"/#apps" as Route}
+									href={"/products/edge-cart" as Route}
 									className="inline-flex items-center justify-center rounded-lg border border-neutral-200/90 bg-white px-3.5 py-1.5 font-medium text-xs text-neutral-700 shadow-2xs transition-colors hover:bg-neutral-50 hover:text-neutral-900"
 								>
 									Learn more
@@ -443,7 +443,7 @@ export function AppsStack() {
 							</div>
 							<div className="mt-6">
 								<Link
-									href={"/#apps" as Route}
+									href={"/products/edge-subscriptions" as Route}
 									className="inline-flex items-center justify-center rounded-lg border border-neutral-200/90 bg-white px-3.5 py-1.5 font-medium text-xs text-neutral-700 shadow-2xs transition-colors hover:bg-neutral-50 hover:text-neutral-900"
 								>
 									Learn more
@@ -523,12 +523,18 @@ export function AppsStack() {
 									Drive instant buying decisions with real-time countdown timers and verified photo reviews built for sub-50ms speed.
 								</p>
 							</div>
-							<div className="mt-6">
+							<div className="mt-6 flex items-center gap-2">
 								<Link
-									href={"/#apps" as Route}
-									className="inline-flex items-center justify-center rounded-lg border border-neutral-200/90 bg-white px-3.5 py-1.5 font-medium text-xs text-neutral-700 shadow-2xs transition-colors hover:bg-neutral-50 hover:text-neutral-900"
+									href={"/products/edge-timer" as Route}
+									className="inline-flex items-center justify-center rounded-lg border border-neutral-200/90 bg-white px-3 py-1.5 font-medium text-xs text-neutral-700 shadow-2xs transition-colors hover:bg-neutral-50 hover:text-neutral-900"
 								>
-									Learn more
+									Edge Timer
+								</Link>
+								<Link
+									href={"/products/edge-reviews" as Route}
+									className="inline-flex items-center justify-center rounded-lg border border-neutral-200/90 bg-white px-3 py-1.5 font-medium text-xs text-neutral-700 shadow-2xs transition-colors hover:bg-neutral-50 hover:text-neutral-900"
+								>
+									Edge Reviews
 								</Link>
 							</div>
 						</div>

@@ -18,4 +18,4 @@ export const BOOKING_URL =
  * merchant who is promised a growth audit and lands on a Loom booking page is a
  * no-show, so rename the Calendly event to match this.
  */
-export const BOOKING_LABEL = "Book a Growth Audit";
+export const BOOKING_LABEL = "Get a demo";

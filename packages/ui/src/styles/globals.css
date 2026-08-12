@@ -146,7 +146,16 @@
 
 	--animate-marquee-left: marquee-left 44s linear infinite;
 
-	--font-sans: var(--font-inter), sans-serif;
+	/* Slow vertical drift for decorative floating objects. Long and shallow on
+	   purpose: anything faster than ~6s reads as a loading state, and anything
+	   further than ~10px reads as the layout being broken. Each user varies the
+	   delay and duration so a field of them never pulses in unison. */
+	--animate-drift: drift 7s ease-in-out infinite;
+
+	--font-sans:
+		var(--font-inter), "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+	--font-satoshi:
+		var(--font-satoshi), "satoshi", "satoshi fallback", sans-serif;
 	--font-mono: var(--font-geist-mono), monospace;
 
 	--font-weight-normal: 400;
@@ -240,6 +249,17 @@
 		@apply font-sans bg-bg text-primary-foreground;
 	}
 
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6,
+	.font-satoshi {
+		font-family: var(--font-satoshi);
+		font-feature-settings: normal;
+	}
+
 	html,
 	body {
 		@apply isolate relative flex h-full min-h-svh flex-1 flex-col overflow-hidden;
@@ -313,7 +333,21 @@
 	from {
 		transform: translate3d(0, 0, 0);
 	}
+
 	to {
 		transform: translate3d(-50%, 0, 0);
+	}
+}
+
+/* Decorative drift. Transform-only so it stays on the compositor, and paired
+   with `motion-reduce:animate-none` at every call site. */
+@keyframes drift {
+	0%,
+	100% {
+		transform: translate3d(0, 0, 0);
+	}
+
+	50% {
+		transform: translate3d(0, -10px, 0);
 	}
 }

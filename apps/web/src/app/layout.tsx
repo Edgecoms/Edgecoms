@@ -9,7 +9,13 @@ const interVariable = localFont({
 	src: "../assets/fonts/InterVariable.woff2",
 	display: "swap",
 	variable: "--font-inter",
-	style: "normal",
+	weight: "100 900",
+});
+const satoshiVariable = localFont({
+	src: "../assets/fonts/Satoshi-Regular.woff2",
+	display: "swap",
+	variable: "--font-satoshi",
+	weight: "400",
 });
 const geistMono = Geist_Mono({
 	variable: "--font-geist-mono",
@@ -41,7 +47,7 @@ export default function RootLayout({
 	return (
 		<html lang="en" suppressHydrationWarning>
 			<body
-				className={`${interVariable.variable} ${geistMono.variable} antialiased`}
+				className={`${interVariable.variable} ${satoshiVariable.variable} ${geistMono.variable} antialiased`}
 				suppressHydrationWarning
 			>
 				<Providers>{children}</Providers>

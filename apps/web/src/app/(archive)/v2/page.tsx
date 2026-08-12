@@ -12,15 +12,21 @@ import { FaqList } from "@/components/marketing/faq-list";
 import { Reveal } from "@/components/ui/reveal";
 import type { AppFaq } from "@/lib/products";
 
+/**
+ * Archived v2 homepage, kept verbatim for side-by-side comparison against the
+ * v3 redesign. Not linked from anywhere and excluded from search indexing.
+ *
+ * Unlike the v1 archive this does NOT fork its components into `components/v2`
+ * — every section it renders still lives in `components/home` and nothing in
+ * the live homepage imports from there any more, so the copy is already frozen
+ * without duplicating fifteen files. `GridMarkers` is the one exception: the
+ * shared footer imports it too, so it is not frozen.
+ */
 export const metadata: Metadata = {
-	title: "Edge · Raise AOV and conversion rate on the traffic you already have",
-	description:
-		"Seven Shopify apps that move the two numbers your revenue is made of: how many visitors buy, and how much each one spends. Bundles, cart, timer, reviews, currency, subscriptions, and server-side tracking. Free plans on most of them.",
+	title: "Homepage v2 (archived) — Edge",
+	robots: { index: false, follow: false },
 };
 
-/* Roughly when the hero finishes: its last child starts at 0.46s and runs for
-   0.9s. Overlapping the tail is deliberate — waiting for the full 1.36s reads
-   as a stall. */
 const HERO_SETTLE_SECONDS = 0.9;
 
 const HOME_FAQ: readonly AppFaq[] = [
@@ -56,26 +62,13 @@ const HOME_FAQ: readonly AppFaq[] = [
 	},
 ];
 
-export default function HomePage() {
+export default function HomePageV2() {
 	return (
-		/* The rhythm between sections lives here rather than in each section's own
-		   padding. Every section still owns its internal spacing, but the distance
-		   between any two of them is one number, so a section that sets its padding
-		   a notch light cannot collapse into the one below it. */
 		<main className="flex flex-col gap-y-8 sm:gap-y-14">
 			<HeroHome />
-			{/* The hero animates itself on load. Everything below it reveals on
-			    scroll — except the journey explorer, whose panel is `position:
-			    sticky` and would be scoped to an animating wrapper. */}
-			{/* Held back until the hero's stagger has run. On a tall screen the
-			    proof row is already inside the viewport at load, so without this it
-			    fires at the same moment as the headline and the two animations read
-			    as one confused movement. */}
 			<Reveal delay={HERO_SETTLE_SECONDS}>
 				<CaseStudies />
 			</Reveal>
-			{/* Not wrapped: these two stagger their own cards in, so an outer
-			    fade would animate the block and its contents at the same time. */}
 			<FeaturedStories />
 			<JourneyExplorer />
 			<Reveal>

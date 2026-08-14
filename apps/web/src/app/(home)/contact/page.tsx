@@ -16,6 +16,8 @@ export const metadata: Metadata = {
 	title: "Contact Us · Edgecoms",
 	description:
 		"Get in touch with our team for sales, support, live demos, or general inquiries.",
+	alternates: { canonical: "/contact" },
+	openGraph: { type: "website", url: "/contact" },
 };
 
 const HELP_CARDS = [

@@ -19,6 +19,8 @@ export const metadata: Metadata = {
 		"About Edgecoms · Turning Store Traffic Into Maximum Revenue Per Visitor",
 	description:
 		"We're a dedicated, fully-remote global team building the ultimate 7-app Shopify suite. We help DTC brands lift average order value, boost conversion rates, and prove revenue moves with server-side attribution.",
+	alternates: { canonical: "/about" },
+	openGraph: { type: "website", url: "/about" },
 };
 
 interface TeamMember {

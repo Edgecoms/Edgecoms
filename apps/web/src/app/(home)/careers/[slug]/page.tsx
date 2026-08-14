@@ -6,6 +6,11 @@ import { ApplicationForm } from "@/components/careers/application-form";
 import { CtaDark } from "@/components/landing/cta-dark";
 import { Frame } from "@/components/landing/frame";
 import { CAREER_BENEFITS, getRole, ROLES, WHY_EDGECOMS } from "@/lib/careers";
+import {
+	breadcrumbSchema,
+	jobPostingSchema,
+	jsonLdScriptProps,
+} from "@/lib/seo";
 
 /**
  * One role, one page.
@@ -33,9 +38,18 @@ export async function generateMetadata({
 		return { title: "Role not found · Edgecoms" };
 	}
 
+	const title = `${role.title} · Careers at Edgecoms`;
+
 	return {
-		title: `${role.title} · Careers at Edgecoms`,
+		title,
 		description: role.description,
+		alternates: { canonical: `/careers/${role.slug}` },
+		openGraph: {
+			title,
+			description: role.description,
+			type: "article",
+			url: `/careers/${role.slug}`,
+		},
 	};
 }
 
@@ -76,6 +90,19 @@ export default async function RolePage({ params }: RolePageProps) {
 
 	return (
 		<main>
+			{/* Google Jobs reads this. Everything in it is also stated visibly on the
+			    page below, which is the condition for the markup being legitimate. */}
+			<script {...jsonLdScriptProps(jobPostingSchema(role))} />
+			<script
+				{...jsonLdScriptProps(
+					breadcrumbSchema([
+						{ name: "Home", path: "/" },
+						{ name: "Careers", path: "/careers" },
+						{ name: role.title, path: `/careers/${role.slug}` },
+					])
+				)}
+			/>
+
 			<section className="relative w-full border-neutral-200 border-b bg-white">
 				<Frame className="px-6 py-12 sm:px-8 sm:py-16">
 					<Link

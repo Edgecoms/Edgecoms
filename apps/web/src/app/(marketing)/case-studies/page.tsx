@@ -10,6 +10,8 @@ export const metadata: Metadata = {
 	title: "Case studies · Edge",
 	description:
 		"Real Shopify stores running Edge apps, the metric each one is working, and what they built to move it.",
+	alternates: { canonical: "/case-studies" },
+	openGraph: { type: "website", url: "/case-studies" },
 };
 
 /**

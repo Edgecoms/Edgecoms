@@ -10,6 +10,8 @@ export const metadata: Metadata = {
 	title: "Careers at Edgecoms · Join Our Fully-Remote Global Team",
 	description:
 		"We are a global, fully-remote team on a mission to maximize revenue per visitor for modern Shopify brands. View our culture, benefits, and open roles.",
+	alternates: { canonical: "/careers" },
+	openGraph: { type: "website", url: "/careers" },
 };
 
 const HERO_PHOTOS = [

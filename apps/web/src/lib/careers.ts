@@ -50,6 +50,12 @@ export interface Role {
 	 * per role rather than asking everyone for a GitHub they may not have.
 	 */
 	portfolioLabel: string;
+	/**
+	 * ISO date the role was first published. Google Jobs requires `datePosted`
+	 * and drops listings it considers stale, so this is a real date that has to
+	 * be bumped when a role is genuinely reopened — not backdated to look fresh.
+	 */
+	postedAt: string;
 	/** The "You will be a perfect fit if you..." list. */
 	requirements: readonly string[];
 	/** The "In this role you will..." list. */
@@ -118,6 +124,7 @@ export const WHY_EDGECOMS: readonly { body: string; title: string }[] = [
 export const ROLES: readonly Role[] = [
 	{
 		slug: "full-stack-software-engineer",
+		postedAt: "2026-08-14",
 		title: "Full-Stack Software Engineer",
 		team: "Engineering",
 		employmentType: "Full-time",
@@ -151,6 +158,7 @@ export const ROLES: readonly Role[] = [
 	},
 	{
 		slug: "shopify-web-developer",
+		postedAt: "2026-08-14",
 		title: "Shopify Web Developer",
 		team: "Engineering",
 		employmentType: "Full-time",
@@ -179,6 +187,7 @@ export const ROLES: readonly Role[] = [
 	},
 	{
 		slug: "motion-designer-video-editor",
+		postedAt: "2026-08-14",
 		title: "Motion Designer & Video Editor",
 		team: "Creative",
 		employmentType: "Full-time",
@@ -207,6 +216,7 @@ export const ROLES: readonly Role[] = [
 	},
 	{
 		slug: "performance-media-buyer",
+		postedAt: "2026-08-14",
 		title: "Performance Media Buyer",
 		team: "Growth",
 		employmentType: "Full-time",
@@ -235,6 +245,7 @@ export const ROLES: readonly Role[] = [
 	},
 	{
 		slug: "paid-advertising-manager",
+		postedAt: "2026-08-14",
 		title: "Paid Advertising Manager",
 		team: "Growth",
 		employmentType: "Full-time",
@@ -266,6 +277,7 @@ export const ROLES: readonly Role[] = [
 	},
 	{
 		slug: "ecommerce-creator-influencer",
+		postedAt: "2026-08-14",
 		title: "Ecommerce Creator & Influencer",
 		team: "Marketing",
 		employmentType: "Full-time",
@@ -294,6 +306,7 @@ export const ROLES: readonly Role[] = [
 	},
 	{
 		slug: "marketing-intern",
+		postedAt: "2026-08-14",
 		title: "Marketing Intern",
 		team: "Marketing",
 		employmentType: "Internship",
@@ -320,6 +333,7 @@ export const ROLES: readonly Role[] = [
 	},
 	{
 		slug: "social-media-intern",
+		postedAt: "2026-08-14",
 		title: "Social Media Intern",
 		team: "Marketing",
 		employmentType: "Internship",
@@ -346,6 +360,7 @@ export const ROLES: readonly Role[] = [
 	},
 	{
 		slug: "customer-support-specialist",
+		postedAt: "2026-08-14",
 		title: "Customer Support Specialist",
 		team: "Customer Experience",
 		employmentType: "Full-time",

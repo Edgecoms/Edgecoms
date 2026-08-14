@@ -14,19 +14,19 @@ export function HaapstaTestimonial() {
 						<div className="flex size-7 items-center justify-center rounded-lg bg-neutral-900 font-bold text-white text-xs">
 							H
 						</div>
-						<span className="font-bold font-satoshi text-xl text-neutral-900 tracking-tight">
+						<span className="font-bold font-satoshi text-neutral-900 text-xl tracking-tight">
 							Haapsta
 						</span>
 					</div>
 
 					{/* Testimonial Quote */}
-					<blockquote className="mx-auto mt-8 max-w-2xl text-neutral-700 text-lg sm:text-xl md:text-[22px] font-normal leading-relaxed tracking-tight">
+					<blockquote className="mx-auto mt-8 max-w-2xl font-normal text-lg text-neutral-700 leading-relaxed tracking-tight sm:text-xl md:text-[22px]">
 						“Edge is the{" "}
 						<span className="font-bold text-neutral-900">
 							ultimate app infrastructure
 						</span>{" "}
-						for every Shopify store. If you're looking to 10x your average order value
-						and conversion rate – I cannot recommend building with{" "}
+						for every Shopify store. If you're looking to 10x your average order
+						value and conversion rate – I cannot recommend building with{" "}
 						<span className="font-bold text-neutral-900 underline decoration-neutral-400 decoration-dotted underline-offset-4">
 							Edge Apps
 						</span>{" "}
@@ -47,9 +47,7 @@ export function HaapstaTestimonial() {
 						<p className="mt-3 font-semibold text-neutral-900 text-sm">
 							Lukas Haapsta
 						</p>
-						<p className="text-neutral-500 text-xs font-medium">
-							CEO, Haapsta
-						</p>
+						<p className="font-medium text-neutral-500 text-xs">CEO, Haapsta</p>
 					</div>
 
 					{/* Read the Story Button */}

@@ -262,11 +262,11 @@ function ResourceMenuPanel() {
 		<div className="w-[660px] rounded-3xl border border-neutral-200/80 bg-white p-4 shadow-[0_24px_60px_-15px_rgba(0,0,0,0.12)]">
 			<div className="grid grid-cols-12 divide-x divide-neutral-100">
 				{/* Column 1: EXPLORE (Span 7) */}
-				<div className="col-span-7 pr-4 flex flex-col">
+				<div className="col-span-7 flex flex-col pr-4">
 					<span className="mb-3 px-1 font-semibold text-[11px] text-neutral-400 uppercase tracking-wider">
 						Explore
 					</span>
-					<div className="grid grid-cols-2 gap-3 h-full">
+					<div className="grid h-full grid-cols-2 gap-3">
 						{/* Docs Card */}
 						<Link
 							className="group flex flex-col justify-between rounded-2xl border border-neutral-100 bg-neutral-50/60 p-4.5 transition-colors hover:border-neutral-200 hover:bg-neutral-50"
@@ -310,7 +310,7 @@ function ResourceMenuPanel() {
 				</div>
 
 				{/* Column 2: COMPANY (Span 5) */}
-				<div className="col-span-5 pl-4 flex flex-col">
+				<div className="col-span-5 flex flex-col pl-4">
 					<span className="mb-3 px-2 font-semibold text-[11px] text-neutral-400 uppercase tracking-wider">
 						Company
 					</span>

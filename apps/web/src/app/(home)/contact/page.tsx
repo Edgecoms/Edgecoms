@@ -56,7 +56,7 @@ export default function ContactPage() {
 	return (
 		<main>
 			{/* SECTION 1: HOW CAN WE HELP? (Matching Image 1 Design) */}
-			<section className="relative w-full border-neutral-200 border-b bg-neutral-50/40 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]">
+			<section className="relative w-full border-neutral-200 border-b bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-neutral-50/40 [background-size:16px_16px]">
 				<Frame className="pt-16 pb-0 sm:pt-20">
 					{/* Header */}
 					<div className="flex flex-col items-center px-6 text-center sm:px-8">
@@ -68,7 +68,7 @@ export default function ContactPage() {
 						</p>
 
 						{/* System Status Pill Badge */}
-						<div className="mt-5 inline-flex items-center gap-2 rounded-full border border-emerald-200/80 bg-emerald-50/80 px-3 py-1 text-xs text-emerald-700 shadow-2xs backdrop-blur-xs">
+						<div className="mt-5 inline-flex items-center gap-2 rounded-full border border-emerald-200/80 bg-emerald-50/80 px-3 py-1 text-emerald-700 text-xs shadow-2xs backdrop-blur-xs">
 							<span className="relative flex size-2">
 								<span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-75" />
 								<span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
@@ -78,38 +78,40 @@ export default function ContactPage() {
 					</div>
 
 					{/* 2x2 Help Cards Grid matching Image 1 (Flush at section bottom) */}
-					<div className="mt-12 grid grid-cols-1 border-neutral-200 border-t divide-y divide-neutral-200 bg-white sm:grid-cols-2 sm:divide-y-0 sm:divide-x">
+					<div className="mt-12 grid grid-cols-1 divide-y divide-neutral-200 border-neutral-200 border-t bg-white sm:grid-cols-2 sm:divide-x sm:divide-y-0">
 						{HELP_CARDS.map((card, idx) => {
 							const Icon = card.icon;
 							return (
 								<div
-									key={card.title}
-									className={`flex flex-col justify-between p-8 sm:p-10 text-left transition-colors hover:bg-neutral-50/50 ${
-										idx >= 2 ? "sm:border-t border-neutral-200" : ""
+									className={`flex flex-col justify-between p-8 text-left transition-colors hover:bg-neutral-50/50 sm:p-10 ${
+										idx >= 2 ? "border-neutral-200 sm:border-t" : ""
 									}`}
+									key={card.title}
 								>
 									<div>
 										<div className="flex size-10 items-center justify-center rounded-lg border border-neutral-200/80 bg-neutral-50 shadow-2xs">
 											<Icon className="size-5 text-neutral-800" />
 										</div>
-										<h3 className="mt-4 font-semibold text-neutral-900 text-lg sm:text-xl">
+										<h3 className="mt-4 font-semibold text-lg text-neutral-900 sm:text-xl">
 											{card.title}
 										</h3>
-										<p className="mt-2 text-neutral-500 text-xs sm:text-sm leading-relaxed max-w-sm">
+										<p className="mt-2 max-w-sm text-neutral-500 text-xs leading-relaxed sm:text-sm">
 											{card.description}
 										</p>
 									</div>
 
 									<div className="mt-6">
 										<a
+											className="inline-flex items-center justify-center rounded-lg bg-black px-4 py-2 font-medium text-white text-xs shadow-xs transition-colors hover:bg-neutral-800 sm:text-sm"
 											href={card.href}
-											target={card.href.startsWith("http") ? "_blank" : undefined}
 											rel={
 												card.href.startsWith("http")
 													? "noopener noreferrer"
 													: undefined
 											}
-											className="inline-flex items-center justify-center rounded-lg bg-black px-4 py-2 font-medium text-xs text-white shadow-xs transition-colors hover:bg-neutral-800 sm:text-sm"
+											target={
+												card.href.startsWith("http") ? "_blank" : undefined
+											}
 										>
 											{card.actionText}
 										</a>
@@ -136,28 +138,29 @@ export default function ContactPage() {
 					</div>
 
 					{/* 2 Main Action Cards */}
-					<div className="mt-12 grid grid-cols-1 gap-8 max-w-4xl mx-auto sm:grid-cols-2">
+					<div className="mx-auto mt-12 grid max-w-4xl grid-cols-1 gap-8 sm:grid-cols-2">
 						{/* Card 1: Get a Demo */}
 						<div className="flex flex-col justify-between rounded-2xl border border-neutral-200 bg-neutral-50/50 p-8 shadow-2xs transition-all hover:bg-neutral-50 hover:shadow-sm">
 							<div>
-								<div className="flex size-11 items-center justify-center rounded-xl bg-white border border-neutral-200/80 shadow-2xs">
+								<div className="flex size-11 items-center justify-center rounded-xl border border-neutral-200/80 bg-white shadow-2xs">
 									<Calendar className="size-5 text-neutral-800" />
 								</div>
-								<h3 className="mt-5 font-bold font-satoshi text-xl text-neutral-900">
+								<h3 className="mt-5 font-bold font-satoshi text-neutral-900 text-xl">
 									Book a Live Demo
 								</h3>
-								<p className="mt-2 text-neutral-500 text-xs sm:text-sm leading-relaxed">
-									Schedule a 15-minute 1-on-1 walkthrough with an Edgecoms specialist
-									to see how our 7-app suite can lift your average order value and conversion rate.
+								<p className="mt-2 text-neutral-500 text-xs leading-relaxed sm:text-sm">
+									Schedule a 15-minute 1-on-1 walkthrough with an Edgecoms
+									specialist to see how our 7-app suite can lift your average
+									order value and conversion rate.
 								</p>
 							</div>
 
 							<div className="mt-8">
 								<a
+									className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-black px-5 py-3 font-semibold text-sm text-white shadow-xs transition-colors hover:bg-neutral-800"
 									href="https://cal.com"
-									target="_blank"
 									rel="noopener noreferrer"
-									className="inline-flex items-center justify-center gap-2 w-full rounded-lg bg-black px-5 py-3 font-semibold text-sm text-white shadow-xs transition-colors hover:bg-neutral-800"
+									target="_blank"
 								>
 									<span>Get a demo</span>
 									<ArrowRight className="size-4" />
@@ -168,24 +171,24 @@ export default function ContactPage() {
 						{/* Card 2: Send us an Email */}
 						<div className="flex flex-col justify-between rounded-2xl border border-neutral-200 bg-neutral-50/50 p-8 shadow-2xs transition-all hover:bg-neutral-50 hover:shadow-sm">
 							<div>
-								<div className="flex size-11 items-center justify-center rounded-xl bg-white border border-neutral-200/80 shadow-2xs">
+								<div className="flex size-11 items-center justify-center rounded-xl border border-neutral-200/80 bg-white shadow-2xs">
 									<Mail className="size-5 text-neutral-800" />
 								</div>
-								<h3 className="mt-5 font-bold font-satoshi text-xl text-neutral-900">
+								<h3 className="mt-5 font-bold font-satoshi text-neutral-900 text-xl">
 									Send us an Email
 								</h3>
-								<p className="mt-2 text-neutral-500 text-xs sm:text-sm leading-relaxed">
+								<p className="mt-2 text-neutral-500 text-xs leading-relaxed sm:text-sm">
 									Prefer email? Send your inquiry directly to our team and we'll
 									get back to you within 2 hours during business hours.
 								</p>
 
 								{/* Direct Email Links */}
-								<div className="mt-5 flex flex-col gap-2 text-xs sm:text-sm text-neutral-600">
+								<div className="mt-5 flex flex-col gap-2 text-neutral-600 text-xs sm:text-sm">
 									<div className="flex items-center justify-between border-neutral-200/80 border-b pb-2">
 										<span className="text-neutral-500">Support</span>
 										<a
-											href="mailto:support@edgecoms.com"
 											className="font-semibold text-neutral-900 hover:underline"
+											href="mailto:support@edgecoms.com"
 										>
 											support@edgecoms.com
 										</a>
@@ -193,8 +196,8 @@ export default function ContactPage() {
 									<div className="flex items-center justify-between border-neutral-200/80 border-b py-2">
 										<span className="text-neutral-500">Partnerships</span>
 										<a
-											href="mailto:partners@edgecoms.com"
 											className="font-semibold text-neutral-900 hover:underline"
+											href="mailto:partners@edgecoms.com"
 										>
 											partners@edgecoms.com
 										</a>
@@ -202,8 +205,8 @@ export default function ContactPage() {
 									<div className="flex items-center justify-between pt-1">
 										<span className="text-neutral-500">General Inquiries</span>
 										<a
-											href="mailto:hello@edgecoms.com"
 											className="font-semibold text-neutral-900 hover:underline"
+											href="mailto:hello@edgecoms.com"
 										>
 											hello@edgecoms.com
 										</a>
@@ -213,8 +216,8 @@ export default function ContactPage() {
 
 							<div className="mt-8">
 								<a
+									className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-neutral-200 bg-white px-5 py-3 font-semibold text-neutral-900 text-sm shadow-2xs transition-colors hover:bg-neutral-100"
 									href="mailto:hello@edgecoms.com"
-									className="inline-flex items-center justify-center gap-2 w-full rounded-lg border border-neutral-200 bg-white px-5 py-3 font-semibold text-sm text-neutral-900 shadow-2xs transition-colors hover:bg-neutral-100"
 								>
 									<span>Email us</span>
 									<Mail className="size-4 text-neutral-700" />

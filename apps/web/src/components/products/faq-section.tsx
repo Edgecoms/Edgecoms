@@ -49,16 +49,16 @@ export function FaqSection() {
 					</h2>
 
 					{/* Accordion List */}
-					<div className="mx-auto mt-10 max-w-xl text-left border-neutral-200/80 border-t border-b divide-y divide-neutral-200/80">
+					<div className="mx-auto mt-10 max-w-xl divide-y divide-neutral-200/80 border-neutral-200/80 border-t border-b text-left">
 						{FAQ_ITEMS.map((item, idx) => {
 							const isOpen = openIndex === idx;
 							return (
-								<div key={item.question} className="py-1">
+								<div className="py-1" key={item.question}>
 									<button
-										type="button"
-										onClick={() => toggleFaq(idx)}
 										aria-expanded={isOpen}
-										className="flex w-full items-center justify-between py-3.5 text-left font-medium text-xs text-neutral-900 transition-colors hover:text-neutral-600 sm:text-sm"
+										className="flex w-full items-center justify-between py-3.5 text-left font-medium text-neutral-900 text-xs transition-colors hover:text-neutral-600 sm:text-sm"
+										onClick={() => toggleFaq(idx)}
+										type="button"
 									>
 										<span>{item.question}</span>
 										<span className="ml-4 flex size-5 shrink-0 items-center justify-center text-neutral-500">
@@ -70,7 +70,7 @@ export function FaqSection() {
 										</span>
 									</button>
 									{isOpen && (
-										<div className="pb-4 pt-1 text-neutral-500 text-xs leading-relaxed sm:text-sm">
+										<div className="pt-1 pb-4 text-neutral-500 text-xs leading-relaxed sm:text-sm">
 											{item.answer}
 										</div>
 									)}

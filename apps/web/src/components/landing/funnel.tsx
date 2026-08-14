@@ -17,10 +17,7 @@ export function Funnel({ className, embedded = false }: FunnelProps) {
 		<div className="w-full overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-[0_8px_30px_-6px_rgba(0,0,0,0.08)]">
 			<dl className="grid grid-cols-3 divide-x divide-neutral-200 border-neutral-200 border-b bg-white">
 				{STAGES.map((stage) => (
-					<div
-						className="flex flex-col gap-0.5 px-5 py-3.5"
-						key={stage.label}
-					>
+					<div className="flex flex-col gap-0.5 px-5 py-3.5" key={stage.label}>
 						<dt className="font-medium text-[11px] text-neutral-400">
 							{stage.label}
 						</dt>
@@ -39,13 +36,7 @@ export function Funnel({ className, embedded = false }: FunnelProps) {
 					viewBox="0 0 300 100"
 				>
 					<defs>
-						<linearGradient
-							id="funnel-band-dub"
-							x1="0"
-							x2="1"
-							y1="0"
-							y2="0"
-						>
+						<linearGradient id="funnel-band-dub" x1="0" x2="1" y1="0" y2="0">
 							<stop offset="0%" stopColor="#2563EB" stopOpacity="0.85" />
 							<stop offset="50%" stopColor="#9333EA" stopOpacity="0.85" />
 							<stop offset="100%" stopColor="#0D9488" stopOpacity="0.85" />
@@ -72,11 +63,18 @@ export function Funnel({ className, embedded = false }: FunnelProps) {
 	);
 
 	if (embedded) {
-		return <div className={className ?? "mx-auto w-full max-w-[640px]"}>{card}</div>;
+		return (
+			<div className={className ?? "mx-auto w-full max-w-[640px]"}>{card}</div>
+		);
 	}
 
 	return (
-		<div className={className ?? "relative w-full border-neutral-200 border-t bg-[#F8FAFC] px-4 py-12 sm:px-8 sm:py-16"}>
+		<div
+			className={
+				className ??
+				"relative w-full border-neutral-200 border-t bg-[#F8FAFC] px-4 py-12 sm:px-8 sm:py-16"
+			}
+		>
 			<div className="mx-auto flex max-w-[640px] flex-col items-center gap-6">
 				{card}
 			</div>

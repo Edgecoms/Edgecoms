@@ -54,23 +54,23 @@ const UNIQUE_EDGE_APPS = [
 
 export function StartExcel() {
 	return (
-		<section className="relative w-full border-neutral-200 border-b bg-neutral-50/70 overflow-hidden">
+		<section className="relative w-full overflow-hidden border-neutral-200 border-b bg-neutral-50/70">
 			<Frame className="relative min-h-[440px] sm:min-h-[480px]">
 				{/* Right-side radial masked grid background */}
 				<div
 					aria-hidden="true"
-					className="pointer-events-none absolute inset-y-0 right-0 w-full sm:w-[60%] bg-[linear-gradient(to_right,rgba(0,0,0,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.06)_1px,transparent_1px)] [background-size:48px_48px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_90%)]"
+					className="pointer-events-none absolute inset-y-0 right-0 w-full bg-[linear-gradient(to_right,rgba(0,0,0,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.06)_1px,transparent_1px)] [background-size:48px_48px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_90%)] sm:w-[60%]"
 				/>
 
-				<div className="relative z-10 grid grid-cols-1 items-center px-6 py-14 sm:px-8 sm:py-20 md:grid-cols-12 min-h-[440px] sm:min-h-[480px] gap-8">
+				<div className="relative z-10 grid min-h-[440px] grid-cols-1 items-center gap-8 px-6 py-14 sm:min-h-[480px] sm:px-8 sm:py-20 md:grid-cols-12">
 					{/* Left Column: Headline and CTA button */}
-					<div className="flex flex-col justify-center items-start md:col-span-5 z-20">
+					<div className="z-20 flex flex-col items-start justify-center md:col-span-5">
 						<h2 className="font-bold font-satoshi text-3xl text-neutral-900 leading-[1.1] tracking-tight sm:text-4xl">
 							Start where great
 							<br />
 							companies excel
 						</h2>
-						<p className="mt-3 text-neutral-500 text-xs sm:text-sm leading-relaxed max-w-sm">
+						<p className="mt-3 max-w-sm text-neutral-500 text-xs leading-relaxed sm:text-sm">
 							Kickstart your partner program on the platform trusted by the
 							world's fastest-growing companies.
 						</p>
@@ -78,7 +78,7 @@ export function StartExcel() {
 						{/* Black CTA Pill Button */}
 						<div className="mt-6">
 							<Link
-								className="inline-flex items-center justify-center rounded-full bg-black px-6 py-2.5 font-medium text-xs text-white shadow-xs transition-all hover:bg-neutral-800 hover:shadow-md sm:text-sm"
+								className="inline-flex items-center justify-center rounded-full bg-black px-6 py-2.5 font-medium text-white text-xs shadow-xs transition-all hover:bg-neutral-800 hover:shadow-md sm:text-sm"
 								href={"/#apply" as Route}
 							>
 								Apply now
@@ -87,20 +87,20 @@ export function StartExcel() {
 					</div>
 
 					{/* Right Column: 7 Unique Edge App Icons (48px size, no duplicates, zero padding) */}
-					<div className="relative h-[340px] sm:h-[380px] w-full md:col-span-7">
+					<div className="relative h-[340px] w-full sm:h-[380px] md:col-span-7">
 						{UNIQUE_EDGE_APPS.map((app) => (
 							<div
-								className="absolute transition-transform duration-300 hover:scale-110 cursor-pointer z-10"
+								className="absolute z-10 cursor-pointer transition-transform duration-300 hover:scale-110"
 								key={app.name}
 								style={{
 									left: app.left,
 									top: app.top,
 								}}
 							>
-								<div className="size-14 sm:size-[65px] rounded-[16px] bg-white p-0 shadow-[0_12px_24px_-8px_rgba(0,0,0,0.18)] border border-neutral-200/80 overflow-hidden flex items-center justify-center">
+								<div className="flex size-14 items-center justify-center overflow-hidden rounded-[16px] border border-neutral-200/80 bg-white p-0 shadow-[0_12px_24px_-8px_rgba(0,0,0,0.18)] sm:size-[65px]">
 									<Image
 										alt={app.name}
-										className="size-full object-cover rounded-[16px]"
+										className="size-full rounded-[16px] object-cover"
 										height={48}
 										src={app.icon}
 										width={48}

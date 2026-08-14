@@ -1,3 +1,4 @@
+import { Globe } from "@edgecoms/ui/components/globe";
 import {
 	BarChart3,
 	Flag,
@@ -14,10 +15,10 @@ import Link from "next/link";
 import { CtaDark } from "@/components/landing/cta-dark";
 import { Frame } from "@/components/landing/frame";
 import { LogoCloud } from "@/components/landing/logo-cloud";
-import { Globe } from "@edgecoms/ui/components/globe";
 
 export const metadata: Metadata = {
-	title: "About Edgecoms · Turning Store Traffic Into Maximum Revenue Per Visitor",
+	title:
+		"About Edgecoms · Turning Store Traffic Into Maximum Revenue Per Visitor",
 	description:
 		"We're a dedicated, fully-remote global team building the ultimate 7-app Shopify suite. We help DTC brands lift average order value, boost conversion rates, and prove revenue moves with server-side attribution.",
 };
@@ -163,8 +164,8 @@ const COMPANY_VALUES = [
 		title: "Security by Design",
 		body: (
 			<>
-				Being an open-source company, we uphold trust and transparency in
-				every process. We also{" "}
+				Being an open-source company, we uphold trust and transparency in every
+				process. We also{" "}
 				<span className="underline decoration-neutral-400 decoration-dotted underline-offset-4">
 					regularly audit
 				</span>{" "}
@@ -229,16 +230,16 @@ export default function AboutPage() {
 
 						{/* Subtitle */}
 						<p className="mt-4 max-w-lg text-neutral-500 text-sm leading-relaxed sm:text-base">
-							We're building the all-in-one app suite to lift average order value,
-							boost conversion rates, and deliver accurate server-side attribution
-							for modern Shopify brands.
+							We're building the all-in-one app suite to lift average order
+							value, boost conversion rates, and deliver accurate server-side
+							attribution for modern Shopify brands.
 						</p>
 
 						{/* CTA Button */}
 						<div className="mt-6">
 							<Link
+								className="inline-flex items-center justify-center rounded-lg bg-black px-5 py-2 font-medium text-white text-xs shadow-xs transition-colors hover:bg-neutral-800 sm:text-sm"
 								href={"/#careers" as Route}
-								className="inline-flex items-center justify-center rounded-lg bg-black px-5 py-2 font-medium text-xs text-white shadow-xs transition-colors hover:bg-neutral-800 sm:text-sm"
 							>
 								View careers
 							</Link>
@@ -251,7 +252,7 @@ export default function AboutPage() {
 			<LogoCloud />
 
 			{/* SECTION 3: WHAT IS EDGECOMS & VIDEO CARD */}
-			<section className="relative w-full border-neutral-200 border-b bg-neutral-50/40 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]">
+			<section className="relative w-full border-neutral-200 border-b bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-neutral-50/40 [background-size:16px_16px]">
 				<Frame className="py-16 sm:py-20">
 					<div className="flex flex-col items-center px-6 text-center sm:px-8">
 						{/* Title */}
@@ -260,8 +261,9 @@ export default function AboutPage() {
 						</h2>
 
 						{/* Subtitle */}
-						<p className="mt-4 max-w-xl text-neutral-600 text-xs sm:text-sm leading-relaxed">
-							Edgecoms is a high-performance suite of 7 specialized Shopify apps. We power{" "}
+						<p className="mt-4 max-w-xl text-neutral-600 text-xs leading-relaxed sm:text-sm">
+							Edgecoms is a high-performance suite of 7 specialized Shopify
+							apps. We power{" "}
 							<span className="underline decoration-neutral-400 decoration-dotted underline-offset-4">
 								volume bundles
 							</span>
@@ -281,7 +283,7 @@ export default function AboutPage() {
 						</p>
 
 						{/* Video Banner Card */}
-						<div className="group relative mt-10 w-full max-w-2xl overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-900 shadow-xl cursor-pointer aspect-video">
+						<div className="group relative mt-10 aspect-video w-full max-w-2xl cursor-pointer overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-900 shadow-xl">
 							<Image
 								alt="Get to know Edgecoms"
 								className="size-full object-cover opacity-85 transition-opacity group-hover:opacity-100"
@@ -293,29 +295,32 @@ export default function AboutPage() {
 
 							{/* Bottom Left Info Pill */}
 							<div className="absolute bottom-4 left-4 z-10 flex items-center gap-2 rounded-lg bg-black/70 px-3 py-1.5 backdrop-blur-md">
-								<span className="font-semibold text-xs text-white">
+								<span className="font-semibold text-white text-xs">
 									Get to know Edgecoms with Founder Anurag Chandra
 								</span>
 							</div>
 
 							{/* Bottom Right Play Icon */}
-							<div className="absolute bottom-4 right-4 z-10 flex size-10 items-center justify-center rounded-full bg-white text-neutral-900 shadow-lg transition-transform duration-300 group-hover:scale-110">
+							<div className="absolute right-4 bottom-4 z-10 flex size-10 items-center justify-center rounded-full bg-white text-neutral-900 shadow-lg transition-transform duration-300 group-hover:scale-110">
 								<Play className="ml-0.5 size-4 fill-neutral-900" />
 							</div>
 						</div>
 
 						{/* Mission Statement */}
 						<div className="mt-16 max-w-xl text-center">
-							<h3 className="font-semibold font-satoshi text-2xl text-neutral-900 tracking-tight sm:text-3xl">
-								We're on a mission to maximize revenue per visitor for every Shopify store.
+							<h3 className="font-satoshi font-semibold text-2xl text-neutral-900 tracking-tight sm:text-3xl">
+								We're on a mission to maximize revenue per visitor for every
+								Shopify store.
 							</h3>
-							<p className="mt-4 text-neutral-500 text-xs sm:text-sm leading-relaxed">
-								Revenue per visitor is conversion rate times average order value. Most Shopify apps
-								bloat your theme code and slow down your store while focusing on only a single touchpoint.
+							<p className="mt-4 text-neutral-500 text-xs leading-relaxed sm:text-sm">
+								Revenue per visitor is conversion rate times average order
+								value. Most Shopify apps bloat your theme code and slow down
+								your store while focusing on only a single touchpoint.
 							</p>
-							<p className="mt-3 text-neutral-500 text-xs sm:text-sm leading-relaxed">
-								We're building Edgecoms with zero Liquid theme bloat and sub-50ms edge latency – giving
-								merchants a seamless suite where six apps directly lift revenue per visitor, and{" "}
+							<p className="mt-3 text-neutral-500 text-xs leading-relaxed sm:text-sm">
+								We're building Edgecoms with zero Liquid theme bloat and
+								sub-50ms edge latency – giving merchants a seamless suite where
+								six apps directly lift revenue per visitor, and{" "}
 								<span className="underline decoration-neutral-400 decoration-dotted underline-offset-4">
 									Trackproof
 								</span>{" "}
@@ -327,10 +332,10 @@ export default function AboutPage() {
 			</section>
 
 			{/* SECTION 4: OUR PEOPLE & TEAM GRID */}
-			<section className="relative w-full border-neutral-200 border-b bg-neutral-50/40 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]">
+			<section className="relative w-full border-neutral-200 border-b bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-neutral-50/40 [background-size:16px_16px]">
 				<Frame className="pt-16 pb-16 sm:pt-20 sm:pb-20">
 					{/* 3D WebGL Globe Visual matching Partners Page */}
-					<div className="relative flex h-[240px] w-full max-w-2xl items-center justify-center overflow-hidden sm:h-[270px] mx-auto mb-4">
+					<div className="relative mx-auto mb-4 flex h-[240px] w-full max-w-2xl items-center justify-center overflow-hidden sm:h-[270px]">
 						{/* 3D Globe Canvas with Bottom Gradient Fade Mask */}
 						<div
 							className="pointer-events-auto absolute top-0 flex size-[500px] cursor-grab items-center justify-center opacity-95 active:cursor-grabbing sm:size-[580px]"
@@ -378,25 +383,26 @@ export default function AboutPage() {
 						</p>
 
 						{/* Headline */}
-						<h2 className="mt-2 font-semibold font-satoshi text-2xl text-neutral-900 tracking-tight sm:text-3xl">
+						<h2 className="mt-2 font-satoshi font-semibold text-2xl text-neutral-900 tracking-tight sm:text-3xl">
 							We care deeply about the human link
 						</h2>
 
 						{/* Subtitle */}
-						<p className="mt-2 max-w-lg text-neutral-500 text-xs sm:text-sm leading-relaxed">
+						<p className="mt-2 max-w-lg text-neutral-500 text-xs leading-relaxed sm:text-sm">
 							Edgecoms is a fully-remote, small but mighty global team united by
-							speed, action, and a shared passion for reshaping marketing attribution.
+							speed, action, and a shared passion for reshaping marketing
+							attribution.
 						</p>
 					</div>
 
 					{/* Team Grid matching Image 1 with aligned baselines */}
-					<div className="mt-12 grid grid-cols-1 border-neutral-200 border-t border-b divide-y divide-neutral-200/80 bg-white/70 backdrop-blur-xs sm:grid-cols-2 lg:grid-cols-4 sm:divide-x sm:divide-y-0">
+					<div className="mt-12 grid grid-cols-1 divide-y divide-neutral-200/80 border-neutral-200 border-t border-b bg-white/70 backdrop-blur-xs sm:grid-cols-2 sm:divide-x sm:divide-y-0 lg:grid-cols-4">
 						{TEAM_MEMBERS.map((member) => (
 							<div
+								className="flex h-full flex-col items-center justify-between p-6 text-center transition-colors hover:bg-neutral-50/70"
 								key={member.name}
-								className="flex flex-col items-center justify-between p-6 text-center transition-colors hover:bg-neutral-50/70 h-full"
 							>
-								<div className="flex flex-col items-center w-full">
+								<div className="flex w-full flex-col items-center">
 									<div className="relative size-16 overflow-hidden rounded-full border border-neutral-200 shadow-2xs">
 										<Image
 											alt={member.name}
@@ -409,8 +415,8 @@ export default function AboutPage() {
 									<p className="mt-3 font-semibold text-neutral-900 text-sm">
 										{member.name}
 									</p>
-									<div className="mt-1 flex items-center justify-center min-h-[2.5rem]">
-										<p className="text-neutral-500 text-xs font-medium leading-snug max-w-[190px]">
+									<div className="mt-1 flex min-h-[2.5rem] items-center justify-center">
+										<p className="max-w-[190px] font-medium text-neutral-500 text-xs leading-snug">
 											{member.role}
 										</p>
 									</div>
@@ -459,7 +465,7 @@ export default function AboutPage() {
 			</section>
 
 			{/* SECTION 5: LIFE AT EDGECOMS PHOTO MOSAIC */}
-			<section className="relative w-full border-neutral-200 border-b bg-neutral-50/40 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]">
+			<section className="relative w-full border-neutral-200 border-b bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-neutral-50/40 [background-size:16px_16px]">
 				<Frame className="py-16 sm:py-20">
 					<div className="flex flex-col items-center px-6 text-center sm:px-8">
 						{/* Eyebrow */}
@@ -474,18 +480,18 @@ export default function AboutPage() {
 						</h2>
 
 						{/* Subtitle */}
-						<p className="mt-2 max-w-xl text-neutral-500 text-xs sm:text-sm leading-relaxed">
+						<p className="mt-2 max-w-xl text-neutral-500 text-xs leading-relaxed sm:text-sm">
 							We're builders from all corners of the world who care deeply about
-							our work, but we also know when to step back and enjoy life. Some of
-							our best ideas come when we're not staring at screens.
+							our work, but we also know when to step back and enjoy life. Some
+							of our best ideas come when we're not staring at screens.
 						</p>
 
 						{/* Photo Mosaic Grid matching Image 5 */}
-						<div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 max-w-4xl w-full">
+						<div className="mt-12 grid w-full max-w-4xl grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
 							{LIFE_PHOTOS.map((photo) => (
 								<div
+									className={`relative overflow-hidden rounded-2xl border-4 border-white bg-white shadow-lg transition-transform duration-300 hover:rotate-0 hover:scale-105 ${photo.rotation}`}
 									key={photo.alt}
-									className={`relative overflow-hidden rounded-2xl border-4 border-white bg-white shadow-lg transition-transform duration-300 hover:scale-105 hover:rotate-0 ${photo.rotation}`}
 								>
 									<div className="aspect-4/3 w-full overflow-hidden">
 										<Image
@@ -504,17 +510,17 @@ export default function AboutPage() {
 			</section>
 
 			{/* SECTION 6: OUR VALUES */}
-			<section className="relative w-full border-neutral-200 border-b bg-white overflow-hidden">
+			<section className="relative w-full overflow-hidden border-neutral-200 border-b bg-white">
 				<Frame>
 					{/* Top Cloud Graphic Header */}
 					<div className="relative flex flex-col items-center justify-center px-6 pt-16 pb-12 text-center sm:px-8 sm:pt-20">
 						{/* Cloud Glow Graphic */}
-						<div className="relative flex w-full max-w-md h-28 items-center justify-center mb-2">
+						<div className="relative mb-2 flex h-28 w-full max-w-md items-center justify-center">
 							<div
 								aria-hidden="true"
 								className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_50%_40%,rgba(56,189,248,0.22),transparent_75%)]"
 							/>
-							<div className="relative z-10 flex size-9 items-center justify-center rounded-full bg-white shadow-sm border border-neutral-200/80">
+							<div className="relative z-10 flex size-9 items-center justify-center rounded-full border border-neutral-200/80 bg-white shadow-sm">
 								<Flag className="size-4 text-neutral-800" />
 							</div>
 						</div>
@@ -525,21 +531,21 @@ export default function AboutPage() {
 					</div>
 
 					{/* 2x2 Values Grid matching reference image */}
-					<div className="grid grid-cols-1 border-neutral-200 border-t border-b divide-y divide-neutral-200 bg-white sm:grid-cols-2 sm:divide-y-0 sm:divide-x">
+					<div className="grid grid-cols-1 divide-y divide-neutral-200 border-neutral-200 border-t border-b bg-white sm:grid-cols-2 sm:divide-x sm:divide-y-0">
 						{COMPANY_VALUES.map((val, idx) => (
 							<div
-								key={val.number}
-								className={`flex flex-col p-8 sm:p-10 text-left transition-colors hover:bg-neutral-50/50 ${
-									idx >= 2 ? "sm:border-t border-neutral-200" : ""
+								className={`flex flex-col p-8 text-left transition-colors hover:bg-neutral-50/50 sm:p-10 ${
+									idx >= 2 ? "border-neutral-200 sm:border-t" : ""
 								}`}
+								key={val.number}
 							>
-								<span className="font-mono font-semibold text-xs text-orange-600 sm:text-sm">
+								<span className="font-mono font-semibold text-orange-600 text-xs sm:text-sm">
 									{val.number}
 								</span>
-								<h3 className="mt-3 font-semibold text-neutral-900 text-lg sm:text-xl">
+								<h3 className="mt-3 font-semibold text-lg text-neutral-900 sm:text-xl">
 									{val.title}
 								</h3>
-								<p className="mt-3 text-neutral-500 text-xs sm:text-sm leading-relaxed max-w-md">
+								<p className="mt-3 max-w-md text-neutral-500 text-xs leading-relaxed sm:text-sm">
 									{val.body}
 								</p>
 							</div>

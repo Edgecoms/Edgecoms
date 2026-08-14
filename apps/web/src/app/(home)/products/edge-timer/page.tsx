@@ -21,14 +21,26 @@ import { getProduct } from "@/lib/products";
 const product = getProduct("edge-timer");
 
 function EdgeTimerHeroSection() {
-	const [timeLeft, setTimeLeft] = useState({ hours: 2, minutes: 14, seconds: 55 });
+	const [timeLeft, setTimeLeft] = useState({
+		hours: 2,
+		minutes: 14,
+		seconds: 55,
+	});
 
 	useEffect(() => {
 		const interval = setInterval(() => {
 			setTimeLeft((prev) => {
-				if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
-				if (prev.minutes > 0) return { ...prev, minutes: 59, seconds: 59 };
-				return { hours: prev.hours > 0 ? prev.hours - 1 : 0, minutes: 59, seconds: 59 };
+				if (prev.seconds > 0) {
+					return { ...prev, seconds: prev.seconds - 1 };
+				}
+				if (prev.minutes > 0) {
+					return { ...prev, minutes: 59, seconds: 59 };
+				}
+				return {
+					hours: prev.hours > 0 ? prev.hours - 1 : 0,
+					minutes: 59,
+					seconds: 59,
+				};
 			});
 		}, 1000);
 		return () => clearInterval(interval);
@@ -50,35 +62,38 @@ function EdgeTimerHeroSection() {
 				/>
 
 				<div className="mx-auto max-w-[1080px] px-4 sm:px-6">
-					<div className="flex flex-col items-start text-left max-w-[540px] z-20 relative">
-						<span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200/80 bg-amber-50 px-3 py-1 font-semibold text-xs text-amber-800 shadow-2xs">
+					<div className="relative z-20 flex max-w-[540px] flex-col items-start text-left">
+						<span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200/80 bg-amber-50 px-3 py-1 font-semibold text-amber-800 text-xs shadow-2xs">
 							<span className="size-2 rounded-full bg-amber-500" />
 							{product?.name ?? "Edge Timer"}
 						</span>
 
-						<h1 className="mt-4 font-bold font-satoshi text-4xl sm:text-5xl lg:text-[52px] text-neutral-900 leading-[1.08] tracking-tight">
+						<h1 className="mt-4 font-bold font-satoshi text-4xl text-neutral-900 leading-[1.08] tracking-tight sm:text-5xl lg:text-[52px]">
 							{product?.tagline ?? "Give them a deadline. Watch CVR move."}
 						</h1>
 
-						<p className="mt-4 text-neutral-500 text-sm sm:text-base leading-relaxed max-w-[480px]">
+						<p className="mt-4 max-w-[480px] text-neutral-500 text-sm leading-relaxed sm:text-base">
 							{product?.heroLead ??
 								"Countdown timers on product pages, the cart, the announcement bar and collections, tied to deadlines that are actually real. Live in about five minutes, with no code and no theme edits."}
 						</p>
 
 						<div className="mt-6 flex items-center gap-3">
 							<a
-								href={product?.appStoreUrl ?? "https://apps.shopify.com/urgency-timer"}
-								target="_blank"
-								rel="noopener noreferrer"
 								className="inline-flex items-center justify-center rounded-lg bg-black px-5 py-2.5 font-semibold text-sm text-white shadow-xs transition-colors hover:bg-neutral-800"
+								href={
+									product?.appStoreUrl ??
+									"https://apps.shopify.com/urgency-timer"
+								}
+								rel="noopener noreferrer"
+								target="_blank"
 							>
 								Start for free
 							</a>
 							<a
+								className="inline-flex items-center justify-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 py-2.5 font-medium text-neutral-900 text-sm shadow-2xs transition-colors hover:bg-neutral-50"
 								href={BOOKING_URL}
-								target="_blank"
 								rel="noopener noreferrer"
-								className="inline-flex items-center justify-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 py-2.5 font-medium text-sm text-neutral-900 shadow-2xs transition-colors hover:bg-neutral-50"
+								target="_blank"
 							>
 								<Play className="size-3.5 fill-neutral-800 text-neutral-800" />
 								<span>Watch Demo</span>
@@ -87,40 +102,44 @@ function EdgeTimerHeroSection() {
 					</div>
 
 					{/* Live Countdown Timer Interactive Showcase Card */}
-					<div className="relative mt-10 sm:mt-6 w-full max-w-xl mx-auto rounded-3xl border border-neutral-200/90 bg-white shadow-xl p-6 sm:p-8">
+					<div className="relative mx-auto mt-10 w-full max-w-xl rounded-3xl border border-neutral-200/90 bg-white p-6 shadow-xl sm:mt-6 sm:p-8">
 						<div className="flex items-center justify-between border-neutral-200 border-b pb-4">
 							<div className="flex items-center gap-2">
 								<TimerIcon className="size-5 text-amber-600" />
-								<span className="font-bold text-neutral-900 text-sm">Flash Sale Announcement Bar</span>
+								<span className="font-bold text-neutral-900 text-sm">
+									Flash Sale Announcement Bar
+								</span>
 							</div>
-							<span className="rounded-full bg-amber-50 border border-amber-200 px-3 py-1 font-mono font-bold text-xs text-amber-700">
+							<span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 font-bold font-mono text-amber-700 text-xs">
 								+ 14% CVR Lift
 							</span>
 						</div>
 
 						{/* Timer Bar Banner Component */}
-						<div className="my-6 rounded-2xl bg-neutral-900 text-white p-4 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-4">
+						<div className="my-6 flex flex-col items-center justify-between gap-4 rounded-2xl bg-neutral-900 p-4 text-white shadow-lg sm:flex-row">
 							<div className="flex items-center gap-2">
-								<Flame className="size-5 text-amber-400 fill-amber-400" />
-								<span className="font-semibold text-xs sm:text-sm">Order in the next to ship today!</span>
+								<Flame className="size-5 fill-amber-400 text-amber-400" />
+								<span className="font-semibold text-xs sm:text-sm">
+									Order in the next to ship today!
+								</span>
 							</div>
 							<div className="flex items-center gap-2 font-mono">
-								<div className="flex flex-col items-center bg-neutral-800 px-2.5 py-1 rounded-lg border border-neutral-700">
-									<span className="font-bold text-base text-amber-400">
+								<div className="flex flex-col items-center rounded-lg border border-neutral-700 bg-neutral-800 px-2.5 py-1">
+									<span className="font-bold text-amber-400 text-base">
 										{String(timeLeft.hours).padStart(2, "0")}
 									</span>
 									<span className="text-[9px] text-neutral-400">HOURS</span>
 								</div>
 								<span className="font-bold text-amber-400 text-sm">:</span>
-								<div className="flex flex-col items-center bg-neutral-800 px-2.5 py-1 rounded-lg border border-neutral-700">
-									<span className="font-bold text-base text-amber-400">
+								<div className="flex flex-col items-center rounded-lg border border-neutral-700 bg-neutral-800 px-2.5 py-1">
+									<span className="font-bold text-amber-400 text-base">
 										{String(timeLeft.minutes).padStart(2, "0")}
 									</span>
 									<span className="text-[9px] text-neutral-400">MINS</span>
 								</div>
 								<span className="font-bold text-amber-400 text-sm">:</span>
-								<div className="flex flex-col items-center bg-neutral-800 px-2.5 py-1 rounded-lg border border-neutral-700">
-									<span className="font-bold text-base text-amber-400">
+								<div className="flex flex-col items-center rounded-lg border border-neutral-700 bg-neutral-800 px-2.5 py-1">
+									<span className="font-bold text-amber-400 text-base">
 										{String(timeLeft.seconds).padStart(2, "0")}
 									</span>
 									<span className="text-[9px] text-neutral-400">SECS</span>
@@ -130,16 +149,28 @@ function EdgeTimerHeroSection() {
 
 						<div className="grid grid-cols-3 gap-3 pt-2 text-center text-xs">
 							<div className="rounded-xl border border-neutral-200 bg-neutral-50/50 p-2.5">
-								<span className="text-[10px] text-neutral-400 block">Placement</span>
-								<span className="font-semibold text-neutral-800">PDP & Cart</span>
+								<span className="block text-[10px] text-neutral-400">
+									Placement
+								</span>
+								<span className="font-semibold text-neutral-800">
+									PDP & Cart
+								</span>
 							</div>
 							<div className="rounded-xl border border-neutral-200 bg-neutral-50/50 p-2.5">
-								<span className="text-[10px] text-neutral-400 block">Timer Mode</span>
-								<span className="font-semibold text-neutral-800">Evergreen</span>
+								<span className="block text-[10px] text-neutral-400">
+									Timer Mode
+								</span>
+								<span className="font-semibold text-neutral-800">
+									Evergreen
+								</span>
 							</div>
 							<div className="rounded-xl border border-neutral-200 bg-neutral-50/50 p-2.5">
-								<span className="text-[10px] text-neutral-400 block">Theme Load</span>
-								<span className="font-semibold text-emerald-700 font-mono">0ms Bloat</span>
+								<span className="block text-[10px] text-neutral-400">
+									Theme Load
+								</span>
+								<span className="font-mono font-semibold text-emerald-700">
+									0ms Bloat
+								</span>
 							</div>
 						</div>
 					</div>
@@ -166,16 +197,16 @@ function EdgeTimerFaqSection() {
 						Frequently asked questions
 					</h2>
 
-					<div className="mx-auto mt-10 max-w-xl text-left border-neutral-200/80 border-t border-b divide-y divide-neutral-200/80">
+					<div className="mx-auto mt-10 max-w-xl divide-y divide-neutral-200/80 border-neutral-200/80 border-t border-b text-left">
 						{faqItems.map((faq, idx) => {
 							const isOpen = openIndex === idx;
 							return (
-								<div key={faq.question} className="py-1">
+								<div className="py-1" key={faq.question}>
 									<button
-										type="button"
-										onClick={() => toggleFaq(idx)}
 										aria-expanded={isOpen}
-										className="flex w-full items-center justify-between py-3.5 text-left font-medium text-xs text-neutral-900 transition-colors hover:text-neutral-600 sm:text-sm"
+										className="flex w-full items-center justify-between py-3.5 text-left font-medium text-neutral-900 text-xs transition-colors hover:text-neutral-600 sm:text-sm"
+										onClick={() => toggleFaq(idx)}
+										type="button"
 									>
 										<span>{faq.question}</span>
 										<span className="ml-4 flex size-5 shrink-0 items-center justify-center text-neutral-500">
@@ -187,7 +218,7 @@ function EdgeTimerFaqSection() {
 										</span>
 									</button>
 									{isOpen && (
-										<div className="pb-4 pt-1 text-neutral-500 text-xs leading-relaxed sm:text-sm">
+										<div className="pt-1 pb-4 text-neutral-500 text-xs leading-relaxed sm:text-sm">
 											{faq.answer}
 										</div>
 									)}
@@ -202,7 +233,9 @@ function EdgeTimerFaqSection() {
 }
 
 export default function EdgeTimerPage() {
-	if (!product) return null;
+	if (!product) {
+		return null;
+	}
 
 	return (
 		<main className="min-h-screen bg-white">

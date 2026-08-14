@@ -38,35 +38,39 @@ function EdgeReviewsHeroSection() {
 				/>
 
 				<div className="mx-auto max-w-[1080px] px-4 sm:px-6">
-					<div className="flex flex-col items-start text-left max-w-[540px] z-20 relative">
-						<span className="inline-flex items-center gap-1.5 rounded-full border border-rose-200/80 bg-rose-50 px-3 py-1 font-semibold text-xs text-rose-700 shadow-2xs">
+					<div className="relative z-20 flex max-w-[540px] flex-col items-start text-left">
+						<span className="inline-flex items-center gap-1.5 rounded-full border border-rose-200/80 bg-rose-50 px-3 py-1 font-semibold text-rose-700 text-xs shadow-2xs">
 							<span className="size-2 rounded-full bg-rose-600" />
 							{product?.name ?? "Edge Reviews"}
 						</span>
 
-						<h1 className="mt-4 font-bold font-satoshi text-4xl sm:text-5xl lg:text-[52px] text-neutral-900 leading-[1.08] tracking-tight">
-							{product?.tagline ?? "Your product page doesn't close. Your last 200 buyers do."}
+						<h1 className="mt-4 font-bold font-satoshi text-4xl text-neutral-900 leading-[1.08] tracking-tight sm:text-5xl lg:text-[52px]">
+							{product?.tagline ??
+								"Your product page doesn't close. Your last 200 buyers do."}
 						</h1>
 
-						<p className="mt-4 text-neutral-500 text-sm sm:text-base leading-relaxed max-w-[480px]">
+						<p className="mt-4 max-w-[480px] text-neutral-500 text-sm leading-relaxed sm:text-base">
 							{product?.heroLead ??
 								"Collect photo and video reviews automatically after delivery, then put them where the decision actually happens: the product page, the collection grid, the cart, and Google's results."}
 						</p>
 
 						<div className="mt-6 flex items-center gap-3">
 							<a
-								href={product?.appStoreUrl ?? "https://apps.shopify.com/edge-reviews"}
-								target="_blank"
-								rel="noopener noreferrer"
 								className="inline-flex items-center justify-center rounded-lg bg-black px-5 py-2.5 font-semibold text-sm text-white shadow-xs transition-colors hover:bg-neutral-800"
+								href={
+									product?.appStoreUrl ??
+									"https://apps.shopify.com/edge-reviews"
+								}
+								rel="noopener noreferrer"
+								target="_blank"
 							>
 								Start for free
 							</a>
 							<a
+								className="inline-flex items-center justify-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 py-2.5 font-medium text-neutral-900 text-sm shadow-2xs transition-colors hover:bg-neutral-50"
 								href={BOOKING_URL}
-								target="_blank"
 								rel="noopener noreferrer"
-								className="inline-flex items-center justify-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 py-2.5 font-medium text-sm text-neutral-900 shadow-2xs transition-colors hover:bg-neutral-50"
+								target="_blank"
 							>
 								<Play className="size-3.5 fill-neutral-800 text-neutral-800" />
 								<span>Watch Demo</span>
@@ -75,73 +79,86 @@ function EdgeReviewsHeroSection() {
 					</div>
 
 					{/* Customer Photo & Video Review Gallery Wall UI Showcase */}
-					<div className="relative mt-10 sm:mt-6 w-full max-w-2xl mx-auto rounded-3xl border border-neutral-200/90 bg-white shadow-xl p-6 sm:p-8">
+					<div className="relative mx-auto mt-10 w-full max-w-2xl rounded-3xl border border-neutral-200/90 bg-white p-6 shadow-xl sm:mt-6 sm:p-8">
 						<div className="flex items-center justify-between border-neutral-200 border-b pb-4">
 							<div className="flex items-center gap-3">
-								<div className="flex text-amber-400 gap-0.5">
+								<div className="flex gap-0.5 text-amber-400">
 									{[...Array(5)].map((_, i) => (
-										<Star key={i.toString()} className="size-4 fill-amber-400" />
+										<Star
+											className="size-4 fill-amber-400"
+											key={i.toString()}
+										/>
 									))}
 								</div>
-								<span className="font-bold text-neutral-900 text-sm">4.9 out of 5.0</span>
-								<span className="text-xs text-neutral-400 font-mono">(1,280 reviews)</span>
+								<span className="font-bold text-neutral-900 text-sm">
+									4.9 out of 5.0
+								</span>
+								<span className="font-mono text-neutral-400 text-xs">
+									(1,280 reviews)
+								</span>
 							</div>
-							<span className="rounded-full bg-rose-50 border border-rose-200 px-3 py-1 font-mono font-bold text-xs text-rose-700">
+							<span className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1 font-bold font-mono text-rose-700 text-xs">
 								Google Rich Snippets Enabled
 							</span>
 						</div>
 
 						{/* Photo & Video Review Cards Grid */}
-						<div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+						<div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
 							{/* Card 1 */}
-							<div className="rounded-2xl border border-neutral-200 bg-neutral-50/40 p-4 shadow-2xs flex flex-col justify-between gap-3">
+							<div className="flex flex-col justify-between gap-3 rounded-2xl border border-neutral-200 bg-neutral-50/40 p-4 shadow-2xs">
 								<div className="flex items-center justify-between">
 									<div className="flex items-center gap-2">
-										<div className="size-8 rounded-full bg-neutral-900 text-white font-bold text-xs flex items-center justify-center">
+										<div className="flex size-8 items-center justify-center rounded-full bg-neutral-900 font-bold text-white text-xs">
 											SL
 										</div>
 										<div>
-											<div className="font-bold text-xs text-neutral-900">Sarah Jenkins</div>
-											<div className="flex items-center gap-1 text-[10px] text-emerald-700 font-medium">
+											<div className="font-bold text-neutral-900 text-xs">
+												Sarah Jenkins
+											</div>
+											<div className="flex items-center gap-1 font-medium text-[10px] text-emerald-700">
 												<ShieldCheck className="size-3" /> Verified Buyer
 											</div>
 										</div>
 									</div>
 									<div className="flex text-amber-400 text-xs">★★★★★</div>
 								</div>
-								<p className="text-xs text-neutral-600 leading-relaxed italic">
-									"The build quality blew me away. Arrived 2 days early and works even better than expected!"
+								<p className="text-neutral-600 text-xs italic leading-relaxed">
+									"The build quality blew me away. Arrived 2 days early and
+									works even better than expected!"
 								</p>
-								<div className="flex items-center justify-between text-[10px] text-neutral-400 pt-2 border-neutral-200/60 border-t">
+								<div className="flex items-center justify-between border-neutral-200/60 border-t pt-2 text-[10px] text-neutral-400">
 									<span>Purchased 3 days ago</span>
-									<span className="flex items-center gap-1 text-neutral-600 font-medium cursor-pointer">
+									<span className="flex cursor-pointer items-center gap-1 font-medium text-neutral-600">
 										<ThumbsUp className="size-3" /> Helpful (24)
 									</span>
 								</div>
 							</div>
 
 							{/* Card 2 */}
-							<div className="rounded-2xl border border-neutral-200 bg-neutral-50/40 p-4 shadow-2xs flex flex-col justify-between gap-3">
+							<div className="flex flex-col justify-between gap-3 rounded-2xl border border-neutral-200 bg-neutral-50/40 p-4 shadow-2xs">
 								<div className="flex items-center justify-between">
 									<div className="flex items-center gap-2">
-										<div className="size-8 rounded-full bg-purple-700 text-white font-bold text-xs flex items-center justify-center">
+										<div className="flex size-8 items-center justify-center rounded-full bg-purple-700 font-bold text-white text-xs">
 											MT
 										</div>
 										<div>
-											<div className="font-bold text-xs text-neutral-900">Marcus Vance</div>
-											<div className="flex items-center gap-1 text-[10px] text-emerald-700 font-medium">
+											<div className="font-bold text-neutral-900 text-xs">
+												Marcus Vance
+											</div>
+											<div className="flex items-center gap-1 font-medium text-[10px] text-emerald-700">
 												<ShieldCheck className="size-3" /> Verified Buyer
 											</div>
 										</div>
 									</div>
 									<div className="flex text-amber-400 text-xs">★★★★★</div>
 								</div>
-								<p className="text-xs text-neutral-600 leading-relaxed italic">
-									"Absolutley essential for our daily routine now. Wouldn't buy from any other store."
+								<p className="text-neutral-600 text-xs italic leading-relaxed">
+									"Absolutley essential for our daily routine now. Wouldn't buy
+									from any other store."
 								</p>
-								<div className="flex items-center justify-between text-[10px] text-neutral-400 pt-2 border-neutral-200/60 border-t">
+								<div className="flex items-center justify-between border-neutral-200/60 border-t pt-2 text-[10px] text-neutral-400">
 									<span>Purchased 1 week ago</span>
-									<span className="flex items-center gap-1 text-neutral-600 font-medium cursor-pointer">
+									<span className="flex cursor-pointer items-center gap-1 font-medium text-neutral-600">
 										<ThumbsUp className="size-3" /> Helpful (18)
 									</span>
 								</div>
@@ -171,16 +188,16 @@ function EdgeReviewsFaqSection() {
 						Frequently asked questions
 					</h2>
 
-					<div className="mx-auto mt-10 max-w-xl text-left border-neutral-200/80 border-t border-b divide-y divide-neutral-200/80">
+					<div className="mx-auto mt-10 max-w-xl divide-y divide-neutral-200/80 border-neutral-200/80 border-t border-b text-left">
 						{faqItems.map((faq, idx) => {
 							const isOpen = openIndex === idx;
 							return (
-								<div key={faq.question} className="py-1">
+								<div className="py-1" key={faq.question}>
 									<button
-										type="button"
-										onClick={() => toggleFaq(idx)}
 										aria-expanded={isOpen}
-										className="flex w-full items-center justify-between py-3.5 text-left font-medium text-xs text-neutral-900 transition-colors hover:text-neutral-600 sm:text-sm"
+										className="flex w-full items-center justify-between py-3.5 text-left font-medium text-neutral-900 text-xs transition-colors hover:text-neutral-600 sm:text-sm"
+										onClick={() => toggleFaq(idx)}
+										type="button"
 									>
 										<span>{faq.question}</span>
 										<span className="ml-4 flex size-5 shrink-0 items-center justify-center text-neutral-500">
@@ -192,7 +209,7 @@ function EdgeReviewsFaqSection() {
 										</span>
 									</button>
 									{isOpen && (
-										<div className="pb-4 pt-1 text-neutral-500 text-xs leading-relaxed sm:text-sm">
+										<div className="pt-1 pb-4 text-neutral-500 text-xs leading-relaxed sm:text-sm">
 											{faq.answer}
 										</div>
 									)}
@@ -207,7 +224,9 @@ function EdgeReviewsFaqSection() {
 }
 
 export default function EdgeReviewsPage() {
-	if (!product) return null;
+	if (!product) {
+		return null;
+	}
 
 	return (
 		<main className="min-h-screen bg-white">

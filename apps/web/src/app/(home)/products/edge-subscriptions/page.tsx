@@ -42,35 +42,38 @@ function EdgeSubscriptionsHeroSection() {
 				/>
 
 				<div className="mx-auto max-w-[1080px] px-4 sm:px-6">
-					<div className="flex flex-col items-start text-left max-w-[540px] z-20 relative">
-						<span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200/80 bg-emerald-50 px-3 py-1 font-semibold text-xs text-emerald-700 shadow-2xs">
+					<div className="relative z-20 flex max-w-[540px] flex-col items-start text-left">
+						<span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200/80 bg-emerald-50 px-3 py-1 font-semibold text-emerald-700 text-xs shadow-2xs">
 							<span className="size-2 rounded-full bg-emerald-600" />
 							{product?.name ?? "Edge Subscriptions"}
 						</span>
 
-						<h1 className="mt-4 font-bold font-satoshi text-4xl sm:text-5xl lg:text-[52px] text-neutral-900 leading-[1.08] tracking-tight">
+						<h1 className="mt-4 font-bold font-satoshi text-4xl text-neutral-900 leading-[1.08] tracking-tight sm:text-5xl lg:text-[52px]">
 							{product?.tagline ?? "Turn one sale into twelve."}
 						</h1>
 
-						<p className="mt-4 text-neutral-500 text-sm sm:text-base leading-relaxed max-w-[480px]">
+						<p className="mt-4 max-w-[480px] text-neutral-500 text-sm leading-relaxed sm:text-base">
 							{product?.heroLead ??
 								"Subscribe-and-save on any product, a customer portal people actually use instead of emailing you, and dunning that recovers the subscription revenue most stores quietly lose to expired cards."}
 						</p>
 
 						<div className="mt-6 flex items-center gap-3">
 							<a
-								href={product?.appStoreUrl ?? "https://apps.shopify.com/edge-subscription"}
-								target="_blank"
-								rel="noopener noreferrer"
 								className="inline-flex items-center justify-center rounded-lg bg-black px-5 py-2.5 font-semibold text-sm text-white shadow-xs transition-colors hover:bg-neutral-800"
+								href={
+									product?.appStoreUrl ??
+									"https://apps.shopify.com/edge-subscription"
+								}
+								rel="noopener noreferrer"
+								target="_blank"
 							>
 								Start for free
 							</a>
 							<a
+								className="inline-flex items-center justify-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 py-2.5 font-medium text-neutral-900 text-sm shadow-2xs transition-colors hover:bg-neutral-50"
 								href={BOOKING_URL}
-								target="_blank"
 								rel="noopener noreferrer"
-								className="inline-flex items-center justify-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 py-2.5 font-medium text-sm text-neutral-900 shadow-2xs transition-colors hover:bg-neutral-50"
+								target="_blank"
 							>
 								<Play className="size-3.5 fill-neutral-800 text-neutral-800" />
 								<span>Watch Demo</span>
@@ -79,43 +82,51 @@ function EdgeSubscriptionsHeroSection() {
 					</div>
 
 					{/* Subscribe & Save Interactive Portal Showcase */}
-					<div className="relative mt-10 sm:mt-6 w-full max-w-xl mx-auto rounded-3xl border border-neutral-200/90 bg-white shadow-xl p-6 sm:p-8">
+					<div className="relative mx-auto mt-10 w-full max-w-xl rounded-3xl border border-neutral-200/90 bg-white p-6 shadow-xl sm:mt-6 sm:p-8">
 						<div className="flex items-center justify-between border-neutral-200 border-b pb-4">
 							<div className="flex items-center gap-2 font-bold text-neutral-900 text-sm">
 								<RotateCw className="size-4 text-emerald-600" />
 								<span>Subscribe & Save Engine</span>
 							</div>
-							<span className="rounded-full bg-emerald-50 border border-emerald-200 px-3 py-1 font-mono font-bold text-xs text-emerald-700">
+							<span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 font-bold font-mono text-emerald-700 text-xs">
 								0% Transaction Fee
 							</span>
 						</div>
 
 						{/* Subscription Plan Picker */}
 						<div className="mt-6 flex flex-col gap-3">
-							<div className="rounded-2xl border-2 border-emerald-600 bg-emerald-50/40 p-4 flex items-center justify-between">
+							<div className="flex items-center justify-between rounded-2xl border-2 border-emerald-600 bg-emerald-50/40 p-4">
 								<div className="flex items-center gap-3">
-									<div className="size-5 rounded-full border-2 border-emerald-600 bg-emerald-600 text-white flex items-center justify-center">
+									<div className="flex size-5 items-center justify-center rounded-full border-2 border-emerald-600 bg-emerald-600 text-white">
 										<Check className="size-3 stroke-[3]" />
 									</div>
 									<div>
-										<div className="font-bold text-neutral-900 text-sm flex items-center gap-2">
+										<div className="flex items-center gap-2 font-bold text-neutral-900 text-sm">
 											<span>Subscribe & Save 15%</span>
-											<span className="rounded bg-emerald-200 text-emerald-800 px-1.5 py-0.2 text-[9px] font-bold">
+											<span className="rounded bg-emerald-200 px-1.5 py-0.2 font-bold text-[9px] text-emerald-800">
 												RECOMMENDED
 											</span>
 										</div>
-										<div className="text-xs text-neutral-500">Auto-refills delivered on your schedule</div>
+										<div className="text-neutral-500 text-xs">
+											Auto-refills delivered on your schedule
+										</div>
 									</div>
 								</div>
 								<div className="text-right">
-									<div className="font-mono font-bold text-neutral-900 text-base">$34.00</div>
-									<div className="font-mono text-[10px] text-neutral-400 line-through">$40.00</div>
+									<div className="font-bold font-mono text-base text-neutral-900">
+										$34.00
+									</div>
+									<div className="font-mono text-[10px] text-neutral-400 line-through">
+										$40.00
+									</div>
 								</div>
 							</div>
 
 							{/* Delivery Frequency Options */}
-							<div className="p-4 rounded-2xl border border-neutral-200 bg-white flex flex-col gap-2">
-								<span className="text-xs font-semibold text-neutral-700">Delivery Frequency</span>
+							<div className="flex flex-col gap-2 rounded-2xl border border-neutral-200 bg-white p-4">
+								<span className="font-semibold text-neutral-700 text-xs">
+									Delivery Frequency
+								</span>
 								<div className="grid grid-cols-3 gap-2">
 									{[
 										{ days: "30", label: "Every 30 Days" },
@@ -123,14 +134,14 @@ function EdgeSubscriptionsHeroSection() {
 										{ days: "90", label: "Every 90 Days" },
 									].map((opt) => (
 										<button
-											key={opt.days}
-											type="button"
-											onClick={() => setFrequency(opt.days)}
-											className={`py-2 rounded-xl border text-xs font-medium text-center transition-all ${
+											className={`rounded-xl border py-2 text-center font-medium text-xs transition-all ${
 												frequency === opt.days
-													? "border-emerald-600 bg-emerald-600 text-white shadow-2xs font-semibold"
+													? "border-emerald-600 bg-emerald-600 font-semibold text-white shadow-2xs"
 													: "border-neutral-200 bg-neutral-50 text-neutral-700 hover:bg-neutral-100"
 											}`}
+											key={opt.days}
+											onClick={() => setFrequency(opt.days)}
+											type="button"
 										>
 											{opt.label}
 										</button>
@@ -140,9 +151,10 @@ function EdgeSubscriptionsHeroSection() {
 						</div>
 
 						{/* Customer Portal Management Controls */}
-						<div className="mt-4 pt-4 border-neutral-100 border-t flex items-center justify-between text-xs text-neutral-500">
-							<span className="flex items-center gap-1 text-emerald-700 font-semibold">
-								<ShieldCheck className="size-4" /> Self-serve customer portal: Skip, pause, or cancel anytime
+						<div className="mt-4 flex items-center justify-between border-neutral-100 border-t pt-4 text-neutral-500 text-xs">
+							<span className="flex items-center gap-1 font-semibold text-emerald-700">
+								<ShieldCheck className="size-4" /> Self-serve customer portal:
+								Skip, pause, or cancel anytime
 							</span>
 						</div>
 					</div>
@@ -169,16 +181,16 @@ function EdgeSubscriptionsFaqSection() {
 						Frequently asked questions
 					</h2>
 
-					<div className="mx-auto mt-10 max-w-xl text-left border-neutral-200/80 border-t border-b divide-y divide-neutral-200/80">
+					<div className="mx-auto mt-10 max-w-xl divide-y divide-neutral-200/80 border-neutral-200/80 border-t border-b text-left">
 						{faqItems.map((faq, idx) => {
 							const isOpen = openIndex === idx;
 							return (
-								<div key={faq.question} className="py-1">
+								<div className="py-1" key={faq.question}>
 									<button
-										type="button"
-										onClick={() => toggleFaq(idx)}
 										aria-expanded={isOpen}
-										className="flex w-full items-center justify-between py-3.5 text-left font-medium text-xs text-neutral-900 transition-colors hover:text-neutral-600 sm:text-sm"
+										className="flex w-full items-center justify-between py-3.5 text-left font-medium text-neutral-900 text-xs transition-colors hover:text-neutral-600 sm:text-sm"
+										onClick={() => toggleFaq(idx)}
+										type="button"
 									>
 										<span>{faq.question}</span>
 										<span className="ml-4 flex size-5 shrink-0 items-center justify-center text-neutral-500">
@@ -190,7 +202,7 @@ function EdgeSubscriptionsFaqSection() {
 										</span>
 									</button>
 									{isOpen && (
-										<div className="pb-4 pt-1 text-neutral-500 text-xs leading-relaxed sm:text-sm">
+										<div className="pt-1 pb-4 text-neutral-500 text-xs leading-relaxed sm:text-sm">
 											{faq.answer}
 										</div>
 									)}
@@ -205,7 +217,9 @@ function EdgeSubscriptionsFaqSection() {
 }
 
 export default function EdgeSubscriptionsPage() {
-	if (!product) return null;
+	if (!product) {
+		return null;
+	}
 
 	return (
 		<main className="min-h-screen bg-white">

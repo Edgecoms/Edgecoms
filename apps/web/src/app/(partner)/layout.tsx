@@ -1,9 +1,19 @@
 import { auth } from "@edgecoms/auth";
-import type { Route } from "next";
+import type { Metadata, Route } from "next";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import { PortalShell } from "@/components/portal/portal-shell";
+
+/**
+ * One title for every partner-portal screen. The portal is behind auth and must
+ * never be indexed, so `robots` is set here rather than relying on the route
+ * being unlinked.
+ */
+export const metadata: Metadata = {
+	title: { default: "Partner portal · Edge", template: "%s · Edge Partners" },
+	robots: { follow: false, index: false },
+};
 
 const PARTNER_NAV = [
 	{ href: "/partner", label: "Dashboard" },

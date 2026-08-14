@@ -1,27 +1,4 @@
-import {
-	AlertTriangle,
-	ArrowUpRight,
-	Check,
-	ChevronRight,
-	Clock,
-	CreditCard,
-	DollarSign,
-	ExternalLink,
-	Globe,
-	Layers,
-	LineChart,
-	Lock,
-	MessageSquare,
-	RefreshCw,
-	ShieldAlert,
-	ShoppingBag,
-	Sparkles,
-	Star,
-	TrendingUp,
-	Users,
-	Wallet,
-	Zap,
-} from "lucide-react";
+import { Clock, Globe, LineChart, ShoppingBag, Star } from "lucide-react";
 import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";

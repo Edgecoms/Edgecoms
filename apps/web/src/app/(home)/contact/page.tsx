@@ -10,6 +10,7 @@ import {
 import type { Metadata } from "next";
 import { CtaDark } from "@/components/landing/cta-dark";
 import { Frame } from "@/components/landing/frame";
+import { BOOKING_LABEL, BOOKING_URL } from "@/lib/booking";
 
 export const metadata: Metadata = {
 	title: "Contact Us · Edgecoms",
@@ -158,11 +159,11 @@ export default function ContactPage() {
 							<div className="mt-8">
 								<a
 									className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-black px-5 py-3 font-semibold text-sm text-white shadow-xs transition-colors hover:bg-neutral-800"
-									href="https://cal.com"
+									href={BOOKING_URL}
 									rel="noopener noreferrer"
 									target="_blank"
 								>
-									<span>Get a demo</span>
+									<span>{BOOKING_LABEL}</span>
 									<ArrowRight className="size-4" />
 								</a>
 							</div>

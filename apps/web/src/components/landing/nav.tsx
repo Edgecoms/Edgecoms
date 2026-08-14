@@ -21,12 +21,9 @@ import {
 	BookOpen,
 	Briefcase,
 	ChevronDown,
-	FileText,
 	HelpCircle,
-	ListFilter,
 	Mail,
 	Menu,
-	Sparkles,
 	Users,
 	X,
 } from "lucide-react";
@@ -371,49 +368,6 @@ function ResourceMenuPanel() {
 					</div>
 				</div>
 			</div>
-		</div>
-	);
-}
-
-function MenuPanel({
-	items,
-	wide,
-}: {
-	items: readonly MenuItem[];
-	wide: boolean;
-}) {
-	return (
-		<div
-			className={cn(
-				"grid gap-1 rounded-xl border border-neutral-200 bg-white p-2 shadow-[0_8px_30px_rgba(0,0,0,0.08)]",
-				wide ? "w-[520px] grid-cols-2" : "w-[320px] grid-cols-1"
-			)}
-		>
-			{items.map((item) => (
-				<Link
-					className="flex items-start gap-3 rounded-lg p-2.5 transition-colors hover:bg-neutral-50"
-					href={item.href as Route}
-					key={item.label}
-				>
-					{item.icon ? (
-						<Image
-							alt=""
-							className="mt-0.5 size-7 shrink-0 rounded-[7px] border border-neutral-200"
-							height={64}
-							src={item.icon}
-							width={64}
-						/>
-					) : null}
-					<span className="flex flex-col gap-0.5">
-						<span className="font-medium text-[14px] text-neutral-900">
-							{item.label}
-						</span>
-						<span className="text-[13px] text-neutral-500 leading-snug">
-							{item.description}
-						</span>
-					</span>
-				</Link>
-			))}
 		</div>
 	);
 }

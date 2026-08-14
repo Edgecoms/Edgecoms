@@ -1,16 +1,6 @@
 "use client";
 
-import {
-	Clock,
-	Flame,
-	Minus,
-	Play,
-	Plus,
-	ShieldAlert,
-	Sparkles,
-	Timer as TimerIcon,
-	Zap,
-} from "lucide-react";
+import { Flame, Minus, Play, Plus, Timer as TimerIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { CtaDark } from "@/components/landing/cta-dark";
 import { Frame } from "@/components/landing/frame";

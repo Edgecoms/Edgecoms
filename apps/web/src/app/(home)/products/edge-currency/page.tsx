@@ -1,16 +1,6 @@
 "use client";
 
-import {
-	ArrowRight,
-	Check,
-	Coins,
-	Globe,
-	Minus,
-	Play,
-	Plus,
-	RefreshCw,
-	Sparkles,
-} from "lucide-react";
+import { Globe, Minus, Play, Plus } from "lucide-react";
 import { useState } from "react";
 import { CtaDark } from "@/components/landing/cta-dark";
 import { Frame } from "@/components/landing/frame";

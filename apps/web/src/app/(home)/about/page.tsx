@@ -1,9 +1,7 @@
 import { Globe } from "@edgecoms/ui/components/globe";
 import {
-	BarChart3,
 	Flag,
 	Heart,
-	Link as LinkIcon,
 	Play,
 	ShoppingBag,
 	TrendingUp,

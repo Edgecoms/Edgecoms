@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { AppsField } from "@/components/landing/apps-field";
 import { CtaDark } from "@/components/landing/cta-dark";
 import type { Feature } from "@/components/landing/feature-tabs";
-import { Funnel } from "@/components/landing/funnel";
 import { Hero } from "@/components/landing/hero";
 import { Integrations } from "@/components/landing/integrations";
 import { LogoCloud } from "@/components/landing/logo-cloud";
@@ -131,9 +130,7 @@ export default function HomePage() {
 				pillar="results"
 				quote={RESULT_QUOTE}
 				title="Measure what matters"
-			>
-				<Funnel />
-			</PillarSection>
+			/>
 
 			<Integrations />
 

@@ -1,18 +1,6 @@
 "use client";
 
-import {
-	ArrowRight,
-	Check,
-	ChevronRight,
-	Lock,
-	Minus,
-	Plus,
-	ShieldCheck,
-	ShoppingBag,
-	Sparkles,
-	Truck,
-	X,
-} from "lucide-react";
+import { Lock, Minus, Plus, ShoppingBag, Truck, X } from "lucide-react";
 import { useState } from "react";
 import { CtaDark } from "@/components/landing/cta-dark";
 import { Frame } from "@/components/landing/frame";

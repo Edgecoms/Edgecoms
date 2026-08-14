@@ -39,7 +39,8 @@ export function PillarSection({
 	quote,
 	title,
 }: {
-	children: ReactNode;
+	/** The section's visual. Optional: a pillar can stand on its features alone. */
+	children?: ReactNode;
 	cta: string;
 	ctaHref: string;
 	description: string;
@@ -68,7 +69,7 @@ export function PillarSection({
 				</div>
 			</Frame>
 
-			<Frame>{children}</Frame>
+			{children ? <Frame>{children}</Frame> : null}
 
 			<Frame>
 				<FeatureTabs features={features} pillar={pillar} />

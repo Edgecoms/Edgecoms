@@ -2,34 +2,18 @@
 
 import {
 	Activity,
-	ArrowRight,
-	Calendar,
-	Check,
 	CheckCircle2,
-	ChevronDown,
-	ChevronRight,
 	Code,
-	Database,
-	Download,
-	Eye,
-	Filter,
-	Globe,
 	Minus,
 	Play,
 	Plus,
 	ShieldCheck,
-	Sparkles,
-	TrendingUp,
-	XCircle,
 } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
 import { useState } from "react";
 import { CtaDark } from "@/components/landing/cta-dark";
 import { Frame } from "@/components/landing/frame";
-import { Funnel } from "@/components/landing/funnel";
 import { LogoCloud } from "@/components/landing/logo-cloud";
-import { BOOKING_LABEL, BOOKING_URL } from "@/lib/booking";
+import { BOOKING_URL } from "@/lib/booking";
 import { getProduct } from "@/lib/products";
 
 const product = getProduct("trackproof");
@@ -129,8 +113,11 @@ function TrackproofHeroSection() {
 							<span>1,000</span>
 						</div>
 
-						{/* SVG Curved Chart Lines matching exact trajectory in image */}
+						{/* Decorative chart lines. The figures they trace are printed in
+						    the labels beside them, so the shape carries nothing a screen
+						    reader needs. */}
 						<svg
+							aria-hidden="true"
 							className="absolute inset-0 h-full w-full overflow-visible"
 							fill="none"
 							preserveAspectRatio="none"
@@ -276,635 +263,6 @@ function TrackproofHeroSection() {
 									<span className="font-mono text-neutral-600">Jan 2025</span>
 								</div>
 							</div>
-						</div>
-					</div>
-				</div>
-			</Frame>
-		</section>
-	);
-}
-
-function RealTimeAnalyticsSection() {
-	const [activeTab, setActiveTab] = useState<"clicks" | "leads" | "sales">(
-		"clicks"
-	);
-
-	return (
-		<section className="relative w-full border-neutral-200 border-b bg-white">
-			<Frame className="py-16 sm:py-24">
-				{/* Header */}
-				<div className="flex flex-col items-center px-6 text-center sm:px-8">
-					<span className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 font-semibold text-neutral-700 text-xs shadow-2xs">
-						<TrendingUp className="size-3.5 text-neutral-700" />
-						Real-time Analytics
-					</span>
-					<h2 className="mt-4 font-bold font-satoshi text-3xl text-neutral-900 tracking-tight sm:text-4xl">
-						Success at a glance
-					</h2>
-					<p className="mt-3 max-w-lg text-neutral-500 text-sm leading-relaxed sm:text-base">
-						With our powerful real-time analytics, you can focus on what truly
-						matters for your marketing attribution.
-					</p>
-
-					<div className="mt-6 flex items-center gap-3">
-						<a
-							className="inline-flex items-center justify-center rounded-lg bg-black px-4 py-2 font-semibold text-white text-xs shadow-xs transition-colors hover:bg-neutral-800"
-							href="/contact"
-						>
-							Learn more
-						</a>
-						<a
-							className="inline-flex items-center justify-center rounded-lg border border-neutral-200 bg-white px-4 py-2 font-medium text-neutral-900 text-xs shadow-2xs transition-colors hover:bg-neutral-50"
-							href={BOOKING_URL}
-							rel="noopener noreferrer"
-							target="_blank"
-						>
-							Live demo
-						</a>
-					</div>
-				</div>
-
-				{/* Interactive Analytics Card matching Image 1 */}
-				<div className="mx-auto mt-14 max-w-4xl overflow-hidden rounded-3xl border border-neutral-200/90 bg-white shadow-lg">
-					{/* 3 Metric Tabs */}
-					<div className="grid grid-cols-3 divide-x divide-neutral-200 border-neutral-200 border-b bg-neutral-50/50">
-						{/* Tab 1: Clicks */}
-						<button
-							className={`relative flex flex-col justify-between p-6 text-left transition-colors ${
-								activeTab === "clicks"
-									? "bg-white text-neutral-900"
-									: "text-neutral-500 hover:bg-neutral-50"
-							}`}
-							onClick={() => setActiveTab("clicks")}
-							type="button"
-						>
-							{activeTab === "clicks" ? (
-								<span className="absolute right-0 bottom-0 left-0 h-0.5 bg-black" />
-							) : null}
-							<div className="flex items-center justify-between font-medium text-neutral-500 text-xs">
-								<span className="flex items-center gap-1.5">
-									<span className="size-2 rounded-full bg-blue-500" /> Clicks
-								</span>
-								<ChevronRight className="size-3.5 text-neutral-300" />
-							</div>
-							<div className="mt-3 font-bold font-mono text-2xl text-neutral-900">
-								109,400
-							</div>
-						</button>
-
-						{/* Tab 2: Leads */}
-						<button
-							className={`relative flex flex-col justify-between p-6 text-left transition-colors ${
-								activeTab === "leads"
-									? "bg-white text-neutral-900"
-									: "text-neutral-500 hover:bg-neutral-50"
-							}`}
-							onClick={() => setActiveTab("leads")}
-							type="button"
-						>
-							{activeTab === "leads" ? (
-								<span className="absolute right-0 bottom-0 left-0 h-0.5 bg-black" />
-							) : null}
-							<div className="flex items-center justify-between font-medium text-neutral-500 text-xs">
-								<span className="flex items-center gap-1.5">
-									<span className="size-2 rounded-full bg-purple-500" /> Leads
-								</span>
-								<ChevronRight className="size-3.5 text-neutral-300" />
-							</div>
-							<div className="mt-3 font-bold font-mono text-2xl text-neutral-900">
-								2,182
-							</div>
-						</button>
-
-						{/* Tab 3: Sales */}
-						<button
-							className={`relative flex flex-col justify-between p-6 text-left transition-colors ${
-								activeTab === "sales"
-									? "bg-white text-neutral-900"
-									: "text-neutral-500 hover:bg-neutral-50"
-							}`}
-							onClick={() => setActiveTab("sales")}
-							type="button"
-						>
-							{activeTab === "sales" ? (
-								<span className="absolute right-0 bottom-0 left-0 h-0.5 bg-black" />
-							) : null}
-							<div className="flex items-center justify-between font-medium text-neutral-500 text-xs">
-								<span className="flex items-center gap-1.5">
-									<span className="size-2 rounded-full bg-teal-500" /> Sales
-								</span>
-							</div>
-							<div className="mt-3 font-bold font-mono text-2xl text-neutral-900">
-								US$9,484
-							</div>
-						</button>
-					</div>
-
-					{/* Chart Area */}
-					<div className="relative h-[280px] p-6 sm:h-[320px] sm:p-8">
-						{/* Y-Axis Labels */}
-						<div className="pointer-events-none absolute top-8 bottom-12 left-6 flex flex-col justify-between font-mono text-[11px] text-neutral-300">
-							<span>5K</span>
-							<span>4K</span>
-							<span>3K</span>
-						</div>
-
-						{/* SVG Chart Line matching Image 1 */}
-						<svg
-							className="absolute inset-x-14 inset-y-8 h-[220px] w-[calc(100%-80px)] overflow-visible"
-							fill="none"
-							preserveAspectRatio="none"
-							viewBox="0 0 700 200"
-						>
-							<defs>
-								<linearGradient id="areaGradient" x1="0" x2="0" y1="0" y2="1">
-									<stop offset="0%" stopColor="#3b82f6" stopOpacity="0.15" />
-									<stop offset="100%" stopColor="#3b82f6" stopOpacity="0.0" />
-								</linearGradient>
-							</defs>
-
-							{/* Dotted horizontal grid lines */}
-							<line
-								stroke="#f1f5f9"
-								strokeDasharray="4 4"
-								strokeWidth="1"
-								x1="0"
-								x2="700"
-								y1="20"
-								y2="20"
-							/>
-							<line
-								stroke="#f1f5f9"
-								strokeDasharray="4 4"
-								strokeWidth="1"
-								x1="0"
-								x2="700"
-								y1="90"
-								y2="90"
-							/>
-							<line
-								stroke="#f1f5f9"
-								strokeDasharray="4 4"
-								strokeWidth="1"
-								x1="0"
-								x2="700"
-								y1="160"
-								y2="160"
-							/>
-
-							{/* Area Fill */}
-							<path
-								d="M 0 60 L 40 40 L 80 110 L 120 70 L 160 120 L 200 90 L 240 130 L 280 60 L 320 150 L 360 20 L 400 90 L 440 30 L 480 170 L 520 80 L 560 50 L 600 130 L 640 60 L 680 150 L 700 150 L 700 200 L 0 200 Z"
-								fill="url(#areaGradient)"
-							/>
-
-							{/* Line */}
-							<path
-								d="M 0 60 L 40 40 L 80 110 L 120 70 L 160 120 L 200 90 L 240 130 L 280 60 L 320 150 L 360 20 L 400 90 L 440 30 L 480 170 L 520 80 L 560 50 L 600 130 L 640 60 L 680 150 L 700 150"
-								stroke="#3b82f6"
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								strokeWidth="2"
-							/>
-
-							{/* Active Point at x=440, y=30 */}
-							<circle cx="440" cy="30" fill="#3b82f6" r="3.5" />
-						</svg>
-
-						{/* Active Hover Tooltip matching Image 1 */}
-						<div className="absolute top-[12%] left-[60%] z-10 flex w-[130px] flex-col rounded-xl border border-neutral-200 bg-white p-2.5 text-xs shadow-md">
-							<span className="border-neutral-100 border-b pb-1 font-medium text-[10px] text-neutral-400">
-								July 28, 2026
-							</span>
-							<div className="mt-1 flex items-center justify-between text-xs">
-								<span className="flex items-center gap-1 text-neutral-600">
-									<span className="size-1.5 rounded-full bg-blue-500" /> Clicks
-								</span>
-								<span className="font-mono font-semibold text-neutral-900">
-									3,527
-								</span>
-							</div>
-						</div>
-
-						{/* X-Axis Dates */}
-						<div className="absolute right-8 bottom-3 left-14 flex justify-between font-mono text-[10px] text-neutral-300">
-							<span>Jul 15</span>
-							<span>Jul 20</span>
-							<span>Jul 25</span>
-							<span>Jul 30</span>
-							<span>Aug 4</span>
-							<span>Aug 9</span>
-						</div>
-					</div>
-				</div>
-			</Frame>
-		</section>
-	);
-}
-
-function TrackproofFeaturesGridSection() {
-	return (
-		<section className="relative w-full border-neutral-200 border-b bg-white">
-			<Frame className="py-0">
-				{/* Top 2-Column Grid (50/50 Split) matching Image 2 */}
-				<div className="grid grid-cols-1 divide-y border-neutral-200 border-b lg:grid-cols-2 lg:divide-x lg:divide-y-0">
-					{/* Card 1: Dashboard Sharing */}
-					<div className="flex flex-col justify-between p-8 sm:p-12">
-						{/* Mock Share Modal Visual */}
-						<div className="relative mb-8 flex min-h-[220px] flex-col gap-4 rounded-2xl border border-neutral-200 bg-neutral-50/60 p-5 shadow-2xs backdrop-blur-xs">
-							<div className="flex items-center justify-between border-neutral-200/80 border-b pb-3">
-								<span className="font-semibold text-neutral-900 text-xs">
-									Share dashboard
-								</span>
-							</div>
-							<div className="flex flex-col gap-1 rounded-xl border border-neutral-200 bg-white p-3">
-								<div className="flex items-center gap-2">
-									<div className="flex size-5 items-center justify-center rounded-md bg-neutral-900 font-bold text-[10px] text-white">
-										A
-									</div>
-									<span className="font-medium font-mono text-neutral-800 text-xs">
-										acme.com
-									</span>
-								</div>
-								<span className="pl-7 font-mono text-[11px] text-neutral-400">
-									↳ Tracking health · Last 30 days
-								</span>
-							</div>
-							<div className="flex items-center justify-between pt-1">
-								<span className="font-medium text-neutral-600 text-xs">
-									Enable public sharing
-								</span>
-								<div className="flex h-5 w-9 items-center justify-end rounded-full bg-neutral-900 p-0.5">
-									<div className="size-4 rounded-full bg-white shadow-2xs" />
-								</div>
-							</div>
-							<div className="flex items-center gap-2">
-								<input
-									className="flex-1 select-all rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 font-mono text-[11px] text-neutral-400"
-									readOnly
-									type="text"
-									value="https://app.edgecoms.com/share/dash_6NSA6vNm"
-								/>
-								<button
-									className="rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 font-medium text-neutral-700 text-xs shadow-2xs hover:bg-neutral-50"
-									type="button"
-								>
-									Copy link
-								</button>
-							</div>
-						</div>
-
-						<div>
-							<h3 className="font-bold font-satoshi text-neutral-900 text-xl">
-								Analytics dashboard sharing
-							</h3>
-							<p className="mt-2 max-w-md text-neutral-500 text-xs leading-relaxed sm:text-sm">
-								Share your dashboard with your team, partners, investors, or
-								other external stakeholders, with one click.
-							</p>
-							<div className="mt-5">
-								<a
-									className="inline-flex items-center justify-center rounded-lg border border-neutral-200 bg-white px-3.5 py-1.5 font-medium text-neutral-900 text-xs shadow-2xs transition-colors hover:bg-neutral-50"
-									href="/contact"
-								>
-									Learn more
-								</a>
-							</div>
-						</div>
-					</div>
-
-					{/* Card 2: Geo and Device Data */}
-					<div className="flex flex-col justify-between p-8 sm:p-12">
-						{/* Stacked Translucent Cards Visual */}
-						<div className="relative mb-8 flex min-h-[220px] flex-col items-center justify-center rounded-2xl border border-neutral-200 bg-neutral-50/60 p-5 shadow-2xs backdrop-blur-xs">
-							<div className="relative flex w-full max-w-xs flex-col gap-2">
-								{/* Card Layer 1 (Browsers) */}
-								<div className="flex translate-y-2 transform items-center justify-between rounded-xl border border-neutral-200 bg-white/70 p-2.5 text-neutral-400 text-xs opacity-60 shadow-2xs">
-									<span className="flex items-center gap-1.5 font-medium">
-										<Globe className="size-3.5" /> Devices
-									</span>
-									<span className="font-mono text-[11px]">1.6K</span>
-								</div>
-								{/* Card Layer 2 (Countries) */}
-								<div className="relative z-10 flex flex-col gap-2 rounded-xl border border-neutral-200 bg-white p-3 text-xs shadow-md">
-									<div className="flex items-center justify-between border-neutral-100 border-b pb-1.5 font-semibold text-neutral-700">
-										<span className="flex items-center gap-1.5">
-											<Globe className="size-3.5 text-neutral-800" /> Countries
-										</span>
-									</div>
-									<div className="flex items-center justify-between rounded-lg bg-neutral-50 px-2 py-1 text-[11px]">
-										<span className="font-medium text-neutral-700">
-											🇺🇸 United States
-										</span>
-										<span className="font-mono font-semibold text-neutral-900">
-											1.8K
-										</span>
-									</div>
-									<div className="flex items-center justify-between px-2 py-0.5 text-[11px]">
-										<span className="text-neutral-500">🇨🇦 Canada</span>
-										<span className="font-mono text-neutral-700">1.2K</span>
-									</div>
-									<div className="flex items-center justify-between px-2 py-0.5 text-[11px]">
-										<span className="text-neutral-500">🇬🇧 United Kingdom</span>
-										<span className="font-mono text-neutral-700">850</span>
-									</div>
-								</div>
-							</div>
-						</div>
-
-						<div>
-							<h3 className="font-bold font-satoshi text-neutral-900 text-xl">
-								Detailed geo and device-specific data
-							</h3>
-							<p className="mt-2 max-w-md text-neutral-500 text-xs leading-relaxed sm:text-sm">
-								Analyze performance of your short links based on cities,
-								countries, browsers, devices, and more.
-							</p>
-							<div className="mt-5">
-								<a
-									className="inline-flex items-center justify-center rounded-lg border border-neutral-200 bg-white px-3.5 py-1.5 font-medium text-neutral-900 text-xs shadow-2xs transition-colors hover:bg-neutral-50"
-									href="/contact"
-								>
-									Learn more
-								</a>
-							</div>
-						</div>
-					</div>
-				</div>
-
-				{/* Bottom 4-Column Grid matching Image 2 */}
-				<div className="grid grid-cols-1 divide-y border-neutral-200 sm:grid-cols-2 sm:divide-x sm:divide-y-0 md:grid-cols-4">
-					{/* 1. Date Range Picker */}
-					<div className="flex flex-col justify-between p-8 sm:p-10">
-						<div>
-							<div className="flex size-9 items-center justify-center rounded-lg border border-emerald-200/60 bg-emerald-50 text-emerald-600 shadow-2xs">
-								<Calendar className="size-4" />
-							</div>
-							<h4 className="mt-4 font-bold font-satoshi text-base text-neutral-900">
-								Date range picker
-							</h4>
-							<p className="mt-1.5 text-neutral-500 text-xs leading-relaxed">
-								Select custom date ranges with flexibility and accuracy.
-							</p>
-						</div>
-						<div className="mt-6">
-							<a
-								className="inline-flex items-center justify-center rounded-lg border border-neutral-200 bg-white px-3 py-1.5 font-medium text-neutral-900 text-xs shadow-2xs transition-colors hover:bg-neutral-50"
-								href="/contact"
-							>
-								Learn more
-							</a>
-						</div>
-					</div>
-
-					{/* 2. Data Export */}
-					<div className="flex flex-col justify-between p-8 sm:p-10">
-						<div>
-							<div className="flex size-9 items-center justify-center rounded-lg border border-emerald-200/60 bg-emerald-50 text-emerald-600 shadow-2xs">
-								<Download className="size-4" />
-							</div>
-							<h4 className="mt-4 font-bold font-satoshi text-base text-neutral-900">
-								Data export
-							</h4>
-							<p className="mt-1.5 text-neutral-500 text-xs leading-relaxed">
-								Use exported CSV data with your tools or for sharing.
-							</p>
-						</div>
-						<div className="mt-6">
-							<a
-								className="inline-flex items-center justify-center rounded-lg border border-neutral-200 bg-white px-3 py-1.5 font-medium text-neutral-900 text-xs shadow-2xs transition-colors hover:bg-neutral-50"
-								href="/contact"
-							>
-								Learn more
-							</a>
-						</div>
-					</div>
-
-					{/* 3. Extensive Filters */}
-					<div className="flex flex-col justify-between p-8 sm:p-10">
-						<div>
-							<div className="flex size-9 items-center justify-center rounded-lg border border-emerald-200/60 bg-emerald-50 text-emerald-600 shadow-2xs">
-								<Filter className="size-4" />
-							</div>
-							<h4 className="mt-4 font-bold font-satoshi text-base text-neutral-900">
-								Extensive filters
-							</h4>
-							<p className="mt-1.5 text-neutral-500 text-xs leading-relaxed">
-								Endless combinations for refining your analytics.
-							</p>
-						</div>
-						<div className="mt-6">
-							<a
-								className="inline-flex items-center justify-center rounded-lg border border-neutral-200 bg-white px-3 py-1.5 font-medium text-neutral-900 text-xs shadow-2xs transition-colors hover:bg-neutral-50"
-								href="/contact"
-							>
-								Learn more
-							</a>
-						</div>
-					</div>
-
-					{/* 4. Ask AI */}
-					<div className="flex flex-col justify-between p-8 sm:p-10">
-						<div>
-							<div className="flex size-9 items-center justify-center rounded-lg border border-emerald-200/60 bg-emerald-50 text-emerald-600 shadow-2xs">
-								<Sparkles className="size-4" />
-							</div>
-							<h4 className="mt-4 font-bold font-satoshi text-base text-neutral-900">
-								Ask AI
-							</h4>
-							<p className="mt-1.5 text-neutral-500 text-xs leading-relaxed">
-								Use natural language to query and filter with ease.
-							</p>
-						</div>
-						<div className="mt-6">
-							<a
-								className="inline-flex items-center justify-center rounded-lg border border-neutral-200 bg-white px-3 py-1.5 font-medium text-neutral-900 text-xs shadow-2xs transition-colors hover:bg-neutral-50"
-								href="/contact"
-							>
-								Learn more
-							</a>
-						</div>
-					</div>
-				</div>
-			</Frame>
-		</section>
-	);
-}
-
-function VisualizeJourneySection() {
-	return (
-		<section className="relative w-full border-neutral-200 border-b bg-white">
-			<Frame className="py-16 sm:py-24">
-				{/* Header */}
-				<div className="flex flex-col items-center px-6 text-center sm:px-8">
-					<span className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 font-semibold text-neutral-700 text-xs shadow-2xs">
-						<Filter className="size-3.5 text-neutral-700" />
-						Conversion Tracking
-					</span>
-					<h2 className="mt-4 font-bold font-satoshi text-3xl text-neutral-900 tracking-tight sm:text-4xl">
-						Visualize your journey
-					</h2>
-					<p className="mt-3 max-w-lg text-neutral-500 text-sm leading-relaxed sm:text-base">
-						Understand how your marketing clicks are converting to revenue,
-						without the guesswork.
-					</p>
-
-					<div className="mt-6 flex items-center gap-3">
-						<a
-							className="inline-flex items-center justify-center gap-2 rounded-lg bg-black px-4 py-2 font-semibold text-white text-xs shadow-xs transition-colors hover:bg-neutral-800"
-							href={BOOKING_URL}
-							rel="noopener noreferrer"
-							target="_blank"
-						>
-							<Play className="size-3.5 fill-white text-white" />
-							<span>Watch Demo</span>
-						</a>
-						<a
-							className="inline-flex items-center justify-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 py-2 font-medium text-neutral-900 text-xs shadow-2xs transition-colors hover:bg-neutral-50"
-							href="/docs"
-						>
-							<Code className="size-3.5 text-neutral-700" />
-							<span>Read the docs</span>
-						</a>
-					</div>
-				</div>
-
-				<div className="mt-12">
-					<Funnel embedded />
-				</div>
-			</Frame>
-		</section>
-	);
-}
-
-function CustomerInsightsAndIntegrationsSection() {
-	return (
-		<section className="relative w-full border-neutral-200 border-b bg-white">
-			<Frame className="py-0">
-				<div className="grid grid-cols-1 divide-y border-neutral-200 lg:grid-cols-2 lg:divide-x lg:divide-y-0">
-					{/* Column 1: Customer Insights */}
-					<div className="flex flex-col justify-between p-8 sm:p-12">
-						<div className="relative mb-8 flex min-h-[240px] flex-col gap-3 rounded-2xl border border-neutral-200 bg-neutral-50/60 p-5 shadow-2xs backdrop-blur-xs">
-							<div className="flex items-center justify-between">
-								<div className="flex items-center gap-2.5">
-									<div className="flex size-9 items-center justify-center rounded-full border border-neutral-200 bg-neutral-800 font-bold text-white text-xs">
-										DW
-									</div>
-									<div>
-										<div className="flex items-center gap-1.5">
-											<span className="font-bold text-neutral-900 text-xs">
-												Danielle Wilson
-											</span>
-											<span className="rounded bg-neutral-900 px-1 py-0.2 font-bold text-[9px] text-white">
-												Pro
-											</span>
-											<span className="font-mono text-[10px] text-neutral-400">
-												2y 10m
-											</span>
-										</div>
-										<span className="text-[11px] text-neutral-400">
-											danielle@acme.com
-										</span>
-									</div>
-								</div>
-								<span className="rounded border border-neutral-200 bg-white px-2 py-0.5 font-medium text-[10px] text-neutral-600">
-									🇺🇸 United States
-								</span>
-							</div>
-
-							<div className="grid grid-cols-3 gap-2 border-neutral-200/80 border-y py-2.5 text-[11px]">
-								<div>
-									<span className="block text-[9px] text-neutral-400 uppercase tracking-wider">
-										Lead
-									</span>
-									<span className="font-mono font-semibold text-neutral-900">
-										21h 2m
-									</span>
-								</div>
-								<div>
-									<span className="block text-[9px] text-neutral-400 uppercase tracking-wider">
-										Sale
-									</span>
-									<span className="font-mono font-semibold text-neutral-900">
-										2d 20h
-									</span>
-								</div>
-								<div>
-									<span className="block text-[9px] text-neutral-400 uppercase tracking-wider">
-										Lifetime value
-									</span>
-									<span className="font-mono font-semibold text-emerald-700">
-										$576
-									</span>
-								</div>
-							</div>
-
-							<div className="flex flex-col gap-1 text-[11px]">
-								<span className="font-semibold text-[10px] text-neutral-400 uppercase">
-									Activity
-								</span>
-								<div className="flex items-center justify-between text-neutral-600">
-									<span>💳 $65.00 payment made</span>
-									<span className="font-mono text-[10px] text-neutral-400">
-										Dec 14 at 3:04 AM
-									</span>
-								</div>
-								<div className="flex items-center justify-between text-neutral-600">
-									<span>✓ Updated to Business plan</span>
-									<span className="font-mono text-[10px] text-neutral-400">
-										Dec 14 at 3:04 AM
-									</span>
-								</div>
-							</div>
-						</div>
-
-						<div>
-							<h3 className="font-bold font-satoshi text-neutral-900 text-xl">
-								Customer insights
-							</h3>
-							<p className="mt-2 max-w-md text-neutral-500 text-xs leading-relaxed sm:text-sm">
-								Visualize your customer acquisition costs, retention rates,
-								lifetime value, and more to understand your return on marketing
-								spend.
-							</p>
-						</div>
-					</div>
-
-					{/* Column 2: Tech Stack Integrations */}
-					<div className="flex flex-col justify-between p-8 sm:p-12">
-						<div className="relative mb-8 flex min-h-[240px] items-center justify-center rounded-2xl border border-neutral-200 bg-neutral-50/60 p-5 shadow-2xs backdrop-blur-xs">
-							<div className="grid w-full max-w-xs grid-cols-4 gap-3">
-								<div className="flex aspect-square items-center justify-center rounded-xl border border-neutral-200 bg-white p-3 font-bold text-indigo-600 text-xs shadow-2xs">
-									stripe
-								</div>
-								<div className="flex aspect-square items-center justify-center rounded-xl border border-neutral-200 bg-white p-3 font-bold text-blue-500 text-xs shadow-2xs">
-									◆
-								</div>
-								<div className="flex aspect-square items-center justify-center rounded-xl border border-neutral-200 bg-white p-3 font-bold text-emerald-600 text-xs shadow-2xs">
-									§
-								</div>
-								<div className="flex aspect-square items-center justify-center rounded-xl border border-neutral-200 bg-white p-3 font-bold text-[10px] text-orange-600 shadow-2xs">
-									_zapier
-								</div>
-								<div className="flex aspect-square items-center justify-center rounded-xl border border-neutral-200 bg-white p-3 font-bold text-emerald-700 text-xs shadow-2xs">
-									🛒
-								</div>
-								<div className="flex aspect-square items-center justify-center rounded-xl border border-neutral-200 bg-white p-3 font-bold text-purple-600 text-xs shadow-2xs">
-									💬
-								</div>
-								<div className="aspect-square rounded-xl border border-neutral-100 bg-white/40 p-3" />
-								<div className="aspect-square rounded-xl border border-neutral-100 bg-white/30 p-3" />
-							</div>
-						</div>
-
-						<div>
-							<h3 className="font-bold font-satoshi text-neutral-900 text-xl">
-								Integrate with your tech stack
-							</h3>
-							<p className="mt-2 max-w-md text-neutral-500 text-xs leading-relaxed sm:text-sm">
-								Leverage our native integrations with various authentication and
-								payment platforms to automatically track your conversions.
-							</p>
 						</div>
 					</div>
 				</div>
@@ -1066,196 +424,49 @@ function RealTimeEventsStreamSection() {
 	);
 }
 
-function DetailedFiltersAndTestimonialSection() {
+function TrackingHealthSection() {
 	return (
 		<section className="relative w-full border-neutral-200 border-b bg-white">
 			<Frame className="py-0">
-				<div className="grid grid-cols-1 divide-y border-neutral-200 lg:grid-cols-2 lg:divide-x lg:divide-y-0">
-					<div className="flex flex-col justify-between p-8 sm:p-12">
-						<div className="relative mb-8 flex min-h-[220px] items-center justify-center rounded-2xl border border-neutral-200 bg-neutral-50/60 p-5 shadow-2xs backdrop-blur-xs">
-							<div className="flex max-w-xs flex-wrap items-center justify-center gap-2">
-								<span className="rounded-lg border border-neutral-200 bg-white px-2.5 py-1 font-medium text-neutral-700 text-xs shadow-2xs">
-									Folder is{" "}
-									<strong className="rounded bg-emerald-50 px-1 text-emerald-700">
-										Site Links
-									</strong>{" "}
-									×
-								</span>
-								<span className="rounded-lg border border-neutral-200 bg-white px-2.5 py-1 font-medium text-neutral-700 text-xs shadow-2xs">
-									Store is{" "}
-									<strong className="font-mono text-neutral-900">
-										acme.com
-									</strong>{" "}
-									×
-								</span>
-								<span className="rounded-lg border border-neutral-200 bg-white px-2.5 py-1 font-medium text-neutral-700 text-xs shadow-2xs">
-									City is 🇺🇸 Brooklyn ×
-								</span>
-								<span className="rounded-lg border border-neutral-200 bg-white px-2.5 py-1 font-medium text-neutral-700 text-xs shadow-2xs">
-									Browser is Chrome ×
-								</span>
-							</div>
-						</div>
+				<div className="flex flex-col justify-between bg-gradient-to-br from-teal-50/40 via-emerald-50/20 to-white p-8 sm:p-12">
+					<div>
+						<span className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1 font-semibold text-neutral-700 text-xs shadow-2xs">
+							<ShieldCheck className="size-3.5 text-teal-600" />
+							Tracking Health
+						</span>
 
-						<div>
-							<h3 className="font-bold font-satoshi text-neutral-900 text-xl">
-								Detailed filters
-							</h3>
-							<p className="mt-2 max-w-md text-neutral-500 text-xs leading-relaxed sm:text-sm">
-								Narrow down exactly how your traffic is arriving and where it's
-								coming from.
-							</p>
-							<div className="mt-5">
-								<a
-									className="inline-flex items-center justify-center rounded-lg border border-neutral-200 bg-white px-3.5 py-1.5 font-medium text-neutral-900 text-xs shadow-2xs transition-colors hover:bg-neutral-50"
-									href="/contact"
-								>
-									Learn more
-								</a>
-							</div>
-						</div>
+						<h3 className="mt-6 font-bold font-satoshi text-neutral-900 text-xl sm:text-2xl">
+							Know the moment tracking breaks
+						</h3>
+						<p className="mt-3 max-w-2xl text-neutral-600 text-sm leading-relaxed">
+							A pixel that stops firing does not announce itself. It shows up
+							later as an ad set that looks unprofitable, so the budget gets cut
+							from something that was working. Trackproof watches both the
+							server and browser paths and alerts you the day a gap opens, not
+							at the end of the month.
+						</p>
 					</div>
 
-					<div className="flex flex-col justify-between bg-gradient-to-br from-teal-50/40 via-emerald-50/20 to-white p-8 sm:p-12">
-						<div>
-							<span className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1 font-semibold text-neutral-700 text-xs shadow-2xs">
-								<ShieldCheck className="size-3.5 text-teal-600" />
-								Tracking Health
-							</span>
-
-							<h3 className="mt-6 font-bold font-satoshi text-neutral-900 text-xl">
-								Know the moment tracking breaks
-							</h3>
-							<p className="mt-3 max-w-md text-neutral-600 text-sm leading-relaxed">
-								A pixel that stops firing does not announce itself. It shows up
-								later as an ad set that looks unprofitable, so the budget gets
-								cut from something that was working. Trackproof watches both the
-								server and browser paths and alerts you the day a gap opens, not
-								at the end of the month.
-							</p>
-						</div>
-
-						<ul className="mt-8 flex flex-col gap-2.5 border-neutral-200/80 border-t pt-4 text-neutral-600 text-xs sm:text-sm">
-							<li className="flex items-center gap-2">
-								<CheckCircle2 className="size-4 shrink-0 text-teal-600" />
-								Dual-path logging across server and pixel
-							</li>
-							<li className="flex items-center gap-2">
-								<CheckCircle2 className="size-4 shrink-0 text-teal-600" />
-								Deduplicated events, so nothing is counted twice
-							</li>
-							<li className="flex items-center gap-2">
-								<CheckCircle2 className="size-4 shrink-0 text-teal-600" />
-								Alerts the day a drop starts
-							</li>
-						</ul>
-					</div>
+					<ul className="mt-8 grid grid-cols-1 gap-2.5 border-neutral-200/80 border-t pt-6 text-neutral-600 text-xs sm:grid-cols-3 sm:text-sm">
+						<li className="flex items-center gap-2">
+							<CheckCircle2 className="size-4 shrink-0 text-teal-600" />
+							Dual-path logging across server and pixel
+						</li>
+						<li className="flex items-center gap-2">
+							<CheckCircle2 className="size-4 shrink-0 text-teal-600" />
+							Deduplicated events, so nothing is counted twice
+						</li>
+						<li className="flex items-center gap-2">
+							<CheckCircle2 className="size-4 shrink-0 text-teal-600" />
+							Alerts the day a drop starts
+						</li>
+					</ul>
 				</div>
 			</Frame>
 		</section>
 	);
 }
 
-function KnowYourCustomerSection() {
-	return (
-		<section className="relative w-full border-neutral-200 border-b bg-white">
-			<Frame className="py-16 sm:py-24">
-				<div className="flex flex-col items-center px-6 text-center sm:px-8">
-					<span className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 font-semibold text-neutral-700 text-xs shadow-2xs">
-						<Eye className="size-3.5 text-neutral-700" />
-						Customer Insights
-					</span>
-					<h2 className="mt-4 font-bold font-satoshi text-3xl text-neutral-900 tracking-tight sm:text-4xl">
-						Know your customer
-					</h2>
-					<p className="mt-3 max-w-lg text-neutral-500 text-sm leading-relaxed sm:text-base">
-						Track your customer journey from first click to conversion, with
-						detailed events and insights.
-					</p>
-
-					<div className="mt-6">
-						<a
-							className="inline-flex items-center justify-center rounded-lg bg-black px-5 py-2.5 font-semibold text-sm text-white shadow-xs transition-colors hover:bg-neutral-800"
-							href="/contact"
-						>
-							Learn more
-						</a>
-					</div>
-				</div>
-
-				<div className="mx-auto mt-14 grid max-w-4xl grid-cols-1 items-center gap-6 sm:grid-cols-3">
-					<div className="flex flex-col gap-4">
-						<div className="flex flex-col gap-1.5 rounded-2xl border border-neutral-200 bg-neutral-50/60 p-4 text-xs">
-							<span className="font-semibold text-neutral-900">Details</span>
-							<span className="text-neutral-600">🇺🇸 Los Angeles, USA</span>
-							<span className="text-neutral-600">💻 Mac OS</span>
-							<span className="text-neutral-600">🖥️ Desktop</span>
-							<span className="text-neutral-600">🧩 Safari</span>
-						</div>
-
-						<div className="flex flex-col gap-1 rounded-2xl border border-neutral-200 bg-white p-4 text-xs shadow-2xs">
-							<span className="text-[10px] text-neutral-400">Found via</span>
-							<span className="font-mono text-[11px] text-neutral-800">
-								meta · advantage_plus
-							</span>
-							<span className="text-[10px] text-neutral-400">via acme.com</span>
-							<span className="mt-1 font-mono text-[10px] text-neutral-400">
-								Sep 2, 2024 3:02PM
-							</span>
-						</div>
-					</div>
-
-					<div className="flex flex-col items-center gap-3 rounded-3xl border border-neutral-200 bg-white p-6 text-center shadow-xl">
-						<div className="flex size-24 items-center justify-center overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-200 font-bold text-2xl text-neutral-400">
-							EC
-						</div>
-						<div>
-							<h3 className="font-bold text-base text-neutral-900">
-								Emily Carter
-							</h3>
-							<p className="text-neutral-400 text-xs">emily@acme.com</p>
-						</div>
-					</div>
-
-					<div className="flex flex-col gap-4">
-						<div className="flex flex-col gap-1 rounded-2xl border border-neutral-200 bg-neutral-50/60 p-4 text-xs">
-							<span className="font-semibold text-neutral-900">UTM</span>
-							<div className="flex justify-between">
-								<span className="text-neutral-400">Source</span>
-								<span className="font-mono">google</span>
-							</div>
-							<div className="flex justify-between">
-								<span className="text-neutral-400">Campaign</span>
-								<span className="font-mono">marketing</span>
-							</div>
-							<div className="flex justify-between">
-								<span className="text-neutral-400">Term</span>
-								<span className="font-mono">new_feature</span>
-							</div>
-						</div>
-
-						<div className="flex flex-col gap-2 rounded-2xl border border-neutral-200 bg-white p-4 text-xs shadow-2xs">
-							<div className="flex justify-between border-neutral-100 border-b pb-1">
-								<span className="text-neutral-400">Customer since</span>
-								<span className="font-semibold text-neutral-900">
-									Oct 2, 2024
-								</span>
-							</div>
-							<div className="flex justify-between">
-								<span className="text-neutral-400">Lifetime value</span>
-								<span className="font-bold font-mono text-emerald-700">
-									$140
-								</span>
-							</div>
-						</div>
-					</div>
-				</div>
-			</Frame>
-		</section>
-	);
-}
-
-/* SECTION 10: PIXEL VS TRACKPROOF COMPARISON (Exact Replica of Image 1) */
 function TrackproofComparisonSection() {
 	return (
 		<section className="relative w-full border-neutral-200 border-b bg-white">
@@ -1451,43 +662,28 @@ export default function TrackproofProductPage() {
 
 	return (
 		<main className="min-h-screen bg-white">
-			{/* SECTION 1: HERO (Image 2 Replica) */}
+			{/* SECTION 1: HERO */}
 			<TrackproofHeroSection />
 
-			{/* SECTION 2: LOGO CLOUD (Matching Homepage) */}
+			{/* SECTION 2: LOGO CLOUD */}
 			<LogoCloud />
 
-			{/* SECTION 3: REAL-TIME ANALYTICS (Success at a Glance) */}
-			<RealTimeAnalyticsSection />
-
-			{/* SECTION 4: FEATURE GRID (Dashboard Sharing & 4 Cards) */}
-			<TrackproofFeaturesGridSection />
-
-			{/* SECTION 5: VISUALIZE YOUR JOURNEY */}
-			<VisualizeJourneySection />
-
-			{/* SECTION 6: CUSTOMER INSIGHTS & INTEGRATIONS */}
-			<CustomerInsightsAndIntegrationsSection />
-
-			{/* SECTION 7: REAL-TIME EVENTS STREAM */}
+			{/* SECTION 3: REAL-TIME EVENTS STREAM */}
 			<RealTimeEventsStreamSection />
 
-			{/* SECTION 8: DETAILED FILTERS & TESTIMONIAL */}
-			<DetailedFiltersAndTestimonialSection />
+			{/* SECTION 4: TRACKING HEALTH */}
+			<TrackingHealthSection />
 
-			{/* SECTION 9: KNOW YOUR CUSTOMER */}
-			<KnowYourCustomerSection />
-
-			{/* SECTION 10: PIXEL VS TRACKPROOF COMPARISON (Image 1) */}
+			{/* SECTION 5: PIXEL VS TRACKPROOF COMPARISON */}
 			<TrackproofComparisonSection />
 
-			{/* SECTION 11: 6 CORE CAPABILITIES (Image 2) */}
+			{/* SECTION 6: CORE CAPABILITIES */}
 			<TrackproofCoreCapabilitiesSection />
 
-			{/* SECTION 12: FREQUENTLY ASKED QUESTIONS (Image 3 & Products FAQ) */}
+			{/* SECTION 7: FREQUENTLY ASKED QUESTIONS */}
 			<TrackproofFaqSection />
 
-			{/* SECTION 13: CLOSING CTA */}
+			{/* SECTION 8: CLOSING CTA */}
 			<CtaDark />
 		</main>
 	);

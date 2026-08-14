@@ -1,22 +1,6 @@
 "use client";
 
-import {
-	ArrowRight,
-	Box,
-	Check,
-	ChevronDown,
-	Code,
-	Download,
-	Layers,
-	Minus,
-	Package,
-	Play,
-	Plus,
-	ShoppingBag,
-	Sparkles,
-	TrendingUp,
-	Zap,
-} from "lucide-react";
+import { Check, Minus, Package, Play, Plus, ShoppingBag } from "lucide-react";
 import { useState } from "react";
 import { CtaDark } from "@/components/landing/cta-dark";
 import { Frame } from "@/components/landing/frame";

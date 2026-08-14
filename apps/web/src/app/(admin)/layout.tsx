@@ -1,9 +1,19 @@
 import { auth } from "@edgecoms/auth";
-import type { Route } from "next";
+import type { Metadata, Route } from "next";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import { PortalShell } from "@/components/portal/portal-shell";
+
+/**
+ * One title for every admin screen. The portal is behind auth and must never be
+ * indexed, so `robots` is set here rather than relying on the route being
+ * unlinked.
+ */
+export const metadata: Metadata = {
+	title: { default: "Admin · Edge", template: "%s · Admin · Edge" },
+	robots: { follow: false, index: false },
+};
 
 const ADMIN_NAV = [
 	{ href: "/admin", label: "Dashboard" },

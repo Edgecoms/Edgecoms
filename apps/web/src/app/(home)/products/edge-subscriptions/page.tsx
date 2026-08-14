@@ -1,19 +1,6 @@
 "use client";
 
-import {
-	ArrowRight,
-	Calendar,
-	Check,
-	ChevronRight,
-	CreditCard,
-	Minus,
-	Play,
-	Plus,
-	RefreshCw,
-	RotateCw,
-	ShieldCheck,
-	Sparkles,
-} from "lucide-react";
+import { Check, Minus, Play, Plus, RotateCw, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { CtaDark } from "@/components/landing/cta-dark";
 import { Frame } from "@/components/landing/frame";

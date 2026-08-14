@@ -1,17 +1,6 @@
 "use client";
 
-import {
-	Check,
-	ChevronRight,
-	Heart,
-	MessageSquare,
-	Minus,
-	Play,
-	Plus,
-	ShieldCheck,
-	Star,
-	ThumbsUp,
-} from "lucide-react";
+import { Minus, Play, Plus, ShieldCheck, Star, ThumbsUp } from "lucide-react";
 import { useState } from "react";
 import { CtaDark } from "@/components/landing/cta-dark";
 import { Frame } from "@/components/landing/frame";
@@ -83,7 +72,7 @@ function EdgeReviewsHeroSection() {
 						<div className="flex items-center justify-between border-neutral-200 border-b pb-4">
 							<div className="flex items-center gap-3">
 								<div className="flex gap-0.5 text-amber-400">
-									{[...Array(5)].map((_, i) => (
+									{Array.from({ length: 5 }).map((_, i) => (
 										<Star
 											className="size-4 fill-amber-400"
 											key={i.toString()}

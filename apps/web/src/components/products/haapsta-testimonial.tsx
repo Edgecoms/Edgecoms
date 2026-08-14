@@ -45,7 +45,7 @@ export function HaapstaTestimonial() {
 							/>
 						</div>
 						<p className="mt-3 font-semibold text-neutral-900 text-sm">
-							Lukas Haapsta
+							Marcus Bennett
 						</p>
 						<p className="font-medium text-neutral-500 text-xs">CEO, Haapsta</p>
 					</div>

@@ -41,7 +41,7 @@ const TESTIMONIALS: Record<string, Testimonial> = {
 	},
 	aurient: {
 		slug: "aurient",
-		authorName: "Marcus Vance",
+		authorName: "Avinash Shaw",
 		authorRole: "Founder",
 		avatarUrl:
 			"https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&h=120&q=80",

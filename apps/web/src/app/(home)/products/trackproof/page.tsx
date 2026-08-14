@@ -252,7 +252,7 @@ function TrackproofHeroSection() {
 										</span>
 									</div>
 									<span className="font-mono text-[10px] text-neutral-400">
-										dub.sh
+										acme.com
 									</span>
 								</div>
 
@@ -261,7 +261,7 @@ function TrackproofHeroSection() {
 										Danielle Wilson
 									</div>
 									<div className="text-[11px] text-neutral-400">
-										danielle@dub.co
+										danielle@acme.com
 									</div>
 								</div>
 
@@ -520,14 +520,14 @@ function TrackproofFeaturesGridSection() {
 							<div className="flex flex-col gap-1 rounded-xl border border-neutral-200 bg-white p-3">
 								<div className="flex items-center gap-2">
 									<div className="flex size-5 items-center justify-center rounded-md bg-neutral-900 font-bold text-[10px] text-white">
-										T
+										A
 									</div>
 									<span className="font-medium font-mono text-neutral-800 text-xs">
-										d.to/try
+										acme.com
 									</span>
 								</div>
 								<span className="pl-7 font-mono text-[11px] text-neutral-400">
-									↳ app.dub.co/register
+									↳ Tracking health · Last 30 days
 								</span>
 							</div>
 							<div className="flex items-center justify-between pt-1">
@@ -543,7 +543,7 @@ function TrackproofFeaturesGridSection() {
 									className="flex-1 select-all rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 font-mono text-[11px] text-neutral-400"
 									readOnly
 									type="text"
-									value="https://app.dub.co/share/dash_6NSA6vNm"
+									value="https://app.edgecoms.com/share/dash_6NSA6vNm"
 								/>
 								<button
 									className="rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 font-medium text-neutral-700 text-xs shadow-2xs hover:bg-neutral-50"
@@ -803,7 +803,7 @@ function CustomerInsightsAndIntegrationsSection() {
 											</span>
 										</div>
 										<span className="text-[11px] text-neutral-400">
-											danielle@dub.co
+											danielle@acme.com
 										</span>
 									</div>
 								</div>
@@ -1082,8 +1082,10 @@ function DetailedFiltersAndTestimonialSection() {
 									×
 								</span>
 								<span className="rounded-lg border border-neutral-200 bg-white px-2.5 py-1 font-medium text-neutral-700 text-xs shadow-2xs">
-									Link is{" "}
-									<strong className="font-mono text-neutral-900">dub.sh</strong>{" "}
+									Store is{" "}
+									<strong className="font-mono text-neutral-900">
+										acme.com
+									</strong>{" "}
 									×
 								</span>
 								<span className="rounded-lg border border-neutral-200 bg-white px-2.5 py-1 font-medium text-neutral-700 text-xs shadow-2xs">
@@ -1116,35 +1118,37 @@ function DetailedFiltersAndTestimonialSection() {
 
 					<div className="flex flex-col justify-between bg-gradient-to-br from-teal-50/40 via-emerald-50/20 to-white p-8 sm:p-12">
 						<div>
-							<div className="flex items-center gap-1.5 font-bold text-neutral-900 text-xl tracking-tight">
-								<span className="font-extrabold text-2xl text-teal-600">❇</span>{" "}
-								perplexity
-							</div>
+							<span className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1 font-semibold text-neutral-700 text-xs shadow-2xs">
+								<ShieldCheck className="size-3.5 text-teal-600" />
+								Tracking Health
+							</span>
 
-							<blockquote className="mt-6 font-medium text-neutral-700 text-sm leading-relaxed sm:text-base">
-								"Dub has been a game-changer for our marketing campaigns – our
-								links get tens of millions of clicks monthly and with Dub, we
-								are able to easily design our link previews,{" "}
-								<u className="decoration-neutral-400 decoration-dashed">
-									attribute clicks
-								</u>
-								, and visualize our data."
-							</blockquote>
+							<h3 className="mt-6 font-bold font-satoshi text-neutral-900 text-xl">
+								Know the moment tracking breaks
+							</h3>
+							<p className="mt-3 max-w-md text-neutral-600 text-sm leading-relaxed">
+								A pixel that stops firing does not announce itself. It shows up
+								later as an ad set that looks unprofitable, so the budget gets
+								cut from something that was working. Trackproof watches both the
+								server and browser paths and alerts you the day a gap opens, not
+								at the end of the month.
+							</p>
 						</div>
 
-						<div className="mt-8 flex items-center gap-3 border-neutral-200/80 border-t pt-4">
-							<div className="flex size-10 items-center justify-center rounded-xl border border-neutral-200 bg-neutral-900 font-bold text-white text-xs">
-								JH
-							</div>
-							<div>
-								<div className="font-semibold text-neutral-900 text-xs sm:text-sm">
-									Johnny Ho
-								</div>
-								<div className="text-[11px] text-neutral-500">
-									Co-founder, Perplexity
-								</div>
-							</div>
-						</div>
+						<ul className="mt-8 flex flex-col gap-2.5 border-neutral-200/80 border-t pt-4 text-neutral-600 text-xs sm:text-sm">
+							<li className="flex items-center gap-2">
+								<CheckCircle2 className="size-4 shrink-0 text-teal-600" />
+								Dual-path logging across server and pixel
+							</li>
+							<li className="flex items-center gap-2">
+								<CheckCircle2 className="size-4 shrink-0 text-teal-600" />
+								Deduplicated events, so nothing is counted twice
+							</li>
+							<li className="flex items-center gap-2">
+								<CheckCircle2 className="size-4 shrink-0 text-teal-600" />
+								Alerts the day a drop starts
+							</li>
+						</ul>
 					</div>
 				</div>
 			</Frame>
@@ -1192,11 +1196,9 @@ function KnowYourCustomerSection() {
 						<div className="flex flex-col gap-1 rounded-2xl border border-neutral-200 bg-white p-4 text-xs shadow-2xs">
 							<span className="text-[10px] text-neutral-400">Found via</span>
 							<span className="font-mono text-[11px] text-neutral-800">
-								refer.dub.co/steven
+								meta · advantage_plus
 							</span>
-							<span className="text-[10px] text-neutral-400">
-								via yoursite.com
-							</span>
+							<span className="text-[10px] text-neutral-400">via acme.com</span>
 							<span className="mt-1 font-mono text-[10px] text-neutral-400">
 								Sep 2, 2024 3:02PM
 							</span>

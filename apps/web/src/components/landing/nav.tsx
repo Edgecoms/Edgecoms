@@ -97,7 +97,7 @@ const FLAT_LINKS = [
 function ProductMenuPanel() {
 	return (
 		<div className="w-[860px] rounded-3xl border border-neutral-200/80 bg-white p-3 shadow-[0_24px_60px_-15px_rgba(0,0,0,0.12)]">
-			{/* Top 3-Column Grid matching Dub design */}
+			{/* Top 3-Column Grid */}
 			<div className="grid grid-cols-3 gap-3">
 				{/* Column 1: Edge Partners */}
 				<Link

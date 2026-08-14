@@ -228,7 +228,7 @@ export default function PartnersPage() {
 
 						<div className="mt-6 flex flex-col items-center gap-1">
 							<Image
-								alt="Marcus Vance"
+								alt="Avinash Shaw"
 								className="size-11 rounded-full object-cover shadow-2xs ring-1 ring-neutral-900/10"
 								height={44}
 								src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&h=120&q=80"
@@ -236,7 +236,7 @@ export default function PartnersPage() {
 								width={44}
 							/>
 							<span className="mt-1.5 font-medium text-neutral-900 text-xs sm:text-sm">
-								Marcus Vance
+								Avinash Shaw
 							</span>
 							<span className="font-normal text-[11px] text-neutral-500">
 								Founder, Aurient

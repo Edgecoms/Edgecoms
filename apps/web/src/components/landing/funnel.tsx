@@ -36,7 +36,7 @@ export function Funnel({ className, embedded = false }: FunnelProps) {
 					viewBox="0 0 300 100"
 				>
 					<defs>
-						<linearGradient id="funnel-band-dub" x1="0" x2="1" y1="0" y2="0">
+						<linearGradient id="funnel-band" x1="0" x2="1" y1="0" y2="0">
 							<stop offset="0%" stopColor="#2563EB" stopOpacity="0.85" />
 							<stop offset="50%" stopColor="#9333EA" stopOpacity="0.85" />
 							<stop offset="100%" stopColor="#0D9488" stopOpacity="0.85" />
@@ -45,7 +45,7 @@ export function Funnel({ className, embedded = false }: FunnelProps) {
 
 					<path
 						d="M0 10 C60 10 60 36 100 36 C160 36 160 44 200 44 C260 44 260 46 300 46 L300 54 C260 54 260 56 200 56 C160 56 160 64 100 64 C60 64 60 90 0 90 Z"
-						fill="url(#funnel-band-dub)"
+						fill="url(#funnel-band)"
 					/>
 				</svg>
 

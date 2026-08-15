@@ -7,6 +7,12 @@
       "skillPath": "better-auth/best-practices/SKILL.md",
       "computedHash": "a4c830509e85557b59339d8d93a4e243e9e59c686e7678854d39230e12c2a6dc"
     },
+    "remocn": {
+      "source": "Remocn/remocn",
+      "sourceType": "github",
+      "skillPath": "skills/remocn/SKILL.md",
+      "computedHash": "8366e50178d9f2169a9f89b3c07a56968a7abc5f3b12d8a3673542097ffc63bd"
+    },
     "shadcn": {
       "source": "shadcn/ui",
       "sourceType": "github",

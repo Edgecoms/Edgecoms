@@ -1,0 +1,35 @@
+{
+  "name": "video",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Edge marketing videos (Remotion)",
+  "scripts": {
+    "dev": "remotion studio",
+    "build": "remotion bundle",
+    "render": "remotion render",
+    "check-types": "tsc --noEmit",
+    "upgrade": "remotion upgrade"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.509",
+    "@remotion/fonts": "4.0.509",
+    "@remotion/google-fonts": "4.0.509",
+    "@remotion/tailwind-v4": "4.0.509",
+    "@remotion/transitions": "4.0.509",
+    "culori": "^4.0.2",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "remotion": "4.0.509",
+    "tailwindcss": "catalog:"
+  },
+  "devDependencies": {
+    "@types/culori": "^4.0.1",
+    "@types/node": "^22.13.14",
+    "@types/react": "catalog:",
+    "@types/web": "0.0.166",
+    "typescript": "catalog:"
+  },
+  "sideEffects": [
+    "*.css"
+  ]
+}

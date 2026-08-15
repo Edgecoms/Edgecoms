@@ -2,9 +2,11 @@
 
 import { ButtonLink } from "@edgecoms/ui/components/button";
 import { Play } from "lucide-react";
+import { motion, useReducedMotion } from "motion/react";
 import type { Route } from "next";
 import Image from "next/image";
 import { Frame, PartnersIcon } from "@/components/landing/frame";
+import { REVEAL_EASE, Reveal } from "@/components/ui/reveal";
 import { BOOKING_URL } from "@/lib/booking";
 
 const PARTNER_CARDS = [
@@ -119,6 +121,8 @@ const PARTNER_CARDS = [
 ] as const;
 
 export function PartnersHero() {
+	const reduced = useReducedMotion();
+
 	return (
 		<section className="relative isolate w-full overflow-hidden border-neutral-200 border-b bg-white">
 			{/* Frame container matching homepage 1080px column with side hairline rules */}
@@ -137,46 +141,54 @@ export function PartnersHero() {
 
 				<div className="flex flex-col items-center px-6 text-center sm:px-8">
 					{/* Eyebrow Pill Badge */}
-					<div className="mb-6 inline-flex items-center gap-1.5 rounded-full border border-purple-200/80 bg-purple-50/80 px-3.5 py-1 font-medium text-purple-700 text-xs shadow-2xs">
-						<PartnersIcon className="size-3.5" />
-						<span>Edge Partners</span>
-					</div>
+					<Reveal>
+						<div className="mb-6 inline-flex items-center gap-1.5 rounded-full border border-purple-200/80 bg-purple-50/80 px-3.5 py-1 font-medium text-purple-700 text-xs shadow-2xs">
+							<PartnersIcon className="size-3.5" />
+							<span>Edge Partners</span>
+						</div>
+					</Reveal>
 
 					{/* Main Title */}
-					<h1 className="max-w-3xl font-bold text-4xl text-neutral-900 tracking-tight sm:text-5xl lg:text-6xl">
-						Grow your revenue with partnerships
-					</h1>
+					<Reveal delay={0.08}>
+						<h1 className="max-w-3xl font-bold text-4xl text-neutral-900 tracking-tight sm:text-5xl lg:text-6xl">
+							Grow your revenue with partnerships
+						</h1>
+					</Reveal>
 
 					{/* Paragraph */}
-					<p className="mt-5 max-w-xl text-balance text-base text-neutral-600 leading-relaxed sm:text-lg">
-						Edge Partners is the modern affiliate and partner program for agency
-						partners, creators, and Shopify experts.
-					</p>
+					<Reveal delay={0.16}>
+						<p className="mt-5 max-w-xl text-balance text-base text-neutral-600 leading-relaxed sm:text-lg">
+							Edge Partners is the modern affiliate and partner program for
+							agency partners, creators, and Shopify experts.
+						</p>
+					</Reveal>
 
 					{/* CTA Buttons */}
-					<div className="mt-8 flex items-center justify-center gap-3">
-						<ButtonLink
-							className="h-10 rounded-lg bg-black px-5 font-medium text-sm text-white shadow-xs hover:bg-neutral-800"
-							href={"/register" as Route}
-							size="lg"
-							variant="primary"
-						>
-							Get started
-						</ButtonLink>
-						<ButtonLink
-							className="flex h-10 items-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 font-medium text-neutral-900 text-sm shadow-2xs hover:bg-neutral-50"
-							href={BOOKING_URL as Route}
-							rel="noopener"
-							size="lg"
-							target="_blank"
-							variant="secondary"
-						>
-							<span className="flex size-4 items-center justify-center rounded-full border border-neutral-400">
-								<Play className="ml-0.5 size-2 fill-neutral-900 text-neutral-900" />
-							</span>
-							Watch demo
-						</ButtonLink>
-					</div>
+					<Reveal delay={0.24}>
+						<div className="mt-8 flex items-center justify-center gap-3">
+							<ButtonLink
+								className="h-10 rounded-lg bg-black px-5 font-medium text-sm text-white shadow-xs hover:bg-neutral-800"
+								href={"/register" as Route}
+								size="lg"
+								variant="primary"
+							>
+								Get started
+							</ButtonLink>
+							<ButtonLink
+								className="flex h-10 items-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 font-medium text-neutral-900 text-sm shadow-2xs hover:bg-neutral-50"
+								href={BOOKING_URL as Route}
+								rel="noopener"
+								size="lg"
+								target="_blank"
+								variant="secondary"
+							>
+								<span className="flex size-4 items-center justify-center rounded-full border border-neutral-400">
+									<Play className="ml-0.5 size-2 fill-neutral-900 text-neutral-900" />
+								</span>
+								Watch demo
+							</ButtonLink>
+						</div>
+					</Reveal>
 				</div>
 
 				{/* Floating Partner Cards Grid bounded within Frame */}
@@ -184,52 +196,82 @@ export function PartnersHero() {
 					<div className="relative [mask-image:linear-gradient(to_right,transparent_0%,black_12%,black_88%,transparent_100%)]">
 						<div className="grid grid-cols-1 gap-4 py-2 [mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] sm:grid-cols-2 lg:grid-cols-4">
 							{PARTNER_CARDS.map((column, colIdx) => (
-								<div
+								/* The wall arrives column by column, then never quite settles:
+								   each column keeps drifting on its own clock, so the block
+								   reads as a live roster rather than as a screenshot. Four
+								   columns on one clock would pulse in unison, which looks like
+								   a single breathing object instead of four. */
+								<motion.div
+									animate={
+										reduced
+											? undefined
+											: { filter: "blur(0px)", opacity: 1, y: 0 }
+									}
 									className="flex flex-col gap-4"
+									initial={
+										reduced
+											? undefined
+											: { filter: "blur(8px)", opacity: 0, y: 28 }
+									}
 									key={`partner-col-${colIdx.toString()}`}
+									transition={{
+										delay: 0.3 + colIdx * 0.09,
+										duration: 0.8,
+										ease: REVEAL_EASE,
+									}}
 								>
-									{column.map((card) => (
-										<div
-											className="flex w-full items-center gap-3.5 rounded-2xl border border-neutral-200/90 bg-white p-3 shadow-2xs transition-all hover:scale-102 hover:shadow-md"
-											key={card.name}
-										>
-											<Image
-												alt={card.name}
-												className="size-12 shrink-0 rounded-xl object-cover"
-												height={48}
-												src={card.avatar}
-												width={48}
-											/>
-											<div className="flex min-w-0 flex-1 flex-col">
-												<div className="flex items-center gap-1.5 truncate">
-													<span className="text-xs">{card.flag}</span>
-													<span className="truncate font-semibold text-neutral-900 text-xs">
-														{card.name}
-													</span>
-												</div>
-												<div className="mt-1 flex items-center justify-between text-[10px]">
-													<div className="flex flex-col">
-														<span className="font-medium text-[9px] text-neutral-400 uppercase tracking-wider">
-															Revenue
-														</span>
-														<span className="font-semibold text-neutral-900 text-xs">
-															{card.revenue}
+									<motion.div
+										animate={reduced ? undefined : { y: [0, -9, 0] }}
+										className="flex flex-col gap-4"
+										transition={{
+											duration: 7 + colIdx * 1.3,
+											ease: "easeInOut",
+											repeat: Number.POSITIVE_INFINITY,
+										}}
+									>
+										{column.map((card) => (
+											<div
+												className="flex w-full items-center gap-3.5 rounded-2xl border border-neutral-200/90 bg-white p-3 shadow-2xs transition-all hover:scale-102 hover:shadow-md"
+												key={card.name}
+											>
+												<Image
+													alt={card.name}
+													className="size-12 shrink-0 rounded-xl object-cover"
+													height={48}
+													src={card.avatar}
+													width={48}
+												/>
+												<div className="flex min-w-0 flex-1 flex-col">
+													<div className="flex items-center gap-1.5 truncate">
+														<span className="text-xs">{card.flag}</span>
+														<span className="truncate font-semibold text-neutral-900 text-xs">
+															{card.name}
 														</span>
 													</div>
-													<div className="h-6 w-px bg-neutral-100" />
-													<div className="flex flex-col">
-														<span className="font-medium text-[9px] text-neutral-400 uppercase tracking-wider">
-															Payouts
-														</span>
-														<span className="font-semibold text-neutral-900 text-xs">
-															{card.payouts}
-														</span>
+													<div className="mt-1 flex items-center justify-between text-[10px]">
+														<div className="flex flex-col">
+															<span className="font-medium text-[9px] text-neutral-400 uppercase tracking-wider">
+																Revenue
+															</span>
+															<span className="font-semibold text-neutral-900 text-xs">
+																{card.revenue}
+															</span>
+														</div>
+														<div className="h-6 w-px bg-neutral-100" />
+														<div className="flex flex-col">
+															<span className="font-medium text-[9px] text-neutral-400 uppercase tracking-wider">
+																Payouts
+															</span>
+															<span className="font-semibold text-neutral-900 text-xs">
+																{card.payouts}
+															</span>
+														</div>
 													</div>
 												</div>
 											</div>
-										</div>
-									))}
-								</div>
+										))}
+									</motion.div>
+								</motion.div>
 							))}
 						</div>
 					</div>

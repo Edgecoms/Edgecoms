@@ -146,31 +146,35 @@ export function ProductPreview() {
 					</div>
 				</div>
 
-				{/* Dashboard Preview Box */}
-				<div className="relative w-full overflow-hidden rounded-2xl border border-neutral-200 bg-white p-2 shadow-[0_24px_60px_-30px_rgba(0,0,0,0.25)]">
-					{VIDEOS[active] ? (
-						// Keyed on the tab so switching remounts the element: changing the
-						// `src` attribute alone leaves the old clip on screen until the
-						// browser is told to load again.
-						<video
-							autoPlay
-							className="aspect-[4/3] w-full rounded-xl bg-neutral-200 object-cover sm:aspect-[16/9]"
-							key={active}
-							loop
-							muted
-							playsInline
-							preload="metadata"
-							src={VIDEOS[active]}
-						>
-							<track kind="captions" />
-						</video>
-					) : (
-						<div className="aspect-[4/3] w-full rounded-xl bg-neutral-200 sm:aspect-[16/9]" />
-					)}
+				<div className="flex w-full flex-col">
+					{/* Dashboard Preview Box */}
+					<div className="mask-b-from-55% relative w-full overflow-hidden rounded-2xl border border-neutral-200 bg-white p-2 shadow-[0_24px_60px_-30px_rgba(0,0,0,0.25)]">
+						{VIDEOS[active] ? (
+							// Keyed on the tab so switching remounts the element: changing the
+							// `src` attribute alone leaves the old clip on screen until the
+							// browser is told to load again.
+							<video
+								autoPlay
+								className="aspect-[4/3] w-full rounded-xl bg-neutral-200 object-cover sm:aspect-[16/9]"
+								key={active}
+								loop
+								muted
+								playsInline
+								preload="metadata"
+								src={VIDEOS[active]}
+							>
+								<track kind="captions" />
+							</video>
+						) : (
+							<div className="aspect-[4/3] w-full rounded-xl bg-neutral-200 sm:aspect-[16/9]" />
+						)}
+					</div>
 
-					{/* Bottom dark banner card - attached at bottom full width on mobile (Image 2), floating on desktop */}
+					{/* Rides up into the box's faded bottom edge rather than sitting over
+				    the middle of the frame: the clip reads to the end, and the banner
+				    still overlaps enough to belong to it. */}
 					<Link
-						className="absolute inset-x-2 bottom-2 z-10 flex flex-col rounded-xl bg-neutral-900 p-5 shadow-[0_16px_40px_-16px_rgba(0,0,0,0.5)] transition-colors hover:bg-neutral-800 sm:bottom-12 sm:left-1/2 sm:w-[calc(100%-6rem)] sm:max-w-[820px] sm:-translate-x-1/2 sm:px-6 sm:py-4"
+						className="relative z-10 -mt-10 flex w-full flex-col rounded-xl bg-neutral-900 p-5 shadow-[0_16px_40px_-16px_rgba(0,0,0,0.5)] transition-colors hover:bg-neutral-800 sm:mx-auto sm:-mt-12 sm:max-w-[820px] sm:px-6 sm:py-4"
 						href={"/partners" as Route}
 					>
 						{/* Mobile view (< sm): Centered Title, Centered Description, Full-Width "Learn more" button (Image 2) */}

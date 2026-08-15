@@ -5,6 +5,7 @@ import { useState } from "react";
 import { CtaDark } from "@/components/landing/cta-dark";
 import { Frame } from "@/components/landing/frame";
 import { LogoCloud } from "@/components/landing/logo-cloud";
+import { Reveal } from "@/components/ui/reveal";
 import { BOOKING_URL } from "@/lib/booking";
 import { getProduct } from "@/lib/products";
 
@@ -30,42 +31,50 @@ function EdgeSubscriptionsHeroSection() {
 
 				<div className="mx-auto max-w-[1080px] px-4 sm:px-6">
 					<div className="relative z-20 flex max-w-[540px] flex-col items-start text-left">
-						<span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200/80 bg-emerald-50 px-3 py-1 font-semibold text-emerald-700 text-xs shadow-2xs">
-							<span className="size-2 rounded-full bg-emerald-600" />
-							{product?.name ?? "Edge Subscriptions"}
-						</span>
+						<Reveal>
+							<span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200/80 bg-emerald-50 px-3 py-1 font-semibold text-emerald-700 text-xs shadow-2xs">
+								<span className="size-2 rounded-full bg-emerald-600" />
+								{product?.name ?? "Edge Subscriptions"}
+							</span>
+						</Reveal>
 
-						<h1 className="mt-4 font-bold font-satoshi text-4xl text-neutral-900 leading-[1.08] tracking-tight sm:text-5xl lg:text-[52px]">
-							{product?.tagline ?? "Turn one sale into twelve."}
-						</h1>
+						<Reveal delay={0.08}>
+							<h1 className="mt-4 font-bold font-satoshi text-4xl text-neutral-900 leading-[1.08] tracking-tight sm:text-5xl lg:text-[52px]">
+								{product?.tagline ?? "Turn one sale into twelve."}
+							</h1>
+						</Reveal>
 
-						<p className="mt-4 max-w-[480px] text-neutral-500 text-sm leading-relaxed sm:text-base">
-							{product?.heroLead ??
-								"Subscribe-and-save on any product, a customer portal people actually use instead of emailing you, and dunning that recovers the subscription revenue most stores quietly lose to expired cards."}
-						</p>
+						<Reveal delay={0.16}>
+							<p className="mt-4 max-w-[480px] text-neutral-500 text-sm leading-relaxed sm:text-base">
+								{product?.heroLead ??
+									"Subscribe-and-save on any product, a customer portal people actually use instead of emailing you, and dunning that recovers the subscription revenue most stores quietly lose to expired cards."}
+							</p>
+						</Reveal>
 
-						<div className="mt-6 flex items-center gap-3">
-							<a
-								className="inline-flex items-center justify-center rounded-lg bg-black px-5 py-2.5 font-semibold text-sm text-white shadow-xs transition-colors hover:bg-neutral-800"
-								href={
-									product?.appStoreUrl ??
-									"https://apps.shopify.com/edge-subscription"
-								}
-								rel="noopener noreferrer"
-								target="_blank"
-							>
-								Start for free
-							</a>
-							<a
-								className="inline-flex items-center justify-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 py-2.5 font-medium text-neutral-900 text-sm shadow-2xs transition-colors hover:bg-neutral-50"
-								href={BOOKING_URL}
-								rel="noopener noreferrer"
-								target="_blank"
-							>
-								<Play className="size-3.5 fill-neutral-800 text-neutral-800" />
-								<span>Watch Demo</span>
-							</a>
-						</div>
+						<Reveal delay={0.24}>
+							<div className="mt-6 flex items-center gap-3">
+								<a
+									className="inline-flex items-center justify-center rounded-lg bg-black px-5 py-2.5 font-semibold text-sm text-white shadow-xs transition-colors hover:bg-neutral-800"
+									href={
+										product?.appStoreUrl ??
+										"https://apps.shopify.com/edge-subscription"
+									}
+									rel="noopener noreferrer"
+									target="_blank"
+								>
+									Start for free
+								</a>
+								<a
+									className="inline-flex items-center justify-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 py-2.5 font-medium text-neutral-900 text-sm shadow-2xs transition-colors hover:bg-neutral-50"
+									href={BOOKING_URL}
+									rel="noopener noreferrer"
+									target="_blank"
+								>
+									<Play className="size-3.5 fill-neutral-800 text-neutral-800" />
+									<span>Watch Demo</span>
+								</a>
+							</div>
+						</Reveal>
 					</div>
 
 					{/* Subscribe & Save Interactive Portal Showcase */}
@@ -211,9 +220,15 @@ export default function EdgeSubscriptionsPage() {
 	return (
 		<main className="min-h-screen bg-white">
 			<EdgeSubscriptionsHeroSection />
-			<LogoCloud />
-			<EdgeSubscriptionsFaqSection />
-			<CtaDark />
+			<Reveal>
+				<LogoCloud />
+			</Reveal>
+			<Reveal>
+				<EdgeSubscriptionsFaqSection />
+			</Reveal>
+			<Reveal>
+				<CtaDark />
+			</Reveal>
 		</main>
 	);
 }

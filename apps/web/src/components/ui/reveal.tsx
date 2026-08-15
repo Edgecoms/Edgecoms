@@ -26,9 +26,16 @@ export const REVEAL_DURATION = 0.8;
  */
 export function Reveal({
 	children,
+	className,
 	delay = 0,
 }: {
 	children: ReactNode;
+	/**
+	 * For when the wrapper lands in a layout that was addressing the child
+	 * directly — a grid cell, a flex row. `grid` is usually the fix: it makes
+	 * the wrapped element fill the cell the way it did before it was wrapped.
+	 */
+	className?: string;
 	delay?: number;
 }) {
 	const reduced = useReducedMotion();
@@ -39,6 +46,7 @@ export function Reveal({
 
 	return (
 		<motion.div
+			className={className}
 			initial={{ filter: "blur(8px)", opacity: 0, y: 24 }}
 			transition={{ delay, duration: REVEAL_DURATION, ease: REVEAL_EASE }}
 			viewport={{ amount: 0.15, margin: "0px 0px -80px 0px", once: true }}

@@ -13,6 +13,7 @@ import Link from "next/link";
 import { CtaDark } from "@/components/landing/cta-dark";
 import { Frame } from "@/components/landing/frame";
 import { LogoCloud } from "@/components/landing/logo-cloud";
+import { Reveal } from "@/components/ui/reveal";
 
 export const metadata: Metadata = {
 	title:
@@ -208,354 +209,369 @@ export default function AboutPage() {
 	return (
 		<main>
 			{/* SECTION 1: HERO SECTION */}
-			<section className="relative w-full border-neutral-200 border-b bg-white">
-				<Frame className="py-20 sm:py-24">
-					<div className="flex flex-col items-center justify-center px-6 text-center sm:px-8">
-						{/* Headline with Inline Pill Badges */}
-						<h1 className="max-w-3xl font-bold font-satoshi text-3xl text-neutral-900 leading-[1.25] tracking-tight sm:text-4xl lg:text-[44px]">
-							A dedicated{" "}
-							<span className="inline-flex items-center justify-center rounded-full bg-purple-100 px-2.5 py-0.5 align-middle text-purple-700">
-								<Users className="size-4 text-purple-600" />
-							</span>{" "}
-							team committed to powering your growth with the{" "}
-							<span className="inline-flex items-center justify-center rounded-full bg-emerald-100 px-2.5 py-0.5 align-middle text-emerald-700">
-								<ShoppingBag className="size-4 text-emerald-600" />
-							</span>{" "}
-							ultimate Shopify{" "}
-							<span className="inline-flex items-center justify-center rounded-full bg-orange-100 px-2.5 py-0.5 align-middle text-orange-700">
-								<TrendingUp className="size-4 text-orange-600" />
-							</span>{" "}
-							revenue suite.
-						</h1>
+			<Reveal>
+				<section className="relative w-full border-neutral-200 border-b bg-white">
+					<Frame className="py-20 sm:py-24">
+						<div className="flex flex-col items-center justify-center px-6 text-center sm:px-8">
+							{/* Headline with Inline Pill Badges */}
+							<h1 className="max-w-3xl font-bold font-satoshi text-3xl text-neutral-900 leading-[1.25] tracking-tight sm:text-4xl lg:text-[44px]">
+								A dedicated{" "}
+								<span className="inline-flex items-center justify-center rounded-full bg-purple-100 px-2.5 py-0.5 align-middle text-purple-700">
+									<Users className="size-4 text-purple-600" />
+								</span>{" "}
+								team committed to powering your growth with the{" "}
+								<span className="inline-flex items-center justify-center rounded-full bg-emerald-100 px-2.5 py-0.5 align-middle text-emerald-700">
+									<ShoppingBag className="size-4 text-emerald-600" />
+								</span>{" "}
+								ultimate Shopify{" "}
+								<span className="inline-flex items-center justify-center rounded-full bg-orange-100 px-2.5 py-0.5 align-middle text-orange-700">
+									<TrendingUp className="size-4 text-orange-600" />
+								</span>{" "}
+								revenue suite.
+							</h1>
 
-						{/* Subtitle */}
-						<p className="mt-4 max-w-lg text-neutral-500 text-sm leading-relaxed sm:text-base">
-							We're building the all-in-one app suite to lift average order
-							value, boost conversion rates, and deliver accurate server-side
-							attribution for modern Shopify brands.
-						</p>
+							{/* Subtitle */}
+							<p className="mt-4 max-w-lg text-neutral-500 text-sm leading-relaxed sm:text-base">
+								We're building the all-in-one app suite to lift average order
+								value, boost conversion rates, and deliver accurate server-side
+								attribution for modern Shopify brands.
+							</p>
 
-						{/* CTA Button */}
-						<div className="mt-6">
-							<Link
-								className="inline-flex items-center justify-center rounded-lg bg-black px-5 py-2 font-medium text-white text-xs shadow-xs transition-colors hover:bg-neutral-800 sm:text-sm"
-								href={"/#careers" as Route}
-							>
-								View careers
-							</Link>
+							{/* CTA Button */}
+							<div className="mt-6">
+								<Link
+									className="inline-flex items-center justify-center rounded-lg bg-black px-5 py-2 font-medium text-white text-xs shadow-xs transition-colors hover:bg-neutral-800 sm:text-sm"
+									href={"/#careers" as Route}
+								>
+									View careers
+								</Link>
+							</div>
 						</div>
-					</div>
-				</Frame>
-			</section>
+					</Frame>
+				</section>
+			</Reveal>
 
 			{/* SECTION 2: LOGO CLOUD BAR */}
-			<LogoCloud />
+			<Reveal>
+				<LogoCloud />
+			</Reveal>
 
 			{/* SECTION 3: WHAT IS EDGECOMS & VIDEO CARD */}
-			<section className="relative w-full border-neutral-200 border-b bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-neutral-50/40 [background-size:16px_16px]">
-				<Frame className="py-16 sm:py-20">
-					<div className="flex flex-col items-center px-6 text-center sm:px-8">
-						{/* Title */}
-						<h2 className="font-bold font-satoshi text-3xl text-neutral-900 leading-tight tracking-tight sm:text-4xl">
-							What is Edgecoms?
-						</h2>
+			<Reveal>
+				<section className="relative w-full border-neutral-200 border-b bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-neutral-50/40 [background-size:16px_16px]">
+					<Frame className="py-16 sm:py-20">
+						<div className="flex flex-col items-center px-6 text-center sm:px-8">
+							{/* Title */}
+							<h2 className="font-bold font-satoshi text-3xl text-neutral-900 leading-tight tracking-tight sm:text-4xl">
+								What is Edgecoms?
+							</h2>
 
-						{/* Subtitle */}
-						<p className="mt-4 max-w-xl text-neutral-600 text-xs leading-relaxed sm:text-sm">
-							Edgecoms is a high-performance suite of 7 specialized Shopify
-							apps. We power{" "}
-							<span className="underline decoration-neutral-400 decoration-dotted underline-offset-4">
-								volume bundles
-							</span>
-							,{" "}
-							<span className="underline decoration-neutral-400 decoration-dotted underline-offset-4">
-								slide cart upsells
-							</span>
-							,{" "}
-							<span className="underline decoration-neutral-400 decoration-dotted underline-offset-4">
-								auto-refills
-							</span>
-							, and{" "}
-							<span className="underline decoration-neutral-400 decoration-dotted underline-offset-4">
-								server-side attribution
-							</span>{" "}
-							for 1,000+ Shopify merchants globally.
-						</p>
-
-						{/* Video Banner Card */}
-						<div className="group relative mt-10 aspect-video w-full max-w-2xl cursor-pointer overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-900 shadow-xl">
-							<Image
-								alt="Get to know Edgecoms"
-								className="size-full object-cover opacity-85 transition-opacity group-hover:opacity-100"
-								height={720}
-								src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=1200"
-								width={1280}
-							/>
-							<div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-
-							{/* Bottom Left Info Pill */}
-							<div className="absolute bottom-4 left-4 z-10 flex items-center gap-2 rounded-lg bg-black/70 px-3 py-1.5 backdrop-blur-md">
-								<span className="font-semibold text-white text-xs">
-									Get to know Edgecoms with Founder Anurag Chandra
-								</span>
-							</div>
-
-							{/* Bottom Right Play Icon */}
-							<div className="absolute right-4 bottom-4 z-10 flex size-10 items-center justify-center rounded-full bg-white text-neutral-900 shadow-lg transition-transform duration-300 group-hover:scale-110">
-								<Play className="ml-0.5 size-4 fill-neutral-900" />
-							</div>
-						</div>
-
-						{/* Mission Statement */}
-						<div className="mt-16 max-w-xl text-center">
-							<h3 className="font-satoshi font-semibold text-2xl text-neutral-900 tracking-tight sm:text-3xl">
-								We're on a mission to maximize revenue per visitor for every
-								Shopify store.
-							</h3>
-							<p className="mt-4 text-neutral-500 text-xs leading-relaxed sm:text-sm">
-								Revenue per visitor is conversion rate times average order
-								value. Most Shopify apps bloat your theme code and slow down
-								your store while focusing on only a single touchpoint.
-							</p>
-							<p className="mt-3 text-neutral-500 text-xs leading-relaxed sm:text-sm">
-								We're building Edgecoms with zero Liquid theme bloat and
-								sub-50ms edge latency – giving merchants a seamless suite where
-								six apps directly lift revenue per visitor, and{" "}
+							{/* Subtitle */}
+							<p className="mt-4 max-w-xl text-neutral-600 text-xs leading-relaxed sm:text-sm">
+								Edgecoms is a high-performance suite of 7 specialized Shopify
+								apps. We power{" "}
 								<span className="underline decoration-neutral-400 decoration-dotted underline-offset-4">
-									Trackproof
+									volume bundles
+								</span>
+								,{" "}
+								<span className="underline decoration-neutral-400 decoration-dotted underline-offset-4">
+									slide cart upsells
+								</span>
+								,{" "}
+								<span className="underline decoration-neutral-400 decoration-dotted underline-offset-4">
+									auto-refills
+								</span>
+								, and{" "}
+								<span className="underline decoration-neutral-400 decoration-dotted underline-offset-4">
+									server-side attribution
 								</span>{" "}
-								proves the exact move server-side.
+								for 1,000+ Shopify merchants globally.
 							</p>
+
+							{/* Video Banner Card */}
+							<div className="group relative mt-10 aspect-video w-full max-w-2xl cursor-pointer overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-900 shadow-xl">
+								<Image
+									alt="Get to know Edgecoms"
+									className="size-full object-cover opacity-85 transition-opacity group-hover:opacity-100"
+									height={720}
+									src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=1200"
+									width={1280}
+								/>
+								<div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+
+								{/* Bottom Left Info Pill */}
+								<div className="absolute bottom-4 left-4 z-10 flex items-center gap-2 rounded-lg bg-black/70 px-3 py-1.5 backdrop-blur-md">
+									<span className="font-semibold text-white text-xs">
+										Get to know Edgecoms with Founder Anurag Chandra
+									</span>
+								</div>
+
+								{/* Bottom Right Play Icon */}
+								<div className="absolute right-4 bottom-4 z-10 flex size-10 items-center justify-center rounded-full bg-white text-neutral-900 shadow-lg transition-transform duration-300 group-hover:scale-110">
+									<Play className="ml-0.5 size-4 fill-neutral-900" />
+								</div>
+							</div>
+
+							{/* Mission Statement */}
+							<div className="mt-16 max-w-xl text-center">
+								<h3 className="font-satoshi font-semibold text-2xl text-neutral-900 tracking-tight sm:text-3xl">
+									We're on a mission to maximize revenue per visitor for every
+									Shopify store.
+								</h3>
+								<p className="mt-4 text-neutral-500 text-xs leading-relaxed sm:text-sm">
+									Revenue per visitor is conversion rate times average order
+									value. Most Shopify apps bloat your theme code and slow down
+									your store while focusing on only a single touchpoint.
+								</p>
+								<p className="mt-3 text-neutral-500 text-xs leading-relaxed sm:text-sm">
+									We're building Edgecoms with zero Liquid theme bloat and
+									sub-50ms edge latency – giving merchants a seamless suite
+									where six apps directly lift revenue per visitor, and{" "}
+									<span className="underline decoration-neutral-400 decoration-dotted underline-offset-4">
+										Trackproof
+									</span>{" "}
+									proves the exact move server-side.
+								</p>
+							</div>
 						</div>
-					</div>
-				</Frame>
-			</section>
+					</Frame>
+				</section>
+			</Reveal>
 
 			{/* SECTION 4: OUR PEOPLE & TEAM GRID */}
-			<section className="relative w-full border-neutral-200 border-b bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-neutral-50/40 [background-size:16px_16px]">
-				<Frame className="pt-16 pb-16 sm:pt-20 sm:pb-20">
-					{/* 3D WebGL Globe Visual matching Partners Page */}
-					<div className="relative mx-auto mb-4 flex h-[240px] w-full max-w-2xl items-center justify-center overflow-hidden sm:h-[270px]">
-						{/* 3D Globe Canvas with Bottom Gradient Fade Mask */}
-						<div
-							className="pointer-events-auto absolute top-0 flex size-[500px] cursor-grab items-center justify-center opacity-95 active:cursor-grabbing sm:size-[580px]"
-							style={{
-								maskImage:
-									"linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.95) 15%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,0.1) 40%, rgba(0,0,0,0) 45%)",
-								WebkitMaskImage:
-									"linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.95) 15%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,0.1) 40%, rgba(0,0,0,0) 45%)",
-							}}
-						>
-							<Globe
-								className="size-full"
-								config={{
-									baseColor: [0.98, 0.98, 0.99],
-									dark: 0,
-									devicePixelRatio: 2,
-									diffuse: 0.6,
-									glowColor: [0.96, 0.94, 1],
-									height: 1150,
-									mapBrightness: 1.5,
-									mapSamples: 24_000,
-									markerColor: [147 / 255, 51 / 255, 234 / 255],
-									markers: [
-										{ location: [52.3676, 4.9041], size: 0.08 },
-										{ location: [-26.2041, 28.0473], size: 0.08 },
-										{ location: [31.0461, 34.8516], size: 0.08 },
-										{ location: [40.7128, -74.006], size: 0.08 },
-										{ location: [51.5074, -0.1278], size: 0.08 },
-										{ location: [35.6762, 139.6503], size: 0.08 },
-									],
-									phi: 0.4,
-									theta: 0.2,
-									width: 1150,
-								}}
-							/>
-						</div>
-					</div>
-
-					{/* Header Content */}
-					<div className="flex flex-col items-center px-6 text-center sm:px-8">
-						{/* Eyebrow */}
-						<p className="flex items-center gap-1.5 font-medium text-neutral-500 text-xs">
-							<Users className="size-3.5" />
-							<span>Our People</span>
-						</p>
-
-						{/* Headline */}
-						<h2 className="mt-2 font-satoshi font-semibold text-2xl text-neutral-900 tracking-tight sm:text-3xl">
-							We care deeply about the human link
-						</h2>
-
-						{/* Subtitle */}
-						<p className="mt-2 max-w-lg text-neutral-500 text-xs leading-relaxed sm:text-sm">
-							Edgecoms is a fully-remote, small but mighty global team united by
-							speed, action, and a shared passion for reshaping marketing
-							attribution.
-						</p>
-					</div>
-
-					{/* Team Grid matching Image 1 with aligned baselines */}
-					<div className="mt-12 grid grid-cols-1 divide-y divide-neutral-200/80 border-neutral-200 border-t border-b bg-white/70 backdrop-blur-xs sm:grid-cols-2 sm:divide-x sm:divide-y-0 lg:grid-cols-4">
-						{TEAM_MEMBERS.map((member) => (
+			<Reveal>
+				<section className="relative w-full border-neutral-200 border-b bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-neutral-50/40 [background-size:16px_16px]">
+					<Frame className="pt-16 pb-16 sm:pt-20 sm:pb-20">
+						{/* 3D WebGL Globe Visual matching Partners Page */}
+						<div className="relative mx-auto mb-4 flex h-[240px] w-full max-w-2xl items-center justify-center overflow-hidden sm:h-[270px]">
+							{/* 3D Globe Canvas with Bottom Gradient Fade Mask */}
 							<div
-								className="flex h-full flex-col items-center justify-between p-6 text-center transition-colors hover:bg-neutral-50/70"
-								key={member.name}
+								className="pointer-events-auto absolute top-0 flex size-[500px] cursor-grab items-center justify-center opacity-95 active:cursor-grabbing sm:size-[580px]"
+								style={{
+									maskImage:
+										"linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.95) 15%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,0.1) 40%, rgba(0,0,0,0) 45%)",
+									WebkitMaskImage:
+										"linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.95) 15%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,0.1) 40%, rgba(0,0,0,0) 45%)",
+								}}
 							>
-								<div className="flex w-full flex-col items-center">
-									<div className="relative size-16 overflow-hidden rounded-full border border-neutral-200 shadow-2xs">
-										<Image
-											alt={member.name}
-											className="size-full object-cover"
-											height={64}
-											src={member.avatar}
-											width={64}
-										/>
-									</div>
-									<p className="mt-3 font-semibold text-neutral-900 text-sm">
-										{member.name}
-									</p>
-									<div className="mt-1 flex min-h-[2.5rem] items-center justify-center">
-										<p className="max-w-[190px] font-medium text-neutral-500 text-xs leading-snug">
-											{member.role}
-										</p>
-									</div>
-								</div>
-
-								{/* Social Media Pill Card aligned across all cards */}
-								<div className="mt-5 flex items-center justify-center gap-3 rounded-xl border border-neutral-200/90 bg-white px-3.5 py-1.5 shadow-2xs">
-									{member.twitter && (
-										<a
-											aria-label={`${member.name} on X`}
-											className="flex items-center justify-center"
-											href={member.twitter}
-											rel="noopener noreferrer"
-											target="_blank"
-										>
-											<XIcon />
-										</a>
-									)}
-									{member.github && (
-										<a
-											aria-label={`${member.name} on GitHub`}
-											className="flex items-center justify-center"
-											href={member.github}
-											rel="noopener noreferrer"
-											target="_blank"
-										>
-											<GithubIcon />
-										</a>
-									)}
-									{member.linkedin && (
-										<a
-											aria-label={`${member.name} on LinkedIn`}
-											className="flex items-center justify-center"
-											href={member.linkedin}
-											rel="noopener noreferrer"
-											target="_blank"
-										>
-											<LinkedinIcon />
-										</a>
-									)}
-								</div>
+								<Globe
+									className="size-full"
+									config={{
+										baseColor: [0.98, 0.98, 0.99],
+										dark: 0,
+										devicePixelRatio: 2,
+										diffuse: 0.6,
+										glowColor: [0.96, 0.94, 1],
+										height: 1150,
+										mapBrightness: 1.5,
+										mapSamples: 24_000,
+										markerColor: [147 / 255, 51 / 255, 234 / 255],
+										markers: [
+											{ location: [52.3676, 4.9041], size: 0.08 },
+											{ location: [-26.2041, 28.0473], size: 0.08 },
+											{ location: [31.0461, 34.8516], size: 0.08 },
+											{ location: [40.7128, -74.006], size: 0.08 },
+											{ location: [51.5074, -0.1278], size: 0.08 },
+											{ location: [35.6762, 139.6503], size: 0.08 },
+										],
+										phi: 0.4,
+										theta: 0.2,
+										width: 1150,
+									}}
+								/>
 							</div>
-						))}
-					</div>
-				</Frame>
-			</section>
+						</div>
 
-			{/* SECTION 5: LIFE AT EDGECOMS PHOTO MOSAIC */}
-			<section className="relative w-full border-neutral-200 border-b bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-neutral-50/40 [background-size:16px_16px]">
-				<Frame className="py-16 sm:py-20">
-					<div className="flex flex-col items-center px-6 text-center sm:px-8">
-						{/* Eyebrow */}
-						<p className="flex items-center gap-1 font-medium text-neutral-500 text-xs">
-							<Heart className="size-3.5 text-rose-500" />
-							<span>Staying Connected</span>
-						</p>
+						{/* Header Content */}
+						<div className="flex flex-col items-center px-6 text-center sm:px-8">
+							{/* Eyebrow */}
+							<p className="flex items-center gap-1.5 font-medium text-neutral-500 text-xs">
+								<Users className="size-3.5" />
+								<span>Our People</span>
+							</p>
 
-						{/* Headline */}
-						<h2 className="mt-2 font-bold font-satoshi text-3xl text-neutral-900 tracking-tight sm:text-4xl">
-							Life at Edgecoms
-						</h2>
+							{/* Headline */}
+							<h2 className="mt-2 font-satoshi font-semibold text-2xl text-neutral-900 tracking-tight sm:text-3xl">
+								We care deeply about the human link
+							</h2>
 
-						{/* Subtitle */}
-						<p className="mt-2 max-w-xl text-neutral-500 text-xs leading-relaxed sm:text-sm">
-							We're builders from all corners of the world who care deeply about
-							our work, but we also know when to step back and enjoy life. Some
-							of our best ideas come when we're not staring at screens.
-						</p>
+							{/* Subtitle */}
+							<p className="mt-2 max-w-lg text-neutral-500 text-xs leading-relaxed sm:text-sm">
+								Edgecoms is a fully-remote, small but mighty global team united
+								by speed, action, and a shared passion for reshaping marketing
+								attribution.
+							</p>
+						</div>
 
-						{/* Photo Mosaic Grid matching Image 5 */}
-						<div className="mt-12 grid w-full max-w-4xl grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
-							{LIFE_PHOTOS.map((photo) => (
+						{/* Team Grid matching Image 1 with aligned baselines */}
+						<div className="mt-12 grid grid-cols-1 divide-y divide-neutral-200/80 border-neutral-200 border-t border-b bg-white/70 backdrop-blur-xs sm:grid-cols-2 sm:divide-x sm:divide-y-0 lg:grid-cols-4">
+							{TEAM_MEMBERS.map((member) => (
 								<div
-									className={`relative overflow-hidden rounded-2xl border-4 border-white bg-white shadow-lg transition-transform duration-300 hover:rotate-0 hover:scale-105 ${photo.rotation}`}
-									key={photo.alt}
+									className="flex h-full flex-col items-center justify-between p-6 text-center transition-colors hover:bg-neutral-50/70"
+									key={member.name}
 								>
-									<div className="aspect-4/3 w-full overflow-hidden">
-										<Image
-											alt={photo.alt}
-											className="size-full object-cover"
-											height={400}
-											src={photo.src}
-											width={500}
-										/>
+									<div className="flex w-full flex-col items-center">
+										<div className="relative size-16 overflow-hidden rounded-full border border-neutral-200 shadow-2xs">
+											<Image
+												alt={member.name}
+												className="size-full object-cover"
+												height={64}
+												src={member.avatar}
+												width={64}
+											/>
+										</div>
+										<p className="mt-3 font-semibold text-neutral-900 text-sm">
+											{member.name}
+										</p>
+										<div className="mt-1 flex min-h-[2.5rem] items-center justify-center">
+											<p className="max-w-[190px] font-medium text-neutral-500 text-xs leading-snug">
+												{member.role}
+											</p>
+										</div>
+									</div>
+
+									{/* Social Media Pill Card aligned across all cards */}
+									<div className="mt-5 flex items-center justify-center gap-3 rounded-xl border border-neutral-200/90 bg-white px-3.5 py-1.5 shadow-2xs">
+										{member.twitter && (
+											<a
+												aria-label={`${member.name} on X`}
+												className="flex items-center justify-center"
+												href={member.twitter}
+												rel="noopener noreferrer"
+												target="_blank"
+											>
+												<XIcon />
+											</a>
+										)}
+										{member.github && (
+											<a
+												aria-label={`${member.name} on GitHub`}
+												className="flex items-center justify-center"
+												href={member.github}
+												rel="noopener noreferrer"
+												target="_blank"
+											>
+												<GithubIcon />
+											</a>
+										)}
+										{member.linkedin && (
+											<a
+												aria-label={`${member.name} on LinkedIn`}
+												className="flex items-center justify-center"
+												href={member.linkedin}
+												rel="noopener noreferrer"
+												target="_blank"
+											>
+												<LinkedinIcon />
+											</a>
+										)}
 									</div>
 								</div>
 							))}
 						</div>
-					</div>
-				</Frame>
-			</section>
+					</Frame>
+				</section>
+			</Reveal>
 
-			{/* SECTION 6: OUR VALUES */}
-			<section className="relative w-full overflow-hidden border-neutral-200 border-b bg-white">
-				<Frame>
-					{/* Top Cloud Graphic Header */}
-					<div className="relative flex flex-col items-center justify-center px-6 pt-16 pb-12 text-center sm:px-8 sm:pt-20">
-						{/* Cloud Glow Graphic */}
-						<div className="relative mb-2 flex h-28 w-full max-w-md items-center justify-center">
-							<div
-								aria-hidden="true"
-								className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_50%_40%,rgba(56,189,248,0.22),transparent_75%)]"
-							/>
-							<div className="relative z-10 flex size-9 items-center justify-center rounded-full border border-neutral-200/80 bg-white shadow-sm">
-								<Flag className="size-4 text-neutral-800" />
+			{/* SECTION 5: LIFE AT EDGECOMS PHOTO MOSAIC */}
+			<Reveal>
+				<section className="relative w-full border-neutral-200 border-b bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-neutral-50/40 [background-size:16px_16px]">
+					<Frame className="py-16 sm:py-20">
+						<div className="flex flex-col items-center px-6 text-center sm:px-8">
+							{/* Eyebrow */}
+							<p className="flex items-center gap-1 font-medium text-neutral-500 text-xs">
+								<Heart className="size-3.5 text-rose-500" />
+								<span>Staying Connected</span>
+							</p>
+
+							{/* Headline */}
+							<h2 className="mt-2 font-bold font-satoshi text-3xl text-neutral-900 tracking-tight sm:text-4xl">
+								Life at Edgecoms
+							</h2>
+
+							{/* Subtitle */}
+							<p className="mt-2 max-w-xl text-neutral-500 text-xs leading-relaxed sm:text-sm">
+								We're builders from all corners of the world who care deeply
+								about our work, but we also know when to step back and enjoy
+								life. Some of our best ideas come when we're not staring at
+								screens.
+							</p>
+
+							{/* Photo Mosaic Grid matching Image 5 */}
+							<div className="mt-12 grid w-full max-w-4xl grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
+								{LIFE_PHOTOS.map((photo) => (
+									<div
+										className={`relative overflow-hidden rounded-2xl border-4 border-white bg-white shadow-lg transition-transform duration-300 hover:rotate-0 hover:scale-105 ${photo.rotation}`}
+										key={photo.alt}
+									>
+										<div className="aspect-4/3 w-full overflow-hidden">
+											<Image
+												alt={photo.alt}
+												className="size-full object-cover"
+												height={400}
+												src={photo.src}
+												width={500}
+											/>
+										</div>
+									</div>
+								))}
 							</div>
 						</div>
+					</Frame>
+				</section>
+			</Reveal>
 
-						<h2 className="font-bold font-satoshi text-3xl text-neutral-900 tracking-tight sm:text-4xl">
-							Our values
-						</h2>
-					</div>
-
-					{/* 2x2 Values Grid matching reference image */}
-					<div className="grid grid-cols-1 divide-y divide-neutral-200 border-neutral-200 border-t border-b bg-white sm:grid-cols-2 sm:divide-x sm:divide-y-0">
-						{COMPANY_VALUES.map((val, idx) => (
-							<div
-								className={`flex flex-col p-8 text-left transition-colors hover:bg-neutral-50/50 sm:p-10 ${
-									idx >= 2 ? "border-neutral-200 sm:border-t" : ""
-								}`}
-								key={val.number}
-							>
-								<span className="font-mono font-semibold text-orange-600 text-xs sm:text-sm">
-									{val.number}
-								</span>
-								<h3 className="mt-3 font-semibold text-lg text-neutral-900 sm:text-xl">
-									{val.title}
-								</h3>
-								<p className="mt-3 max-w-md text-neutral-500 text-xs leading-relaxed sm:text-sm">
-									{val.body}
-								</p>
+			{/* SECTION 6: OUR VALUES */}
+			<Reveal>
+				<section className="relative w-full overflow-hidden border-neutral-200 border-b bg-white">
+					<Frame>
+						{/* Top Cloud Graphic Header */}
+						<div className="relative flex flex-col items-center justify-center px-6 pt-16 pb-12 text-center sm:px-8 sm:pt-20">
+							{/* Cloud Glow Graphic */}
+							<div className="relative mb-2 flex h-28 w-full max-w-md items-center justify-center">
+								<div
+									aria-hidden="true"
+									className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_50%_40%,rgba(56,189,248,0.22),transparent_75%)]"
+								/>
+								<div className="relative z-10 flex size-9 items-center justify-center rounded-full border border-neutral-200/80 bg-white shadow-sm">
+									<Flag className="size-4 text-neutral-800" />
+								</div>
 							</div>
-						))}
-					</div>
-				</Frame>
-			</section>
+
+							<h2 className="font-bold font-satoshi text-3xl text-neutral-900 tracking-tight sm:text-4xl">
+								Our values
+							</h2>
+						</div>
+
+						{/* 2x2 Values Grid matching reference image */}
+						<div className="grid grid-cols-1 divide-y divide-neutral-200 border-neutral-200 border-t border-b bg-white sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+							{COMPANY_VALUES.map((val, idx) => (
+								<div
+									className={`flex flex-col p-8 text-left transition-colors hover:bg-neutral-50/50 sm:p-10 ${
+										idx >= 2 ? "border-neutral-200 sm:border-t" : ""
+									}`}
+									key={val.number}
+								>
+									<span className="font-mono font-semibold text-orange-600 text-xs sm:text-sm">
+										{val.number}
+									</span>
+									<h3 className="mt-3 font-semibold text-lg text-neutral-900 sm:text-xl">
+										{val.title}
+									</h3>
+									<p className="mt-3 max-w-md text-neutral-500 text-xs leading-relaxed sm:text-sm">
+										{val.body}
+									</p>
+								</div>
+							))}
+						</div>
+					</Frame>
+				</section>
+			</Reveal>
 
 			{/* SECTION 7: CLOSING CTA */}
-			<CtaDark />
+			<Reveal>
+				<CtaDark />
+			</Reveal>
 		</main>
 	);
 }

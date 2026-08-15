@@ -5,6 +5,7 @@ import { useState } from "react";
 import { CtaDark } from "@/components/landing/cta-dark";
 import { Frame } from "@/components/landing/frame";
 import { LogoCloud } from "@/components/landing/logo-cloud";
+import { Reveal } from "@/components/ui/reveal";
 import { BOOKING_URL } from "@/lib/booking";
 import { getProduct } from "@/lib/products";
 
@@ -38,41 +39,49 @@ function EdgeCartHeroSection() {
 
 				<div className="mx-auto max-w-[1080px] px-4 sm:px-6">
 					<div className="relative z-20 flex max-w-[540px] flex-col items-start text-left">
-						<span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200/80 bg-blue-50 px-3 py-1 font-semibold text-blue-700 text-xs shadow-2xs">
-							<span className="size-2 rounded-full bg-blue-600" />
-							{product?.name ?? "Edge Cart"}
-						</span>
+						<Reveal>
+							<span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200/80 bg-blue-50 px-3 py-1 font-semibold text-blue-700 text-xs shadow-2xs">
+								<span className="size-2 rounded-full bg-blue-600" />
+								{product?.name ?? "Edge Cart"}
+							</span>
+						</Reveal>
 
-						<h1 className="mt-4 font-bold font-satoshi text-4xl text-neutral-900 leading-[1.08] tracking-tight sm:text-5xl lg:text-[52px]">
-							{product?.tagline ??
-								"The highest-intent moment in your funnel is doing nothing."}
-						</h1>
+						<Reveal delay={0.08}>
+							<h1 className="mt-4 font-bold font-satoshi text-4xl text-neutral-900 leading-[1.08] tracking-tight sm:text-5xl lg:text-[52px]">
+								{product?.tagline ??
+									"The highest-intent moment in your funnel is doing nothing."}
+							</h1>
+						</Reveal>
 
-						<p className="mt-4 max-w-[480px] text-neutral-500 text-sm leading-relaxed sm:text-base">
-							{product?.heroLead ??
-								"A slide cart that opens without a page load, upsells chosen by rule instead of by guess, and free-shipping progress that moves as they add, all at the one moment the shopper has already decided to buy."}
-						</p>
+						<Reveal delay={0.16}>
+							<p className="mt-4 max-w-[480px] text-neutral-500 text-sm leading-relaxed sm:text-base">
+								{product?.heroLead ??
+									"A slide cart that opens without a page load, upsells chosen by rule instead of by guess, and free-shipping progress that moves as they add, all at the one moment the shopper has already decided to buy."}
+							</p>
+						</Reveal>
 
-						<div className="mt-6 flex items-center gap-3">
-							<a
-								className="inline-flex items-center justify-center rounded-lg bg-black px-5 py-2.5 font-semibold text-sm text-white shadow-xs transition-colors hover:bg-neutral-800"
-								href={
-									product?.appStoreUrl ?? "https://apps.shopify.com/edgecart"
-								}
-								rel="noopener noreferrer"
-								target="_blank"
-							>
-								Start for free
-							</a>
-							<a
-								className="inline-flex items-center justify-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 py-2.5 font-medium text-neutral-900 text-sm shadow-2xs transition-colors hover:bg-neutral-50"
-								href={BOOKING_URL}
-								rel="noopener noreferrer"
-								target="_blank"
-							>
-								<span>Live Demo</span>
-							</a>
-						</div>
+						<Reveal delay={0.24}>
+							<div className="mt-6 flex items-center gap-3">
+								<a
+									className="inline-flex items-center justify-center rounded-lg bg-black px-5 py-2.5 font-semibold text-sm text-white shadow-xs transition-colors hover:bg-neutral-800"
+									href={
+										product?.appStoreUrl ?? "https://apps.shopify.com/edgecart"
+									}
+									rel="noopener noreferrer"
+									target="_blank"
+								>
+									Start for free
+								</a>
+								<a
+									className="inline-flex items-center justify-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 py-2.5 font-medium text-neutral-900 text-sm shadow-2xs transition-colors hover:bg-neutral-50"
+									href={BOOKING_URL}
+									rel="noopener noreferrer"
+									target="_blank"
+								>
+									<span>Live Demo</span>
+								</a>
+							</div>
+						</Reveal>
 					</div>
 
 					{/* Slide Cart Preview UI Component */}
@@ -266,9 +275,15 @@ export default function EdgeCartPage() {
 	return (
 		<main className="min-h-screen bg-white">
 			<EdgeCartHeroSection />
-			<LogoCloud />
-			<EdgeCartFaqSection />
-			<CtaDark />
+			<Reveal>
+				<LogoCloud />
+			</Reveal>
+			<Reveal>
+				<EdgeCartFaqSection />
+			</Reveal>
+			<Reveal>
+				<CtaDark />
+			</Reveal>
 		</main>
 	);
 }

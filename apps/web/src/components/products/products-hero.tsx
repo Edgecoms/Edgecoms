@@ -3,6 +3,7 @@ import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Frame, GridField } from "@/components/landing/frame";
+import { Reveal } from "@/components/ui/reveal";
 
 /**
  * THE CONSTELLATION.
@@ -190,44 +191,52 @@ export function ProductsHero() {
 			<Frame>
 				<div className="mx-auto flex w-full max-w-[820px] flex-col items-center gap-5 px-4 pt-16 pb-16 text-center sm:gap-6 sm:px-6 sm:pt-24 sm:pb-20">
 					{/* Eyebrow pill */}
-					<div className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-3 py-1 shadow-2xs">
-						<Image
-							alt=""
-							className="size-4 rounded object-contain"
-							height={32}
-							src="/app-icons/edge-bundles.webp"
-							width={32}
-						/>
-						<span className="font-medium text-neutral-800 text-xs">
-							Edge Apps
-						</span>
-					</div>
+					<Reveal>
+						<div className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-3 py-1 shadow-2xs">
+							<Image
+								alt=""
+								className="size-4 rounded object-contain"
+								height={32}
+								src="/app-icons/edge-bundles.webp"
+								width={32}
+							/>
+							<span className="font-medium text-neutral-800 text-xs">
+								Edge Apps
+							</span>
+						</div>
+					</Reveal>
 
 					{/* Headline */}
-					<h1 className="text-balance font-semibold text-3xl text-neutral-900 leading-[1.15] tracking-tight sm:text-[48px] sm:leading-[1.1] lg:text-[56px]">
-						Every app here
-						<br />
-						moves one number
-					</h1>
+					<Reveal delay={0.08}>
+						<h1 className="text-balance font-semibold text-3xl text-neutral-900 leading-[1.15] tracking-tight sm:text-[48px] sm:leading-[1.1] lg:text-[56px]">
+							Every app here
+							<br />
+							moves one number
+						</h1>
+					</Reveal>
 
 					{/* Subhead */}
-					<p className="max-w-md text-pretty text-neutral-500 text-sm leading-relaxed sm:max-w-[620px] sm:text-base sm:leading-normal">
-						Revenue per visitor is conversion rate times average order value.
-						Six of these lift one side of it, and the seventh proves it moved.{" "}
-						<strong className="font-semibold text-neutral-900">
-							Most have a free plan.
-						</strong>
-					</p>
+					<Reveal delay={0.16}>
+						<p className="max-w-md text-pretty text-neutral-500 text-sm leading-relaxed sm:max-w-[620px] sm:text-base sm:leading-normal">
+							Revenue per visitor is conversion rate times average order value.
+							Six of these lift one side of it, and the seventh proves it moved.{" "}
+							<strong className="font-semibold text-neutral-900">
+								Most have a free plan.
+							</strong>
+						</p>
+					</Reveal>
 
 					{/* CTA Button */}
-					<div className="mt-2 sm:mt-3">
-						<Link
-							className="inline-flex items-center justify-center rounded-lg bg-neutral-900 px-4 py-2.5 font-medium text-white text-xs shadow-2xs transition-colors hover:bg-neutral-800 sm:px-5 sm:py-2.5 sm:text-sm"
-							href={"/#apps" as Route}
-						>
-							Start with one app
-						</Link>
-					</div>
+					<Reveal delay={0.24}>
+						<div className="mt-2 sm:mt-3">
+							<Link
+								className="inline-flex items-center justify-center rounded-lg bg-neutral-900 px-4 py-2.5 font-medium text-white text-xs shadow-2xs transition-colors hover:bg-neutral-800 sm:px-5 sm:py-2.5 sm:text-sm"
+								href={"/#apps" as Route}
+							>
+								Start with one app
+							</Link>
+						</div>
+					</Reveal>
 				</div>
 			</Frame>
 
@@ -247,7 +256,7 @@ export function ProductsHero() {
 				    rather than around it, and a scatter with no room to scatter in is
 				    just clutter behind the thing you are meant to read. */}
 				<ul className="pointer-events-none absolute inset-0 hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)] md:block">
-					{CONSTELLATION.map((item) => (
+					{CONSTELLATION.map((item, index) => (
 						<li
 							className="absolute animate-drift motion-reduce:animate-none"
 							key={item.slug}
@@ -258,20 +267,26 @@ export function ProductsHero() {
 								top: item.top,
 							}}
 						>
-							<Image
-								alt=""
-								className="rounded-[22%] border border-neutral-200/70 shadow-[0_16px_32px_-12px_rgba(0,0,0,0.28)]"
-								height={128}
-								src={`/app-icons/${item.slug}.webp`}
-								style={{ height: item.size, width: item.size }}
-								width={128}
-							/>
+							{/* The arrival is on the inner element so it cannot fight the
+							    CSS drift transform running on the `li` above it. */}
+							<Reveal delay={0.3 + index * 0.07}>
+								<Image
+									alt=""
+									className="rounded-[22%] border border-neutral-200/70 shadow-[0_16px_32px_-12px_rgba(0,0,0,0.28)]"
+									height={128}
+									src={`/app-icons/${item.slug}.webp`}
+									style={{ height: item.size, width: item.size }}
+									width={128}
+								/>
+							</Reveal>
 						</li>
 					))}
 				</ul>
 
 				<div className="absolute inset-0 flex items-start justify-center pt-6">
-					<StoreCard />
+					<Reveal delay={0.2}>
+						<StoreCard />
+					</Reveal>
 				</div>
 			</Frame>
 		</section>

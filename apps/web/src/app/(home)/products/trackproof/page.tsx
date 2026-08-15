@@ -13,6 +13,7 @@ import { useState } from "react";
 import { CtaDark } from "@/components/landing/cta-dark";
 import { Frame } from "@/components/landing/frame";
 import { LogoCloud } from "@/components/landing/logo-cloud";
+import { Reveal } from "@/components/ui/reveal";
 import { BOOKING_URL } from "@/lib/booking";
 import { getProduct } from "@/lib/products";
 
@@ -62,45 +63,54 @@ function TrackproofHeroSection() {
 					{/* Left-Aligned Copy Block matching image */}
 					<div className="relative z-20 flex max-w-[540px] flex-col items-start text-left">
 						{/* Eyebrow Badge */}
-						<span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200/80 bg-emerald-50 px-3 py-1 font-semibold text-emerald-700 text-xs shadow-2xs">
-							<span className="size-2 rounded-full bg-emerald-500" />
-							Trackproof Analytics
-						</span>
+						<Reveal>
+							<span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200/80 bg-emerald-50 px-3 py-1 font-semibold text-emerald-700 text-xs shadow-2xs">
+								<span className="size-2 rounded-full bg-emerald-500" />
+								Trackproof Analytics
+							</span>
+						</Reveal>
 
 						{/* Title */}
-						<h1 className="mt-4 font-bold font-satoshi text-4xl text-neutral-900 leading-[1.08] tracking-tight sm:text-5xl lg:text-[52px]">
-							{product?.tagline ??
-								"Your ROAS is better than Meta is telling you."}
-						</h1>
+						<Reveal delay={0.08}>
+							<h1 className="mt-4 font-bold font-satoshi text-4xl text-neutral-900 leading-[1.08] tracking-tight sm:text-5xl lg:text-[52px]">
+								{product?.tagline ??
+									"Your ROAS is better than Meta is telling you."}
+							</h1>
+						</Reveal>
 
 						{/* Subhead */}
-						<p className="mt-4 max-w-[480px] text-neutral-500 text-sm leading-relaxed sm:text-base">
-							{product?.heroLead ??
-								"Server-side conversions for Meta, Google, and TikTok through each platform's Conversions API, deduplicated against your existing pixel, so every purchase is counted once and none of them go missing."}
-						</p>
+						<Reveal delay={0.16}>
+							<p className="mt-4 max-w-[480px] text-neutral-500 text-sm leading-relaxed sm:text-base">
+								{product?.heroLead ??
+									"Server-side conversions for Meta, Google, and TikTok through each platform's Conversions API, deduplicated against your existing pixel, so every purchase is counted once and none of them go missing."}
+							</p>
+						</Reveal>
 
 						{/* Action Buttons */}
-						<div className="mt-6 flex items-center gap-3">
-							<a
-								className="inline-flex items-center justify-center rounded-lg bg-black px-5 py-2.5 font-semibold text-sm text-white shadow-xs transition-colors hover:bg-neutral-800"
-								href={
-									product?.appStoreUrl ?? "https://apps.shopify.com/trackproof"
-								}
-								rel="noopener noreferrer"
-								target="_blank"
-							>
-								Start for free
-							</a>
-							<a
-								className="inline-flex items-center justify-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 py-2.5 font-medium text-neutral-900 text-sm shadow-2xs transition-colors hover:bg-neutral-50"
-								href={BOOKING_URL}
-								rel="noopener noreferrer"
-								target="_blank"
-							>
-								<Play className="size-3.5 fill-neutral-800 text-neutral-800" />
-								<span>Watch Demo</span>
-							</a>
-						</div>
+						<Reveal delay={0.24}>
+							<div className="mt-6 flex items-center gap-3">
+								<a
+									className="inline-flex items-center justify-center rounded-lg bg-black px-5 py-2.5 font-semibold text-sm text-white shadow-xs transition-colors hover:bg-neutral-800"
+									href={
+										product?.appStoreUrl ??
+										"https://apps.shopify.com/trackproof"
+									}
+									rel="noopener noreferrer"
+									target="_blank"
+								>
+									Start for free
+								</a>
+								<a
+									className="inline-flex items-center justify-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 py-2.5 font-medium text-neutral-900 text-sm shadow-2xs transition-colors hover:bg-neutral-50"
+									href={BOOKING_URL}
+									rel="noopener noreferrer"
+									target="_blank"
+								>
+									<Play className="size-3.5 fill-neutral-800 text-neutral-800" />
+									<span>Watch Demo</span>
+								</a>
+							</div>
+						</Reveal>
 					</div>
 
 					{/* Seamless Chart Area matching image */}
@@ -666,25 +676,39 @@ export default function TrackproofProductPage() {
 			<TrackproofHeroSection />
 
 			{/* SECTION 2: LOGO CLOUD */}
-			<LogoCloud />
+			<Reveal>
+				<LogoCloud />
+			</Reveal>
 
 			{/* SECTION 3: REAL-TIME EVENTS STREAM */}
-			<RealTimeEventsStreamSection />
+			<Reveal>
+				<RealTimeEventsStreamSection />
+			</Reveal>
 
 			{/* SECTION 4: TRACKING HEALTH */}
-			<TrackingHealthSection />
+			<Reveal>
+				<TrackingHealthSection />
+			</Reveal>
 
 			{/* SECTION 5: PIXEL VS TRACKPROOF COMPARISON */}
-			<TrackproofComparisonSection />
+			<Reveal>
+				<TrackproofComparisonSection />
+			</Reveal>
 
 			{/* SECTION 6: CORE CAPABILITIES */}
-			<TrackproofCoreCapabilitiesSection />
+			<Reveal>
+				<TrackproofCoreCapabilitiesSection />
+			</Reveal>
 
 			{/* SECTION 7: FREQUENTLY ASKED QUESTIONS */}
-			<TrackproofFaqSection />
+			<Reveal>
+				<TrackproofFaqSection />
+			</Reveal>
 
 			{/* SECTION 8: CLOSING CTA */}
-			<CtaDark />
+			<Reveal>
+				<CtaDark />
+			</Reveal>
 		</main>
 	);
 }

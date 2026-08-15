@@ -7,6 +7,7 @@ import { HaapstaTestimonial } from "@/components/products/haapsta-testimonial";
 import { ProductsHero } from "@/components/products/products-hero";
 import { ScaleConfidence } from "@/components/products/scale-confidence";
 import { StartExcel } from "@/components/products/start-excel";
+import { Reveal } from "@/components/ui/reveal";
 
 export const metadata: Metadata = {
 	title: "Edge Apps · Every app here moves one number",
@@ -19,14 +20,26 @@ export const metadata: Metadata = {
 export default function ProductsPage() {
 	return (
 		<main>
+			{/* The hero and the two sections that sequence themselves are left
+			    unwrapped; everything else arrives as a block on scroll. */}
 			<ProductsHero />
-			<MigrationGrid />
+			<Reveal>
+				<MigrationGrid />
+			</Reveal>
 			<ScaleConfidence />
 			<AppsStack />
-			<HaapstaTestimonial />
-			<StartExcel />
-			<FaqSection />
-			<CtaDark />
+			<Reveal>
+				<HaapstaTestimonial />
+			</Reveal>
+			<Reveal>
+				<StartExcel />
+			</Reveal>
+			<Reveal>
+				<FaqSection />
+			</Reveal>
+			<Reveal>
+				<CtaDark />
+			</Reveal>
 		</main>
 	);
 }

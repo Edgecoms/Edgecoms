@@ -15,6 +15,7 @@ import {
 import type { Route } from "next";
 import Link from "next/link";
 import { Frame } from "@/components/landing/frame";
+import { Reveal } from "@/components/ui/reveal";
 
 const EDGE_SUITE_FEATURES = [
 	{
@@ -61,17 +62,19 @@ export function ScaleConfidence() {
 			<Frame>
 				<div className="px-4 py-8 sm:px-6 sm:py-12">
 					{/* Section Header */}
-					<div className="mx-auto max-w-2xl text-center">
-						<h2 className="font-bold font-satoshi text-3xl text-neutral-900 leading-[1.1] tracking-tight sm:text-4xl lg:text-[44px]">
-							Launch today,
-							<br />
-							scale with confidence
-						</h2>
-						<p className="mt-4 text-neutral-500 text-sm leading-relaxed sm:text-base">
-							Advanced features to lift conversion rate, grow average order
-							value, and automate storefront growth at scale.
-						</p>
-					</div>
+					<Reveal>
+						<div className="mx-auto max-w-2xl text-center">
+							<h2 className="font-bold font-satoshi text-3xl text-neutral-900 leading-[1.1] tracking-tight sm:text-4xl lg:text-[44px]">
+								Launch today,
+								<br />
+								scale with confidence
+							</h2>
+							<p className="mt-4 text-neutral-500 text-sm leading-relaxed sm:text-base">
+								Advanced features to lift conversion rate, grow average order
+								value, and automate storefront growth at scale.
+							</p>
+						</div>
+					</Reveal>
 
 					{/* Section Content */}
 					<div className="mt-12 flex flex-col gap-6 sm:mt-16">
@@ -101,43 +104,45 @@ export function ScaleConfidence() {
 
 							{/* 4 Feature Columns */}
 							<div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-								{EDGE_SUITE_FEATURES.map((col) => (
-									<div key={col.title}>
-										<h4 className="mb-3 font-semibold text-neutral-900 text-xs sm:text-sm">
-											{col.title}
-										</h4>
-										<ul className="flex flex-col gap-2.5">
-											{col.items.map((item) => {
-												const Icon = item.icon;
-												const isHighlight =
-													"highlight" in item && item.highlight;
+								{EDGE_SUITE_FEATURES.map((col, index) => (
+									<Reveal delay={index * 0.07} key={col.title}>
+										<div>
+											<h4 className="mb-3 font-semibold text-neutral-900 text-xs sm:text-sm">
+												{col.title}
+											</h4>
+											<ul className="flex flex-col gap-2.5">
+												{col.items.map((item) => {
+													const Icon = item.icon;
+													const isHighlight =
+														"highlight" in item && item.highlight;
 
-												return (
-													<li
-														className="flex items-center gap-2 text-neutral-600 text-xs sm:text-[13px]"
-														key={item.label}
-													>
-														{isHighlight ? (
-															<span className="flex size-4 shrink-0 items-center justify-center rounded bg-orange-500 text-white">
-																<Icon className="size-2.5" />
-															</span>
-														) : (
-															<Icon className="size-3.5 shrink-0 text-neutral-400" />
-														)}
-														<span
-															className={
-																isHighlight
-																	? "font-medium text-neutral-900 underline underline-offset-2"
-																	: "underline decoration-neutral-300 underline-offset-2 hover:decoration-neutral-500"
-															}
+													return (
+														<li
+															className="flex items-center gap-2 text-neutral-600 text-xs sm:text-[13px]"
+															key={item.label}
 														>
-															{item.label}
-														</span>
-													</li>
-												);
-											})}
-										</ul>
-									</div>
+															{isHighlight ? (
+																<span className="flex size-4 shrink-0 items-center justify-center rounded bg-orange-500 text-white">
+																	<Icon className="size-2.5" />
+																</span>
+															) : (
+																<Icon className="size-3.5 shrink-0 text-neutral-400" />
+															)}
+															<span
+																className={
+																	isHighlight
+																		? "font-medium text-neutral-900 underline underline-offset-2"
+																		: "underline decoration-neutral-300 underline-offset-2 hover:decoration-neutral-500"
+																}
+															>
+																{item.label}
+															</span>
+														</li>
+													);
+												})}
+											</ul>
+										</div>
+									</Reveal>
 								))}
 							</div>
 						</div>

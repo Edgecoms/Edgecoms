@@ -14,6 +14,13 @@ import {
 
 const TABS: readonly PillarKey[] = ["apps", "results", "partners"];
 
+/* One clip per pillar. A pillar with no entry keeps the grey plate — the box is
+   a placeholder until there is something true to show in it. */
+const VIDEOS: Partial<Record<PillarKey, string>> = {
+	partners: "/videos/edge-partners.mp4",
+	results: "/videos/trackproof.mp4",
+};
+
 export function ProductPreview() {
 	const [active, setActive] = useState<PillarKey>("apps");
 
@@ -141,7 +148,25 @@ export function ProductPreview() {
 
 				{/* Dashboard Preview Box */}
 				<div className="relative w-full overflow-hidden rounded-2xl border border-neutral-200 bg-white p-2 shadow-[0_24px_60px_-30px_rgba(0,0,0,0.25)]">
-					<div className="aspect-[4/3] w-full rounded-xl bg-neutral-200 sm:aspect-[16/9]" />
+					{VIDEOS[active] ? (
+						// Keyed on the tab so switching remounts the element: changing the
+						// `src` attribute alone leaves the old clip on screen until the
+						// browser is told to load again.
+						<video
+							autoPlay
+							className="aspect-[4/3] w-full rounded-xl bg-neutral-200 object-cover sm:aspect-[16/9]"
+							key={active}
+							loop
+							muted
+							playsInline
+							preload="metadata"
+							src={VIDEOS[active]}
+						>
+							<track kind="captions" />
+						</video>
+					) : (
+						<div className="aspect-[4/3] w-full rounded-xl bg-neutral-200 sm:aspect-[16/9]" />
+					)}
 
 					{/* Bottom dark banner card - attached at bottom full width on mobile (Image 2), floating on desktop */}
 					<Link

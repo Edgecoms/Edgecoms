@@ -1,22 +1,19 @@
 "use client";
 
 import { Globe } from "@edgecoms/ui/components/globe";
-import { CreditCard, MousePointerClick, Smartphone } from "lucide-react";
+import { CreditCard, Package, Repeat } from "lucide-react";
 import { Frame } from "@/components/landing/frame";
+import { SCALE_STATS } from "@/lib/marketing-stats";
 
-const SCALE_STATS = [
-	{
-		label: "LINKS CREATED",
-		value: "212,042,921",
-	},
-	{
-		label: "EVENTS TRACKED",
-		value: "3,670,217,142",
-	},
-	{
-		label: "REVENUE TRACKED",
-		value: "US$2,129,930,272.45",
-	},
+/* A mock of the event stream a merchant sees, not a live feed. The amounts are
+   illustrative order values — the only numbers on this page that are not
+   sourced from `marketing-stats`, because they are part of a drawn UI rather
+   than a claim about Edge. */
+const EVENTS = [
+	{ detail: "🇺🇸 United States", icon: Package, label: "Bundle added" },
+	{ detail: "🇩🇪 Germany", icon: Repeat, label: "Subscription started" },
+	{ amount: "$184.00", icon: CreditCard, label: "New order" },
+	{ amount: "$96.40", icon: CreditCard, label: "New order" },
 ] as const;
 
 export function Scale() {
@@ -30,9 +27,10 @@ export function Scale() {
 								Built to scale
 							</h2>
 							<p className="max-w-[400px] text-pretty text-[17px] text-neutral-500 leading-relaxed">
-								Our powerful, battle-tested infrastructure handles hundreds of
-								millions of links &amp; events monthly and can scale infinitely
-								with your business needs.
+								Edge apps render on every product page, every cart and every
+								checkout, for storefronts selling in every timezone. The
+								infrastructure behind them is built for your best day, not your
+								average one.
 							</p>
 						</div>
 
@@ -83,75 +81,34 @@ export function Scale() {
 
 						{/* Live Event Stream Stack (Overlaying Foreground - Shifted Lower) */}
 						<div className="relative z-10 flex w-[210px] select-none flex-col gap-2.5 pt-16 pb-4 sm:pt-20">
-							{/* Event Card 1 */}
-							<div className="flex select-none flex-col gap-1 rounded-xl border border-neutral-200 bg-white/95 p-2.5 shadow-[0_8px_24px_rgba(0,0,0,0.06)] backdrop-blur-md">
-								<span className="flex items-center gap-1.5 font-medium text-label text-neutral-400">
-									<MousePointerClick
-										aria-hidden="true"
-										className="size-3 text-neutral-400"
-									/>
-									New click
-								</span>
-								<div className="flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-2.5 py-1 font-medium text-caption text-neutral-800">
-									<span className="text-xs">🇦🇿</span> Azerbaijan
+							{EVENTS.map((event) => (
+								<div
+									className="flex select-none flex-col gap-1 rounded-xl border border-neutral-200 bg-white/95 p-2.5 shadow-[0_8px_24px_rgba(0,0,0,0.06)] backdrop-blur-md"
+									key={
+										"amount" in event
+											? `${event.label}-${event.amount}`
+											: `${event.label}-${event.detail}`
+									}
+								>
+									<span className="flex items-center gap-1.5 font-medium text-label text-neutral-400">
+										<event.icon
+											aria-hidden="true"
+											className="size-3 text-neutral-400"
+										/>
+										{event.label}
+									</span>
+									{"amount" in event ? (
+										<div className="flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-2.5 py-1 font-semibold text-caption text-neutral-900">
+											<span className="size-1.5 rounded-full bg-[#F97316]" />
+											{event.amount}
+										</div>
+									) : (
+										<div className="flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-2.5 py-1 font-medium text-caption text-neutral-800">
+											{event.detail}
+										</div>
+									)}
 								</div>
-								<div className="flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-2.5 py-1 text-label text-neutral-500">
-									<Smartphone
-										aria-hidden="true"
-										className="size-3 text-neutral-400"
-									/>{" "}
-									Mobile
-								</div>
-							</div>
-
-							{/* Event Card 2 */}
-							<div className="flex select-none flex-col gap-1 rounded-xl border border-neutral-200 bg-white/95 p-2.5 shadow-[0_8px_24px_rgba(0,0,0,0.06)] backdrop-blur-md">
-								<span className="flex items-center gap-1.5 font-medium text-label text-neutral-400">
-									<MousePointerClick
-										aria-hidden="true"
-										className="size-3 text-neutral-400"
-									/>
-									New click
-								</span>
-								<div className="flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-2.5 py-1 font-medium text-caption text-neutral-800">
-									<span className="text-xs">🇮🇩</span> Indonesia
-								</div>
-								<div className="flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-2.5 py-1 text-label text-neutral-500">
-									<Smartphone
-										aria-hidden="true"
-										className="size-3 text-neutral-400"
-									/>{" "}
-									Mobile
-								</div>
-							</div>
-
-							{/* Event Card 3 */}
-							<div className="flex select-none flex-col gap-1 rounded-xl border border-neutral-200 bg-white/95 p-2.5 shadow-[0_8px_24px_rgba(0,0,0,0.06)] backdrop-blur-md">
-								<span className="flex items-center gap-1.5 font-medium text-label text-neutral-400">
-									<CreditCard
-										aria-hidden="true"
-										className="size-3 text-neutral-400"
-									/>
-									New sale
-								</span>
-								<div className="flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-2.5 py-1 font-semibold text-caption text-neutral-900">
-									<span className="size-1.5 rounded-full bg-blue-600" /> $0.99
-								</div>
-							</div>
-
-							{/* Event Card 4 */}
-							<div className="flex select-none flex-col gap-1 rounded-xl border border-neutral-200 bg-white/95 p-2.5 shadow-[0_8px_24px_rgba(0,0,0,0.06)] backdrop-blur-md">
-								<span className="flex items-center gap-1.5 font-medium text-label text-neutral-400">
-									<CreditCard
-										aria-hidden="true"
-										className="size-3 text-neutral-400"
-									/>
-									New sale
-								</span>
-								<div className="flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-2.5 py-1 font-semibold text-caption text-neutral-900">
-									<span className="size-1.5 rounded-full bg-blue-600" /> $0.17
-								</div>
-							</div>
+							))}
 						</div>
 					</div>
 				</div>

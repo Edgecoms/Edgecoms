@@ -14,6 +14,7 @@ import { RewardCards } from "@/components/landing/reward-cards";
 import { Scale } from "@/components/landing/scale";
 import { Statement } from "@/components/landing/statement";
 import { Trusted } from "@/components/landing/trusted";
+import { Reveal } from "@/components/ui/reveal";
 import { HOME_TESTIMONIALS } from "@/lib/marketing-stats";
 
 export const metadata: Metadata = {
@@ -106,8 +107,17 @@ export default function HomePage() {
 	return (
 		<main className="flex w-full flex-col overflow-x-clip">
 			<Hero />
-			<ProductPreview />
-			<LogoCloud />
+			{/* The hero animates on load; everything under it arrives on scroll.
+			    Sections with their own internal sequencing (the three pillars) are
+			    left unwrapped so they are not revealed twice. */}
+			<Reveal>
+				<ProductPreview />
+			</Reveal>
+			<Reveal>
+				<LogoCloud />
+			</Reveal>
+			{/* Statement is not wrapped: it runs its own scroll-linked choreography
+			    and a fade-up on top of that would fight it. */}
 			<Statement />
 
 			<PillarSection
@@ -132,7 +142,9 @@ export default function HomePage() {
 				title="Measure what matters"
 			/>
 
-			<Integrations />
+			<Reveal>
+				<Integrations />
+			</Reveal>
 
 			<PillarSection
 				cta="Explore Partners"
@@ -146,9 +158,15 @@ export default function HomePage() {
 				<RewardCards />
 			</PillarSection>
 
-			<Scale />
-			<Trusted />
-			<CtaDark />
+			<Reveal>
+				<Scale />
+			</Reveal>
+			<Reveal>
+				<Trusted />
+			</Reveal>
+			<Reveal>
+				<CtaDark />
+			</Reveal>
 		</main>
 	);
 }

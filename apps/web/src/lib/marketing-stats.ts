@@ -49,6 +49,30 @@ export const HOUSE_STATS: readonly MarketingStat[] = [
 ] as const;
 
 /**
+ * The three figures in the "Built to scale" band, rendered as exact counters
+ * rather than rounded claims.
+ *
+ * Deliberately in the same universe as `HOUSE_STATS`: with ~1,400 stores and
+ * ~$12M of revenue influenced, a billion-dollar GMV line here would contradict
+ * the numbers band on the same page. Whoever replaces these with real ones has
+ * to keep both sets consistent — the revenue figure is the same quantity as
+ * "Merchant revenue influenced", stated to the cent.
+ */
+export const SCALE_STATS: readonly MarketingStat[] = [
+	{
+		label: "Storefront sessions served",
+		provenance: "invented",
+		value: "48,120,884",
+	},
+	{ label: "Offers shown", provenance: "invented", value: "9,204,517" },
+	{
+		label: "Merchant revenue influenced",
+		provenance: "invented",
+		value: "US$12,486,930.28",
+	},
+] as const;
+
+/**
  * The headline result badge for each app, shown on the suite grid and the app
  * page hero. `provenance: "verified"` means the string states a capability
  * rather than a measured delta, so it needs no backing figure.

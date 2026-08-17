@@ -2,6 +2,7 @@
 // relation in a single schema object; this file is that schema registry, not a
 // generic utility re-export.
 export * from "./apps";
+export * from "./attribution";
 export * from "./auth";
 export * from "./earnings";
 export * from "./merchants";

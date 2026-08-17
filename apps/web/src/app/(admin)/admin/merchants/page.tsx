@@ -14,12 +14,20 @@ import { PortalHeader, StatusBadge, TableShell } from "@/components/portal/ui";
 import { queryClient, trpc } from "@/utils/trpc";
 
 interface MerchantRow {
+	/**
+	 * The grandfathered set already proposed for this merchant. For a code-bound
+	 * store this is what the Edge app reported it was ALREADY charging the shop
+	 * for — better data than reconstructing it here, so the boxes come pre-checked.
+	 */
+	grandfatheredAppIds: string[];
 	id: string;
 	name: string;
 	notes: string | null;
 	partnerCompany: string | null;
 	partnerName: string;
 	shopDomain: string;
+	source: string;
+	sourceCode: string | null;
 	status: string;
 }
 
@@ -92,6 +100,7 @@ export default function AdminMerchantsPage() {
 						<>
 							<th>Store</th>
 							<th>Partner</th>
+							<th>Source</th>
 							<th>Status</th>
 							<th className="text-right">Action</th>
 						</>
@@ -111,6 +120,17 @@ export default function AdminMerchantsPage() {
 							</td>
 							<td className="text-secondary-foreground">
 								{merchant.partnerCompany ?? merchant.partnerName}
+							</td>
+							<td>
+								{merchant.source === "code" && merchant.sourceCode ? (
+									<span className="font-mono text-caption text-secondary-foreground">
+										{merchant.sourceCode}
+									</span>
+								) : (
+									<span className="text-caption text-secondary-foreground">
+										Registered by hand
+									</span>
+								)}
 							</td>
 							<td>
 								<StatusBadge status={merchant.status} />
@@ -154,12 +174,19 @@ export default function AdminMerchantsPage() {
 			>
 				{approving ? (
 					<DialogContent
-						description="Select the apps this store was ALREADY paying for at approval. These are grandfathered and never earn commission."
+						description="Select the apps this store was ALREADY paying for. These are grandfathered and never earn commission. This is the last point at which the set can change — approval freezes it."
 						title={`Approve ${approving.name}`}
 					>
 						<form className="flex flex-col gap-5" onSubmit={handleApprove}>
 							<fieldset className="flex flex-col gap-3">
 								<legend className="text-xs">Grandfathered apps</legend>
+								{approving.source === "code" ? (
+									<p className="rounded-lg bg-surface-item-hover px-3 py-2 text-caption text-secondary-foreground">
+										Pre-selected from what the app reported this store was
+										already being charged for. Uncheck anything that looks wrong
+										— whatever you submit replaces the proposal.
+									</p>
+								) : null}
 								<div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
 									{(appsQuery.data ?? []).map((app) => (
 										<label
@@ -168,6 +195,9 @@ export default function AdminMerchantsPage() {
 										>
 											<input
 												className="size-4 accent-primary"
+												defaultChecked={approving.grandfatheredAppIds.includes(
+													app.id
+												)}
 												name="grandfathered"
 												type="checkbox"
 												value={app.id}

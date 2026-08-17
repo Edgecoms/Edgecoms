@@ -3,6 +3,7 @@
 import { ButtonLink } from "@edgecoms/ui/components/button";
 import { useQuery } from "@tanstack/react-query";
 import type { Route } from "next";
+import { PartnerCodeCard } from "@/components/portal/partner-code-card";
 import {
 	EmptyState,
 	PortalHeader,
@@ -40,6 +41,8 @@ export default function PartnerDashboardPage() {
 					are approved.
 				</div>
 			) : null}
+
+			<PartnerCodeCard />
 
 			<div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
 				<StatCard

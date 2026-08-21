@@ -1,0 +1,155 @@
+---
+title: "Shopify UTM Tracking: A Setup That Survives"
+slug: "shopify-utm-tracking-setup"
+app: "trackproof"
+archetype: "tutorial"
+author: "anurag"
+description: "A shopify utm tracking setup that still resolves in six months: one naming contract, the exact places parameters get stripped, and the values on the order."
+primaryKeyword: "shopify utm tracking"
+secondaryKeywords: ["utm parameters shopify", "shopify campaign tracking"]
+publishedAt: "2026-12-21"
+updatedAt: "2026-12-21"
+imageAlt: "Placeholder illustration of tagged campaign links landing on a Shopify order record"
+internalLinks:
+  - "shopify-server-side-tracking"
+  - "shopify-tracking-mistakes"
+  - "duplicate-purchase-events-shopify"
+tldr: "UTM tracking survives on a Shopify store when three things are true: every link follows one written naming contract, the parameters are captured on the first page a visitor lands on and stored as first and last touch, and both values are attached to the cart so they land on the order record where no browser can delete them."
+faq:
+  - question: "Should I put UTM parameters on my own internal links?"
+    answer: "No. Tagging a link between two pages of your own store overwrites the campaign that brought the visitor in, and the order ends up credited to your own homepage banner. Keep UTMs for links that cross a boundary into your store: ads, email, SMS, affiliate placements, QR codes, partner sites. Use a separate internal parameter if you want to measure on-site placements."
+  - question: "How long should a stored first-touch value stay valid?"
+    answer: "Pick a window and write it down, then expire the record when it passes. Ninety days is a common choice for considered purchases and thirty for impulse ones. The point is not the number. It is that an unexpired first touch from last winter will happily attach itself to an order this spring and nobody will notice, because a stale value looks exactly like a fresh one."
+  - question: "Why do my stored values disappear on iPhone traffic?"
+    answer: "Browser storage is not permanent. Safari deletes all script-writable storage after seven days of Safari use without user interaction on the site, so a visitor who lands, leaves, and returns two weeks later comes back with an empty record. That is the reason the order record matters. Once the values are written onto the order they stop depending on the browser."
+    source: "https://webkit.org/blog/10218/full-third-party-cookie-blocking-and-more/"
+  - question: "Do UTMs replace the tracking my ad platforms do?"
+    answer: "They answer a different question. Platform reporting tells you what an ad account believes it caused. UTMs tell you what you labelled a link as when you published it, in your own vocabulary, on channels that have no ad platform at all: newsletters, affiliates, podcast reads, printed inserts. Run both and read each for the question it can actually answer."
+  - question: "What is the fastest way to test whether a link keeps its parameters?"
+    answer: "Open the tagged URL in a private window, then read the address bar after the page settles. If the query string is gone, something rewrote the URL: a redirect rule, a locale or market switch, a password page, or an app that reloads the page. Test the real published link, not a shortened preview, because the shortener is often the thing that drops it."
+---
+
+Six months ago you ran a campaign. It is in your reporting three times: `spring`, `Spring`, and `spring_2026`. None of the three matches the line in your ad account, and the person who published the links has left.
+
+That is what broken **shopify utm tracking** looks like in practice. Not missing data. Data that exists, in fragments, written in a vocabulary nobody agreed to, describing campaigns nobody can identify any more.
+
+The fix is boring and it holds. Agree on a naming contract before anyone tags a link, find the places on your store where parameters get stripped, and write the values onto the order record itself so they stop depending on a browser that is free to delete them.
+
+## What can a UTM tell you that a pixel never will?
+
+A UTM parameter is the only piece of campaign data you author. Everything else in your reporting is something a platform inferred, and it is only ever about traffic that platform sold you.
+
+- **It covers channels with no ad account.** Newsletters, SMS, affiliate placements, a partner's blog, a podcast read, a QR code on an insert. None of these has a dashboard of its own. A tagged link is the whole measurement system.
+- **It outlives the account it came from.** Ad accounts get rebuilt, agencies change, platform reporting histories get truncated. A UTM stored on an order in your own database is still readable years later.
+- **It is joinable.** A campaign value on the order record can be joined to margin, refund rate, repeat purchase, and lifetime value. Ad platform reporting cannot see any of those.
+
+The catch is that all of this depends on the label being consistent and on the parameter surviving the trip from click to order. Those are the two failure points, and they are the rest of this post.
+
+## What naming contract should you agree before tagging anything?
+
+Most UTM data is not lost. It is unusable, because six people invented six vocabularies. Write the contract down once, put it where people build links, and enforce it with one weekly query.
+
+Three rules do most of the work. Everything is lowercase, always. Spaces and punctuation become hyphens. `utm_source` and `utm_medium` are drawn from a fixed list that only you can add to.
+
+| Parameter | Answers | Fixed list? | Example |
+| --- | --- | --- | --- |
+| `utm_source` | Which specific property sent them | Yes | `meta`, `klaviyo`, `tiktok`, `partner-name` |
+| `utm_medium` | What type of placement it was | Yes | `cpc`, `email`, `sms`, `affiliate`, `qr` |
+| `utm_campaign` | Which push it belongs to | No, but dated | `2026-03-spring-launch` |
+| `utm_content` | Which creative or link position | No | `carousel-b`, `footer-cta` |
+| `utm_term` | Which audience or keyword | No | `broad-lookalike-1` |
+
+Two conventions matter more than the rest.
+
+- **Date-prefix every campaign value.** `2026-03-spring-launch` sorts chronologically, never collides with next year's spring, and tells you when it ran without opening anything.
+- **Never reuse a campaign value.** Reuse merges two pushes into one row that cannot be split apart later.
+- **Never tag internal links.** A tagged link between two of your own pages overwrites the campaign that actually brought the visitor in, and the order gets credited to your own homepage.
+
+<PostCta />
+
+## Where exactly do UTMs get stripped on a Shopify store?
+
+Anything that rebuilds the URL rather than passing it along can drop the query string. These are the places worth testing individually, because each is invisible until you check it.
+
+1. **Redirect rules.** A URL redirect entry that sends `/spring` to `/collections/spring` may or may not carry the query string through. Test your own rules rather than assuming.
+2. **Market and locale switching.** A visitor pushed from `/products/x` to `/en-gb/products/x` has been through a rewrite.
+3. **Password pages and age gates.** The gate is a separate page. What happens to the parameters when the visitor passes through it is worth one test.
+4. **Link shorteners and social in-app browsers.** A shortener that expands to an untagged destination discards everything. In-app browsers add a second problem: "open in browser" starts a fresh page load.
+5. **Apps that reload the landing page.** Popups, geo redirectors, and currency selectors that trigger a reload can return the visitor to a clean URL.
+6. **The move to checkout.** Checkout is a different context to your storefront pages, so a query string sitting in the address bar of a product page is not something it inherits. This is the most common reason a UTM never reaches an order.
+
+<Callout title="Test the published link, not a preview" tone="warning">
+Paste the real, live URL from the real email or ad into a private window and read the address bar after the page settles. Most stripping I find happens in the shortener or the redirect rule, which a preview link never goes through.
+</Callout>
+
+## How do you persist first-touch and last-touch through checkout?
+
+The parameters exist for exactly one page load. Everything after that is your responsibility. Store two records, not one, and give them different write rules.
+
+- **First touch is written once and never overwritten.** It answers "what introduced this person to us". If a record already exists and has not expired, leave it alone.
+- **Last touch is overwritten whenever a visit arrives carrying campaign parameters.** It answers "what closed the loop".
+- **A direct visit must never overwrite last touch.** This is the bug I see most. Someone writes "on every page load, set last touch", and a visitor who comes back by typing the domain wipes the campaign that earned the sale. Only write when parameters are present.
+- **Every record carries a timestamp and an expiry.** Ninety days is a reasonable default. Without an expiry, an ancient first touch attaches itself to a new order and looks perfectly plausible.
+
+Browser storage is best effort, not durable. Safari deletes all script-writable storage after seven days of Safari use without user interaction on the site <Cite href="https://webkit.org/blog/10218/full-third-party-cookie-blocking-and-more/">per WebKit's own documentation</Cite>. That is not a reason to skip the storage step. It is the reason the next step exists.
+
+<PostCta />
+
+## How do you get the UTM values onto the order record itself?
+
+This is the part that survives. Once the values are on the order, they are in your database, exportable, joinable, and immune to storage eviction. Here is the procedure.
+
+1. **Decide the fields.** Six is usually right: `first_source`, `first_campaign`, `first_seen_at`, `last_source`, `last_campaign`, `last_seen_at`. Add no more until you have used these for a month.
+2. **Capture on landing.** Read the query string on the first page load. If any `utm_` parameter is present, build a record. If none is, do nothing.
+3. **Write the two records.** Apply the write rules above. First touch only if absent or expired. Last touch only when parameters are present.
+4. **Attach the values to the cart.** Cart attributes travel with the cart into the order as additional details. Write your six fields as attributes when the visitor adds their first item, and refresh them if the last touch changes before checkout.
+5. **Handle the empty case explicitly.** Write `none` rather than an empty string. An empty attribute is indistinguishable from an attribute that failed to write, and you will spend an afternoon on that distinction.
+6. **Place a real test order.** Not a draft order. Tag a link, click it from a private window, add to cart, and complete a live order with a real payment method.
+7. **Open the order in the admin.** All six fields should be listed, populated, lowercase, and matching the link you clicked exactly.
+8. **Run the whole thing again on a phone.** Different browser, different storage behaviour, and the in-app browser path is where setups usually break.
+
+**What it looks like when it has gone wrong.** Each of these four signatures points at a different step.
+
+| Symptom | Most likely cause |
+| --- | --- |
+| Attributes missing entirely on the order | Cart attributes never written, or written after checkout began |
+| Every order shows the same campaign | Value cached at build time or hardcoded in a snippet |
+| First touch equals last touch on every order | First-touch record being overwritten on each visit |
+| Values present but split across near-identical rows | Naming contract not enforced: casing, spaces, or trailing spaces |
+
+If your events are also going server side, the same captured values belong in that payload. Our [server-side tracking guide](/blog/shopify-server-side-tracking) covers where that data is assembled.
+
+## How does Shopify's own sessions report read your UTMs?
+
+Shopify's own analytics groups sessions by the referrer and campaign parameters it sees on arrival. It is genuinely useful and it will not match your order fields. That is expected, not a bug to reconcile.
+
+- **Different unit of measurement.** That report counts sessions. Your order fields describe orders. One visitor across four sessions is four rows in one and one row in the other.
+- **Different attribution moment.** The sessions report attributes what it saw at the start of that session. Your first-touch field attributes what it saw months earlier.
+- **Different tolerance for mess.** Shopify shows the raw values it received, so inconsistent casing appears as separate rows. That makes it an excellent naming-contract auditor and a poor reconciliation tool.
+
+Use the sessions report to answer "which campaigns are bringing traffic and are they tagged correctly". Use the order fields to answer "what did this specific order come from, and what was its margin". Do not try to make the two totals agree.
+
+<PostCta />
+
+## How do you audit tagging across a team without policing every link?
+
+You cannot review every link anyone publishes, and trying makes you the bottleneck on every campaign. Replace review with two structural habits.
+
+- **One link builder, no exceptions.** A single shared sheet or small form that takes the campaign details and emits the finished URL. Nobody hand-types a query string. The fixed lists for source and medium live inside it as dropdowns.
+- **A weekly unknown-values query.** List every distinct `utm_source` and `utm_medium` on orders from the last seven days. Anything not on the fixed list is either a typo or a channel someone forgot to tell you about. Both are worth five minutes.
+- **Tagging in the campaign brief.** The link sits next to the copy and the creative, so it is built before launch day rather than while someone pastes a URL into a send.
+- **A quarterly strip test.** Re-test the six stripping points above. Theme updates and new markets reintroduce them.
+
+<Example>
+A store sends eight email campaigns a month. Two go out untagged. Those orders land in the untagged bucket, and the channel looks weaker than it is at the next budget review.
+</Example>
+
+## Where does Trackproof use the UTMs you captured?
+
+Trackproof reads the first-touch and last-touch values you captured and keeps them attached to the order alongside the events it sends, so the label on an order and the conversion reported to your platforms come from one record rather than two systems guessing separately. It is free on the [Shopify App Store](https://apps.shopify.com/trackproof), and it has no reviews yet, because it is new. Worth knowing before you install anything.
+
+It is not the right tool for every job. If you need a warehouse of session-level data with its own modelling layer, a dedicated analytics platform will serve you better. If your real problem is the same order counted twice, start with [duplicate purchase events](/blog/duplicate-purchase-events-shopify) instead, because clean labels on a doubled order still give you a doubled number.
+
+The work above is worth doing regardless of what you install. A naming contract costs one afternoon and holds for years. After that, every order carries its own origin, in your vocabulary, in your database, where nothing can quietly delete it.
+
+<PostCta />

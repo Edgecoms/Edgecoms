@@ -1,0 +1,140 @@
+---
+title: "Facebook Ads Underreporting Conversions: Why"
+slug: "facebook-ads-underreporting-conversions"
+app: "trackproof"
+archetype: "problem"
+author: "anurag"
+description: "Facebook Ads underreporting conversions is part real signal loss, part arithmetic. Work out which slice of your Meta to Shopify gap is worth paying to recover."
+primaryKeyword: "facebook ads underreporting conversions"
+secondaryKeywords: ["meta ads missing conversions", "ios 14 tracking loss"]
+publishedAt: "2027-01-11"
+updatedAt: "2027-01-11"
+imageAlt: "Placeholder illustration of a Meta conversion count sitting below a Shopify order count"
+internalLinks:
+  - "shopify-server-side-tracking"
+  - "set-up-tiktok-events-api-shopify"
+  - "best-shopify-conversion-tracking-apps"
+tldr: "Meta almost always reports fewer purchases than Shopify, and most of that gap is structural rather than broken. Some is attribution window, some is modelled conversions already handed back, some is signal that no tool can retrieve. Size each slice before you buy anything, because only the delivery slice is actually recoverable."
+faq:
+  - question: "My pixel and CAPI both pass their checks. Why is Meta still short?"
+    answer: "Because passing a check only proves events left your store. It does not prove Meta could attribute them to a click. An event with a weak identity payload arrives, gets counted as a conversion, and never joins the ad that caused it. Delivery and attribution are separate problems, and only the first one is testable from your side."
+  - question: "Does the deduplication window explain part of my missing conversions?"
+    answer: "It can, in the direction people rarely expect. Meta matches browser and server copies on event ID and event name together, inside a 48 hour window. Miss the window and you over-report, not under-report. If you fixed a double count recently and the total fell hard, the old number was inflated, not the new one broken."
+    source: "https://developers.facebook.com/docs/marketing-api/conversions-api/deduplicate-pixel-and-server-events/"
+  - question: "Is Safari losing me conversions even though it is not iOS app tracking?"
+    answer: "Yes, and it gets misfiled under app tracking constantly. Safari deletes all script writable storage after seven days of Safari use without interaction on your site. A shopper who clicks an ad, browses, and returns nine days later looks like a stranger. That is a storage rule, not an app permission prompt, and it applies on desktop too."
+    source: "https://webkit.org/blog/10218/full-third-party-cookie-blocking-and-more/"
+  - question: "Should I switch my reporting to Shopify numbers and ignore Meta?"
+    answer: "For revenue, yes. Shopify took the money and is the ledger. For deciding which campaign to scale, no. Meta is the only system that knows which ad a person saw, so you keep reading it for relative performance between campaigns. Use one number for the accounts and a different one for the buying decision."
+  - question: "How long should I wait before judging a gap has changed?"
+    answer: "Compare closed weeks, never live days. A day still inside the click window keeps collecting conversions after it ends, so today always looks worse than last Tuesday. Take four consecutive finished weeks, record the ratio for each, and only treat a move as real when it holds across at least two of them."
+---
+
+Meta says the campaign made eleven purchases. Shopify says nineteen orders came in that day, and the ad platform is the one you set the budget from. Your pixel fires. Your Conversions API sends. Both pass every check you can run, and the number is still short.
+
+This is the version of facebook ads underreporting conversions that nobody writes about, because there is no broken setting to screenshot. Everything works. The gap is still there tomorrow. The useful question is not how to close it. The useful question is how much of it is genuinely recoverable and how much is arithmetic you should stop paying attention to.
+
+So this post is an argument rather than a checklist. Size each slice of the gap before you spend a pound trying to fix it, because a large part of what merchants chase was never lost in the first place.
+
+## Is Facebook Ads underreporting conversions, or is the gap normal?
+
+Start with the thing that makes the comparison unfair. Shopify counts every order from every source. Meta counts only the orders it can tie to somebody who saw or clicked one of your ads, inside a window you chose, using identity it was able to match. Those are different questions, so they were never going to produce the same number.
+
+The raw gap is not a defect measurement. It is the sum of four separate things, and they behave differently.
+
+- **Non-Meta demand.** Direct, organic, email, returning customers. Real orders that Meta correctly declines to claim.
+- **Window arithmetic.** Orders Meta caused but placed outside the attribution window you set.
+- **Signal loss.** Events that never arrived, or arrived without enough identity to match to a click.
+- **Modelled recovery.** Conversions Meta estimates and hands back, which partly cancels the loss above.
+
+Only the third one is a tracking problem. The first is your business. The second is a setting. The fourth is the platform quietly correcting itself.
+
+The number that matters is not the level of the gap, it is its stability. A ratio that sits in the same place for eight weeks is describing the structure of your store. A ratio that moved last Thursday and stayed moved is describing something that broke. Chase the second. Leave the first alone.
+
+Set a baseline before you touch anything. Take four consecutive finished weeks, record Meta purchases and Shopify orders for each, and write the ratio down. Without it, every change you make afterwards is unmeasurable.
+
+## How much of your gap did ATT actually take, and how much of that number is folklore?
+
+Every merchant I meet can quote an iOS opt-in percentage. Almost none of them can name where it came from. It gets repeated in threads, then in decks, then back into threads, and by the time it reaches you it has the confidence of a measurement and the provenance of a rumour. I will not give you a replacement number. I cannot source one either, and an invented figure in a post about bad measurement would be a poor joke.
+
+What is worth being precise about is the mechanism, because two different things get filed under the same heading.
+
+- **App tracking permission** governs the identifier used to connect activity across apps and sites on iOS. It affects the share of your traffic arriving from the Facebook and Instagram apps on iPhone. It does not stop your pixel firing and it does not stop your server sending.
+- **Browser storage rules** are separate and apply regardless of any permission prompt. Safari deletes all script writable storage after seven days of Safari use without interaction on your site <Cite href="https://webkit.org/blog/10218/full-third-party-cookie-blocking-and-more/">per WebKit</Cite>. A shopper who clicks an ad and buys a fortnight later has lost the client side identifier that would have joined the two.
+- **Sandbox limits** shape what a Shopify app can read at all. The Web Pixels API exposes controlled APIs inside Lax or Strict sandboxes <Cite href="https://shopify.dev/docs/api/web-pixels-api">as documented by Shopify</Cite>, so the old habit of reading whatever you liked from the page is gone.
+
+Notice that only the first is about iOS permissions, and the other two hit desktop Chrome users and Safari users who never saw a prompt. If your mental model is that one iOS change in one year took a fixed percentage of your conversions, you will keep looking for a fix in the wrong place. The loss is continuous and spread across browsers.
+
+<PostCta />
+
+## How much are you already being handed back as modelled conversions?
+
+Here is the part that quietly ruins the arithmetic. Not every purchase in Ads Manager is one Meta watched happen. Before you treat the reported total as an observation, open the metric definition in your own account and check whether it carries a modelled or estimated note.
+
+That matters for one reason. If some of your loss has already been estimated back into the number, then improving your event delivery does not add the full amount you were missing. It replaces an estimate with an observation. Sometimes the reported total barely moves, even though your tracking got materially better, because you swapped a guess for a fact of similar size.
+
+<Example>
+Say Shopify shows 100 orders in a week and Meta reports 62 purchases. You assume 38 are missing and go hunting. But 22 of those orders came from email and direct, so Meta was right to skip them. Of the remaining 16, suppose 6 were already estimated back into the 62. Your genuinely absent conversions are 10, not 38. Substitute your own figures. The point is the shape: the number you are chasing is a quarter of the number that made you angry.
+</Example>
+
+Do the subtraction before you commission any engineering. A gap that is mostly non-Meta demand is not a tracking project, and no amount of build work will make it one.
+
+## How much is your attribution window rather than your tracking?
+
+This is the cheapest slice to test and the one most often skipped, because changing a dropdown feels too easy to be the answer.
+
+Two things are going on. First, the window itself: a click window of a few days will not claim an order placed three weeks after the click, even though the ad plainly caused it. Considered purchases, high ticket items and anything people research suffer worst. Second, and more confusing, the date basis. An ad platform can report a conversion against the date of the ad interaction rather than the date the order was placed, while Shopify only ever reports the day the money moved. Check which basis your reporting uses. If the two differ, a single-day comparison is two different events that happened to involve the same customer.
+
+Test it in this order, and do not change two things at once.
+
+1. **Pick four finished weeks.** Never a live day: it is still collecting conversions and will always look broken.
+2. **Record the ratio per week.** Meta purchases divided by Shopify orders, one line per week.
+3. **Change the comparison basis before the window.** Look at the same period on a conversion-date basis where your reporting allows it, and see how much of the gap disappears without any change to your setup.
+4. **Then widen the window one step.** Re-read the same four weeks. If the gap closes materially, your issue was the setting.
+5. **Segment by product price.** If the gap is concentrated in your expensive lines, that is a considered-purchase timing pattern, not a delivery fault.
+6. **Only now look at delivery.** Whatever survives steps three, four and five is the part worth engineering against.
+
+If a visible chunk of the gap evaporates between step three and step four, that is not a fix. Nothing changed in reality. You simply stopped mismeasuring.
+
+<PostCta />
+
+## What is genuinely left, and is it worth what recovering it costs?
+
+After the subtractions, the recoverable slice has two members and no others.
+
+- **Events that never arrived.** A blocked request, a browser that closed before the page finished, a subscription renewal that no browser ever sees. The order exists in Shopify and no copy of it reached Meta.
+- **Events that arrived unmatched.** The event landed, was counted as a conversion, and could not be joined to any ad click because the identity attached to it was thin.
+
+Everything else on your list is not recoverable by any tool at any price.
+
+| Slice of the gap | Recoverable? | What actually moves it |
+| --- | --- | --- |
+| Non-Meta orders | No | Nothing. Meta is correct to exclude them |
+| Window arithmetic | Partly | A setting change, and honest reporting about it |
+| Never arrived | Yes | Server side delivery from the order record |
+| Arrived unmatched | Yes | A richer identity payload on the event |
+| Already modelled back | No | Improving it replaces an estimate, not a zero |
+| Consent refused | No | Nothing, and you should not try |
+
+Now the cost side, because this is where the argument bites. Recovering the delivery slice costs a monthly fee and a day or two of setup. That is worth it when the slice is large enough to change a decision you make. On a store spending a few hundred a month on Meta, a better conversion count will not change which campaign you scale, because the counts are too small for the difference to be readable. On a store spending five figures a month, the same proportional gap is the difference between doubling a budget and cutting it.
+
+There is also a cost to over-correcting. Push harder on recovery without watching for duplicates and you can end up reporting more purchases than Shopify recorded. That is worse than under-reporting, because it flatters you. If you are unsure which direction your error runs, [server side tracking versus the pixel](/blog/server-side-tracking-vs-pixel) is the distinction to get straight before you add another sender.
+
+My rule: fix the window and the comparison basis for free, always. Buy delivery when the surviving slice is large enough that a decision changes. Ignore the rest permanently, and tell your team you are ignoring it on purpose.
+
+## What does Trackproof change in that arithmetic?
+
+Trackproof works on exactly one slice: delivery. It sends purchase events from the Shopify order record rather than depending on a browser surviving the checkout, attaches the identity fields the platform needs to match a conversion to a click, and shares an event ID across both copies so the browser and server versions collapse into one rather than double counting. It shows you what arrived against what Shopify recorded, so the gap stops being a feeling.
+
+Trackproof is free on the Shopify App Store and, being new, has no reviews yet <Cite href="https://apps.shopify.com/trackproof">on its listing</Cite>. That is a fact you should weigh, not a detail I will bury.
+
+What it does not do, plainly:
+
+- **It cannot recover consent refused traffic.** If a shopper declined, that order is not coming back, and no tool should promise otherwise.
+- **It cannot change your attribution window.** If your gap is window arithmetic, installing anything changes nothing.
+- **It cannot beat a model.** Where Meta already estimated your loss, better delivery replaces the estimate rather than adding to the total.
+- **It is not a multi-touch attribution system.** If your real question is how paid social, email and search share credit for one order, event delivery is not the thing that answers it.
+
+If you have not sized your slices yet, do that first and read [how server side tracking actually works on Shopify](/blog/shopify-server-side-tracking) before you install anything. A tool that fixes the delivery slice is worth having. A tool bought to close a gap that was mostly your own customers arriving from email is a subscription you will resent in six months.
+
+<PostCta />

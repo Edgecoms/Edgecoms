@@ -1,0 +1,163 @@
+---
+title: "TikTok Events API Not Working on Shopify"
+slug: "tiktok-events-api-not-working-shopify"
+app: "trackproof"
+archetype: "problem"
+author: "anurag"
+description: "TikTok events api not working on Shopify? Learn to read each status word in Events Manager, match it to the real fault, and fix only the thing that broke."
+primaryKeyword: "tiktok events api not working"
+secondaryKeywords: ["tiktok pixel shopify problems", "tiktok conversion tracking shopify"]
+publishedAt: "2027-02-08"
+updatedAt: "2027-02-08"
+imageAlt: "Placeholder illustration of a TikTok events dashboard with warning badges beside a Shopify order list"
+internalLinks:
+  - "shopify-server-side-tracking"
+  - "elevar-alternatives-shopify"
+  - "shopify-ad-attribution-tools"
+tldr: "TikTok Events API problems are readable from Events Manager itself. Inactive means no recent events on that pixel code, not broken code. Received but unused means a required field is missing. A red match rate means fields are malformed, not absent. Each signal points at one specific fault."
+faq:
+  - question: "Does an Inactive pixel badge mean my events are being rejected?"
+    answer: "No. Inactive is a recency label. It reports whether that specific pixel code has seen traffic lately, not whether the traffic it saw was valid. A pixel can sit at Inactive while your server posts perfectly formed events into a different pixel code all day. Check the event log timestamps before you touch any code."
+  - question: "Why do my events look perfect in the test tab but never appear in reporting?"
+    answer: "Because a test event code routes the payload into the testing view and keeps it out of live reporting. It is easy to leave one baked into an environment variable after a debugging session. If the test tab is healthy and the live log is empty, that single parameter is the first thing to strip from your production payload."
+  - question: "Is a low match rate always something I broke?"
+    answer: "Not always. Match quality drops for genuine reasons, including shoppers who arrive without a click identifier because they never clicked an ad. What you can control is formatting. Fields hashed twice, phone numbers without a country code, and email addresses with stray capitals or whitespace all count as present but unusable."
+  - question: "My token still works, so why did events stop overnight?"
+    answer: "Tokens are only one of several things that expire without warning. Access can also break when the person who generated the token loses their Business Center seat, when an asset is moved between accounts, or when an app update republishes a different pixel configuration. Check the calendar around the drop, not just the code."
+  - question: "Should I delete my browser pixel and run server events only?"
+    answer: "Usually not. TikTok expects the same event ID shared through both the Pixel and the Events API and keeps the first copy it receives, so running both is the intended setup rather than a duplication risk. Removing the browser side throws away signal you already have and rarely fixes the fault you are chasing."
+    source: "https://ads.tiktok.com/help/article/event-deduplication?lang=en"
+---
+
+Your TikTok campaign spent money yesterday. Shopify recorded the orders. TikTok Ads Manager shows a column of zeros next to the ad set that produced them, and the pixel card in Events Manager wears a grey badge that says Inactive.
+
+The reason **tiktok events api not working** is such a slippery thing to fix is that TikTok already told you what is wrong. It just told you in one word, buried on a card you scroll past, and that word means something narrower than it sounds. Inactive does not mean broken. Received does not mean usable. A red match rate does not mean your fields are empty.
+
+So stop changing settings and start reading the interface literally. Every status word maps to one fault. Work out which word you are looking at, and you have already halved the problem.
+
+## Why is your TikTok Events API not working, and what does each status word mean?
+
+Treat the dashboard as a set of instruments, not a verdict. Each one measures a different thing, and they fail independently.
+
+| What you see | What it literally measures | What it usually means |
+| --- | --- | --- |
+| Pixel badge: Inactive | Time since the last event on this pixel code | You are looking at the wrong pixel code |
+| Events received, campaigns empty | Payloads accepted at the edge | A required field is missing from the payload |
+| Match rate red or amber | Share of identity fields TikTok could resolve | Fields are malformed, not absent |
+| Event count doubles | Two sources reporting under one code | A second integration you forgot about |
+| Healthy test tab, empty live log | Traffic diverted to the testing view | A test event code left in production |
+| Volume drops to zero overnight | Nothing arrived | Access expired, not code changed |
+
+Two habits make the table useful. Note the timestamp on the most recent event before you judge anything, and confirm which pixel code the page you are staring at belongs to. Never diagnose from a campaign report. Those update last and explain least.
+
+## Why does the pixel show Inactive while events are clearly sending?
+
+This is the false alarm we see most often, and it costs people whole afternoons.
+
+- **The badge is a clock, not a health check.** It reflects how long it has been since that pixel code last received anything. It says nothing about whether the events it did receive were valid, well formed, or attributable.
+- **It is scoped to one pixel code, not your account.** If you have ever created a second pixel while testing, or inherited an account from an agency, you may be watching an abandoned code while a live one hums along beside it.
+- **Both sources report under the same code.** Browser events and server events land against the same pixel, so a healthy server stream alone is enough to flip the badge. If it is still grey, nothing at all reached that code.
+- **A development store can keep an old code alive.** Traffic from a staging theme counts. That is how a pixel stays green while your production storefront sends nothing.
+
+Open the event log for that exact pixel and read the newest row. Three weeks old means your production traffic is going somewhere else. Four minutes old means the badge is stale and the fault is further down this page.
+
+<PostCta />
+
+## Why does Events Manager show received events that no campaign can use?
+
+Acceptance and usefulness are separate gates. TikTok will happily take a payload, log it, and then decline to use it for optimisation or attribution because something it needs is not there.
+
+- **Value or currency missing on a purchase.** Without both, the event cannot feed value-based optimisation. It will still appear in the log and still count toward volume, which is why the totals look reassuring.
+- **A custom event name nobody mapped.** If you send an event name TikTok does not recognise, and no campaign is optimising toward that custom event, it lands in the log and stops there.
+- **No usable identity at all.** An event with no email, no phone, no external ID, and no click identifier is a fact with nobody attached to it.
+- **Timestamps outside the accepted window.** Events queued by a retry job and flushed hours later can arrive too late to join the session that produced them.
+
+<Callout title="Volume is the most misleading number on the page" tone="warning">
+Event count going up is not evidence that anything works. It is evidence that requests are arriving. A store can send thousands of accepted, logged, completely unusable events and report a perfect trend line while its campaign rows stay empty.
+</Callout>
+
+## Is a second TikTok integration sending a competing stream?
+
+Shopify stores accumulate tracking. The official TikTok channel app, a snippet from a previous agency, a tag manager container, and a conversion app can all coexist, and several can point at the same pixel code.
+
+- **The symptom is inconsistency, not absence.** Some events carry full identity, some carry almost none, and the mix shifts by page type. That is two senders with different configurations, not one sender misbehaving.
+- **Removing one integration halves your volume.** If disabling something cuts events roughly in half rather than to zero, you just proved there were two.
+- **Checkout is where they diverge.** Shopify's Web Pixels API runs custom pixels inside a Lax or Strict sandbox with a controlled set of APIs <Cite href="https://shopify.dev/docs/api/web-pixels-api">documented by Shopify</Cite>, so a snippet that behaved fine on product pages can quietly stop behaving at checkout.
+- **Two senders are not automatically bad.** Browser and server are meant to run together on one shared event ID <Cite href="https://ads.tiktok.com/help/article/event-deduplication?lang=en">per TikTok</Cite>. Two browser senders on one code are the problem.
+
+Inventory every place a pixel code could be entered before concluding anything else. Apps, theme code, the checkout pixel list, and any tag manager container.
+
+<PostCta />
+
+## Is your access token scoped to a different pixel code than the one you are debugging?
+
+A token is minted against a specific asset. Nothing stops you from sending well formed events with a valid token into a pixel you are not looking at, and the API will not warn you, because from its side nothing is wrong.
+
+- **The tell is a 200 with an empty dashboard.** Your server log says success. The pixel card says nothing arrived. Both are true.
+- **Log the pixel code you send, not just the response.** Print the code in your own logs and compare it character by character with the code in the URL of the Events Manager page you have open.
+- **Ownership matters as much as scope.** A token generated by someone who has since left the Business Center can stop resolving even though the string has not expired.
+- **Multiple ad accounts multiply the odds.** Agencies and multi-region stores usually hold several pixels with near identical names. Names are not identifiers.
+
+## Is a leftover test event code diverting your live traffic?
+
+This one is brutal. Everything looks correct while nothing counts. A test event code routes payloads into the testing view so you can watch them without polluting reporting. That is exactly what it does, including on production traffic.
+
+- **Perfect test tab, empty live log.** That combination is close to diagnostic on its own.
+- **It hides in environment variables.** Set during a debugging session, committed, deployed, forgotten.
+- **It can be conditional and still leak.** A flag meant only for staging follows the build if the environment check is wrong.
+- **It survives redeploys.** Republishing your theme does not clear it.
+
+Strip the parameter from the production payload, deploy, place one real order, and read the live log rather than the test view.
+
+<PostCta />
+
+## Why is your match rate red when every field looks populated?
+
+Populated and usable are different states. Match quality measures what TikTok could resolve, and a field can be present, correctly spelled, and still worthless.
+
+- **Double hashing.** A field hashed by your app and hashed again by a wrapper produces a valid looking string that matches nothing.
+- **Normalisation skipped before hashing.** Trailing whitespace, a capital letter, or a plus-addressed email changes the hash entirely.
+- **Phone numbers without a country code.** A national format number is not the same identifier as its international form.
+- **Raw where hashed is expected, or the reverse.** Both are accepted at the edge. Neither resolves.
+- **Missing click identifiers are often legitimate.** Shoppers arriving from organic search or a saved link never had one.
+
+<Example>
+Say you send 1,000 purchase events a day. 700 carry a hashed email, 500 carry a phone number, and 400 carry a click identifier. If a formatting bug silently breaks the email hash, you lose the strongest of the three signals while the field count on every event stays exactly the same. Substitute your own figures and check which field is doing the work.
+</Example>
+
+## Why did events stop on a day nothing changed on your store?
+
+Nothing changed on your side. Plenty changed around you.
+
+- **Token or permission expiry.** It never announces itself.
+- **A staff seat removed.** Offboarding a contractor can revoke the credential their integration was built on.
+- **An app auto-updated.** A version bump can republish a pixel configuration with a different code or a different consent behaviour.
+- **A theme published from an older branch.** Your snippet was never deleted. It was simply not in the version that went live.
+- **Browser storage cleared on a schedule.** Safari deletes all script-writable storage after seven days of Safari use without interaction on the site <Cite href="https://webkit.org/blog/10218/full-third-party-cookie-blocking-and-more/">per WebKit</Cite>, so identifiers a returning shopper once carried can be gone.
+
+Line the drop date up against your app updates, theme publishes, and team changes before rewriting anything.
+
+<PostCta />
+
+## What order should you check these in when you have ten minutes?
+
+Cheapest and most likely first. Stop as soon as one step explains what you are seeing.
+
+1. Read the newest timestamp in the event log for the exact pixel code you believe is live.
+2. Confirm that pixel code appears in your store's integration, character for character.
+3. Check whether a test event code is present in the production payload.
+4. Compare the live log with the test view. Healthy test plus empty live is a diverted stream.
+5. Count events against Shopify orders for the same day. Roughly equal means the fault is quality, not delivery.
+6. Open one purchase event and confirm value and currency are both present.
+7. Inspect identity fields for double hashing and missing country codes.
+8. List every app, snippet, and container that could send to TikTok, and disable the duplicates.
+
+## Where does Trackproof sit in a TikTok stack?
+
+Trackproof is our own app, so treat this section accordingly. It sends server-side events for Shopify stores, shares event IDs so the browser and server copies deduplicate, and shows you the payload it actually sent rather than a green tick. It is free on the Shopify App Store and has no reviews yet <Cite href="https://apps.shopify.com/trackproof">on its listing</Cite>, which is a fair thing to weigh.
+
+It fits if your problem is one of the ones above: unclear which pixel code is live, payloads you cannot inspect, or identity fields you suspect are malformed. It is a poor fit if you need warehouse-level data modelling, destinations beyond the major ad platforms, or a managed implementation with an assigned engineer. For those, the established tools earn their price, and we compare them in our [Elevar alternatives roundup](/blog/elevar-alternatives-shopify).
+
+If the concept is what you are missing rather than the diagnosis, start with our guide to [server-side tracking on Shopify](/blog/shopify-server-side-tracking) and come back to this checklist. Reading the interface correctly outlasts any single app you install.
+
+<PostCta />

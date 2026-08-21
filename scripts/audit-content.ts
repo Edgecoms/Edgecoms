@@ -132,6 +132,19 @@ const HAS_CITATION = /<Cite\s+href="https?:\/\/|\]\(https?:\/\//;
 const INTERNAL_BLOG_LINK = /\]\(\/blog\/([a-z0-9-]+)\)/g;
 const H2_LINE = /^##\s+/;
 const WHITESPACE = /\s+/;
+/** Grammar glue that does not change which phrase a title is targeting. */
+const CONNECTIVES = new Set([
+	"a",
+	"an",
+	"the",
+	"on",
+	"in",
+	"to",
+	"for",
+	"of",
+	"your",
+	"with",
+]);
 const EM_DASH = "\u2014";
 const CTA_LINE = /^\s*<PostCta\s*\/>\s*$/;
 
@@ -396,22 +409,31 @@ function checkKeywordPlacement(post: Post): void {
 		return;
 	}
 
-	// "Server-Side Tracking" in a title matches the keyword "server side
-	// tracking". Hyphenation is a typographic choice, not a different phrase.
-	const flatten = (text: string) => text.toLowerCase().replace(/[-–—]/g, " ");
+	/*
+	 * Normalise before matching. "Server-Side Tracking" satisfies the keyword
+	 * "server side tracking", and "how to set up Meta CAPI on Shopify" satisfies
+	 * "how to set up meta capi shopify". Hyphenation and small connective words
+	 * are typography and grammar, not a different phrase, and flagging them
+	 * trains people to ignore the warnings that matter.
+	 */
+	const flatten = (text: string) =>
+		text
+			.toLowerCase()
+			.replace(/[-–—]/g, " ")
+			.replace(NON_WORD, " ")
+			.split(WHITESPACE)
+			.filter((word) => word && !CONNECTIVES.has(word))
+			.join(" ");
 	const title = flatten(String(post.front.title ?? ""));
 	if (!title.includes(flatten(keyword))) {
 		warn(post, `title does not contain the primary keyword "${keyword}"`);
 	}
 
-	const opening = plainWords(post.body)
-		.slice(0, KEYWORD_WINDOW)
-		.join(" ")
-		.toLowerCase()
-		.replace(NON_WORD, " ")
-		.replace(/\s+/g, " ");
+	const opening = flatten(
+		plainWords(post.body).slice(0, KEYWORD_WINDOW).join(" ")
+	);
 
-	if (!opening.includes(keyword)) {
+	if (!opening.includes(flatten(keyword))) {
 		fail(
 			post,
 			`primary keyword "${keyword}" does not appear in the first ${KEYWORD_WINDOW} words`

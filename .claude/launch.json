@@ -12,6 +12,18 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "/Users/anuragchandra/edge-hq", "run", "dev"],
       "port": 3000
+    },
+    {
+      "name": "edge-signal",
+      "runtimeExecutable": "bun",
+      "runtimeArgs": [
+        "--cwd=/Users/anuragchandra/edge-signal",
+        "run",
+        "dev",
+        "--port",
+        "3002"
+      ],
+      "port": 3002
     }
   ]
 }

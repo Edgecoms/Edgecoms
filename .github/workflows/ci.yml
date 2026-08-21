@@ -1,0 +1,48 @@
+name: CI
+
+# Railway deploys `main` on push, so this is the only thing standing between a
+# bad commit and production. It runs on every PR and on main itself.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+
+      - name: Install
+        run: bun install --frozen-lockfile
+
+      - name: Lint and format
+        run: bun x biome ci .
+
+      - name: Types
+        run: bun run check-types
+
+      # The content gate. Fails on an unsourced statistic, a duplicate keyword,
+      # a description outside 140-160 chars, a broken internal link, or two
+      # posts that ended up saying the same thing. See scripts/audit-content.ts.
+      - name: Content audit
+        run: bun run audit:content
+
+      - name: Tests
+        run: bun run test
+
+      # Last, because it is the slowest and everything above catches more for
+      # less. `SKIP_ENV_VALIDATION` because CI holds no runtime secrets and the
+      # build only needs to prove the app compiles and prerenders.
+      - name: Build
+        run: bun run build
+        env:
+          SKIP_ENV_VALIDATION: "true"

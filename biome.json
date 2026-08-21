@@ -28,6 +28,38 @@
       "!**/convex/_generated"
     ]
   },
+  "overrides": [
+    {
+      "includes": ["apps/video/src/Root.tsx"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useFilenamingConvention": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "apps/video/src/lib/remocn-ui/**",
+        "apps/video/src/components/remocn/**"
+      ],
+      "linter": {
+        "rules": {
+          "complexity": {
+            "noForEach": "off"
+          },
+          "performance": {
+            "noBarrelFile": "off"
+          },
+          "style": {
+            "noNestedTernary": "off",
+            "useAtIndex": "off"
+          }
+        }
+      }
+    }
+  ],
   "formatter": {
     "enabled": true,
     "indentStyle": "tab"

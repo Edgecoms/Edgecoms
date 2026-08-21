@@ -20,7 +20,9 @@ import { HOME_TESTIMONIALS } from "@/lib/marketing-stats";
 export const metadata: Metadata = {
 	title: "Edge · Turn traffic into revenue",
 	description:
-		"Edge is the Shopify app suite for higher order value, better conversion rate, and revenue that repeats. Bundles, cart, timer, reviews, currency, subscriptions, and server-side tracking — free plans on most of them.",
+		"The Shopify app suite for higher order value, better conversion, and revenue that repeats. Bundles, cart, timer, reviews, currency and subscriptions.",
+	alternates: { canonical: "/" },
+	openGraph: { type: "website", url: "/" },
 };
 
 const APP_FEATURES: readonly Feature[] = [
@@ -35,7 +37,7 @@ const APP_FEATURES: readonly Feature[] = [
 		title: "Cart upsells",
 	},
 	{
-		body: "Countdowns, photo reviews, local currency and auto-refill — each one a separate app, so you only load what you switched on.",
+		body: "Countdowns, photo reviews, local currency and auto-refill. Each one a separate app, so you only load what you switched on.",
 		href: "/products",
 		title: "Five more, each focused",
 	},

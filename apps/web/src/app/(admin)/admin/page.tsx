@@ -25,7 +25,7 @@ export default function AdminDashboardPage() {
 		runSync.mutate(undefined, {
 			onSuccess: (summary) => {
 				toast.success(
-					`Sync complete — ${summary.reconcile.earningsInserted} new earnings, ${summary.commissions.commissionsCreated} commissions.`
+					`Sync complete. ${summary.reconcile.earningsInserted} new earnings, ${summary.commissions.commissionsCreated} commissions.`
 				);
 				queryClient.invalidateQueries({
 					queryKey: trpc.admin.syncState.queryKey(),

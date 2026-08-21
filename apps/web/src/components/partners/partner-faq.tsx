@@ -1,8 +1,12 @@
 import { GridMarkers } from "@/components/home/grid-markers";
 
 /* The questions a partner asks before applying. Every answer states the rule
-   the platform actually enforces — none of these are aspirational. */
-const FAQS = [
+   the platform actually enforces — none of these are aspirational.
+
+   Exported because /partners emits these as FAQPage structured data, and
+   Google requires the marked-up answer to match the visible one word for
+   word. One array keeps that true by construction. */
+export const PARTNER_FAQS = [
 	{
 		answer:
 			"They are grandfathered out. At approval we record every Edge app the store was already subscribed to, and those apps never generate commission, not now and not on future charges for them. You earn on what you bring.",
@@ -53,7 +57,7 @@ export function PartnerFaq() {
 
 				<div className="relative mt-16">
 					<dl className="grid grid-cols-1 gap-px border border-border bg-border md:grid-cols-2">
-						{FAQS.map((faq) => (
+						{PARTNER_FAQS.map((faq) => (
 							<div
 								className="flex flex-col gap-2.5 bg-bg p-8 sm:p-10"
 								key={faq.question}

@@ -35,10 +35,10 @@ export async function generateMetadata({
 	const role = getRole(slug);
 
 	if (!role) {
-		return { title: "Role not found · Edgecoms" };
+		return { title: "Role not found" };
 	}
 
-	const title = `${role.title} · Careers at Edgecoms`;
+	const title = `${role.title} · Careers`;
 
 	return {
 		title,

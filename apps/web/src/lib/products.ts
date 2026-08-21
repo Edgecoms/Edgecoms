@@ -129,6 +129,13 @@ export interface EdgeProduct {
 	 * the Trackproof health score with live events.
 	 */
 	screenshot?: string;
+	/**
+	 * The `<title>`, and only the title. Separate from `tagline` because the two
+	 * answer different questions: the tagline is the H1 and names the loss, while
+	 * this has to carry the words a merchant actually types into Google and fit
+	 * the ~60 characters Google renders before it truncates.
+	 */
+	seoTitle: string;
 	slug: string;
 	/** The H1 on the app page. Names the metric or the loss. */
 	tagline: string;
@@ -138,6 +145,7 @@ export interface EdgeProduct {
 
 export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 	{
+		seoTitle: "Edge Bundles · Shopify bundles & volume tiers",
 		slug: "edge-bundles",
 		name: "Edge Bundles",
 		category: "Average order value",
@@ -274,6 +282,7 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 			"Your ad spend already bought the visitor. Get a bigger order out of them.",
 	},
 	{
+		seoTitle: "Edge Cart · Shopify slide cart & upsell app",
 		slug: "edge-cart",
 		name: "Edge Cart",
 		category: "Revenue per visitor",
@@ -405,6 +414,7 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 		ctaHeading: "Make the cart earn its place in the funnel.",
 	},
 	{
+		seoTitle: "Edge Timer · Shopify countdown timer app",
 		slug: "edge-timer",
 		name: "Edge Timer",
 		category: "Conversion rate",
@@ -537,6 +547,7 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 		ctaHeading: "A deadline costs nothing and moves conversion rate.",
 	},
 	{
+		seoTitle: "Edge Reviews · Shopify product reviews & photos",
 		slug: "edge-reviews",
 		name: "Edge Reviews",
 		category: "Product page conversion",
@@ -665,6 +676,7 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 		ctaHeading: "Let the last 200 buyers sell the next one.",
 	},
 	{
+		seoTitle: "Edge Currency · Shopify multi-currency converter",
 		slug: "edge-currency",
 		name: "Edge Currency",
 		category: "International conversion",
@@ -780,6 +792,7 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 		ctaHeading: "Stop losing international carts to a confusing number.",
 	},
 	{
+		seoTitle: "Edge Subscriptions · Shopify subscriptions app",
 		slug: "edge-subscriptions",
 		name: "Edge Subscriptions",
 		category: "Lifetime value",
@@ -910,6 +923,7 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 		ctaHeading: "One sale, then twelve.",
 	},
 	{
+		seoTitle: "Trackproof · Shopify server-side tracking",
 		slug: "trackproof",
 		name: "Trackproof",
 		category: "Attribution",

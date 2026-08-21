@@ -12,9 +12,10 @@ import { CtaDark } from "@/components/landing/cta-dark";
 import { Frame } from "@/components/landing/frame";
 import { Reveal } from "@/components/ui/reveal";
 import { BOOKING_LABEL, BOOKING_URL } from "@/lib/booking";
+import { breadcrumbSchema, jsonLdScriptProps } from "@/lib/seo";
 
 export const metadata: Metadata = {
-	title: "Contact Us · Edgecoms",
+	title: "Contact sales and support",
 	description:
 		"Get in touch with our team for sales, support, live demos, or general inquiries.",
 	alternates: { canonical: "/contact" },
@@ -59,6 +60,14 @@ const HELP_CARDS = [
 export default function ContactPage() {
 	return (
 		<main>
+			<script
+				{...jsonLdScriptProps(
+					breadcrumbSchema([
+						{ name: "Home", path: "/" },
+						{ name: "Contact", path: "/contact" },
+					])
+				)}
+			/>
 			{/* SECTION 1: HOW CAN WE HELP? (Matching Image 1 Design) */}
 			<Reveal>
 				<section className="relative w-full border-neutral-200 border-b bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-neutral-50/40 [background-size:16px_16px]">

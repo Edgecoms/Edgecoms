@@ -15,7 +15,7 @@ import {
  */
 const product = getProduct("edge-currency");
 
-const title = product ? `${product.name} · ${product.tagline}` : "Edge apps";
+const title = product?.seoTitle ?? "Edge apps";
 
 export const metadata: Metadata = {
 	title,

@@ -10,7 +10,7 @@ import { ProductsHome } from "@/components/v1/products-home";
  * redesign. Not linked from anywhere and excluded from search indexing.
  */
 export const metadata: Metadata = {
-	title: "Homepage v1 (archived) — Edge",
+	title: "Homepage v1 (archived) · Edge",
 	robots: { index: false, follow: false },
 };
 

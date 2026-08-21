@@ -53,7 +53,7 @@ export default function AdminCommissionsPage() {
 	return (
 		<div className="flex flex-col gap-8">
 			<PortalHeader
-				description="Every generated commission. Amounts are immutable — marking paid only changes status."
+				description="Every generated commission. Amounts are immutable, and marking paid only changes status."
 				title="Commissions"
 			/>
 

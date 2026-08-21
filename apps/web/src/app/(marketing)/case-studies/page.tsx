@@ -5,9 +5,10 @@ import { MarketingCta } from "@/components/marketing/marketing-cta";
 import { Highlight } from "@/components/ui/highlight";
 import { BOOKING_LABEL, BOOKING_URL } from "@/lib/booking";
 import { CASE_STUDIES } from "@/lib/marketing-stats";
+import { breadcrumbSchema, itemListSchema, jsonLdScriptProps } from "@/lib/seo";
 
 export const metadata: Metadata = {
-	title: "Case studies · Edge",
+	title: "Case studies · Shopify stores running Edge",
 	description:
 		"Real Shopify stores running Edge apps, the metric each one is working, and what they built to move it.",
 	alternates: { canonical: "/case-studies" },
@@ -24,6 +25,24 @@ export default function CaseStudiesPage() {
 
 	return (
 		<main className="flex flex-col">
+			<script
+				{...jsonLdScriptProps(
+					breadcrumbSchema([
+						{ name: "Home", path: "/" },
+						{ name: "Case studies", path: "/case-studies" },
+					])
+				)}
+			/>
+			<script
+				{...jsonLdScriptProps(
+					itemListSchema(
+						studies.map(([slug, study]) => ({
+							name: study.brand,
+							path: `/case-studies/${slug}`,
+						}))
+					)
+				)}
+			/>
 			<section className="relative isolate w-full overflow-hidden">
 				<div
 					aria-hidden="true"

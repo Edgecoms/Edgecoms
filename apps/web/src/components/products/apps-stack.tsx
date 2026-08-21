@@ -84,7 +84,7 @@ export function AppsStack() {
 											<span className="font-medium text-neutral-900">
 												Buy 2 Pack
 											</span>{" "}
-											— Save 15%
+											· Save 15%
 											<span className="ml-2 rounded bg-blue-600 px-1.5 py-0.5 font-bold text-[9px] text-white uppercase">
 												Popular
 											</span>
@@ -94,7 +94,7 @@ export function AppsStack() {
 
 									{/* Secondary Tier */}
 									<div className="flex items-center justify-between rounded-xl border border-neutral-100 bg-neutral-50/60 p-3 text-neutral-600 text-xs">
-										<span>Buy 3 Pack — Save 25%</span>
+										<span>Buy 3 Pack · Save 25%</span>
 										<span className="font-semibold text-neutral-900">
 											$76.50
 										</span>

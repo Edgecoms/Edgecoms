@@ -23,7 +23,7 @@ import type { AppFaq } from "@/lib/products";
  * shared footer imports it too, so it is not frozen.
  */
 export const metadata: Metadata = {
-	title: "Homepage v2 (archived) — Edge",
+	title: "Homepage v2 (archived) · Edge",
 	robots: { index: false, follow: false },
 };
 

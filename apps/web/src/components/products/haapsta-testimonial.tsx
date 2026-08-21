@@ -1,6 +1,5 @@
 import { BookOpen } from "lucide-react";
 import type { Route } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { Frame } from "@/components/landing/frame";
 
@@ -26,7 +25,7 @@ export function HaapstaTestimonial() {
 							ultimate app infrastructure
 						</span>{" "}
 						for every Shopify store. If you're looking to 10x your average order
-						value and conversion rate – I cannot recommend building with{" "}
+						value and conversion rate, I cannot recommend building with{" "}
 						<span className="font-bold text-neutral-900 underline decoration-neutral-400 decoration-dotted underline-offset-4">
 							Edge Apps
 						</span>{" "}
@@ -35,16 +34,7 @@ export function HaapstaTestimonial() {
 
 					{/* Author Profile */}
 					<div className="mt-8 flex flex-col items-center">
-						<div className="relative size-12 overflow-hidden rounded-full border border-neutral-200 bg-gradient-to-tr from-neutral-200 via-neutral-100 to-neutral-300 shadow-2xs">
-							<Image
-								alt="Haapsta Founder"
-								className="size-full object-cover"
-								height={48}
-								src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200"
-								width={48}
-							/>
-						</div>
-						<p className="mt-3 font-semibold text-neutral-900 text-sm">
+						<p className="font-semibold text-neutral-900 text-sm">
 							Marcus Bennett
 						</p>
 						<p className="font-medium text-neutral-500 text-xs">CEO, Haapsta</p>

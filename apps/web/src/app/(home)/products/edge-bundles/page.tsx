@@ -1,12 +1,12 @@
 "use client";
 
-import { Check, Minus, Package, Play, Plus, ShoppingBag } from "lucide-react";
+import { Check, Minus, Package, Plus, ShoppingBag } from "lucide-react";
 import { useState } from "react";
 import { CtaDark } from "@/components/landing/cta-dark";
 import { Frame } from "@/components/landing/frame";
 import { LogoCloud } from "@/components/landing/logo-cloud";
 import { Reveal } from "@/components/ui/reveal";
-import { BOOKING_URL } from "@/lib/booking";
+import { BOOKING_LABEL, BOOKING_URL } from "@/lib/booking";
 import { getProduct } from "@/lib/products";
 
 const product = getProduct("edge-bundles");
@@ -70,8 +70,7 @@ function EdgeBundlesHeroSection() {
 									rel="noopener noreferrer"
 									target="_blank"
 								>
-									<Play className="size-3.5 fill-neutral-800 text-neutral-800" />
-									<span>Watch Demo</span>
+									<span>{BOOKING_LABEL}</span>
 								</a>
 							</div>
 						</Reveal>

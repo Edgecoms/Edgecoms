@@ -59,8 +59,8 @@ const SENTENCE: readonly Segment[] = [
 	{ pillar: "results", text: "better" },
 	{ chip: true, pillar: "results", text: "conversion" },
 	{ pillar: "partners", text: "and revenue that" },
-	{ chip: true, pillar: "partners", text: "repeats" },
-	{ pillar: "partners", text: "— all on the traffic you already pay for." },
+	{ chip: true, pillar: "partners", suffix: ",", text: "repeats" },
+	{ pillar: "partners", text: "all on the traffic you already pay for." },
 ];
 
 const WORDS = SENTENCE.flatMap((segment) => {

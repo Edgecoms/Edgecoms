@@ -18,7 +18,6 @@ import {
 } from "@edgecoms/ui/components/navigation-menu";
 import { cn } from "@edgecoms/ui/lib/utils";
 import {
-	BookOpen,
 	Briefcase,
 	ChevronDown,
 	HelpCircle,
@@ -54,11 +53,6 @@ const PRODUCT_ITEMS: readonly MenuItem[] = EDGE_PRODUCTS.map((product) => ({
 }));
 
 const RESOURCE_ITEMS: readonly MenuItem[] = [
-	{
-		description: "Platform documentation.",
-		href: "/docs",
-		label: "Docs",
-	},
 	{
 		description: "Answers to your questions.",
 		href: "/contact",
@@ -263,27 +257,7 @@ function ResourceMenuPanel() {
 					<span className="mb-3 px-1 font-semibold text-[11px] text-neutral-400 uppercase tracking-wider">
 						Explore
 					</span>
-					<div className="grid h-full grid-cols-2 gap-3">
-						{/* Docs Card */}
-						<Link
-							className="group flex flex-col justify-between rounded-2xl border border-neutral-100 bg-neutral-50/60 p-4.5 transition-colors hover:border-neutral-200 hover:bg-neutral-50"
-							href={"/docs" as Route}
-						>
-							<div>
-								<div className="flex size-9 items-center justify-center rounded-xl border border-neutral-200/70 bg-white shadow-2xs">
-									<BookOpen className="size-4 text-neutral-800" />
-								</div>
-							</div>
-							<div className="mt-8">
-								<h3 className="font-semibold text-[15px] text-neutral-900">
-									Docs
-								</h3>
-								<p className="mt-0.5 text-[12px] text-neutral-500 leading-snug">
-									Platform documentation
-								</p>
-							</div>
-						</Link>
-
+					<div className="grid h-full grid-cols-1 gap-3">
 						{/* Help Center Card */}
 						<Link
 							className="group flex flex-col justify-between rounded-2xl border border-neutral-100 bg-neutral-50/60 p-4.5 transition-colors hover:border-neutral-200 hover:bg-neutral-50"

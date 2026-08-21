@@ -18,8 +18,13 @@ export default function robots(): MetadataRoute.Robots {
 				allow: "/",
 				disallow: [
 					"/api/",
-					"/admin",
-					"/partner",
+					/* Prefix matches, so each portal needs the bare path anchored with
+					   `$` and the subtree separately. A plain "/partner" would also
+					   block /partners, the public marketing page. */
+					"/admin$",
+					"/admin/",
+					"/partner$",
+					"/partner/",
 					"/about-old",
 					"/contact-old",
 					"/products-old",

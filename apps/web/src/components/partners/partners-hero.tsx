@@ -7,7 +7,7 @@ import type { Route } from "next";
 import Image from "next/image";
 import { Frame, PartnersIcon } from "@/components/landing/frame";
 import { REVEAL_EASE, Reveal } from "@/components/ui/reveal";
-import { BOOKING_URL } from "@/lib/booking";
+import { WatchDemo } from "@/components/ui/watch-demo";
 
 const PARTNER_CARDS = [
 	// Column 1 (Leftmost - faded)
@@ -174,19 +174,16 @@ export function PartnersHero() {
 							>
 								Get started
 							</ButtonLink>
-							<ButtonLink
-								className="flex h-10 items-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 font-medium text-neutral-900 text-sm shadow-2xs hover:bg-neutral-50"
-								href={BOOKING_URL as Route}
-								rel="noopener"
-								size="lg"
-								target="_blank"
-								variant="secondary"
+							<WatchDemo
+								className="flex h-10 items-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 font-medium text-neutral-900 text-sm shadow-2xs transition-colors hover:bg-neutral-50"
+								src="/videos/edge-partners.mp4"
+								title="Edge Partners demo"
 							>
 								<span className="flex size-4 items-center justify-center rounded-full border border-neutral-400">
 									<Play className="ml-0.5 size-2 fill-neutral-900 text-neutral-900" />
 								</span>
 								Watch demo
-							</ButtonLink>
+							</WatchDemo>
 						</div>
 					</Reveal>
 				</div>

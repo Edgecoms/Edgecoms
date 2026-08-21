@@ -105,7 +105,7 @@ export default function CustomersPage() {
 							</h1>
 							<p className="mt-3.5 max-w-xl text-neutral-500 text-sm leading-relaxed sm:text-base">
 								Edge gives superpowers to Shopify merchants and high-growth
-								e-commerce brands – from early stage stores to category leaders.
+								e-commerce brands, from early stage stores to category leaders.
 							</p>
 
 							<div className="mt-6 flex items-center gap-3">

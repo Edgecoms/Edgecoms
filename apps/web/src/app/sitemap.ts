@@ -10,8 +10,9 @@ import { absoluteUrl } from "@/lib/seo";
  * second edit, which is the only way a sitemap stays honest.
  *
  * Deliberately absent: the `-old` routes and the `v1`/`v2` archives (duplicates
- * of live pages, also disallowed in robots.ts), the auth pages, and both
- * portals.
+ * of live pages, also disallowed in robots.ts), `/login`, and both portals.
+ * `/register` is here because it is a landing page with its own copy, not a
+ * bare form.
  *
  * `priority` is relative within this file only. It is a hint about which pages
  * matter most to us, not a ranking lever.
@@ -52,6 +53,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
 				url: absoluteUrl("/contact"),
 				changeFrequency: "monthly",
 				priority: 0.5,
+			},
+			{
+				url: absoluteUrl("/register"),
+				changeFrequency: "monthly",
+				priority: 0.6,
 			},
 		] satisfies MetadataRoute.Sitemap
 	).map((page) => ({ ...page, lastModified }));

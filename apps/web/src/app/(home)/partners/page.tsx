@@ -2,16 +2,7 @@
 
 import { ButtonLink } from "@edgecoms/ui/components/button";
 import { Globe } from "@edgecoms/ui/components/globe";
-import {
-	ArrowUpRight,
-	BookOpen,
-	CheckCircle2,
-	Heart,
-	Layers,
-	Layout,
-	Sparkles,
-	Users,
-} from "lucide-react";
+import { BookOpen, CheckCircle2, Heart, Sparkles, Users } from "lucide-react";
 import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -21,11 +12,40 @@ import { CtaDark } from "@/components/landing/cta-dark";
 import { Frame } from "@/components/landing/frame";
 import { PartnersHero } from "@/components/partners/partners-hero";
 import { Reveal } from "@/components/ui/reveal";
+import { PARTNER_PROGRAM_STATS } from "@/lib/marketing-stats";
 
-const LIVE_SALES = [
-	{ commission: "$0.05", flag: "🇳🇱", revenue: "$0.17" },
-	{ commission: "$0.03", flag: "🇿🇦", revenue: "$0.09" },
-	{ commission: "$0.04", flag: "🇮🇱", revenue: "$0.11" },
+/** Commission is 20% of net in every row: the arithmetic on screen has to hold. */
+const LIVE_CHARGES = [
+	{ app: "Edge Cart", commission: "$5.80", flag: "🇳🇱", net: "$29.00" },
+	{ app: "Edge Bundles", commission: "$3.80", flag: "🇿🇦", net: "$19.00" },
+	{ app: "Edge Reviews", commission: "$7.80", flag: "🇮🇱", net: "$39.00" },
+] as const;
+
+const RECURRING_MERCHANTS = [
+	{ domain: "northwind.myshopify.com", initial: "N", share: "$146.20" },
+	{ domain: "kestrelgoods.myshopify.com", initial: "K", share: "$118.40" },
+	{ domain: "maelo.myshopify.com", initial: "M", share: "$63.40" },
+] as const;
+
+const LEDGER_ROWS = [
+	{
+		app: "Edge Cart",
+		commission: "$78.00",
+		rate: "20%",
+		transaction: "txn_8841",
+	},
+	{
+		app: "Edge Reviews",
+		commission: "$50.00",
+		rate: "20%",
+		transaction: "txn_8846",
+	},
+	{
+		app: "Edge Bundles",
+		commission: "$18.20",
+		rate: "20%",
+		transaction: "txn_8903",
+	},
 ] as const;
 
 const SUCCESS_STORIES = [
@@ -228,21 +248,13 @@ export default function PartnersPage() {
 							<p className="mt-6 max-w-xl font-normal font-satoshi text-lg text-neutral-800 leading-relaxed sm:text-xl md:text-[22px] md:leading-[1.4]">
 								&ldquo;Edge is the ultimate partner infrastructure for every
 								startup. If you&apos;re looking to 10x your community /
-								product-led growth &ndash; I cannot recommend building a partner
+								product-led growth, I cannot recommend building a partner
 								program with Edge enough.&rdquo;
 							</p>
 
 							<div className="mt-6 flex flex-col items-center gap-1">
-								<Image
-									alt="Avinash Shaw"
-									className="size-11 rounded-full object-cover shadow-2xs ring-1 ring-neutral-900/10"
-									height={44}
-									src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&h=120&q=80"
-									unoptimized
-									width={44}
-								/>
-								<span className="mt-1.5 font-medium text-neutral-900 text-xs sm:text-sm">
-									Avinash Shaw
+								<span className="font-medium text-neutral-900 text-xs sm:text-sm">
+									Marcus Bell
 								</span>
 								<span className="font-normal text-[11px] text-neutral-500">
 									Founder, Aurient
@@ -261,22 +273,23 @@ export default function PartnersPage() {
 				</section>
 			</Reveal>
 
-			{/* SECTION 5: EFFORTLESS PAYOUTS 3-FEATURE CARDS */}
+			{/* SECTION 5: HOW PARTNERS GET PAID 3-FEATURE CARDS */}
 			<Reveal>
 				<section className="relative w-full">
 					<Frame className="bg-white pt-16 pb-0 sm:pt-20">
 						<div className="flex flex-col items-center text-center">
 							<h2 className="font-bold font-satoshi text-3xl text-neutral-900 tracking-tight sm:text-4xl">
-								Effortless payouts
+								How partners get paid
 							</h2>
 							<p className="mt-3 max-w-lg text-neutral-500 text-sm leading-relaxed sm:text-base">
-								Our streamlined payouts free up your time, so you can focus on
-								growing your business and doing what you do best.
+								No referral links to share, no invoices to chase. Register the
+								stores you already manage and take a share of what they spend on
+								Edge, every month.
 							</p>
 
 							{/* 3-Column Grid */}
 							<div className="mt-12 grid w-full grid-cols-1 divide-y border-neutral-200 border-t md:grid-cols-3 md:divide-x md:divide-y-0">
-								{/* Card 1: 1-click global payouts */}
+								{/* Card 1: Recurring commission */}
 								<div className="flex flex-col justify-between bg-white p-8 text-left transition-colors hover:bg-neutral-50/50">
 									<div>
 										{/* Visual Graphic 1 */}
@@ -290,23 +303,23 @@ export default function PartnersPage() {
 														</div>
 														<div className="flex flex-col">
 															<span className="text-[9px] text-neutral-400">
-																Revenue
+																Net revenue
 															</span>
 															<span className="font-bold text-[11px] text-neutral-900 leading-tight">
-																US$1.6k
+																US$1,640
 															</span>
 														</div>
 													</div>
 													<div className="flex items-center gap-2 pl-2">
-														<div className="flex size-6 shrink-0 items-center justify-center rounded-md bg-neutral-100 text-[11px] text-neutral-700">
-															💳
+														<div className="flex size-6 shrink-0 items-center justify-center rounded-md bg-neutral-100 font-semibold text-[11px] text-neutral-700">
+															%
 														</div>
 														<div className="flex flex-col">
 															<span className="text-[9px] text-neutral-400">
-																Payouts
+																Your share
 															</span>
 															<span className="font-bold text-[11px] text-neutral-900 leading-tight">
-																US$195
+																US$328
 															</span>
 														</div>
 													</div>
@@ -316,78 +329,43 @@ export default function PartnersPage() {
 											{/* Dark Floating Payout Badge */}
 											<div className="z-10 -mt-2.5 mb-1 flex items-center gap-1.5 rounded-full bg-neutral-900 px-3.5 py-1 text-white shadow-md">
 												<span className="flex size-4 items-center justify-center rounded-full bg-white/20 text-[9px]">
-													↻
+													&#8635;
 												</span>
 												<span className="font-medium text-xs">
-													Payout US$84.00
+													March payout US$328.00
 												</span>
 											</div>
 
-											{/* Partner Rows Container */}
+											{/* Per-merchant Rows Container */}
 											<div className="-mt-1.5 w-full max-w-[240px] space-y-1.5 rounded-xl border border-neutral-200/80 bg-white/90 p-2 shadow-2xs backdrop-blur-xs">
-												<div className="flex items-center justify-between px-1.5">
-													<div className="flex min-w-0 items-center gap-2">
-														<Image
-															alt="Lucia"
-															className="size-4.5 shrink-0 rounded-full object-cover"
-															height={18}
-															src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80"
-															unoptimized
-															width={18}
-														/>
-														<span className="truncate font-medium text-[10px] text-neutral-700">
-															Lucia Gonzalez
+												{RECURRING_MERCHANTS.map((merchant) => (
+													<div
+														className="flex items-center justify-between px-1.5"
+														key={merchant.domain}
+													>
+														<div className="flex min-w-0 items-center gap-2">
+															<span className="flex size-4.5 shrink-0 items-center justify-center rounded-md bg-neutral-900 font-semibold text-[8px] text-white">
+																{merchant.initial}
+															</span>
+															<span className="truncate font-medium text-[10px] text-neutral-700">
+																{merchant.domain}
+															</span>
+														</div>
+														<span className="font-mono text-[9px] text-neutral-400">
+															{merchant.share}
 														</span>
 													</div>
-													<span className="font-mono text-[9px] text-neutral-400">
-														$0.10
-													</span>
-												</div>
-												<div className="flex items-center justify-between px-1.5">
-													<div className="flex min-w-0 items-center gap-2">
-														<Image
-															alt="Samantha"
-															className="size-4.5 shrink-0 rounded-full object-cover"
-															height={18}
-															src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&auto=format&fit=crop&q=80"
-															unoptimized
-															width={18}
-														/>
-														<span className="truncate font-medium text-[10px] text-neutral-700">
-															Samantha Johns
-														</span>
-													</div>
-													<span className="font-mono text-[9px] text-neutral-400">
-														$1.13
-													</span>
-												</div>
-												<div className="flex items-center justify-between px-1.5 opacity-60">
-													<div className="flex min-w-0 items-center gap-2">
-														<Image
-															alt="Derek"
-															className="size-4.5 shrink-0 rounded-full object-cover"
-															height={18}
-															src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80"
-															unoptimized
-															width={18}
-														/>
-														<span className="truncate font-medium text-[10px] text-neutral-700">
-															Derek Forbes
-														</span>
-													</div>
-													<span className="font-mono text-[9px] text-neutral-400">
-														$0.15
-													</span>
-												</div>
+												))}
 											</div>
 										</div>
 
 										<h3 className="mt-6 font-medium font-satoshi text-lg text-neutral-900">
-											1-click global payouts
+											Recurring for the life of the store
 										</h3>
 										<p className="mt-2.5 text-neutral-600 text-xs leading-relaxed">
-											Save upwards of 40 hours/month with our powerful global
-											payouts platform – no more manual spreadsheets/invoices.
+											You earn a percentage of the net subscription revenue each
+											merchant generates, paid again every month for as long as
+											they stay on Edge. No expiry, no clawback window.
 										</p>
 									</div>
 
@@ -401,67 +379,59 @@ export default function PartnersPage() {
 									</div>
 								</div>
 
-								{/* Card 2: Tax compliance */}
+								{/* Card 2: Register the stores you manage */}
 								<div className="flex flex-col justify-between bg-white p-8 text-left transition-colors hover:bg-neutral-50/50">
 									<div>
 										{/* Visual Graphic 2 */}
-										<div className="relative flex h-60 w-full flex-col items-center justify-center overflow-hidden rounded-2xl border border-neutral-200/80 bg-gradient-to-b from-neutral-50 to-neutral-100/40 p-4">
-											{/* Top Avatars Row */}
-											<div className="flex items-center gap-3">
-												{/* Ghost Avatar Left */}
-												<div className="flex size-9 items-center justify-center rounded-xl border border-neutral-200/60 bg-white/60 opacity-40 shadow-2xs">
-													<Users className="size-4 text-neutral-400" />
-												</div>
-
-												{/* Center Featured Partner Avatar */}
-												<div className="relative">
-													<Image
-														alt="Verified Partner"
-														className="size-11 rounded-xl border-2 border-white object-cover shadow-sm ring-1 ring-neutral-200"
-														height={44}
-														src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
-														unoptimized
-														width={44}
-													/>
-													<span className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-emerald-500 font-bold text-[9px] text-white ring-2 ring-white">
-														✓
-													</span>
-												</div>
-
-												{/* Ghost Avatar Right */}
-												<div className="flex size-9 items-center justify-center rounded-xl border border-neutral-200/60 bg-white/60 opacity-40 shadow-2xs">
-													<Users className="size-4 text-neutral-400" />
-												</div>
+										<div className="relative flex h-60 w-full flex-col items-center justify-center gap-2 overflow-hidden rounded-2xl border border-neutral-200/80 bg-gradient-to-b from-neutral-50 to-neutral-100/40 p-4">
+											{/* Domain Claim Field */}
+											<div className="flex w-full max-w-[240px] items-center gap-2 rounded-xl border border-neutral-200/90 bg-white p-2.5 shadow-2xs">
+												<span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-neutral-900 font-semibold text-[10px] text-white">
+													N
+												</span>
+												<span className="truncate font-mono text-[10px] text-neutral-700">
+													northwind.myshopify.com
+												</span>
 											</div>
 
 											{/* Vertical Connector Line */}
-											<div className="my-1 h-4 w-px bg-neutral-300" />
+											<div className="h-4 w-px bg-neutral-300" />
 
-											{/* Tax Document Box */}
-											<div className="flex w-full max-w-[170px] flex-col items-center gap-1.5 rounded-xl border border-neutral-200/90 bg-white p-3 text-center shadow-2xs">
-												<div className="flex items-center gap-1 font-bold font-serif text-[11px] text-neutral-900 tracking-wider">
-													🏛️ IRS
+											{/* Approval Card */}
+											<div className="flex w-full max-w-[240px] flex-col gap-2 rounded-xl border border-neutral-200/90 bg-white p-3 shadow-2xs">
+												<div className="flex items-center justify-between">
+													<span className="font-semibold text-[11px] text-neutral-900">
+														Northwind Supply
+													</span>
+													<span className="inline-flex items-center gap-1 rounded-full border border-emerald-200/60 bg-emerald-50 px-2 py-0.5 font-medium text-[9px] text-emerald-700">
+														<CheckCircle2 className="size-2.5" />
+														Approved
+													</span>
 												</div>
-												<span className="font-medium text-[10px] text-neutral-500">
-													1099-NEC
-												</span>
-												<div className="my-0.5 w-full space-y-1 px-2">
-													<div className="h-1 w-full rounded-full bg-neutral-100" />
-													<div className="mx-auto h-1 w-3/4 rounded-full bg-neutral-100" />
+												<div className="space-y-1 rounded-lg border border-neutral-100 bg-neutral-50/80 p-2 text-[10px]">
+													<div className="flex items-center justify-between text-neutral-500">
+														<span>Your rate</span>
+														<span className="font-medium text-neutral-800">
+															20%
+														</span>
+													</div>
+													<div className="flex items-center justify-between text-neutral-500">
+														<span>Earning apps</span>
+														<span className="font-medium text-neutral-800">
+															Edge Cart, Edge Reviews
+														</span>
+													</div>
 												</div>
-												<span className="inline-flex items-center gap-1 rounded-full border border-emerald-200/60 bg-emerald-50 px-2 py-0.5 font-medium text-[9px] text-emerald-700">
-													<span className="size-1.5 rounded-full bg-emerald-500" />
-													Completed
-												</span>
 											</div>
 										</div>
 
 										<h3 className="mt-6 font-medium font-satoshi text-lg text-neutral-900">
-											Tax compliance
+											Register the stores you manage
 										</h3>
 										<p className="mt-2.5 text-neutral-600 text-xs leading-relaxed">
-											We automatically handle tax compliance for you – no need
-											to worry about sending W-9, 1099, W-8 forms.
+											Add a store by its myshopify.com domain. Once we approve
+											it, every Edge app it starts paying for earns you
+											commission. No link for a merchant to forget to click.
 										</p>
 									</div>
 
@@ -475,75 +445,57 @@ export default function PartnersPage() {
 									</div>
 								</div>
 
-								{/* Card 3: Built-in invoicing */}
+								{/* Card 3: Auditable earnings ledger */}
 								<div className="flex flex-col justify-between bg-white p-8 text-left transition-colors hover:bg-neutral-50/50">
 									<div>
 										{/* Visual Graphic 3 */}
 										<div className="relative flex h-60 w-full flex-col items-center justify-center overflow-hidden rounded-2xl border border-neutral-200/80 bg-gradient-to-b from-neutral-50 to-neutral-100/40 p-4">
-											{/* Invoice Modal Box */}
+											{/* Ledger Card */}
 											<div className="flex w-full max-w-[240px] flex-col gap-2.5 rounded-2xl border border-neutral-200/90 bg-white p-3.5 shadow-2xs">
-												{/* Top Header */}
 												<div className="flex items-center justify-between">
-													<div className="flex items-center gap-2">
-														<Image
-															alt="Derek Forbes"
-															className="size-7 rounded-full object-cover"
-															height={28}
-															src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80"
-															unoptimized
-															width={28}
-														/>
-														<span className="font-semibold text-neutral-900 text-xs">
-															Derek Forbes
-														</span>
-													</div>
-													<span className="rounded-full border border-amber-200/60 bg-amber-50 px-2 py-0.5 font-medium text-[9px] text-amber-700">
-														Pending
+													<span className="font-semibold text-neutral-900 text-xs">
+														Mar 1 to Mar 31
+													</span>
+													<span className="rounded-full border border-neutral-200 bg-neutral-50 px-2 py-0.5 font-medium text-[9px] text-neutral-600">
+														Locked
 													</span>
 												</div>
 
-												{/* Invoice Details Box */}
-												<div className="space-y-1 rounded-xl border border-neutral-100 bg-neutral-50/80 p-2.5 text-[10px]">
-													<div className="flex items-center justify-between text-neutral-500">
-														<span>Period</span>
-														<span className="font-medium text-neutral-800">
-															Mar 1 &ndash; Mar 31
-														</span>
-													</div>
-													<div className="flex items-center justify-between text-neutral-500">
-														<span>Invoice</span>
-														<span className="font-medium text-neutral-800">
-															#EDGE-0001
-														</span>
-													</div>
-													<div className="flex items-center justify-between text-neutral-500">
-														<span>Sales</span>
-														<span className="font-medium text-neutral-800">
-															12
-														</span>
-													</div>
-													<div className="flex items-center justify-between border-neutral-200/60 border-t pt-1 text-neutral-500">
-														<span>Amount</span>
+												<div className="space-y-1.5 rounded-xl border border-neutral-100 bg-neutral-50/80 p-2.5 text-[10px]">
+													{LEDGER_ROWS.map((row) => (
+														<div
+															className="flex items-center justify-between text-neutral-500"
+															key={row.transaction}
+														>
+															<span className="truncate">{row.app}</span>
+															<span className="flex shrink-0 items-center gap-1.5">
+																<span className="font-mono text-[9px] text-neutral-400">
+																	{row.transaction} &middot; {row.rate}
+																</span>
+																<span className="font-medium text-neutral-800">
+																	{row.commission}
+																</span>
+															</span>
+														</div>
+													))}
+													<div className="flex items-center justify-between border-neutral-200/60 border-t pt-1.5 text-neutral-500">
+														<span>Payable</span>
 														<span className="font-bold text-neutral-900 text-xs">
-															$1,538.50
+															$328.00
 														</span>
 													</div>
-												</div>
-
-												{/* Action Button */}
-												<div className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-neutral-900 py-1.5 font-medium text-white text-xs shadow-2xs">
-													<CheckCircle2 className="size-3.5 text-white" />
-													Confirm payout
 												</div>
 											</div>
 										</div>
 
 										<h3 className="mt-6 font-medium font-satoshi text-lg text-neutral-900">
-											Built-in invoicing
+											Every cent traceable
 										</h3>
 										<p className="mt-2.5 text-neutral-600 text-xs leading-relaxed">
-											Streamline your accounting and improve partner
-											satisfaction with built-in invoices for each payout.
+											Each line ties to one Shopify charge at the rate that was
+											in force when you earned it. Renegotiating your rate
+											applies going forward and never rewrites what you are
+											already owed.
 										</p>
 									</div>
 
@@ -562,7 +514,7 @@ export default function PartnersPage() {
 				</section>
 			</Reveal>
 
-			{/* SECTION 6: GLOBE SECTION & LIVE REFERRAL POPUPS (Matching Screenshot 1) */}
+			{/* SECTION 6: GLOBE SECTION & LIVE CHARGE POPUPS */}
 			<Reveal>
 				<section className="relative w-full overflow-hidden border-neutral-200 border-y bg-neutral-50/70">
 					<Frame className="py-16 sm:py-24">
@@ -606,35 +558,35 @@ export default function PartnersPage() {
 									/>
 								</div>
 
-								{/* Live Referral Popups Stack on right side of Globe */}
+								{/* Live Charge Popups Stack on right side of Globe */}
 								<div className="pointer-events-none absolute top-8 right-2 z-10 flex flex-col gap-2.5 sm:right-10">
-									{LIVE_SALES.map((sale, idx) => (
+									{LIVE_CHARGES.map((charge, idx) => (
 										<div
 											className="flex w-[200px] flex-col gap-1.5 rounded-xl border border-neutral-200/80 bg-white/95 p-3 text-left shadow-md backdrop-blur-xs transition-all hover:scale-102 sm:w-[220px]"
-											key={sale.flag}
+											key={charge.flag}
 											style={{ opacity: 1 - idx * 0.12 }}
 										>
 											<div className="flex items-center gap-1.5 font-medium text-neutral-800 text-xs">
-												<span className="text-sm">{sale.flag}</span>
+												<span className="text-sm">{charge.flag}</span>
 												<span className="font-semibold text-[11px] text-neutral-900">
-													New referral sale
+													{charge.app} renewed
 												</span>
 											</div>
 											<div className="grid grid-cols-2 border-neutral-100 border-t pt-1 text-[10px]">
 												<div className="flex flex-col">
 													<span className="text-[9px] text-neutral-400">
-														Revenue
+														Net to Edge
 													</span>
 													<span className="font-semibold text-neutral-900">
-														{sale.revenue}
+														{charge.net}
 													</span>
 												</div>
 												<div className="flex flex-col">
 													<span className="text-[9px] text-neutral-400">
-														Commission
+														Your 20%
 													</span>
 													<span className="font-semibold text-purple-600">
-														{sale.commission}
+														{charge.commission}
 													</span>
 												</div>
 											</div>
@@ -644,43 +596,28 @@ export default function PartnersPage() {
 							</div>
 
 							<h2 className="mt-8 font-bold font-satoshi text-3xl text-neutral-900 tracking-tight sm:text-4xl">
-								Battle-tested tracking and payouts infrastructure
+								Paid from Shopify&apos;s own billing data
 							</h2>
 
 							<p className="mt-3 max-w-lg text-neutral-500 text-sm leading-relaxed sm:text-base">
-								We currently track 1.5M+ million conversion events and send over
-								$2 million in partner payouts &ndash;{" "}
-								<em>every single month</em>.
+								There is nothing for us to track. Every commission is generated
+								from a charge Shopify has already recorded against your
+								merchant: once per transaction, in whole cents,{" "}
+								<em>never recalculated</em>.
 							</p>
 
-							{/* 3 Big Stat Numbers (No border boxes, matching Image 1) */}
+							{/* 3 Big Stat Numbers */}
 							<div className="mt-12 grid w-full grid-cols-1 gap-8 sm:grid-cols-3 sm:gap-4">
-								<div className="flex flex-col items-center">
-									<span className="font-bold font-satoshi text-4xl text-purple-600 sm:text-5xl">
-										$33M+
-									</span>
-									<span className="mt-2 font-medium text-purple-600/90 text-xs">
-										commissions earned by partners
-									</span>
-								</div>
-
-								<div className="flex flex-col items-center">
-									<span className="font-bold font-satoshi text-4xl text-purple-600 sm:text-5xl">
-										$168M+
-									</span>
-									<span className="mt-2 font-medium text-purple-600/90 text-xs">
-										revenue driven by partners
-									</span>
-								</div>
-
-								<div className="flex flex-col items-center">
-									<span className="font-bold font-satoshi text-4xl text-purple-600 sm:text-5xl">
-										7,000+
-									</span>
-									<span className="mt-2 font-medium text-purple-600/90 text-xs">
-										active partners in our network
-									</span>
-								</div>
+								{PARTNER_PROGRAM_STATS.map((stat) => (
+									<div className="flex flex-col items-center" key={stat.label}>
+										<span className="font-bold font-satoshi text-4xl text-purple-600 sm:text-5xl">
+											{stat.value}
+										</span>
+										<span className="mt-2 font-medium text-purple-600/90 text-xs">
+											{stat.label}
+										</span>
+									</div>
+								))}
 							</div>
 						</div>
 					</Frame>
@@ -696,7 +633,7 @@ export default function PartnersPage() {
 								Reward viral content
 							</h2>
 							<p className="mt-3 max-w-lg text-neutral-500 text-sm leading-relaxed sm:text-base">
-								Reward partners for creating viral content – with support for
+								Reward partners for creating viral content, with support for
 								variable bonuses and earnings limits. Perfect for influencer/UGC
 								campaigns.
 							</p>
@@ -793,135 +730,7 @@ export default function PartnersPage() {
 				</section>
 			</Reveal>
 
-			{/* SECTION 8: SEAMLESS INTEGRATION 3-FEATURE CARDS (Matching Screenshot 3) */}
-			<Reveal>
-				<section className="relative w-full">
-					<Frame className="bg-white pt-16 pb-0 sm:pt-20">
-						<div className="flex flex-col items-center text-center">
-							<h2 className="font-bold font-satoshi text-3xl text-neutral-900 tracking-tight sm:text-4xl">
-								Seamless integration
-							</h2>
-							<p className="mt-3 max-w-lg text-neutral-500 text-sm leading-relaxed sm:text-base">
-								Drive partner signups with branded landing pages and embedded
-								referral dashboards within your app.
-							</p>
-
-							{/* 3-Column Grid */}
-							<div className="mt-12 grid w-full grid-cols-1 divide-y border-neutral-200 border-t md:grid-cols-3 md:divide-x md:divide-y-0">
-								{/* Card 1: AI landing page generator */}
-								<div className="flex flex-col justify-between bg-white p-8 text-left transition-colors hover:bg-neutral-50/50">
-									<div>
-										<div className="flex h-40 items-center justify-center rounded-2xl border border-neutral-200/80 bg-neutral-50 p-4">
-											<div className="flex flex-col gap-2 rounded-xl border border-neutral-200 bg-white p-3 shadow-2xs">
-												<div className="flex items-center gap-2 font-medium text-neutral-800 text-xs">
-													<Layout className="size-4 text-purple-600" />
-													<span>AI Page Builder</span>
-												</div>
-												<span className="text-[10px] text-neutral-400">
-													Auto-generate partner onboarding page
-												</span>
-											</div>
-										</div>
-
-										<h3 className="mt-6 font-medium font-satoshi text-lg text-neutral-900">
-											AI landing page generator
-										</h3>
-										<p className="mt-2.5 text-neutral-600 text-xs leading-relaxed">
-											Use AI to generate a compelling, branded landing page for
-											your affiliate program to drive partner signups.
-										</p>
-									</div>
-
-									<div className="mt-6">
-										<Link
-											className="inline-flex items-center gap-1 font-medium text-neutral-900 text-xs hover:underline"
-											href={"/register" as Route}
-										>
-											Learn more <ArrowUpRight className="size-3.5" />
-										</Link>
-									</div>
-								</div>
-
-								{/* Card 2: Embedded referral dashboard */}
-								<div className="flex flex-col justify-between bg-white p-8 text-left transition-colors hover:bg-neutral-50/50">
-									<div>
-										<div className="flex h-40 items-center justify-center rounded-2xl border border-neutral-200/80 bg-neutral-50 p-4">
-											<div className="flex flex-col gap-2 rounded-xl border border-neutral-200 bg-white p-3 shadow-2xs">
-												<div className="flex items-center gap-2 font-medium text-neutral-800 text-xs">
-													<Layers className="size-4 text-blue-600" />
-													<span>Embedded Widget</span>
-												</div>
-												<span className="text-[10px] text-neutral-400">
-													Native referral portal in your app
-												</span>
-											</div>
-										</div>
-
-										<h3 className="mt-6 font-medium font-satoshi text-lg text-neutral-900">
-											Embedded referral dashboard
-										</h3>
-										<p className="mt-2.5 text-neutral-600 text-xs leading-relaxed">
-											Seamlessly onboard your users as referral partners
-											directly inside your app – no external signup required.
-										</p>
-									</div>
-
-									<div className="mt-6">
-										<Link
-											className="inline-flex items-center gap-1 font-medium text-neutral-900 text-xs hover:underline"
-											href={"/register" as Route}
-										>
-											Learn more <ArrowUpRight className="size-3.5" />
-										</Link>
-									</div>
-								</div>
-
-								{/* Card 3: Get started in hours */}
-								<div className="flex flex-col justify-between bg-white p-8 text-left transition-colors hover:bg-neutral-50/50">
-									<div>
-										<div className="flex h-40 items-center justify-center rounded-2xl border border-neutral-200/80 bg-neutral-50 p-4">
-											<div className="flex flex-col gap-1.5 text-[11px]">
-												<div className="flex items-center gap-2 text-neutral-700">
-													<CheckCircle2 className="size-3.5 text-emerald-500" />
-													<span>Step 1: Create program</span>
-												</div>
-												<div className="flex items-center gap-2 text-neutral-700">
-													<CheckCircle2 className="size-3.5 text-emerald-500" />
-													<span>Step 2: Set up conversions</span>
-												</div>
-												<div className="flex items-center gap-2 text-neutral-700">
-													<CheckCircle2 className="size-3.5 text-emerald-500" />
-													<span>Step 3: Connect payouts</span>
-												</div>
-											</div>
-										</div>
-
-										<h3 className="mt-6 font-medium font-satoshi text-lg text-neutral-900">
-											Get started in hours, not days
-										</h3>
-										<p className="mt-2.5 text-neutral-600 text-xs leading-relaxed">
-											Our native integrations make it easy to get started. Most
-											teams get up and running within hours, not days.
-										</p>
-									</div>
-
-									<div className="mt-6">
-										<Link
-											className="inline-flex items-center gap-1 font-medium text-neutral-900 text-xs hover:underline"
-											href={"/register" as Route}
-										>
-											Read quickstart guide{" "}
-											<ArrowUpRight className="size-3.5" />
-										</Link>
-									</div>
-								</div>
-							</div>
-						</div>
-					</Frame>
-				</section>
-			</Reveal>
-
-			{/* SECTION 9: LOVED BY MODERN COMPANIES SUCCESS STORY (Matching Screenshot 4 & Image 2) */}
+			{/* SECTION 8: LOVED BY MODERN COMPANIES SUCCESS STORY */}
 			<Reveal>
 				<section className="relative w-full overflow-hidden border-neutral-200 border-y bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]">
 					<Frame className="bg-white py-16 sm:py-20">
@@ -992,7 +801,7 @@ export default function PartnersPage() {
 				</section>
 			</Reveal>
 
-			{/* SECTION 10: CLOSING CTA (Same as Homepage) */}
+			{/* SECTION 9: CLOSING CTA (Same as Homepage) */}
 			<Reveal>
 				<CtaDark />
 			</Reveal>

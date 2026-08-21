@@ -196,6 +196,59 @@ export function jobPostingSchema(role: {
 	};
 }
 
+/**
+ * A case study, as an Article.
+ *
+ * No `datePublished` or `dateModified`: we hold no real publication dates, and
+ * a date invented here is a date Google shows in the result. Article is valid
+ * without them, it simply forgoes the dated rich result rather than asserting
+ * something no page can back.
+ *
+ * `about` names the merchant, which is the one claim the page can already
+ * defend: their storefront is linked and runs the apps listed.
+ */
+export function caseStudyArticleSchema(study: {
+	brand: string;
+	description: string;
+	headline: string;
+	slug: string;
+	url?: string;
+}): JsonLdNode {
+	return {
+		"@type": "Article",
+		headline: study.headline,
+		description: study.description,
+		mainEntityOfPage: absoluteUrl(`/case-studies/${study.slug}`),
+		publisher: { "@id": `${SITE_URL}/#organization` },
+		about: {
+			"@type": "Organization",
+			name: study.brand,
+			...(study.url ? { url: study.url } : {}),
+		},
+	};
+}
+
+/**
+ * A list of pages, for an index that already renders every item as a link.
+ *
+ * Positions are 1-based and the order matches the page, because an ItemList
+ * that disagrees with what a visitor sees is the kind of mismatch Google treats
+ * as a quality signal against the whole site.
+ */
+export function itemListSchema(
+	items: readonly { name: string; path: string }[]
+): JsonLdNode {
+	return {
+		"@type": "ItemList",
+		itemListElement: items.map((item, index) => ({
+			"@type": "ListItem",
+			position: index + 1,
+			name: item.name,
+			url: absoluteUrl(item.path),
+		})),
+	};
+}
+
 /** A question-and-answer block that already renders visibly on the page. */
 export function faqSchema(
 	faqs: readonly { answer: string; question: string }[]

@@ -37,7 +37,7 @@ export default function RegisterMerchantPage() {
 			},
 			{
 				onSuccess: () => {
-					toast.success("Merchant registered — pending review.");
+					toast.success("Merchant registered. Pending review.");
 					queryClient.invalidateQueries({
 						queryKey: trpc.partner.merchants.list.queryKey(),
 					});

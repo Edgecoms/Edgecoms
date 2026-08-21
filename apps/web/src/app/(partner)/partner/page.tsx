@@ -36,7 +36,7 @@ export default function PartnerDashboardPage() {
 			{data?.status && data.status !== "approved" ? (
 				<div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-800 text-body-sm">
 					Your partner account is <strong>{data.status}</strong>. You can
-					register merchants now — commission begins once you and your merchants
+					register merchants now. Commission begins once you and your merchants
 					are approved.
 				</div>
 			) : null}

@@ -14,7 +14,7 @@ import { CtaDark } from "@/components/landing/cta-dark";
 import { Frame } from "@/components/landing/frame";
 import { LogoCloud } from "@/components/landing/logo-cloud";
 import { Reveal } from "@/components/ui/reveal";
-import { BOOKING_URL } from "@/lib/booking";
+import { WatchDemo } from "@/components/ui/watch-demo";
 import { getProduct } from "@/lib/products";
 
 const product = getProduct("trackproof");
@@ -100,15 +100,14 @@ function TrackproofHeroSection() {
 								>
 									Start for free
 								</a>
-								<a
+								<WatchDemo
 									className="inline-flex items-center justify-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 py-2.5 font-medium text-neutral-900 text-sm shadow-2xs transition-colors hover:bg-neutral-50"
-									href={BOOKING_URL}
-									rel="noopener noreferrer"
-									target="_blank"
+									src="/videos/trackproof.mp4"
+									title="Trackproof demo"
 								>
 									<Play className="size-3.5 fill-neutral-800 text-neutral-800" />
 									<span>Watch Demo</span>
-								</a>
+								</WatchDemo>
 							</div>
 						</Reveal>
 					</div>

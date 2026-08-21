@@ -80,7 +80,7 @@ export default function AdminMerchantsPage() {
 	return (
 		<div className="flex flex-col gap-8">
 			<PortalHeader
-				description="Approve merchants and capture the apps they were already paying for — those never earn."
+				description="Approve merchants and capture the apps they were already paying for. Those never earn."
 				title="Merchant approvals"
 			/>
 

@@ -7,6 +7,11 @@ import { notFound } from "next/navigation";
 import { MarketingCta } from "@/components/marketing/marketing-cta";
 import { BOOKING_LABEL, BOOKING_URL } from "@/lib/booking";
 import { CASE_STUDIES, type CaseStudy } from "@/lib/marketing-stats";
+import {
+	breadcrumbSchema,
+	caseStudyArticleSchema,
+	jsonLdScriptProps,
+} from "@/lib/seo";
 
 interface CaseStudyPageProps {
 	params: Promise<{ slug: string }>;
@@ -39,10 +44,10 @@ export async function generateMetadata({
 	const { slug } = await params;
 	const study = CASE_STUDIES[slug];
 	if (!study) {
-		return { title: "Not found · Edge" };
+		return { title: "Not found" };
 	}
 	return {
-		title: `${study.brand} · Edge case study`,
+		title: `${study.brand} case study`,
 		description:
 			study.summary ??
 			`${study.brand} runs ${study.apps.join(", ")} on their Shopify store.`,
@@ -170,6 +175,28 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
 
 	return (
 		<main className="flex flex-col">
+			<script
+				{...jsonLdScriptProps(
+					caseStudyArticleSchema({
+						brand: study.brand,
+						description:
+							study.summary ??
+							`${study.brand} runs ${study.apps.join(", ")} on their Shopify store.`,
+						headline: study.title ?? `${study.brand} · Edge case study`,
+						slug,
+						url: study.url,
+					})
+				)}
+			/>
+			<script
+				{...jsonLdScriptProps(
+					breadcrumbSchema([
+						{ name: "Home", path: "/" },
+						{ name: "Case studies", path: "/case-studies" },
+						{ name: study.brand, path: `/case-studies/${slug}` },
+					])
+				)}
+			/>
 			{/* Hero: their wordmark, then their name at display size. */}
 			<section className="w-full">
 				<div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-6 pt-24 pb-10">

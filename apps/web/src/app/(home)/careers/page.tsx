@@ -6,9 +6,10 @@ import { CtaDark } from "@/components/landing/cta-dark";
 import { Frame } from "@/components/landing/frame";
 import { Reveal } from "@/components/ui/reveal";
 import { CAREER_BENEFITS, rolesByTeam } from "@/lib/careers";
+import { breadcrumbSchema, jsonLdScriptProps } from "@/lib/seo";
 
 export const metadata: Metadata = {
-	title: "Careers at Edgecoms · Join Our Fully-Remote Global Team",
+	title: "Careers · Join our fully-remote global team",
 	description:
 		"We are a global, fully-remote team on a mission to maximize revenue per visitor for modern Shopify brands. View our culture, benefits, and open roles.",
 	alternates: { canonical: "/careers" },
@@ -103,8 +104,8 @@ const COMPANY_VALUES = [
 				and{" "}
 				<span className="underline decoration-neutral-400 decoration-dotted underline-offset-4">
 					iterate faster
-				</span>{" "}
-				– all without compromising on quality.
+				</span>
+				, all without compromising on quality.
 			</>
 		),
 	},
@@ -113,6 +114,14 @@ const COMPANY_VALUES = [
 export default function CareersPage() {
 	return (
 		<main>
+			<script
+				{...jsonLdScriptProps(
+					breadcrumbSchema([
+						{ name: "Home", path: "/" },
+						{ name: "Careers", path: "/careers" },
+					])
+				)}
+			/>
 			{/* SECTION 1: HERO WITH STACKED PHOTO COLLAGE */}
 			<Reveal>
 				<section className="relative w-full border-neutral-200 border-b bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-neutral-50/40 [background-size:16px_16px]">

@@ -14,12 +14,12 @@ import { CtaDark } from "@/components/landing/cta-dark";
 import { Frame } from "@/components/landing/frame";
 import { LogoCloud } from "@/components/landing/logo-cloud";
 import { Reveal } from "@/components/ui/reveal";
+import { breadcrumbSchema, jsonLdScriptProps } from "@/lib/seo";
 
 export const metadata: Metadata = {
-	title:
-		"About Edgecoms · Turning Store Traffic Into Maximum Revenue Per Visitor",
+	title: "About · The team building the Edge suite",
 	description:
-		"We're a dedicated, fully-remote global team building the ultimate 7-app Shopify suite. We help DTC brands lift average order value, boost conversion rates, and prove revenue moves with server-side attribution.",
+		"The fully-remote team building the Edge suite of Shopify apps, and why we measure everything against one number: revenue per visitor.",
 	alternates: { canonical: "/about" },
 	openGraph: { type: "website", url: "/about" },
 };
@@ -78,36 +78,30 @@ function LinkedinIcon() {
 
 const TEAM_MEMBERS: readonly TeamMember[] = [
 	{
-		avatar:
-			"https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300",
-		github: "https://github.com",
+		avatar: "/team-headshots/anurag.png",
+		linkedin: "https://www.linkedin.com/in/anurag-chandra-/",
 		name: "Anurag Chandra",
 		role: "Founder, CEO",
-		twitter: "https://x.com",
+		twitter: "https://x.com/Roamingbanjara",
 	},
 	{
-		avatar:
-			"https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=300",
-		github: "https://github.com",
-		name: "Rajdeep Das",
-		role: "CTO, Software Engineer",
-		twitter: "https://x.com",
-	},
-	{
-		avatar:
-			"https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=300",
-		github: "https://github.com",
-		name: "Avinash Shaw",
-		role: "COO, Websites & Creatives",
-		twitter: "https://x.com",
-	},
-	{
-		avatar:
-			"https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=300",
-		linkedin: "https://linkedin.com",
+		avatar: "/team-headshots/medha.jpg",
+		linkedin: "https://www.linkedin.com/in/medha-raj-jyotishi/",
 		name: "Medha Raj Jyotishi",
 		role: "CRO, Social Media & Performance Marketing",
-		twitter: "https://x.com",
+	},
+	{
+		avatar: "/team-headshots/avinash.png",
+		linkedin: "https://www.linkedin.com/in/avinash-shaw-95a178212/",
+		name: "Avinash Shaw",
+		role: "COO, Websites & Creatives",
+	},
+	{
+		avatar: "/team-headshots/rajdeep.jpg",
+		github: "https://github.com/RajdeepDs",
+		name: "Rajdeep Das",
+		role: "CTO, Software Engineer",
+		twitter: "https://x.com/Rajdeep__ds",
 	},
 ] as const;
 
@@ -198,8 +192,8 @@ const COMPANY_VALUES = [
 				and{" "}
 				<span className="underline decoration-neutral-400 decoration-dotted underline-offset-4">
 					iterate faster
-				</span>{" "}
-				– all without compromising on quality.
+				</span>
+				, all without compromising on quality.
 			</>
 		),
 	},
@@ -208,6 +202,14 @@ const COMPANY_VALUES = [
 export default function AboutPage() {
 	return (
 		<main>
+			<script
+				{...jsonLdScriptProps(
+					breadcrumbSchema([
+						{ name: "Home", path: "/" },
+						{ name: "About", path: "/about" },
+					])
+				)}
+			/>
 			{/* SECTION 1: HERO SECTION */}
 			<Reveal>
 				<section className="relative w-full border-neutral-200 border-b bg-white">
@@ -325,8 +327,8 @@ export default function AboutPage() {
 								</p>
 								<p className="mt-3 text-neutral-500 text-xs leading-relaxed sm:text-sm">
 									We're building Edgecoms with zero Liquid theme bloat and
-									sub-50ms edge latency – giving merchants a seamless suite
-									where six apps directly lift revenue per visitor, and{" "}
+									sub-50ms edge latency, giving merchants a seamless suite where
+									six apps directly lift revenue per visitor, and{" "}
 									<span className="underline decoration-neutral-400 decoration-dotted underline-offset-4">
 										Trackproof
 									</span>{" "}

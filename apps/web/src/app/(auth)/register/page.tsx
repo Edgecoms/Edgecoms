@@ -32,7 +32,7 @@ export default function RegisterPage() {
 			return;
 		}
 
-		toast.success("Account created — your application is pending review.");
+		toast.success("Account created. Your application is pending review.");
 		router.push("/partner" as Route);
 		router.refresh();
 	}

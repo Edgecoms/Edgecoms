@@ -15,7 +15,6 @@ const LOGO_CELLS = [
 interface Testimonial {
 	authorName: string;
 	authorRole: string;
-	avatarUrl: string;
 	highlightQuote: React.ReactNode;
 	slug: keyof typeof CASE_STUDIES;
 }
@@ -25,8 +24,6 @@ const TESTIMONIALS: Record<string, Testimonial> = {
 		slug: "vyssence",
 		authorName: "Sarah Chen",
 		authorRole: "Head of E-commerce",
-		avatarUrl:
-			"https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&h=120&q=80",
 		highlightQuote: (
 			<>
 				&ldquo;Bundles turned our single-item orders into{" "}
@@ -41,10 +38,8 @@ const TESTIMONIALS: Record<string, Testimonial> = {
 	},
 	aurient: {
 		slug: "aurient",
-		authorName: "Avinash Shaw",
+		authorName: "Marcus Bell",
 		authorRole: "Founder",
-		avatarUrl:
-			"https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&h=120&q=80",
 		highlightQuote: (
 			<>
 				&ldquo;Subscriptions{" "}
@@ -59,8 +54,6 @@ const TESTIMONIALS: Record<string, Testimonial> = {
 		slug: "matataxplore",
 		authorName: "Elena Rostova",
 		authorRole: "Co-Founder & CEO",
-		avatarUrl:
-			"https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=120&h=120&q=80",
 		highlightQuote: (
 			<>
 				&ldquo;We recovered the cost of Edge in{" "}
@@ -128,23 +121,13 @@ function QuoteCell({
 					</div>
 				</div>
 
-				<div className="flex shrink-0 items-center gap-2.5">
-					<div className="flex flex-col text-right">
-						<span className="whitespace-nowrap font-semibold text-[13px] text-neutral-900 leading-tight">
-							{testimonial.authorName}
-						</span>
-						<span className="max-w-[120px] truncate text-[11px] text-neutral-500 leading-tight sm:max-w-none">
-							{testimonial.authorRole}, {study.brand}
-						</span>
-					</div>
-					<Image
-						alt={testimonial.authorName}
-						className="size-10 shrink-0 rounded-xl object-cover shadow-2xs ring-1 ring-neutral-900/10"
-						height={80}
-						src={testimonial.avatarUrl}
-						unoptimized
-						width={80}
-					/>
+				<div className="flex shrink-0 flex-col text-right">
+					<span className="whitespace-nowrap font-semibold text-[13px] text-neutral-900 leading-tight">
+						{testimonial.authorName}
+					</span>
+					<span className="max-w-[120px] truncate text-[11px] text-neutral-500 leading-tight sm:max-w-none">
+						{testimonial.authorRole}, {study.brand}
+					</span>
 				</div>
 			</div>
 		</div>
@@ -160,7 +143,7 @@ export function Trusted() {
 						Trusted by growing Shopify brands
 					</h2>
 					<p className="max-w-[520px] text-pretty text-[17px] text-neutral-500 leading-relaxed">
-						Supplements, beauty, home, apparel, pets and outdoor — stores whose
+						Supplements, beauty, home, apparel, pets and outdoor. Stores whose
 						storefronts you can open and check for yourself.
 					</p>
 					<Link

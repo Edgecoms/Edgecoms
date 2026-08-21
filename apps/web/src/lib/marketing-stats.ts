@@ -73,6 +73,34 @@ export const SCALE_STATS: readonly MarketingStat[] = [
 ] as const;
 
 /**
+ * The partner-program band on /partners. EVERY FIGURE IS INVENTED, and this set
+ * is constrained twice over.
+ *
+ * Partners register a subset of the merchant base in `HOUSE_STATS`, so the
+ * store count here can never approach "1,400+". And partners are paid a share
+ * of Edge's own app subscription revenue, which is a far smaller quantity than
+ * the merchant revenue Edge influences. A payout figure in the millions would
+ * claim Edge collects more than the rest of the site says it does.
+ */
+export const PARTNER_PROGRAM_STATS: readonly MarketingStat[] = [
+	{
+		label: "stores registered by partners",
+		provenance: "invented",
+		value: "340+",
+	},
+	{
+		label: "paid out to partners to date",
+		provenance: "invented",
+		value: "$96K+",
+	},
+	{
+		label: "partners earning every month",
+		provenance: "invented",
+		value: "120+",
+	},
+] as const;
+
+/**
  * The headline result badge for each app, shown on the suite grid and the app
  * page hero. `provenance: "verified"` means the string states a capability
  * rather than a measured delta, so it needs no backing figure.

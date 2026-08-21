@@ -266,15 +266,6 @@
 		-webkit-app-region: no-drag;
 	}
 
-	/* The Highlight component's marker, a shade lighter. Selection is transient
-	   and can land on a whole paragraph, so it sits under the 20% the highlight
-	   uses on individual words rather than competing with it. */
-	::selection,
-	::-moz-selection {
-		color: var(--gray-12);
-		background: color-mix(in oklab, var(--brand) 15%, transparent);
-	}
-
 	:focus:not(:focus-visible) {
 		outline: none;
 	}

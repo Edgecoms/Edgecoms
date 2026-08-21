@@ -4,8 +4,14 @@
     {
       "name": "web",
       "runtimeExecutable": "bun",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeArgs": ["run", "dev:web"],
       "port": 3001
+    },
+    {
+      "name": "edge-hq",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "/Users/anuragchandra/edge-hq", "run", "dev"],
+      "port": 3000
     }
   ]
 }

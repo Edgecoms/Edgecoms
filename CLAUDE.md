@@ -11,11 +11,15 @@ correctness and auditability over cleverness.
 
 ## Business model (drives correctness)
 
-Partners do **not** use referral links. A partner registers a merchant they
-manage. An admin approves the partner with a commission percentage and approves
-the merchant. Shopify bills the merchant for the Edge apps they use, Edge
-receives the subscription revenue, and Edge pays the partner a recurring share of
-it every month, for as long as the merchant stays subscribed.
+Partners do **not** use referral links. A partner is given an **attribution
+code**, which they hand to a merchant they manage; the merchant enters it inside
+an Edge app and the store arrives in the dashboard already bound to that partner.
+A partner may also register a store by hand — the same row either way, just a
+different `merchants.source`. An admin approves the partner with a commission
+percentage and approves the merchant. Shopify bills the merchant for the Edge
+apps they use, Edge receives the subscription revenue, and Edge pays the partner
+a recurring share of it every month, for as long as the merchant stays
+subscribed.
 
 ## Money correctness
 
@@ -43,9 +47,14 @@ it every month, for as long as the merchant stays subscribed.
 
 - A partner earns on an earning event only if (a) the merchant is `approved`,
   and (b) the earning's app is **not** in that merchant's grandfathered set.
-- **Grandfathered apps** = apps the store was already paying for at approval.
-  Captured once, in the approval flow. They never earn, ever, even on future
-  charges for that app.
+- **Grandfathered apps** = apps the store was already paying for when the partner
+  acquired it. They never earn, ever, even on future charges for that app.
+  Proposed at **bind** from what the Edge app reports it was already charging the
+  shop for (the app knows; an admin reconstructing it later is guessing), and
+  **frozen at approval** from the admin's explicit selection, which may amend the
+  proposal. Amending before approval is safe because a `pending` merchant earns
+  nothing; widening the set afterwards is forbidden, because it would
+  retroactively delete commission the partner was already told they had earned.
 - Commission is **lifetime** while the merchant stays subscribed. There is no
   expiry logic; no earning event simply means no commission.
 - **Per-app rates:** a partner has a default rate (basis points); an optional
@@ -64,6 +73,34 @@ it every month, for as long as the merchant stays subscribed.
 - Merchants are keyed by their **canonical `<store>.myshopify.com` domain**,
   which is globally unique. Normalize before insert. The unique constraint is the
   dedup rule: two partners cannot both claim one store.
+
+## Attribution codes
+
+See `docs/partner-attribution-codes.md` for the full design.
+
+- **One partner per shop, permanent.** A code redemption on a claimed domain is
+  refused, never reassigned. A replay by the same partner is a no-op that returns
+  the existing binding.
+- A code redemption creates the merchant `pending`. **A code never bypasses
+  admin approval** — approval remains the money gate.
+- **Never parse a rate out of a code string.** The rate is read from the partner
+  row (or `partner_app_rates`). Merchant-facing codes must be rate-free;
+  `partner_codes.label` is the internal note and is never returned to a partner.
+- **Disabling a code stops new redemptions only.** It never unbinds stores
+  already referred — a partner loses the ability to acquire, not their book.
+  Enforced by `restrict` FKs, so a code with redemptions cannot be deleted.
+- Every rejection (unknown, disabled, expired, exhausted, partner not approved)
+  returns **one generic reason**, so codes cannot be enumerated. The real reason
+  goes to `code_redemption_attempts.reason`, never over the wire.
+- `merchant_events` is **append-only** and idempotent on the app's
+  `idempotency_key`. An `uninstalled` event does **not** unbind; commission stops
+  simply because no earning events arrive.
+- The app→platform endpoints (`/api/v1/codes/validate`, `/attributions`,
+  `/shop-events`) are HMAC-signed over `<timestamp>.<raw body>`. They **fail
+  closed**: no `EDGE_PARTNERS_SECRET` means 503, never an unsigned write.
+- Codes carry **no discount terms** yet. Credit issuance is a later phase; until
+  it exists a code must not promise a price cut nothing can honour. When they
+  arrive they are integers (basis points / minor units), never a float.
 
 ## Shopify boundary
 

@@ -7,17 +7,46 @@ import {
 	merchantGrandfatheredApps,
 	merchants,
 } from "@edgecoms/db/schema/merchants";
-import { partnerAppRates, partners } from "@edgecoms/db/schema/partners";
+import {
+	partnerAppRates,
+	partnerCodes,
+	partners,
+} from "@edgecoms/db/schema/partners";
 import { payouts } from "@edgecoms/db/schema/payouts";
 import { syncState } from "@edgecoms/db/schema/sync";
 import { env } from "@edgecoms/env/server";
 import { TRPCError } from "@trpc/server";
-import { and, count, desc, eq, sql } from "drizzle-orm";
+import { and, count, desc, eq, inArray, notInArray, sql } from "drizzle-orm";
 import { z } from "zod";
+import { normalizeCode } from "../attribution/codes";
 import { adminProcedure, router } from "../index";
 
 const MONEY_SUM = (column: typeof commissions.commissionAmount) =>
 	sql<string>`coalesce(sum(${column}), 0)`;
+
+/**
+ * What a merchant-facing code may contain, AFTER normalization: letters, digits
+ * and hyphens, 4–32 characters. Long enough not to be guessable by accident,
+ * short enough that a merchant can retype it from an email.
+ *
+ * Digits are allowed because plenty of legitimate agency names contain them. The
+ * thing to avoid — a code that encodes the commission rate, like `ALEX30` — is a
+ * naming judgement, not something a regex can catch, so the guidance lives in
+ * the admin UI and the rate is only ever read from the partner row.
+ */
+const CODE_PATTERN = /^[A-Z0-9-]{4,32}$/;
+
+const codeTermsInput = {
+	label: z.string().max(120).optional(),
+	maxRedemptions: z.number().int().positive().max(100_000).nullish(),
+	expiresAt: z.iso.datetime().nullish(),
+	perkUsageAllowanceUsd: z
+		.number()
+		.int()
+		.nonnegative()
+		.max(10_000_000)
+		.nullish(),
+};
 
 /**
  * Admin-scoped router. Every procedure asserts the admin role via
@@ -166,8 +195,8 @@ export const adminRouter = router({
 	}),
 
 	merchants: router({
-		list: adminProcedure.query(({ ctx }) =>
-			ctx.db
+		list: adminProcedure.query(async ({ ctx }) => {
+			const rows = await ctx.db
 				.select({
 					id: merchants.id,
 					name: merchants.name,
@@ -175,6 +204,8 @@ export const adminRouter = router({
 					email: merchants.email,
 					notes: merchants.notes,
 					status: merchants.status,
+					source: merchants.source,
+					sourceCode: merchants.sourceCode,
 					createdAt: merchants.createdAt,
 					partnerCompany: partners.companyName,
 					partnerName: user.name,
@@ -182,14 +213,56 @@ export const adminRouter = router({
 				.from(merchants)
 				.innerJoin(partners, eq(partners.id, merchants.partnerId))
 				.innerJoin(user, eq(user.id, partners.userId))
-				.orderBy(desc(merchants.createdAt))
-		),
+				.orderBy(desc(merchants.createdAt));
+
+			if (rows.length === 0) {
+				return [];
+			}
+
+			// The grandfathered set already proposed for each merchant — for a
+			// code-bound store this is what the APP reported it was already paying
+			// for. The approval dialog pre-checks these so the admin confirms real
+			// data instead of reconstructing it from memory.
+			const proposed = await ctx.db
+				.select({
+					merchantId: merchantGrandfatheredApps.merchantId,
+					appId: merchantGrandfatheredApps.appId,
+				})
+				.from(merchantGrandfatheredApps)
+				.where(
+					inArray(
+						merchantGrandfatheredApps.merchantId,
+						rows.map((row) => row.id)
+					)
+				);
+
+			const byMerchant = new Map<string, string[]>();
+			for (const row of proposed) {
+				const existing = byMerchant.get(row.merchantId);
+				if (existing) {
+					existing.push(row.appId);
+				} else {
+					byMerchant.set(row.merchantId, [row.appId]);
+				}
+			}
+
+			return rows.map((row) => ({
+				...row,
+				grandfatheredAppIds: byMerchant.get(row.id) ?? [],
+			}));
+		}),
 
 		/**
-		 * Approve a merchant AND capture its grandfathered apps in one transaction.
-		 * Grandfathered apps (those the store already paid for at approval) NEVER
-		 * earn — captured once, here (CLAUDE.md "Eligibility"). The set may be empty
-		 * but the choice is explicit.
+		 * Approve a merchant AND freeze its grandfathered apps in one transaction.
+		 * Grandfathered apps (those the store already paid for) NEVER earn — see
+		 * CLAUDE.md "Eligibility". The set may be empty but the choice is explicit.
+		 *
+		 * The submitted list REPLACES whatever was proposed at bind time. That
+		 * matters now that a code-bound merchant arrives with a pre-filled set: an
+		 * admin who unchecks an app the app over-reported must actually remove it,
+		 * not merely fail to re-add it. This is the last point at which the set can
+		 * change — after approval it is frozen, because widening it later would
+		 * retroactively delete commission the partner was already told they earned.
 		 */
 		approve: adminProcedure
 			.input(
@@ -199,6 +272,8 @@ export const adminRouter = router({
 				})
 			)
 			.mutation(async ({ ctx, input }) => {
+				const keep = [...new Set(input.grandfatheredAppIds)];
+
 				await ctx.db.transaction(async (tx) => {
 					await tx
 						.update(merchants)
@@ -209,7 +284,19 @@ export const adminRouter = router({
 						})
 						.where(eq(merchants.id, input.merchantId));
 
-					for (const appId of input.grandfatheredAppIds) {
+					// Drop anything the admin unchecked. `notInArray` against an empty
+					// list is not valid SQL, so an empty selection clears the set with a
+					// plain delete instead.
+					const stale =
+						keep.length > 0
+							? and(
+									eq(merchantGrandfatheredApps.merchantId, input.merchantId),
+									notInArray(merchantGrandfatheredApps.appId, keep)
+								)
+							: eq(merchantGrandfatheredApps.merchantId, input.merchantId);
+					await tx.delete(merchantGrandfatheredApps).where(stale);
+
+					for (const appId of keep) {
 						await tx
 							.insert(merchantGrandfatheredApps)
 							.values({ merchantId: input.merchantId, appId })
@@ -231,6 +318,145 @@ export const adminRouter = router({
 					.update(merchants)
 					.set({ status: "rejected" })
 					.where(eq(merchants.id, input.merchantId));
+				return { ok: true };
+			}),
+	}),
+
+	/**
+	 * Attribution codes. An admin issues a code to a partner; the partner hands it
+	 * to a merchant, who pastes it into an Edge app. See
+	 * docs/partner-attribution-codes.md.
+	 */
+	codes: router({
+		list: adminProcedure.query(async ({ ctx }) => {
+			const rows = await ctx.db
+				.select({
+					id: partnerCodes.id,
+					code: partnerCodes.code,
+					label: partnerCodes.label,
+					status: partnerCodes.status,
+					maxRedemptions: partnerCodes.maxRedemptions,
+					expiresAt: partnerCodes.expiresAt,
+					perkUsageAllowanceUsd: partnerCodes.perkUsageAllowanceUsd,
+					createdAt: partnerCodes.createdAt,
+					partnerId: partners.id,
+					partnerStatus: partners.status,
+					partnerCompany: partners.companyName,
+					partnerName: user.name,
+				})
+				.from(partnerCodes)
+				.innerJoin(partners, eq(partners.id, partnerCodes.partnerId))
+				.innerJoin(user, eq(user.id, partners.userId))
+				.orderBy(desc(partnerCodes.createdAt));
+
+			// Redemptions are counted from merchant rows rather than stored, so the
+			// number can never disagree with the stores it refers to.
+			const redemptions = await ctx.db
+				.select({
+					partnerCodeId: merchants.partnerCodeId,
+					value: count(),
+				})
+				.from(merchants)
+				.groupBy(merchants.partnerCodeId);
+
+			const byCode = new Map(
+				redemptions.map((row) => [row.partnerCodeId, row.value])
+			);
+
+			return rows.map((row) => ({
+				...row,
+				redemptions: byCode.get(row.id) ?? 0,
+			}));
+		}),
+
+		create: adminProcedure
+			.input(
+				z.object({
+					partnerId: z.string(),
+					code: z.string().min(4).max(32),
+					...codeTermsInput,
+				})
+			)
+			.mutation(async ({ ctx, input }) => {
+				const code = normalizeCode(input.code);
+				if (!CODE_PATTERN.test(code)) {
+					throw new TRPCError({
+						code: "BAD_REQUEST",
+						message:
+							"Use 4–32 letters, digits or hyphens. Keep the commission rate out of the code.",
+					});
+				}
+
+				const inserted = await ctx.db
+					.insert(partnerCodes)
+					.values({
+						partnerId: input.partnerId,
+						code,
+						label: input.label?.trim() || null,
+						maxRedemptions: input.maxRedemptions ?? null,
+						expiresAt: input.expiresAt ? new Date(input.expiresAt) : null,
+						perkUsageAllowanceUsd: input.perkUsageAllowanceUsd ?? null,
+					})
+					.onConflictDoNothing({ target: partnerCodes.code })
+					.returning({ id: partnerCodes.id });
+
+				const row = inserted[0];
+				if (!row) {
+					// The global unique on `code` is the rule: a code addresses exactly
+					// one partner, or attribution is ambiguous.
+					throw new TRPCError({
+						code: "CONFLICT",
+						message: "That code is already in use.",
+					});
+				}
+				return { id: row.id, code };
+			}),
+
+		/**
+		 * Change a code's terms.
+		 *
+		 * `partnerId` and `code` are deliberately NOT updatable. Repointing a live
+		 * code at another partner would silently reassign every store that redeems
+		 * it afterwards while leaving the ones already bound behind — two different
+		 * meanings for one string. Issue a new code instead.
+		 *
+		 * Disabling stops NEW redemptions only; stores already referred stay with
+		 * the partner (enforced by the `restrict` FK from `merchants`).
+		 */
+		update: adminProcedure
+			.input(
+				z.object({
+					codeId: z.string(),
+					status: z.enum(["active", "disabled"]).optional(),
+					...codeTermsInput,
+				})
+			)
+			.mutation(async ({ ctx, input }) => {
+				const updated = await ctx.db
+					.update(partnerCodes)
+					.set({
+						...(input.status ? { status: input.status } : {}),
+						...(input.label === undefined
+							? {}
+							: { label: input.label.trim() || null }),
+						...(input.maxRedemptions === undefined
+							? {}
+							: { maxRedemptions: input.maxRedemptions ?? null }),
+						...(input.expiresAt === undefined
+							? {}
+							: {
+									expiresAt: input.expiresAt ? new Date(input.expiresAt) : null,
+								}),
+						...(input.perkUsageAllowanceUsd === undefined
+							? {}
+							: { perkUsageAllowanceUsd: input.perkUsageAllowanceUsd ?? null }),
+					})
+					.where(eq(partnerCodes.id, input.codeId))
+					.returning({ id: partnerCodes.id });
+
+				if (!updated[0]) {
+					throw new TRPCError({ code: "NOT_FOUND", message: "Unknown code." });
+				}
 				return { ok: true };
 			}),
 	}),

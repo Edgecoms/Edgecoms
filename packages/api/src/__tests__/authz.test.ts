@@ -133,4 +133,26 @@ describe("partnerProcedure — tenant isolation", () => {
 		const caller = makeCaller({ session: adminSession() });
 		expect(await errorCode(caller.partner.merchants.list())).toBe("FORBIDDEN");
 	});
+
+	test("codes.list is gated by role before any query runs", async () => {
+		const caller = makeCaller({ session: adminSession() });
+		expect(await errorCode(caller.partner.codes.list())).toBe("FORBIDDEN");
+	});
+
+	test("a partner cannot issue themselves a code", async () => {
+		// Codes carry acquisition rights, so minting one is admin-only. A partner
+		// reaching the admin router at all is the thing being refused here.
+		const caller = makeCaller({
+			session: partnerSession("user-A"),
+			partnerRow: { id: "partner-A", userId: "user-A" },
+		});
+		expect(
+			await errorCode(
+				caller.admin.codes.create({
+					partnerId: "partner-A",
+					code: "SELFISSUED",
+				})
+			)
+		).toBe("FORBIDDEN");
+	});
 });

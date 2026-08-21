@@ -79,6 +79,69 @@ export const partnerAppRates = pgTable(
 	]
 );
 
+export const partnerCodeStatus = pgEnum("partner_code_status", [
+	"active",
+	"disabled",
+]);
+
+/**
+ * ATTRIBUTION CODES — how a merchant is bound to a partner.
+ *
+ * A partner hands their code to a merchant, who pastes it into the Edge app
+ * they're installing. That binds the store to the partner (see
+ * `merchants.partnerCodeId`). Shopify never sees this code: it is a row here,
+ * not a Shopify object, and entering one records a fact rather than applying a
+ * discount. See docs/partner-attribution-codes.md.
+ *
+ * `code` is merchant-facing and must be RATE-FREE (`ALEXAGENCY`, not `ALEX30`).
+ * A rate in the string reads to merchants as "30% off", leaks one partner's rate
+ * to another, and goes stale the moment the rate is renegotiated. The rate is
+ * ALWAYS read from the `partners` row (or `partner_app_rates`), never parsed out
+ * of the code — `label` exists so the team can still call it `Alex30` internally.
+ *
+ * Redemption count is `count(merchants where partner_code_id = id)`. There is
+ * deliberately no redemptions table: the merchant row IS the redemption, so
+ * there is exactly one source of truth for who redeemed what.
+ *
+ * Disabling a code stops NEW bindings only. It never unbinds stores already
+ * referred — a partner loses the ability to acquire, not their existing book,
+ * which is why `partnerId` and the FK from `merchants` are both `restrict`.
+ *
+ * Phase 1 carries no discount terms. `perkUsageAllowanceUsd` is the only offer
+ * on the code, and it is a benefit an app applies to its own metering. Discount
+ * terms arrive with credit issuance (Phase 2) as INTEGERS — basis points for a
+ * percentage, minor units + currency for a fixed amount — never a float.
+ */
+export const partnerCodes = pgTable(
+	"partner_codes",
+	{
+		id: uuid("id").primaryKey().defaultRandom(),
+		// restrict: a code that has referred stores is audit history for every
+		// commission traced through it. Symmetric with the merchants/earnings FKs.
+		partnerId: uuid("partner_id")
+			.notNull()
+			.references(() => partners.id, { onDelete: "restrict" }),
+		// Normalized upper-case. Globally unique — the code IS the lookup key.
+		code: text("code").notNull().unique(),
+		// Internal-only label. NEVER rendered to a merchant.
+		label: text("label"),
+		status: partnerCodeStatus("status").default("active").notNull(),
+		// null = unlimited redemptions.
+		maxRedemptions: integer("max_redemptions"),
+		// null = never expires.
+		expiresAt: timestamp("expires_at"),
+		// The instant benefit a referred store gets: a raised fee-free usage
+		// allowance, in whole USD. Served to apps by /api/v1/codes/validate and
+		// applied by the app to its own metering — no money is computed here.
+		perkUsageAllowanceUsd: integer("perk_usage_allowance_usd"),
+		...timestamps,
+	},
+	(table) => [
+		index("partner_codes_partner_idx").on(table.partnerId),
+		index("partner_codes_status_idx").on(table.status),
+	]
+);
+
 export const partnersRelations = relations(partners, ({ one, many }) => ({
 	user: one(user, {
 		fields: [partners.userId],
@@ -86,7 +149,19 @@ export const partnersRelations = relations(partners, ({ one, many }) => ({
 	}),
 	merchants: many(merchants),
 	appRates: many(partnerAppRates),
+	codes: many(partnerCodes),
 }));
+
+export const partnerCodesRelations = relations(
+	partnerCodes,
+	({ one, many }) => ({
+		partner: one(partners, {
+			fields: [partnerCodes.partnerId],
+			references: [partners.id],
+		}),
+		merchants: many(merchants),
+	})
+);
 
 export const partnerAppRatesRelations = relations(
 	partnerAppRates,

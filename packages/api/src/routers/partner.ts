@@ -3,7 +3,7 @@ import { normalizeShopDomain } from "@edgecoms/billing/partner-api";
 import { apps } from "@edgecoms/db/schema/apps";
 import { commissions } from "@edgecoms/db/schema/earnings";
 import { merchants } from "@edgecoms/db/schema/merchants";
-import { partners } from "@edgecoms/db/schema/partners";
+import { partnerCodes, partners } from "@edgecoms/db/schema/partners";
 import { payouts } from "@edgecoms/db/schema/payouts";
 import { TRPCError } from "@trpc/server";
 import { and, count, desc, eq, sql } from "drizzle-orm";
@@ -214,6 +214,49 @@ export const partnerRouter = router({
 
 				return { id: row.id, shopDomain };
 			}),
+	}),
+
+	/**
+	 * The partner's attribution codes — what they hand to a merchant.
+	 *
+	 * Read-only: codes are issued by an admin, because a code carries acquisition
+	 * rights and a self-serve one would let a partner mint unlimited claims.
+	 */
+	codes: router({
+		list: partnerProcedure.query(async ({ ctx }) => {
+			const partnerId = ctx.partner.id;
+
+			const rows = await ctx.db
+				.select({
+					id: partnerCodes.id,
+					code: partnerCodes.code,
+					status: partnerCodes.status,
+					maxRedemptions: partnerCodes.maxRedemptions,
+					expiresAt: partnerCodes.expiresAt,
+					perkUsageAllowanceUsd: partnerCodes.perkUsageAllowanceUsd,
+					createdAt: partnerCodes.createdAt,
+				})
+				.from(partnerCodes)
+				// Scoped to the session's partner. `label` is deliberately NOT selected:
+				// it is an internal note that may name the commission rate.
+				.where(eq(partnerCodes.partnerId, partnerId))
+				.orderBy(desc(partnerCodes.createdAt));
+
+			const redemptions = await ctx.db
+				.select({ partnerCodeId: merchants.partnerCodeId, value: count() })
+				.from(merchants)
+				.where(eq(merchants.partnerId, partnerId))
+				.groupBy(merchants.partnerCodeId);
+
+			const byCode = new Map(
+				redemptions.map((row) => [row.partnerCodeId, row.value])
+			);
+
+			return rows.map((row) => ({
+				...row,
+				redemptions: byCode.get(row.id) ?? 0,
+			}));
+		}),
 	}),
 
 	/** Earnings: monthly breakdown, lifetime totals, and payout history. */

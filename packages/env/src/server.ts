@@ -17,6 +17,13 @@ export const env = createEnv({
 		PARTNER_API_ORGANIZATION_ID: z.string().optional(),
 		PARTNER_API_ACCESS_TOKEN: z.string().optional(),
 		PARTNER_API_VERSION: z.string().optional(),
+		// Shared secret the Edge apps sign attribution requests with (HMAC-SHA256
+		// over `<timestamp>.<raw body>`). Optional so the site boots without it;
+		// the /api/v1 endpoints answer 503 while it is unset, which is the
+		// fail-closed behaviour — an unsigned write must never be accepted.
+		// Length is asserted here rather than at call time: a 6-character secret
+		// that "works" is worse than a deploy that refuses to start.
+		EDGE_PARTNERS_SECRET: z.string().min(32).optional(),
 	},
 	runtimeEnv: process.env,
 	skipValidation: !!process.env.SKIP_ENV_VALIDATION,

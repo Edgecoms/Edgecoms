@@ -18,6 +18,7 @@ export const metadata: Metadata = {
 const ADMIN_NAV = [
 	{ href: "/admin", label: "Dashboard" },
 	{ href: "/admin/partners", label: "Partners" },
+	{ href: "/admin/codes", label: "Codes" },
 	{ href: "/admin/merchants", label: "Merchants" },
 	{ href: "/admin/commissions", label: "Commissions" },
 	{ href: "/admin/payouts", label: "Payouts" },

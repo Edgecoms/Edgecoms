@@ -49,6 +49,7 @@
       "dependencies": {
         "@edgecoms/api": "workspace:*",
         "@edgecoms/auth": "workspace:*",
+        "@edgecoms/db": "workspace:*",
         "@edgecoms/env": "workspace:*",
         "@edgecoms/ui": "workspace:*",
         "@mdx-js/loader": "^3.1.1",

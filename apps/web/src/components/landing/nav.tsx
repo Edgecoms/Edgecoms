@@ -33,6 +33,7 @@ import { useState } from "react";
 import { PartnersIcon } from "@/components/landing/frame";
 import Logo from "@/components/ui/logo";
 import { BOOKING_LABEL, BOOKING_URL } from "@/lib/booking";
+import { usePortalLink } from "@/lib/portal-link";
 import { EDGE_PRODUCTS } from "@/lib/products";
 
 interface MenuItem {
@@ -348,6 +349,7 @@ function ResourceMenuPanel() {
 
 export function LandingNav() {
 	const [sheetOpen, setSheetOpen] = useState(false);
+	const portal = usePortalLink();
 	const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
 
 	return (
@@ -398,8 +400,8 @@ export function LandingNav() {
 				</NavigationMenu>
 
 				<div className="flex shrink-0 items-center gap-2">
-					<ButtonLink href={"/login" as Route} size="lg" variant="tertiary">
-						Partner login
+					<ButtonLink href={portal.href} size="lg" variant="tertiary">
+						{portal.label}
 					</ButtonLink>
 					<ButtonLink
 						className="hidden sm:inline-flex"

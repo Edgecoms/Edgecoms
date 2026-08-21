@@ -14,6 +14,7 @@ import type { Route } from "next";
 import Link from "next/link";
 import { useState } from "react";
 import { BOOKING_LABEL, BOOKING_URL } from "@/lib/booking";
+import { usePortalLink } from "@/lib/portal-link";
 import Logo from "../ui/logo";
 
 const links = [
@@ -39,6 +40,7 @@ function Wordmark() {
 
 export default function Header() {
 	const [menuOpen, setMenuOpen] = useState(false);
+	const portal = usePortalLink();
 
 	return (
 		/* Opaque, not translucent. The homepage now scrolls full-bleed orange
@@ -97,11 +99,11 @@ export default function Header() {
 						</ButtonLink>
 						<ButtonLink
 							className="rounded-full px-4 font-medium text-sm"
-							href={"/login" as Route}
+							href={portal.href}
 							size="xl"
 							variant="secondary"
 						>
-							Partner login
+							{portal.label}
 						</ButtonLink>
 
 						<Dialog onOpenChange={setMenuOpen} open={menuOpen}>

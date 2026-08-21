@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { type FormEvent, useId, useState } from "react";
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
+import { portalPathForRole } from "@/lib/portal-link";
 
 export default function LoginPage() {
 	const router = useRouter();
@@ -31,7 +32,7 @@ export default function LoginPage() {
 		}
 
 		const role = (data?.user as { role?: string } | undefined)?.role;
-		router.push((role === "admin" ? "/admin" : "/partner") as Route);
+		router.push(portalPathForRole(role));
 		router.refresh();
 	}
 

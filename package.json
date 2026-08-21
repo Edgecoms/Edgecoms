@@ -45,6 +45,7 @@
     "db:watch": "turbo -F @edgecoms/db db:watch",
     "db:stop": "turbo -F @edgecoms/db db:stop",
     "db:down": "turbo -F @edgecoms/db db:down",
+    "audit:content": "bun run scripts/audit-content.ts",
     "check": "ultracite check",
     "fix": "ultracite fix"
   },
@@ -58,6 +59,7 @@
     "@edgecoms/config": "workspace:*",
     "@electric-sql/pglite": "^0.5.3",
     "@types/node": "^22.13.14",
+    "gray-matter": "^4.0.3",
     "turbo": "^2.9.16",
     "typescript": "catalog:",
     "ultracite": "7.8.3"

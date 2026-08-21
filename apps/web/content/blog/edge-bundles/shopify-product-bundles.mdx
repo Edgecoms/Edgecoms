@@ -17,12 +17,12 @@ internalLinks:
   - "shopify-cart-abandonment"
   - "shopify-product-reviews"
   - "shopify-server-side-tracking"
-tldr: "Shopify product bundles group items into one offer so a shopper buys more in a single order. The four types — fixed sets, mix-and-match, volume tiers and frequently-bought-together — solve different problems. Price the bundle off the margin you keep, not the discount you advertise, or you will sell more and earn less."
+tldr: "Shopify product bundles group items into one offer so a shopper buys more in a single order. The four types are fixed sets, mix-and-match, volume tiers and frequently-bought-together, and they solve different problems. Price the bundle off the margin you keep, not the discount you advertise, or you will sell more and earn less."
 faq:
   - question: "Do bundles actually raise average order value or just move revenue around?"
-    answer: "Both happen, and which one you get depends on the discount. A bundle that pairs a product with something the shopper would not otherwise have bought adds revenue. A bundle that discounts two things someone was already going to buy separately just hands back margin. The way to tell them apart is to watch margin per order alongside order value — if order value rises and margin per order does not, you are moving revenue around."
+    answer: "Both happen, and which one you get depends on the discount. A bundle that pairs a product with something the shopper would not otherwise have bought adds revenue. A bundle that discounts two things someone was already going to buy separately just hands back margin. The way to tell them apart is to watch margin per order alongside order value. If order value rises and margin per order does not, you are moving revenue around."
   - question: "How much should I discount a bundle?"
-    answer: "Start from the margin you want to keep, not from a round number. The discount that works is the smallest one that makes the bundle feel like a decision rather than a rounding error — usually enough to be visible in absolute currency terms, not just as a percentage. On a cheap item a small percentage is invisible to the shopper; on an expensive one the same percentage can be more than you can afford."
+    answer: "Start from the margin you want to keep, not from a round number. The discount that works is the smallest one that makes the bundle feel like a decision rather than a rounding error, usually enough to be visible in absolute currency terms, not just as a percentage. On a cheap item a small percentage is invisible to the shopper; on an expensive one the same percentage can be more than you can afford."
   - question: "Do bundles break Shopify inventory tracking?"
     answer: "They can, and it is the most common operational failure. If a bundle is created as its own product with its own stock number, that number will drift out of step with the components the moment either is sold on its own. The safe pattern is for the bundle to draw down the component stock directly, so there is one source of truth per SKU."
   - question: "Should a bundle discount stack with a site-wide sale?"
@@ -35,7 +35,7 @@ Open your Shopify orders and sort by line items. On most stores, the largest sin
 
 That is the whole opportunity. You already paid to acquire that customer, they already trusted you enough to hand over a card, and they left with one item. The second item on that order costs you nothing in ad spend and almost nothing in fulfilment.
 
-**Shopify product bundles** are the most direct way to change that ratio. They are also the easiest place on a store to lose money while watching a number go up — which is what most of this guide is about.
+**Shopify product bundles** are the most direct way to change that ratio. They are also the easiest place on a store to lose money while watching a number go up, which is what most of this guide is about.
 
 ## What is a Shopify product bundle?
 
@@ -43,8 +43,8 @@ A bundle is any offer that gets more than one item into a single order by presen
 
 | Type | What it is | Best when |
 | --- | --- | --- |
-| **Fixed set** | A pre-chosen group sold as one thing — a starter kit, a gift set | You know the right combination and it rarely varies |
-| **Mix and match** | "Choose any 3 from this collection" at a set price | Your catalogue has variety and taste differs — flavours, scents, colours |
+| **Fixed set** | A pre-chosen group sold as one thing, like a starter kit or a gift set | You know the right combination and it rarely varies |
+| **Mix and match** | "Choose any 3 from this collection" at a set price | Your catalogue has variety and taste differs: flavours, scents, colours |
 | **Volume tier** | Buy two and save a little, buy three and save more, on the same item | The product is consumable and stocking up is rational |
 | **Frequently bought together** | A suggested pairing built from what people actually buy in the same order | You have enough order history to know what genuinely goes with what |
 
@@ -57,7 +57,7 @@ The three get used interchangeably in app listings and it makes the decision har
 - **A cross-sell** offers a companion item, usually in the cart or after checkout.
 - **A discount** is a price reduction with no structural change to what is being bought.
 
-A bundle can contain a discount, and usually does — but the discount is not what makes it work. What makes it work is that the shopper evaluates one offer instead of comparing three products. Remove the discount entirely and a well-built bundle still converts better than the same items listed separately, because it has done the choosing.
+A bundle can contain a discount, and usually does, but the discount is not what makes it work. What makes it work is that the shopper evaluates one offer instead of comparing three products. Remove the discount entirely and a well-built bundle still converts better than the same items listed separately, because it has done the choosing.
 
 The mistake is treating these as interchangeable. A volume tier on a product nobody needs two of is dead weight on the page. A mix-and-match on a catalogue of three products is not a choice, it is a form. Pick the mechanic that matches how your customers actually shop.
 
@@ -65,7 +65,7 @@ The mistake is treating these as interchangeable. A volume tier on a product nob
 
 Answer three questions about your catalogue and the choice usually makes itself.
 
-- **Do people buy this repeatedly?** If yes, volume tiers. Consumables, refills, supplements, coffee, skincare — anyone who has bought once knows they will need another, and pre-buying is genuinely in their interest.
+- **Do people buy this repeatedly?** If yes, volume tiers. Consumables, refills, supplements, coffee, skincare. Anyone who has bought once knows they will need another, and pre-buying is genuinely in their interest.
 - **Is there real variety people care about?** If yes, mix and match. It works because it converts a hard question ("which flavour?") into an easy one ("which three?").
 - **Is there an obvious partner product?** If yes, frequently-bought-together on the product page. The case, the refill, the second cable.
 - **Is there a moment or an occasion?** If yes, fixed sets. Gifting is the strongest version of this, because the buyer is not the user and a curated set removes the risk of choosing wrong.
@@ -78,21 +78,21 @@ If none of those describe your catalogue, do not force it. A bundle that exists 
 
 This is where bundles go wrong, and the failure is invisible at first because the metric you are watching goes up.
 
-The rule: price from the margin you keep, not the discount you advertise. A discount is never a cost of the same size as its headline — what it actually costs depends on what your margin was to begin with, and on how many of those buyers were going to buy both items anyway.
+The rule: price from the margin you keep, not the discount you advertise. A discount is never a cost of the same size as its headline. What it actually costs depends on what your margin was to begin with, and on how many of those buyers were going to buy both items anyway.
 
 <Example>
 Two products, each sold at £30, each costing you £15 to land. Sold separately, two units bring in £60 revenue and £30 margin.
 
-Bundle them at £54 — a 10% saving. Revenue drops to £54, cost stays at £30, margin becomes £24. You have given up £6 of margin per bundle.
+Bundle them at £54, a 10% saving. Revenue drops to £54, cost stays at £30, margin becomes £24. You have given up £6 of margin per bundle.
 
-That trade is good if the bundle causes second purchases that would not otherwise have happened. If a shopper who was already buying both takes the bundle, you have simply paid £6 for nothing. So the question that decides the price is not "what discount converts" — it is "what share of these buyers were going to buy both anyway".
+That trade is good if the bundle causes second purchases that would not otherwise have happened. If a shopper who was already buying both takes the bundle, you have simply paid £6 for nothing. So the question that decides the price is not "what discount converts". It is "what share of these buyers were going to buy both anyway".
 </Example>
 
 Which gives you a practical way to set it:
 
 1. **Find your true margin per unit**, landed cost included, not the gross number on the product page.
 2. **Estimate the attachment rate you already have.** How often do these two items appear on the same order today, with no bundle at all? That is your baseline, and every bundle sale up to that rate is margin you handed back.
-3. **Set the discount so the bundle still clears your margin floor** at the worst case — that is, assuming the baseline buyers all take it.
+3. **Set the discount so the bundle still clears your margin floor** at the worst case, assuming the baseline buyers all take it.
 4. **Make the saving visible in currency, not just percentage.** A saving stated in pounds lands harder on a low-priced item, where the percentage sounds trivial; a percentage lands harder on an expensive one, where the cash figure sounds alarming. Show whichever reads bigger.
 5. **Review it after 30 days against margin per order**, not order value. If order value rose and margin per order did not, tighten the discount.
 
@@ -106,7 +106,7 @@ Use your own order history rather than your intuition about what goes together. 
 
 - **Start from co-purchase data.** Export a few months of orders and count which SKU pairs appear together most. That list is your candidate set, and it is evidence rather than a hunch.
 - **Bundle a hero with a helper**, not two heroes. Pairing your two best sellers mostly discounts orders that were already going to happen. Pairing the best seller with a product that struggles alone puts inventory to work.
-- **Respect the use case.** Things that get used at the same time bundle well. Things that merely belong to the same category do not — nobody needs two of the same thing on the same day unless it is consumable.
+- **Respect the use case.** Things that get used at the same time bundle well. Things that merely belong to the same category do not. Nobody needs two of the same thing on the same day unless it is consumable.
 - **Watch the price gap.** A £15 add-on to a £20 product is a second decision. A £4 add-on to the same product is a rounding error the shopper will accept without thinking.
 - **Do not bundle around your stock problem.** Attaching a dead SKU to a hero moves the dead stock once and teaches your best customers that your bundles are where the leftovers go.
 
@@ -114,7 +114,7 @@ Use your own order history rather than your intuition about what goes together. 
 
 ## How do bundles affect inventory?
 
-This is the least discussed and most expensive part, because the failure mode is overselling — and overselling costs you a refund, a support conversation, and a customer.
+This is the least discussed and most expensive part, because the failure mode is overselling, and overselling costs you a refund, a support conversation, and a customer.
 
 The core question is whether the bundle has its own stock number. If it does, you now have two records of the truth for the same physical unit, and they will drift the moment either the bundle or the component sells on its own.
 
@@ -144,7 +144,7 @@ Rarely because the idea was wrong. Almost always because of one of these.
 Placement decides more than the offer does. In rough order of value:
 
 - **On the product page of the item they are already viewing.** This is the highest-value spot, because the shopper has shown you exactly which product to build the offer around, and the bundle can still change what they add.
-- **In the cart.** The buying decision is made and only the amount is still open, which is the cheapest possible moment to accept an addition. This is also why [what happens in your cart](/blog/shopify-cart-abandonment) matters so much — a cart that is a dead-end page is a placement you do not have.
+- **In the cart.** The buying decision is made and only the amount is still open, which is the cheapest possible moment to accept an addition. This is also why [what happens in your cart](/blog/shopify-cart-abandonment) matters so much. A cart that is a dead-end page is a placement you do not have.
 - **On the collection page**, as a badge on eligible products. Weaker, but it sets the expectation before the click.
 - **Post-purchase**, on the thank-you page. Genuinely incremental when it works, and it cannot damage the original conversion, because that has already happened.
 - **In the "Bundles" collection.** Last, and only as a catalogue. Nobody browses for a bundle.
@@ -155,7 +155,7 @@ The mechanics are less interesting than the sequence. Doing it in this order mea
 
 1. **Pick one pairing from your co-purchase data.** One. Not a launch of twelve.
 2. **Work out the floor price** from landed cost and your margin target, using the arithmetic above.
-3. **Decide the inventory behaviour** before you build it — components draw down, and the bundle disables when any component hits zero.
+3. **Decide the inventory behaviour** before you build it: components draw down, and the bundle disables when any component hits zero.
 4. **Build it against a draft order first** and confirm the totals, the tax, and the shipping are what you expect.
 5. **Test the discount interaction.** Apply your biggest existing promo code on top and see what the total becomes. Decide now whether that is allowed.
 6. **Place it on the hero product's page**, not on a separate collection.
@@ -169,17 +169,17 @@ The mechanics are less interesting than the sequence. Doing it in this order mea
 Four numbers, and the first two are the ones that get skipped:
 
 - **Margin per order**, before and after. The scorecard.
-- **Attachment rate on the hero product** — what share of its orders now include the partner item, versus the baseline you measured in step 2 of the pricing method.
+- **Attachment rate on the hero product**, meaning what share of its orders now include the partner item, versus the baseline you measured in step 2 of the pricing method.
 - **Average order value**, as a supporting number rather than the headline.
 - **Conversion rate on the product page carrying the bundle.** A bundle that lifts order value but drops conversion has made the page harder to buy from, and that trade is usually a losing one.
 
 That last one catches people out, so it is worth stating plainly. Adding a bundle block to a product page costs something: vertical space, a second decision, and often a slower page. If the block pushes the add-to-cart button below the fold on a phone, you may raise order value on the buyers you keep while losing buyers you would have had. The only way to see that trade is to hold conversion rate and revenue per session side by side. Revenue per session is the tiebreaker, because it is the one number that cannot be improved by making the page worse in a way that a rising order value quietly hides from you.
 
-Give it a full purchase cycle, and be honest about attribution. If your event data is unreliable, the bundle's numbers will be too — which is a separate problem worth [fixing first](/blog/shopify-server-side-tracking).
+Give it a full purchase cycle, and be honest about attribution. If your event data is unreliable, the bundle's numbers will be too, which is a separate problem worth [fixing first](/blog/shopify-server-side-tracking).
 
 ## Where does Edge Bundles fit?
 
-The judgement calls above — what to pair, what to charge, what to allow — are yours, and no app will make them for you. Edge Bundles handles the parts underneath: building fixed sets, mix-and-match groups and volume tiers without a theme edit, drawing stock down through to the component SKUs so the counts stay honest, and showing the saving as it grows so the shopper never has to do the arithmetic themselves.
+The judgement calls above are yours: what to pair, what to charge, what to allow. No app will make them for you. Edge Bundles handles the parts underneath: building fixed sets, mix-and-match groups and volume tiers without a theme edit, drawing stock down through to the component SKUs so the counts stay honest, and showing the saving as it grows so the shopper never has to do the arithmetic themselves.
 
 It also puts the offer on the product page and in the cart rather than on a collection nobody visits, which, as above, is usually the difference between a bundle that works and one that merely exists.
 

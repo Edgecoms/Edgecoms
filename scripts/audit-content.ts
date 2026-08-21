@@ -116,6 +116,7 @@ const HAS_CITATION = /<Cite\s+href="https?:\/\/|\]\(https?:\/\//;
 const INTERNAL_BLOG_LINK = /\]\(\/blog\/([a-z0-9-]+)\)/g;
 const H2_LINE = /^##\s+/;
 const WHITESPACE = /\s+/;
+const EM_DASH = "\u2014";
 const CTA_LINE = /^\s*<PostCta\s*\/>\s*$/;
 
 function plainWords(text: string): string[] {
@@ -334,6 +335,44 @@ function checkStats(post: Post): void {
 	}
 }
 
+/**
+ * No em dashes in reader-facing copy.
+ *
+ * House rule. The em dash is one of the strongest tells of machine-written
+ * prose, and this blog's whole premise is that a person who runs the agency
+ * wrote it. Restructure the sentence rather than substituting punctuation: a
+ * full stop and a short new sentence is usually better anyway, and it matches
+ * the voice. En dashes in numeric ranges are fine and are not checked.
+ */
+function checkEmDashes(post: Post): void {
+	for (const [index, line] of post.body.split("\n").entries()) {
+		if (line.includes(EM_DASH)) {
+			fail(
+				post,
+				`line ${index + 1} uses an em dash: ${line.trim().slice(0, 90)}`
+			);
+		}
+	}
+
+	for (const field of ["title", "description", "tldr"]) {
+		if (String(post.front[field] ?? "").includes(EM_DASH)) {
+			fail(post, `${field} uses an em dash`);
+		}
+	}
+
+	const faq = post.front.faq;
+	if (Array.isArray(faq)) {
+		for (const entry of faq as { answer?: string; question?: string }[]) {
+			if (
+				(entry.answer ?? "").includes(EM_DASH) ||
+				(entry.question ?? "").includes(EM_DASH)
+			) {
+				fail(post, "an faq entry uses an em dash");
+			}
+		}
+	}
+}
+
 /** Primary keyword in the title and in the opening of the body. */
 function checkKeywordPlacement(post: Post): void {
 	const keyword = String(post.front.primaryKeyword ?? "").toLowerCase();
@@ -469,6 +508,7 @@ for (const post of posts) {
 	checkRequiredFrontmatter(post);
 	checkLengths(post);
 	checkStats(post);
+	checkEmDashes(post);
 	checkKeywordPlacement(post);
 	checkCtaCadence(post);
 	checkBodyLinks(post, slugs, appSlugs);

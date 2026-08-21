@@ -17,10 +17,10 @@ internalLinks:
   - "shopify-server-side-tracking"
   - "shopify-product-bundles"
   - "shopify-product-reviews"
-tldr: "Shopify cart abandonment is when a shopper adds to cart and leaves without buying. The documented average across 50 studies is 70.22%. Most of it is not indecision — it is unexpected shipping costs, forced account creation, slow delivery and checkout friction, and each of those has a specific fix."
+tldr: "Shopify cart abandonment is when a shopper adds to cart and leaves without buying. The documented average across 50 studies is 70.22%. Most of it is not indecision. It is unexpected shipping costs, forced account creation, slow delivery and checkout friction, and each of those has a specific fix."
 faq:
   - question: "What is a good cart abandonment rate on Shopify?"
-    answer: "The average documented rate is 70.22% across 50 studies, so anything meaningfully below that is doing well. Chasing a specific number is less useful than watching your own rate over time, because the figure moves with traffic mix — paid social sends more browsers than branded search does, and a month of heavy prospecting will push the rate up without anything getting worse."
+    answer: "The average documented rate is 70.22% across 50 studies, so anything meaningfully below that is doing well. Chasing a specific number is less useful than watching your own rate over time, because the figure moves with traffic mix. Paid social sends more browsers than branded search does, and a month of heavy prospecting will push the rate up without anything getting worse."
     source: "https://baymard.com/lists/cart-abandonment-rate"
   - question: "Is an abandoned cart the same as an abandoned checkout?"
     answer: "No, and Shopify treats them differently. An abandoned cart is someone who added an item and never reached checkout. An abandoned checkout is someone who entered contact details and stopped before paying. The second group is far smaller, far closer to buying, and the only one you have an email address for."
@@ -30,14 +30,14 @@ faq:
     answer: "Yes. Extra costs are the single most cited reason for abandoning during checkout, at 40% in Baymard's research. A shopper who sees the shipping cost on the product page and continues has already accepted it. A shopper who meets it on the payment step feels ambushed, and some of them leave over the principle rather than the amount."
     source: "https://baymard.com/lists/cart-abandonment-rate"
   - question: "Does a cart drawer actually reduce abandonment versus a cart page?"
-    answer: "It removes one full page load between deciding to buy and buying, and it keeps the shopper on the page they were browsing. That helps most on mobile and on stores where people add several items across a session. It is not a fix for a cart abandoned over price, delivery time or trust — those need the answers further down this page."
+    answer: "It removes one full page load between deciding to buy and buying, and it keeps the shopper on the page they were browsing. That helps most on mobile and on stores where people add several items across a session. It is not a fix for a cart abandoned over price, delivery time or trust. Those need the answers further down this page."
 ---
 
-You had 4,100 sessions last week, 780 people added something to a cart, and 214 of them bought. The other 566 got as far as choosing a product, deciding they wanted it, putting it in the cart — and then left.
+You had 4,100 sessions last week, 780 people added something to a cart, and 214 of them bought. The other 566 got as far as choosing a product, deciding they wanted it, putting it in the cart, and then left.
 
 That is the part that stings. These are not window shoppers who bounced off the homepage. Every one of them told you what they wanted and how much they were willing to spend.
 
-**Shopify cart abandonment** is usually treated as a mood problem, fixed with a discount code and a reminder email. It mostly isn't. A large share of it is caused by specific, findable things your store does between "add to cart" and "pay" — and those have specific fixes that don't cost you margin.
+**Shopify cart abandonment** is usually treated as a mood problem, fixed with a discount code and a reminder email. It mostly isn't. A large share of it is caused by specific, findable things your store does between "add to cart" and "pay". Those have specific fixes that don't cost you margin.
 
 ## What counts as Shopify cart abandonment?
 
@@ -46,7 +46,7 @@ Get the definition straight first, because Shopify reports two different things 
 - **An abandoned cart** is a shopper who added an item and never reached the checkout. You usually have no contact details for them. This is the big group.
 - **An abandoned checkout** is a shopper who entered their details and stopped before paying. Shopify records these individually, and you can email them. This is the small group.
 
-They fail for different reasons and they need different fixes. Somebody who never reached checkout was lost on your product page, your cart, or in the gap between them. Somebody who abandoned at the payment step was lost by the checkout itself — the cost, the delivery date, the form, or the trust.
+They fail for different reasons and they need different fixes. Somebody who never reached checkout was lost on your product page, your cart, or in the gap between them. Somebody who abandoned at the payment step was lost by the checkout itself: the cost, the delivery date, the form, or the trust.
 
 If you only ever look at the abandoned checkouts list, you are studying the smaller and later of the two problems, because it is the one Shopify puts a screen in front of you for.
 
@@ -56,7 +56,7 @@ The formula everyone uses is straightforward:
 
 > Abandonment rate = 1 − (completed purchases ÷ carts created)
 
-The trap is what you count as a cart. If your theme creates a cart the moment someone hits "add to cart", every accidental tap and every price-check counts as an abandonment. If you only count carts that reached a viewed cart page, you will flatter yourself by several points. Neither is wrong, but you have to pick one and keep it, because a rate measured two ways across two months is not a trend — it is two unrelated numbers.
+The trap is what you count as a cart. If your theme creates a cart the moment someone hits "add to cart", every accidental tap and every price-check counts as an abandonment. If you only count carts that reached a viewed cart page, you will flatter yourself by several points. Neither is wrong, but you have to pick one and keep it, because a rate measured two ways across two months is not a trend. It is two unrelated numbers.
 
 Shopify's own analytics will give you the session-level version of this in the conversion funnel. That is the one to standardise on, if only because it is the one that keeps working when you change your theme.
 
@@ -79,19 +79,19 @@ This is the part where guessing is expensive and research is cheap. Baymard aske
 
 | Reason given | Share | What it actually means |
 | --- | --- | --- |
-| Extra costs too high — shipping, tax, fees | <Cite href="https://baymard.com/lists/cart-abandonment-rate">40%</Cite> | The total at the end did not match the total they had in their head |
+| Extra costs too high (shipping, tax, fees) | <Cite href="https://baymard.com/lists/cart-abandonment-rate">40%</Cite> | The total at the end did not match the total they had in their head |
 | Delivery was too slow | <Cite href="https://baymard.com/lists/cart-abandonment-rate">20%</Cite> | They found out the date too late to plan around it |
 | Didn't trust the site with card details | <Cite href="https://baymard.com/lists/cart-abandonment-rate">19%</Cite> | Nothing on the page earned the card number |
 | Site required account creation | <Cite href="https://baymard.com/lists/cart-abandonment-rate">18%</Cite> | You asked for a commitment before giving them anything |
 | Checkout too long or complicated | <Cite href="https://baymard.com/lists/cart-abandonment-rate">17%</Cite> | Too many fields, too many steps |
 | Website errors or crashes | <Cite href="https://baymard.com/lists/cart-abandonment-rate">17%</Cite> | Something broke and they did not try again |
 
-Read that list again with one thing in mind: almost none of it is about the product or the price of the product. It is about surprises, delays, friction and doubt — four things you control completely.
+Read that list again with one thing in mind: almost none of it is about the product or the price of the product. It is about surprises, delays, friction and doubt. Four things you control completely.
 
-There is an important caveat in how that research was built. The percentages above exclude the respondents who said they were only browsing — the people who add to cart the way other people open a browser tab, with no intention of buying today. That group is real and it is large, and no amount of checkout work converts them. Which means two things at once: your headline abandonment rate contains a permanent floor you cannot optimise away, and the reasons above describe the people who *did* want to buy and changed their minds. Those are the ones worth spending on.
+There is an important caveat in how that research was built. The percentages above exclude the respondents who said they were only browsing. Those are the people who add to cart the way other people open a browser tab, with no intention of buying today. That group is real and it is large, and no amount of checkout work converts them. Which means two things at once: your headline abandonment rate contains a permanent floor you cannot optimise away, and the reasons above describe the people who *did* want to buy and changed their minds. Those are the ones worth spending on.
 
 <Callout title="Why the shares sum to more than the whole">
-Respondents could give more than one reason, which is realistic — a shopper who meets an unexpected shipping charge on a slow delivery estimate will cite both. Treat the numbers as how often each reason is present, not as a division of the pie.
+Respondents could give more than one reason, which is realistic. A shopper who meets an unexpected shipping charge on a slow delivery estimate will cite both. Treat the numbers as how often each reason is present, not as a division of the pie.
 </Callout>
 
 ## How do you find where your own store is leaking?
@@ -111,7 +111,7 @@ Take the percentage that survives each step for the last 30 days. The single wor
 - **Heavy loss between 2 and 4** means the problem is your cart, not your checkout. People added and never even started paying.
 - **Heavy loss between 4 and 5** is usually forced account creation, or a form that asks for too much before it gives a total.
 - **Heavy loss between 5 and 6** is almost always cost or delivery date. They had a number in mind, and the real number was different.
-- **Heavy loss between 6 and 7** is a payment problem — a declined method, a missing local wallet, or an outright error.
+- **Heavy loss between 6 and 7** is a payment problem: a declined method, a missing local wallet, or an outright error.
 
 To make that concrete, here is what a leak looks like when you write it down.
 
@@ -127,7 +127,7 @@ One caveat that will save you a week: make sure the numbers you are reading are 
 
 ## How do you fix the cost problem?
 
-Unexpected cost is the biggest single cause, and it is not really a pricing problem — it is a timing problem. The shopper is not refusing to pay for shipping. They are refusing to be told about it at the last possible moment.
+Unexpected cost is the biggest single cause, and it is not really a pricing problem. It is a timing problem. The shopper is not refusing to pay for shipping. They are refusing to be told about it at the last possible moment.
 
 - **Show shipping before the cart, not at payment.** A number on the product page that a shopper reads and continues past has been accepted. The same number at the payment step reads as a trick.
 - **Give the threshold a visible target.** "Spend £12 more for free delivery" turns a cost into a goal. It also raises order value, which is the same mechanic working in your favour.
@@ -161,7 +161,7 @@ Nineteen per cent said they did not trust the site with their card. That is not 
 
 They work, and they are also the most over-rated item on this list.
 
-The arithmetic is the problem. Recovery emails can only reach shoppers who gave you an email address, which means they only reach abandoned *checkouts* — the small group. Of the seven in ten who abandoned, most never got that far, so most were never reachable. A recovery flow with an excellent open rate is still operating on a slice of a slice.
+The arithmetic is the problem. Recovery emails can only reach shoppers who gave you an email address, which means they only reach abandoned *checkouts*, the small group. Of the seven in ten who abandoned, most never got that far, so most were never reachable. A recovery flow with an excellent open rate is still operating on a slice of a slice.
 
 Run them anyway, because the incremental cost is near zero:
 
@@ -184,12 +184,12 @@ Watch these instead, over a period long enough to mean something:
 - **A full purchase cycle before judging.** Considered purchases have a lag. Reading a week of data on a product people think about for a fortnight will mislead you in both directions.
 
 <Callout title="Change one thing at a time" tone="warning">
-The temptation with a list like this is to do all of it in one weekend. Then the rate moves four points and you have no idea which change did it — or whether two of them cancelled each other out. Ship them one at a time, in the order your funnel says they matter.
+The temptation with a list like this is to do all of it in one weekend. Then the rate moves four points and you have no idea which change did it, or whether two of them cancelled each other out. Ship them one at a time, in the order your funnel says they matter.
 </Callout>
 
 ## Where does Edge Cart fit?
 
-Most of the fixes above are decisions rather than software: what you charge for delivery, when you say so, whether you force an account. Edge Cart handles the structural part of the list — the cart itself.
+Most of the fixes above are decisions rather than software: what you charge for delivery, when you say so, whether you force an account. Edge Cart handles the structural part of the list: the cart itself.
 
 It replaces the cart page with a drawer that opens in place, so the step between deciding and paying stops costing a page load. The free-shipping progress bar makes the threshold a visible target rather than a surprise at the end. And because the drawer is the last surface a buyer sees, it is also where a relevant add-on has the best chance of being welcome rather than annoying.
 

@@ -1,0 +1,203 @@
+---
+title: "Shopify Subscriptions: The Complete Guide"
+slug: "shopify-subscriptions"
+app: "edge-subscriptions"
+archetype: "pillar"
+author: "anurag"
+description: "How Shopify subscriptions really work: selling plans and contracts, what to price, why subscribers cancel, and the churn most stores never think to measure."
+primaryKeyword: "shopify subscriptions"
+secondaryKeywords:
+  - "subscription shopify"
+  - "recurring orders shopify"
+  - "subscription ecommerce"
+publishedAt: "2026-08-31"
+updatedAt: "2026-08-31"
+imageAlt: "Placeholder illustration for the Shopify subscriptions guide"
+internalLinks:
+  - "shopify-product-bundles"
+  - "shopify-cart-abandonment"
+  - "shopify-product-reviews"
+tldr: "Shopify subscriptions run on selling plans, which the checkout turns into subscription contracts. The contract is a separate record, so editing a plan later does not change anyone already subscribed. Most stores lose more revenue to failed cards than to people who actually chose to leave."
+faq:
+  - question: "Do I need an app for subscriptions, or is it built into Shopify?"
+    answer: "Shopify provides the underlying framework, which is selling plans and subscription contracts, but an app is what creates and manages them. The app builds the selling plan groups, puts the subscribe option on the product page, runs the recurring billing, and gives customers somewhere to manage what they have. Shopify supplies the rails rather than the train."
+  - question: "If I change a subscription's price, do existing subscribers pay the new price?"
+    answer: "No, and this catches people out. Shopify's documentation is explicit that updates to the original selling plan do not modify pre-existing subscription contracts. Changing a plan affects new subscribers only. Existing contracts have to be migrated separately, which is a deliberate safeguard rather than a limitation."
+    source: "https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans"
+  - question: "What is a good subscription churn rate?"
+    answer: "There is no honest universal number, because it depends on the replenishment cycle of what you sell. A more useful habit is splitting churn into voluntary and involuntary. Voluntary churn is a product or value problem. Involuntary churn is expired and declined cards, which is an operations problem with a much cheaper fix."
+  - question: "Will subscriptions cannibalise my one-time sales?"
+    answer: "Partly, and that is usually fine. A customer who was going to reorder monthly anyway and now subscribes at a discount costs you the discount but buys more reliably and needs no further acquisition spend. The number to watch is not the discount, it is whether average subscriber lifetime revenue exceeds average one-time customer revenue."
+  - question: "How long should the first subscription commitment be?"
+    answer: "Usually none. A minimum commitment raises the barrier at the moment the customer knows least about whether they want it, and it is the single most common reason people choose the one-time option instead. Win the second order with the product and the delivery experience rather than with a contract."
+---
+
+Acquisition is the expensive part, and you have already paid it. Every customer who buys once and never comes back is a click you bought and cashed in for a single order.
+
+A subscription is the same person buying again without you buying the click twice. That is the entire economic argument, and it is a strong one. It is also why **Shopify subscriptions** get pitched to every merchant regardless of whether their product suits one.
+
+This guide covers how the mechanism actually works underneath, which products earn a subscription, and the kind of churn most stores never think to measure.
+
+## How do Shopify subscriptions actually work?
+
+Worth understanding, because it explains several things that otherwise look like bugs.
+
+Shopify's framework has two halves. A **selling plan group** represents <Cite href="https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans">a selling method</Cite>, such as subscribe and save or prepaid. Inside it, a selling plan is <Cite href="https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans">an alternative way to buy a product or variant</Cite>, and it carries four policies:
+
+- **Billing policy**, which sets how often the customer is charged.
+- **Delivery policy**, which sets how often something ships and how cutoffs behave.
+- **Inventory policy**, which decides when stock is reserved.
+- **Pricing policy**, which holds the discount and can be fixed or recurring.
+
+When someone checks out on a selling plan, <Cite href="https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans">Shopify automatically creates subscription contracts</Cite>. The contract is the live agreement with that customer, and it is a separate record from the plan that produced it.
+
+That separation is the single most important thing on this page, so it gets its own section further down.
+
+It is also why Shopify itself is not really "a subscription product" in the way merchants expect. It supplies the rails: a way to describe recurring purchase options, a checkout that understands them, and a contract record that survives afterwards. What it does not supply is the storefront widget, the billing schedule that actually fires, the customer portal, or the recovery flow when a card fails. Every subscription app on the App Store is competing on those four things, not on the underlying framework, which is identical for all of them.
+
+Knowing that makes app evaluation much simpler. You are not choosing a subscription engine. You are choosing whoever handles the parts around it best for the way you sell.
+
+## Which products should be subscriptions?
+
+The honest filter is short. A subscription works when the customer would have reordered anyway and the subscription just removes the effort.
+
+- **It runs out on a predictable schedule.** Coffee, supplements, skincare, razor blades, pet food. The customer already knows roughly when they need more.
+- **The repeat purchase is the same item.** If choosing is part of the enjoyment, a fixed recurring order takes away the fun rather than the friction.
+- **The cycle is short enough to matter.** Something replenished every eighteen months is not a subscription, it is a reminder email.
+- **The value is stable.** Products where the customer's needs change quickly produce subscriptions that get paused and never resumed.
+
+Where it works badly, and where a lot of stores try anyway:
+
+- **Considered, one-off purchases.** Furniture, electronics, luggage.
+- **Fashion, unless you build a genuine curation service**, which is a different and much harder business than selling clothes.
+- **Anything the customer wants to choose each time.** Here a mix-and-match [bundle](/blog/shopify-product-bundles) usually serves better than a subscription, because it raises order value without asking for a commitment.
+
+<PostCta />
+
+## How should you price a subscription?
+
+Two decisions: the discount, and whether it recurs.
+
+The discount buys reliability. You are trading margin per order for predictability and for not paying acquisition again. That is usually a good trade, but only if you size it against the right number.
+
+<Example>
+A product sells at £30 with £15 of cost, so £15 margin on a one-time order.
+
+Offer subscribe and save at 15%, which is £25.50, leaving £10.50 margin per order. You have given up £4.50 an order.
+
+If the average subscriber takes five deliveries before cancelling, that is £52.50 of margin from one acquisition. A one-time buyer who never returns produced £15.
+
+The subscription is worth roughly three and a half times the one-off, even after the discount. Which is why the discount is rarely the thing that decides whether this works. Average deliveries before cancellation is.
+</Example>
+
+There is a second decision hiding inside the first, which is whether to offer prepaid terms alongside the rolling one. Prepaid, where the customer pays for three or six deliveries up front, changes the economics considerably: you collect the cash immediately, involuntary churn effectively disappears for the length of the term because there is no recurring charge to fail, and the customer has a reason to stay through the period where most cancellations happen. The cost is a higher barrier at sign-up and a larger refund exposure if something goes wrong. For products with a well-understood cycle it is often the better offer, and it is routinely left un-built because rolling monthly is the default every app ships with.
+
+The recurring question is simpler than it looks. A discount that applies only to the first order buys sign-ups and produces cancellations after delivery one. A discount that recurs forever costs more per order but is the thing the customer actually agreed to. If you are going to offer a subscription at all, make the saving permanent and set it at a level you can live with.
+
+## Why do subscribers cancel?
+
+Split the reasons before you try to fix any of them, because they need completely different responses.
+
+| Reason | What it really is | Where the fix lives |
+| --- | --- | --- |
+| Too much product piling up | The cadence is wrong, not the product | Let them change frequency, not just cancel |
+| Wanted to try something else | Boredom | Variety within the subscription |
+| Found it cheaper elsewhere | Price, or perceived price | Make the subscriber saving visible on every order |
+| Card expired or declined | Nothing. They did not choose to leave | Dunning and retries |
+| Could not work out how to change it | Your portal | See below |
+| Genuinely finished with the product | Real churn | Accept it |
+
+The fourth row is the one worth staring at, because it is the only one where the customer never made a decision at all.
+
+Before that, though, note what the top three rows have in common. Cadence, boredom and price are all problems the customer would happily solve without leaving, if you gave them a way to. Someone with too much product wants a longer gap. Someone bored wants a different flavour. Someone price-sensitive wants to see that they are still saving. None of those people set out to cancel. They set out to change something, found no way to change it, and took the button that was available.
+
+That is why the portal section below is not a nice-to-have. For most stores it is the highest-leverage thing on this entire page.
+
+<PostCta />
+
+## What is involuntary churn?
+
+It is the churn where nobody decided anything. A card expires, a bank declines a recurring charge, the payment fails, the subscription lapses, and a customer who was perfectly happy is now gone. They frequently do not notice for weeks.
+
+This matters because it is the cheapest churn to fix and the least glamorous to work on. Nobody writes a case study about retry logic.
+
+A basic recovery setup:
+
+1. **Retry on a schedule, not immediately.** A decline at 9am on a Monday and a retry at 9:05am is the same decline. Spread attempts across days, because many failures are temporary balance problems.
+2. **Tell the customer, in plain language.** "Your card ending 4412 was declined and your next box is paused" is more effective than a payment-failure template nobody reads.
+3. **Make updating the card take one tap** from that email, with no login if you can do it securely.
+4. **Warn before expiry, not after.** You know the expiry date when the card is stored. A message two weeks before is a non-event; a message after the failure is a problem.
+5. **Set a give-up point.** Retrying forever annoys the bank and the customer. Decide how many attempts, then stop and ask.
+
+## What does a good customer portal do?
+
+It exists so people do not have to email you, and so that the only way out is not cancellation.
+
+The failure mode is a portal that offers exactly two options: keep everything the same, or cancel. A customer with too much product and no way to say "every eight weeks instead of four" will take the only button available.
+
+- **Change the next delivery date.** The most-used control in any subscription, by a distance.
+- **Change frequency.** The single best cancellation deflector, because most cancellations are cadence complaints in disguise.
+- **Skip one delivery.** For holidays and for the month they still have three tubs left.
+- **Swap the product or variant.** Handles boredom without losing the customer.
+- **Pause with an end date**, rather than an indefinite pause that never resumes.
+- **Cancel, findable and honest.** Hiding it produces chargebacks and one-star reviews, which cost more than the subscription was worth. It is also increasingly a regulatory problem.
+
+The ordering of those controls matters as much as their existence. A cancel flow that offers "pause for a month" or "switch to every eight weeks" as the first response to a cancellation request is not a dark pattern, provided cancel remains one click away on the same screen. It is offering the thing the customer probably actually wanted. The line between deflection and obstruction is whether the alternatives are genuinely easier than leaving, or merely placed in front of it.
+
+A useful test: count how many taps it takes an existing subscriber to push their next delivery back by two weeks. If the answer is more than three, or if it involves emailing you, that number is quietly setting your churn rate.
+
+<PostCta />
+
+## How do you launch without cannibalising one-time sales?
+
+You will cannibalise some, and that is the point. The question is whether the customers you convert are worth more as subscribers.
+
+- **Put the subscribe option on the product page as a choice**, not a default. A pre-selected subscription that the customer did not notice becomes a chargeback and a bad review.
+- **State the saving in money, on the option itself.** "Subscribe and save £4.50" beats a percentage next to a radio button.
+- **Say what the commitment is, in the same sentence.** "Cancel anytime, change frequency whenever" removes the objection at the moment it forms.
+- **Start with your genuinely replenishable products only.** One or two, not the whole catalogue.
+- **Leave the one-time option equally prominent.** Making it hard to buy once is how you lose the customer who would have subscribed on their third order.
+
+That last point is worth dwelling on, because the instinct runs the other way. A store that has decided subscriptions are the strategy will often de-emphasise the one-time purchase, sometimes to the point of hiding it. What that does in practice is filter out every customer who is willing to try the product but not willing to commit to it, which is most first-time buyers. The subscription business you want is largely built out of people who bought once, liked it, and came back. Blocking the first half of that sequence to accelerate the second is a poor trade, and it is invisible in your subscriber numbers because the people it costs you never appear anywhere.
+
+Everything you already know about reducing friction applies here too. The subscribe choice sits at the same decision point as the rest of your product page, and the same things that drive [cart abandonment](/blog/shopify-cart-abandonment) apply to it.
+
+## What breaks when you change a plan?
+
+Back to the separation between plans and contracts, because it is where the expensive surprises live.
+
+Shopify's documentation is explicit: <Cite href="https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans">updates to the original selling plan don't modify pre-existing subscription contracts</Cite>. Existing contracts are managed separately.
+
+In practice this means:
+
+- **Raising the price affects new subscribers only.** Everyone already subscribed keeps the price they signed up at until you deliberately migrate them.
+- **That is a safeguard, not a bug.** Silently repricing an active recurring agreement is exactly the thing that produces chargebacks and regulatory attention.
+- **Migrating existing subscribers is a separate, deliberate job**, and it needs notice given to the customer before it happens.
+- **Which means your launch pricing is stickier than you think.** A launch discount you intended as temporary will still be attached to your earliest and most loyal subscribers years later.
+
+Price the thing as if you cannot change it, because for everyone who has already signed up, largely you cannot.
+
+<PostCta />
+
+## How do you measure a subscription programme?
+
+Four numbers, and the order matters:
+
+- **Average deliveries before cancellation.** The number the whole economic case rests on, and the one most stores never calculate.
+- **Voluntary churn and involuntary churn, separately.** Reporting one combined figure hides the half you could fix this month.
+- **Subscriber lifetime revenue against one-time customer revenue.** The comparison that tells you whether the discount is worth it.
+- **Active subscriber count, net.** Gross sign-ups flatter you every month. Net is the business.
+
+Two more worth watching: the share of cancellations that came after a failed payment, and the share of subscribers who ever used the portal. A portal nobody uses is either perfect or invisible, and it is usually invisible.
+
+One warning about reading any of this early. Subscription metrics lag badly, because the thing you most want to know, average deliveries before cancellation, cannot be calculated until a meaningful number of people have actually cancelled. In month two you have sign-ups and almost no churn, and the programme looks extraordinary. In month six the first cohort works its way through and the real number arrives. Resist making decisions on the month-two picture, and in particular resist increasing the discount to accelerate a sign-up rate that has not been tested against retention yet.
+
+The same caution applies to comparing cohorts. Subscribers acquired during a heavy promotion behave differently from subscribers acquired from organic traffic, and blending them produces an average that describes neither.
+
+## Where does Edge Subscriptions fit?
+
+The judgement above is yours: what to offer, at what discount, on which products. Edge Subscriptions handles the machinery.
+
+It builds the selling plans, puts a subscribe-and-save choice on the product page without a theme edit, and runs the recurring billing against the contracts Shopify creates. The portal leads with change-frequency, skip and reschedule rather than burying them behind cancel, because most cancellations are cadence problems. And the dunning sequence retries on a spread schedule and warns before a card expires rather than after it fails, which is where the quietest revenue in the whole programme usually is.
+
+<PostCta />

@@ -31,6 +31,7 @@ const COLUMNS: readonly FooterColumn[] = [
 	{
 		heading: "Company",
 		links: [
+			{ href: "/blog", label: "Blog" },
 			{ href: "/case-studies", label: "Case studies" },
 			{ href: "/about", label: "About Edge" },
 			{ href: "/contact", label: "Contact" },

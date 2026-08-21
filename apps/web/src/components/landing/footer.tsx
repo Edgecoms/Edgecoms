@@ -2,6 +2,7 @@ import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import Logo from "@/components/ui/logo";
+import { getBlogApps, POSTS } from "@/lib/blog";
 import { EDGE_PRODUCTS } from "@/lib/products";
 
 interface FooterLink {
@@ -31,10 +32,10 @@ const COLUMNS: readonly { heading: string; links: readonly FooterLink[] }[] = [
 	{
 		heading: "Resources",
 		links: [
+			{ href: "/blog", label: "Blog" },
 			{ href: "/case-studies", label: "Case studies" },
 			{ href: "/docs", label: "Documentation" },
 			{ href: "/contact", label: "Contact" },
-			{ href: "/products", label: "Products" },
 		],
 	},
 	{
@@ -62,6 +63,73 @@ const COLUMNS: readonly { heading: string; links: readonly FooterLink[] }[] = [
 
 const LINK_CLASS =
 	"flex items-center gap-2 text-[14px] text-neutral-500 transition-colors hover:text-neutral-900";
+
+/**
+ * The blog band.
+ *
+ * Two jobs: it puts the newest writing one click from every page on the site,
+ * and it gives a crawler a path to posts that are not yet linked from anywhere
+ * else. Renders nothing at all until posts exist, so the footer never carries an
+ * empty heading.
+ */
+function BlogBand() {
+	const latest = POSTS.slice(0, 4);
+	const apps = getBlogApps();
+
+	if (latest.length === 0) {
+		return null;
+	}
+
+	return (
+		<section
+			aria-labelledby="footer-blog"
+			className="mt-16 border-neutral-200 border-t pt-10"
+		>
+			<div className="flex items-baseline justify-between gap-4">
+				<h2
+					className="font-medium text-[14px] text-neutral-900"
+					id="footer-blog"
+				>
+					From the blog
+				</h2>
+				<Link
+					className="shrink-0 text-[13px] text-neutral-500 transition-colors hover:text-neutral-900"
+					href={"/blog" as Route}
+				>
+					All articles →
+				</Link>
+			</div>
+
+			<ul className="mt-5 grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2 lg:grid-cols-4">
+				{latest.map((post) => (
+					<li key={post.slug}>
+						<Link
+							className="text-pretty text-[14px] text-neutral-500 leading-snug transition-colors hover:text-neutral-900"
+							href={`/blog/${post.slug}` as Route}
+						>
+							{post.title}
+						</Link>
+					</li>
+				))}
+			</ul>
+
+			{apps.length > 0 ? (
+				<ul className="mt-6 flex flex-wrap gap-x-5 gap-y-2">
+					{apps.map((product) => (
+						<li key={product.slug}>
+							<Link
+								className="text-[13px] text-neutral-400 transition-colors hover:text-neutral-900"
+								href={`/blog/${product.slug}` as Route}
+							>
+								{product.name}
+							</Link>
+						</li>
+					))}
+				</ul>
+			) : null}
+		</section>
+	);
+}
 
 export function LandingFooter() {
 	return (
@@ -113,6 +181,8 @@ export function LandingFooter() {
 						))}
 					</div>
 				</div>
+
+				<BlogBand />
 
 				<div className="mt-16 flex flex-col gap-3 border-neutral-200 border-t pt-8 text-[13px] text-neutral-500 sm:flex-row sm:items-center sm:justify-between">
 					<span>Built for Shopify · Billed on your Shopify invoice</span>

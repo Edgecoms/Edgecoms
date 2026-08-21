@@ -126,7 +126,7 @@ export function Example({
 				{children}
 			</div>
 			<p className="mt-4 border-neutral-100 border-t pt-3 text-[13px] text-neutral-400">
-				Illustrative arithmetic. Swap in your own numbers — these are not our
+				Illustrative arithmetic. Swap in your own numbers. These are not our
 				results or anyone else's.
 			</p>
 		</aside>
@@ -138,7 +138,7 @@ export function CheckedOn({ date }: { date: string }) {
 	return (
 		<p className="mt-3 text-[13px] text-neutral-500 italic">
 			Pricing and features checked on {date}. App Store listings change without
-			notice — verify on the listing before you commit to a plan.
+			notice, so verify on the listing before you commit to a plan.
 		</p>
 	);
 }

@@ -28,6 +28,22 @@ const CONTENT_ROOT = join(
 	"blog"
 );
 
+/**
+ * The components a post renders through carry reader-facing copy of their own,
+ * so the em dash rule has to cover them too. Two slipped into `Example` and
+ * `CheckedOn` on the first pass and only turned up in the rendered HTML, which
+ * is exactly the gap this closes.
+ */
+const BLOG_COMPONENT_ROOT = join(
+	import.meta.dir,
+	"..",
+	"apps",
+	"web",
+	"src",
+	"components",
+	"blog"
+);
+
 /** Google truncates past roughly 160 and wastes the snippet under roughly 140. */
 const DESCRIPTION_MIN = 140;
 const DESCRIPTION_MAX = 160;
@@ -465,6 +481,21 @@ function checkBodyLinks(
 // ---------------------------------------------------------------------------
 // Run
 // ---------------------------------------------------------------------------
+
+/** A JSDoc, line or JSX comment. Never reaches the reader, so dashes are fine. */
+const COMMENT_LINE = /^\s*(\*|\/\/|\/\*|\{\/\*)/;
+
+for (const file of readdirSync(BLOG_COMPONENT_ROOT)) {
+	const source = readFileSync(join(BLOG_COMPONENT_ROOT, file), "utf8");
+
+	for (const [index, line] of source.split("\n").entries()) {
+		if (line.includes(EM_DASH) && !COMMENT_LINE.test(line)) {
+			failures.push(
+				`src/components/blog/${file}: line ${index + 1} has an em dash in rendered copy`
+			);
+		}
+	}
+}
 
 const posts = loadPosts();
 

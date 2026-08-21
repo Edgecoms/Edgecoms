@@ -1,0 +1,193 @@
+---
+title: "Shopify Multi-Currency: The Complete Guide"
+slug: "shopify-multi-currency"
+app: "edge-currency"
+archetype: "pillar"
+author: "anurag"
+description: "Shopify multi currency explained: how conversion and rounding work, what the native setup cannot do, and why international traffic still fails to convert."
+primaryKeyword: "shopify multi currency"
+secondaryKeywords:
+  - "multi currency shopify"
+  - "sell in local currency"
+  - "shopify international pricing"
+publishedAt: "2026-08-31"
+updatedAt: "2026-08-31"
+imageAlt: "Placeholder illustration for the Shopify multi-currency guide"
+internalLinks:
+  - "shopify-cart-abandonment"
+  - "shopify-product-reviews"
+  - "shopify-countdown-timer"
+tldr: "Shopify multi currency converts prices at the live exchange rate and applies rounding so they stay stable. It needs Shopify Payments, and the rounding rules cannot be customised. Currency is only the first of four things that stop international shoppers buying, and usually not the biggest."
+faq:
+  - question: "Do I need Shopify Payments for multi-currency?"
+    answer: "For Shopify's native currency conversion and rounding, yes. The rounding rules feature is available only to stores using Shopify Payments. Stores on a third-party gateway either present prices in a single currency or use an app to display converted prices, which is a display-level solution rather than a true multi-currency checkout."
+    source: "https://help.shopify.com/en/manual/markets/pricing/rounding"
+  - question: "Can I control how converted prices are rounded?"
+    answer: "Not on the native setup. Shopify states that prices are automatically rounded to the most common denominator for each currency and that you cannot customise the rules to anything different from those defaults. If you want prices that look deliberately set in each market, you either publish explicit per-market prices or handle the presentation another way."
+    source: "https://help.shopify.com/en/manual/markets/pricing/rounding"
+  - question: "Should I show prices in the visitor's local currency automatically?"
+    answer: "Show it, but let them change it. Automatic detection based on location is right most of the time and wrong in a way that is very annoying when it is wrong, because expatriates, travellers and anyone on a VPN get a currency they cannot pay in. A visible switcher that remembers the choice solves the exception without penalising the majority."
+  - question: "Why does my international traffic still not convert after adding currencies?"
+    answer: "Because currency was rarely the whole problem. Delivery cost, delivery time, unexpected duties at the door, and returns from another country all sit behind it. Local pricing removes one point of friction and makes the others more visible, which is why conversion sometimes barely moves until you address shipping and duties as well."
+  - question: "Is it better to use Shopify Markets or a currency app?"
+    answer: "They do different jobs. Markets handles the commercial side: which countries you sell to, what prices and duties apply, and what the checkout does. A currency app is mostly about presentation, detecting the visitor and showing a familiar-looking number. Larger international operations end up wanting Markets configured properly regardless."
+---
+
+A visitor in Berlin lands on your product page and sees £48.00. They know roughly what that is in euros, but not exactly, and they are now doing arithmetic instead of shopping. A visitor in Toronto sees the same £48.00 and does not know whether their bank will add a fee on top.
+
+Neither of them is refusing to buy. They are just doing work you could have done for them, and a meaningful share will decide to do it later, which means never.
+
+**Shopify multi currency** removes that step. This guide covers how the conversion and rounding actually work underneath, what the native setup will and will not do, and the three problems behind currency that stop international traffic converting even after you fix the prices.
+
+## What does multi-currency actually change?
+
+Less than people expect, and more than they notice.
+
+What changes is that the price is presented in a currency the shopper thinks in. The product does not change, the shipping does not change, and the amount leaving their account is roughly the same either way. What changes is whether they have to translate it.
+
+That matters for a reason that has nothing to do with money:
+
+- **A familiar-looking number is read as a price.** An unfamiliar one is read as a problem to solve.
+- **A price with decimals from an exchange rate looks provisional.** €47.83 does not look like a price someone set. It looks like arithmetic, because it is.
+- **Paying in your own currency removes a hidden fear**, which is the bank's conversion fee that the shopper cannot see and cannot estimate.
+
+The gain is not that shoppers pay more willingly. It is that they stop being reminded they are buying from abroad at exactly the moment they are deciding.
+
+It is worth being clear about what this is not. Showing a local price does not make you a local seller, and shoppers are not fooled into thinking it does. The parcel still arrives from another country, the returns address is still abroad, and the delivery estimate still says what it says. What local pricing buys you is the removal of one specific cognitive task at one specific moment. That is a real and worthwhile thing, and it is smaller than the way most currency apps describe it.
+
+## How does Shopify convert and round prices?
+
+Two mechanisms working together, and the second one is the interesting one.
+
+Conversion runs off the live foreign exchange rate, which means a price that would drift every day if nothing else happened. Rounding is what stops that. In Shopify's words, <Cite href="https://help.shopify.com/en/manual/markets/pricing/rounding">your converted prices change based on the foreign exchange rate, but applying rounding rules keeps your prices and shipping rates stable</Cite>.
+
+Two constraints come with it, and both are worth knowing before you plan around this.
+
+- **It needs Shopify Payments.** The rounding feature is available only to stores on it.
+- **You cannot choose the rounding.** Shopify states that <Cite href="https://help.shopify.com/en/manual/markets/pricing/rounding">prices are automatically rounded to the most common denominator for each currency</Cite> and that <Cite href="https://help.shopify.com/en/manual/markets/pricing/rounding">you can't customize your rounding rules to anything different from these defaults</Cite>.
+
+That second constraint is the one that surprises people. If your UK pricing is built on .99 endings and you want the same psychological shape in euros and dollars, automatic conversion plus a fixed default will not reliably give it to you. The route to genuinely deliberate international pricing is to publish explicit prices per market rather than converting from one base price. That is more work, and for stores where price presentation is part of the brand it is the only real answer.
+
+<PostCta />
+
+## What are the limits of the native setup?
+
+Native multi-currency is solid at what it does. The gaps show up at the edges:
+
+- **Rounding is fixed**, as above.
+- **Detection is not the same as conversion.** Shopify will price in a currency, but deciding which currency to show a first-time visitor, and letting them change it, is a storefront concern.
+- **Gift cards are excluded** from the rounding rules.
+- **A third-party gateway takes you out of the native path** entirely.
+- **Prices converted from one base still read as converted.** The number is stable, but it was still derived rather than chosen.
+
+None of these are reasons to avoid it. They are reasons to know what you have bought, so you are not surprised in month three when a market's prices look slightly odd and nobody can work out why.
+
+There is a strategic decision hiding in that list, and it is worth making deliberately rather than drifting into. You can either treat one currency as the source of truth and convert everything from it, or you can publish a real price in each market and let them diverge. Conversion is far less work and keeps margin consistent automatically, at the cost of prices that always look derived. Explicit per-market pricing lets you charge what a market will bear and end your numbers where you want them, at the cost of maintaining several price lists forever and watching your margin move with the exchange rate instead of your prices.
+
+Most stores should start with conversion and move to explicit pricing only for the two or three markets that become genuinely material. Doing it for twenty markets from the start is a maintenance burden that quietly outlasts whoever set it up.
+
+## How should the currency switcher behave?
+
+Detection and choice are two different things, and the common mistake is building one and calling it done.
+
+Automatic detection based on the visitor's location is right most of the time. It is wrong in a specific and irritating way: the expatriate who lives in Spain and holds a UK card, the traveller reading on hotel wifi, anyone on a corporate VPN that exits in another country. Those people get shown a currency they cannot spend, and if there is no way to change it they leave.
+
+The rules that avoid this are simple:
+
+- **Detect on first load, then stop guessing.** Once a visitor has chosen, that choice wins on every subsequent visit.
+- **Put the switcher where people look for it.** The header, near the cart, or the footer. Not buried in a settings panel.
+- **Show the currency code as well as the symbol.** The dollar sign alone is ambiguous across several markets, and the shopper who has to work out which dollar is doing the arithmetic you were trying to remove.
+- **Never change currency mid-session without being asked.** A price that moves between the product page and the cart destroys trust faster than any conversion fee.
+- **Keep the switcher out of the checkout.** By then the amount is committed, and offering a change invites the shopper to start comparing again at the worst moment.
+
+One more thing, easy to miss: whatever the switcher does must survive a shared link. If somebody sends a product URL to a friend in another country, the friend should get their own currency rather than the sender's, unless the sender explicitly chose one.
+
+<PostCta />
+
+## Why does international traffic still not convert?
+
+This is the section most currency guides skip, and it is the one that decides whether any of this pays back.
+
+Currency is the first of four barriers, and usually the smallest:
+
+| Barrier | What the shopper experiences | Roughly how hard to fix |
+| --- | --- | --- |
+| **Currency** | Doing maths to understand the price | Easy |
+| **Delivery cost** | Shipping that costs a third of the order | Hard, and partly structural |
+| **Delivery time** | Two weeks, discovered at checkout | Medium |
+| **Duties and taxes** | A courier demanding money at the door | Medium, and mostly a decision |
+
+A store that fixes only the first and expects international conversion to match domestic will be disappointed, and will often conclude that the currency work did not do anything. What actually happened is that removing the smallest barrier made the other three easier to see.
+
+The order to fix them in is the order of the table, because currency is cheap and fast and the others take real decisions. Just do not stop after the first one.
+
+Delivery cost is the one worth thinking hardest about, because it is the barrier where most stores quietly decide not to compete. Cross-border shipping on a small order is frequently a large fraction of the order value, and no amount of price presentation makes that palatable. The realistic responses are to raise the order value so the shipping ratio falls, which is where a free-shipping threshold or a [bundle](/blog/shopify-product-bundles) earns its keep, or to accept that a given market is only viable above a certain basket size and market to it accordingly. What does not work is hoping the shopper will not notice, because shipping is the one cost they always check.
+
+## What about duties and taxes?
+
+The worst experience in cross-border retail is not an expensive delivery. It is a cheap delivery followed by a courier asking for an unexpected payment before they will hand over the parcel.
+
+You have two honest options, and one dishonest one.
+
+- **Delivered duty paid.** You calculate and collect duties at checkout. The total is higher and nothing further is owed. This is the better experience and the one that produces fewer refused parcels.
+- **Delivered at place, stated clearly.** The customer pays on arrival, and you say so plainly, at checkout, before payment.
+- **Delivered at place, unstated.** The customer finds out from the courier. This is the one that generates the refunds, the chargebacks, and the review that mentions your name and the word "scam".
+
+The third option is common because it is the default when nobody makes a decision. Make the decision.
+
+The arithmetic usually favours collecting up front, even though the higher checkout total feels like it should cost you conversion. A parcel refused at the door comes back to you, if it comes back at all, and you have paid the outbound shipping, the return shipping, and the handling, on an order that produced nothing. Compare that against the orders you lose because the total at checkout was honest and higher. In most categories the refused parcels are more expensive than the abandoned checkouts, and the abandoned checkouts at least tell you something true about your pricing.
+
+There is a customer-experience argument as well, which is that the shopper who paid duties at checkout never thinks about them again, while the shopper who paid the courier remembers it every time they see your name.
+
+<PostCta />
+
+## How do you choose which currencies to offer?
+
+Start from where your traffic already is, not from where you hope it will be.
+
+1. **Pull the last twelve months of sessions by country**, and separately, orders by country.
+2. **Find the countries with real traffic and poor conversion.** That gap is the opportunity. Traffic that already converts does not need help.
+3. **Check you can actually ship there** at a price anyone would pay, before adding the currency.
+4. **Add the top two or three, not twenty.** Every currency is another set of prices that can look wrong.
+5. **Check what your prices look like after conversion** in each one, on real products across your range, including the cheap ones where rounding is most visible.
+6. **Decide the duty approach per market** before you launch it.
+7. **Watch conversion by country for a full cycle** before adding the next currency.
+
+## What breaks when you go international?
+
+The things that catch people out are rarely the pricing.
+
+- **Sizes and units.** A store selling in inches to a country that thinks in centimetres has an information problem, not a currency problem.
+- **The returns path.** An international return that costs more than the item is a refund you will end up giving without receiving the goods. Decide the policy before you need it.
+- **Support hours.** A question asked at 10am in Sydney answered at 4pm in London is a lost sale rather than a slow reply.
+- **Deadlines and cutoffs.** Anything time-based on your storefront needs to be right in the reader's timezone, which applies to shipping cutoffs and to anything using a [countdown timer](/blog/shopify-countdown-timer).
+- **Reviews from the wrong market.** Glowing [reviews](/blog/shopify-product-reviews) that all mention next-day delivery read differently to somebody who is being quoted two weeks.
+- **Payment methods.** Card is not the default everywhere. In several large markets it is not even the most common option.
+- **Address formats.** A checkout that demands a state and a five-digit postcode will fail for a large share of the world, and the shopper who cannot complete the form does not email you about it.
+- **Language.** Currency and language are separate problems and are often confused. Showing euros to a French visitor in English copy solves half of one barrier.
+
+The pattern across all of those is the same: none of them are visible from your own desk. Your checkout works, your sizes make sense, your delivery estimate looks fine, because you are in the market it was built for. The only reliable way to find these is to walk your own store as a shopper in the target country, with a VPN and an address in that country, all the way to the payment step. It takes an afternoon and it finds more than any analytics dashboard will.
+
+<PostCta />
+
+## How do you measure whether it worked?
+
+Split everything by country, because a blended number will hide both the success and the failure.
+
+- **Conversion rate by country, before and after.** The direct read.
+- **Revenue per session by country**, which catches the case where conversion rose but the market only buys the cheap items.
+- **Checkout completion by country.** If shoppers reach checkout and stop, the problem is shipping, duties or payment methods rather than the price display.
+- **Refunds and refused deliveries by country.** The duty decision shows up here first.
+- **Support volume by country**, which is where "where is my parcel" and "why was I charged extra" arrive.
+
+Give it a full purchase cycle. International decisions are slower than domestic ones, partly because the shopper is doing more checking before they commit, which is the whole thing this exercise is trying to reduce.
+
+## Where does Edge Currency fit?
+
+Shopify handles the commercial side well: the conversion, the stable rounded prices, the checkout. What it does not do is decide what a first-time visitor from Berlin sees before they have chosen anything.
+
+Edge Currency handles that presentation layer. It detects the visitor's country on first load and shows the price in their own currency, puts a switcher where they can change it if the guess was wrong, and remembers the choice so a returning visitor is not re-guessed at. The point is that the first number a shopper sees is one they can read without translating.
+
+It does not replace Shopify Markets, and if you are selling seriously into several countries you will want Markets configured properly regardless. It removes the arithmetic, which is the first of the four barriers above and the only one you can fix this afternoon.
+
+<PostCta />

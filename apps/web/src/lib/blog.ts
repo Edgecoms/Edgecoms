@@ -55,6 +55,7 @@ export type AuthorId = "anurag";
 export const AUTHORS: Record<AuthorId, BlogAuthor> = {
 	anurag: {
 		bio: "Anurag runs Edgecoms, a studio of Shopify apps. He spends most of his week inside merchant stores working out why a number is lower than it should be.",
+		linkedin: "https://www.linkedin.com/in/anurag-chandra-/",
 		name: "Anurag Chandra",
 		role: "Founder, Edgecoms",
 	},

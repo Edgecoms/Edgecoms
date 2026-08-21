@@ -262,3 +262,46 @@ export function faqSchema(
 		})),
 	};
 }
+
+/**
+ * A blog post, as Google understands it.
+ *
+ * `dateModified` is a real field on the page, not a freshness lever: it is read
+ * from the post's own `updatedAt`, so it only moves when the post actually
+ * changes. Bumping it on a page nobody edited is the structured-data equivalent
+ * of a stat with no source.
+ *
+ * `author` is a Person who points at the publisher, which is the shape Google
+ * expects for a company blog written by a named individual. No `image` is
+ * asserted — the OG card is generated per post and Google will find it from the
+ * page's own metadata rather than needing it restated here.
+ */
+export function articleSchema(post: {
+	authorName: string;
+	authorUrl?: string;
+	description: string;
+	publishedAt: string;
+	slug: string;
+	title: string;
+	updatedAt: string;
+}): JsonLdNode {
+	return {
+		"@type": "Article",
+		headline: post.title,
+		description: post.description,
+		datePublished: post.publishedAt,
+		dateModified: post.updatedAt,
+		author: {
+			"@type": "Person",
+			name: post.authorName,
+			...(post.authorUrl ? { url: post.authorUrl } : {}),
+			worksFor: { "@id": `${SITE_URL}/#organization` },
+		},
+		publisher: { "@id": `${SITE_URL}/#organization` },
+		isPartOf: { "@id": `${SITE_URL}/#website` },
+		mainEntityOfPage: {
+			"@type": "WebPage",
+			"@id": absoluteUrl(`/blog/${post.slug}`),
+		},
+	};
+}

@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { getBlogApps, POSTS } from "@/lib/blog";
 import { ROLES } from "@/lib/careers";
 import { CASE_STUDIES } from "@/lib/marketing-stats";
 import { EDGE_PRODUCTS } from "@/lib/products";
@@ -36,6 +37,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
 			{
 				url: absoluteUrl("/case-studies"),
 				changeFrequency: "weekly",
+				priority: 0.8,
+			},
+			{
+				url: absoluteUrl("/blog"),
+				changeFrequency: "daily",
 				priority: 0.8,
 			},
 			{
@@ -78,6 +84,26 @@ export default function sitemap(): MetadataRoute.Sitemap {
 		})
 	);
 
+	/**
+	 * Posts carry a real `lastModified` from their own `updatedAt` rather than
+	 * today's date. A sitemap that claims every page changed this morning is one
+	 * Google stops believing, and then the dates stop being worth anything on the
+	 * pages that genuinely did change.
+	 */
+	const blogPostPages: MetadataRoute.Sitemap = POSTS.map((post) => ({
+		url: absoluteUrl(`/blog/${post.slug}`),
+		lastModified: new Date(`${post.updatedAt}T00:00:00Z`),
+		changeFrequency: "monthly",
+		priority: post.archetype === "pillar" ? 0.8 : 0.6,
+	}));
+
+	const blogHubPages: MetadataRoute.Sitemap = getBlogApps().map((product) => ({
+		url: absoluteUrl(`/blog/${product.slug}`),
+		lastModified,
+		changeFrequency: "weekly",
+		priority: 0.7,
+	}));
+
 	const rolePages: MetadataRoute.Sitemap = ROLES.map((role) => ({
 		url: absoluteUrl(`/careers/${role.slug}`),
 		lastModified,
@@ -85,5 +111,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
 		priority: 0.5,
 	}));
 
-	return [...staticPages, ...productPages, ...caseStudyPages, ...rolePages];
+	return [
+		...staticPages,
+		...productPages,
+		...blogHubPages,
+		...blogPostPages,
+		...caseStudyPages,
+		...rolePages,
+	];
 }

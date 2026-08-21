@@ -1,0 +1,1979 @@
+{
+  "generated_at": "2026-08-22",
+  "total_posts": 100,
+  "schedule": {
+    "weeks": 25,
+    "posts_per_week": 4
+  },
+  "clusters": [
+    {
+      "app": "trackproof",
+      "pillar": {
+        "slug": "shopify-server-side-tracking",
+        "title": "Shopify Server-Side Tracking: The Complete Guide",
+        "primary_keyword": "shopify server side tracking",
+        "secondary_keywords": [
+          "server side tracking shopify",
+          "shopify conversion api",
+          "first party tracking shopify"
+        ],
+        "archetype": "pillar",
+        "intent": "informational",
+        "target_words": 3000,
+        "internal_links_out": [
+          "elevar-alternatives-shopify",
+          "analyzify-alternatives-shopify",
+          "server-side-tracking-vs-pixel",
+          "best-shopify-conversion-tracking-apps",
+          "shopify-tracking-mistakes",
+          "shopify-ad-attribution-tools",
+          "meta-pixel-not-tracking-shopify",
+          "ga4-not-tracking-shopify-purchases",
+          "facebook-ads-underreporting-conversions",
+          "duplicate-purchase-events-shopify",
+          "tiktok-events-api-not-working-shopify",
+          "set-up-meta-capi-shopify",
+          "set-up-ga4-shopify",
+          "set-up-tiktok-events-api-shopify",
+          "shopify-utm-tracking-setup"
+        ],
+        "cta_app": "trackproof",
+        "publish_week": 1
+      },
+      "posts": [
+        {
+          "slug": "elevar-alternatives-shopify",
+          "title": "Elevar Alternatives: 5 Shopify Tracking Apps Compared",
+          "primary_keyword": "elevar alternative",
+          "secondary_keywords": [
+            "elevar pricing",
+            "elevar competitors",
+            "elevar vs"
+          ],
+          "archetype": "alternative",
+          "intent": "commercial",
+          "target_words": 1900,
+          "internal_links_out": [
+            "shopify-server-side-tracking",
+            "shopify-ad-attribution-tools",
+            "tiktok-events-api-not-working-shopify"
+          ],
+          "cta_app": "trackproof",
+          "publish_week": 2
+        },
+        {
+          "slug": "analyzify-alternatives-shopify",
+          "title": "Analyzify Alternatives for Shopify Tracking",
+          "primary_keyword": "analyzify alternative",
+          "secondary_keywords": ["analyzify pricing", "analyzify competitors"],
+          "archetype": "alternative",
+          "intent": "commercial",
+          "target_words": 1900,
+          "internal_links_out": [
+            "shopify-server-side-tracking",
+            "meta-pixel-not-tracking-shopify",
+            "set-up-meta-capi-shopify"
+          ],
+          "cta_app": "trackproof",
+          "publish_week": 4
+        },
+        {
+          "slug": "server-side-tracking-vs-pixel",
+          "title": "Server-Side Tracking vs Pixel: What Changed",
+          "primary_keyword": "server side tracking vs pixel",
+          "secondary_keywords": [
+            "browser pixel vs server side",
+            "why pixels miss conversions"
+          ],
+          "archetype": "alternative",
+          "intent": "commercial",
+          "target_words": 1900,
+          "internal_links_out": [
+            "shopify-server-side-tracking",
+            "ga4-not-tracking-shopify-purchases",
+            "set-up-ga4-shopify"
+          ],
+          "cta_app": "trackproof",
+          "publish_week": 6
+        },
+        {
+          "slug": "best-shopify-conversion-tracking-apps",
+          "title": "Best Shopify Conversion Tracking Apps, Ranked",
+          "primary_keyword": "best shopify conversion tracking apps",
+          "secondary_keywords": ["shopify tracking app", "shopify pixel app"],
+          "archetype": "listicle",
+          "intent": "commercial",
+          "target_words": 1800,
+          "internal_links_out": [
+            "shopify-server-side-tracking",
+            "facebook-ads-underreporting-conversions",
+            "set-up-tiktok-events-api-shopify"
+          ],
+          "cta_app": "trackproof",
+          "publish_week": 7
+        },
+        {
+          "slug": "shopify-tracking-mistakes",
+          "title": "7 Shopify Tracking Mistakes Burning Ad Spend",
+          "primary_keyword": "shopify tracking mistakes",
+          "secondary_keywords": [
+            "shopify pixel setup errors",
+            "tracking misconfiguration ecommerce"
+          ],
+          "archetype": "listicle",
+          "intent": "commercial",
+          "target_words": 1800,
+          "internal_links_out": [
+            "shopify-server-side-tracking",
+            "duplicate-purchase-events-shopify",
+            "shopify-utm-tracking-setup"
+          ],
+          "cta_app": "trackproof",
+          "publish_week": 9
+        },
+        {
+          "slug": "shopify-ad-attribution-tools",
+          "title": "Shopify Attribution Tools That Actually Agree",
+          "primary_keyword": "shopify attribution tools",
+          "secondary_keywords": [
+            "shopify marketing attribution",
+            "ad platform vs shopify numbers"
+          ],
+          "archetype": "listicle",
+          "intent": "commercial",
+          "target_words": 1800,
+          "internal_links_out": [
+            "shopify-server-side-tracking",
+            "tiktok-events-api-not-working-shopify",
+            "elevar-alternatives-shopify",
+            "shopify-cart-abandonment"
+          ],
+          "cta_app": "trackproof",
+          "publish_week": 11
+        },
+        {
+          "slug": "meta-pixel-not-tracking-shopify",
+          "title": "Meta Pixel Not Tracking on Shopify? Start Here",
+          "primary_keyword": "meta pixel not tracking shopify",
+          "secondary_keywords": [
+            "facebook pixel not working shopify",
+            "meta pixel events missing"
+          ],
+          "archetype": "problem",
+          "intent": "informational",
+          "target_words": 1700,
+          "internal_links_out": [
+            "shopify-server-side-tracking",
+            "set-up-meta-capi-shopify",
+            "analyzify-alternatives-shopify"
+          ],
+          "cta_app": "trackproof",
+          "publish_week": 18
+        },
+        {
+          "slug": "ga4-not-tracking-shopify-purchases",
+          "title": "GA4 Not Tracking Shopify Purchases: 6 Causes",
+          "primary_keyword": "ga4 not tracking shopify purchases",
+          "secondary_keywords": [
+            "ga4 missing purchase events",
+            "shopify ga4 revenue mismatch"
+          ],
+          "archetype": "problem",
+          "intent": "informational",
+          "target_words": 1700,
+          "internal_links_out": [
+            "shopify-server-side-tracking",
+            "set-up-ga4-shopify",
+            "server-side-tracking-vs-pixel"
+          ],
+          "cta_app": "trackproof",
+          "publish_week": 20
+        },
+        {
+          "slug": "facebook-ads-underreporting-conversions",
+          "title": "Facebook Ads Underreporting Conversions: Why",
+          "primary_keyword": "facebook ads underreporting conversions",
+          "secondary_keywords": [
+            "meta ads missing conversions",
+            "ios 14 tracking loss"
+          ],
+          "archetype": "problem",
+          "intent": "informational",
+          "target_words": 1700,
+          "internal_links_out": [
+            "shopify-server-side-tracking",
+            "set-up-tiktok-events-api-shopify",
+            "best-shopify-conversion-tracking-apps"
+          ],
+          "cta_app": "trackproof",
+          "publish_week": 21
+        },
+        {
+          "slug": "duplicate-purchase-events-shopify",
+          "title": "Duplicate Purchase Events on Shopify: The Fix",
+          "primary_keyword": "duplicate purchase events shopify",
+          "secondary_keywords": [
+            "event deduplication meta",
+            "double counted conversions"
+          ],
+          "archetype": "problem",
+          "intent": "informational",
+          "target_words": 1700,
+          "internal_links_out": [
+            "shopify-server-side-tracking",
+            "shopify-utm-tracking-setup",
+            "shopify-tracking-mistakes"
+          ],
+          "cta_app": "trackproof",
+          "publish_week": 23
+        },
+        {
+          "slug": "tiktok-events-api-not-working-shopify",
+          "title": "TikTok Events API Not Working on Shopify",
+          "primary_keyword": "tiktok events api not working",
+          "secondary_keywords": [
+            "tiktok pixel shopify problems",
+            "tiktok conversion tracking shopify"
+          ],
+          "archetype": "problem",
+          "intent": "informational",
+          "target_words": 1700,
+          "internal_links_out": [
+            "shopify-server-side-tracking",
+            "elevar-alternatives-shopify",
+            "shopify-ad-attribution-tools"
+          ],
+          "cta_app": "trackproof",
+          "publish_week": 25
+        },
+        {
+          "slug": "set-up-meta-capi-shopify",
+          "title": "How to Set Up Meta CAPI on Shopify (Step by Step)",
+          "primary_keyword": "how to set up meta capi shopify",
+          "secondary_keywords": [
+            "meta conversions api shopify",
+            "facebook capi setup"
+          ],
+          "archetype": "tutorial",
+          "intent": "transactional",
+          "target_words": 1600,
+          "internal_links_out": [
+            "shopify-server-side-tracking",
+            "analyzify-alternatives-shopify",
+            "meta-pixel-not-tracking-shopify"
+          ],
+          "cta_app": "trackproof",
+          "publish_week": 12
+        },
+        {
+          "slug": "set-up-ga4-shopify",
+          "title": "How to Set Up GA4 on Shopify Without Losing Data",
+          "primary_keyword": "how to set up ga4 on shopify",
+          "secondary_keywords": [
+            "shopify ga4 ecommerce tracking",
+            "ga4 shopify configuration"
+          ],
+          "archetype": "tutorial",
+          "intent": "transactional",
+          "target_words": 1600,
+          "internal_links_out": [
+            "shopify-server-side-tracking",
+            "server-side-tracking-vs-pixel",
+            "ga4-not-tracking-shopify-purchases"
+          ],
+          "cta_app": "trackproof",
+          "publish_week": 14
+        },
+        {
+          "slug": "set-up-tiktok-events-api-shopify",
+          "title": "How to Set Up the TikTok Events API on Shopify",
+          "primary_keyword": "tiktok events api shopify setup",
+          "secondary_keywords": [
+            "tiktok events api integration",
+            "tiktok server side tracking"
+          ],
+          "archetype": "tutorial",
+          "intent": "transactional",
+          "target_words": 1600,
+          "internal_links_out": [
+            "shopify-server-side-tracking",
+            "best-shopify-conversion-tracking-apps",
+            "facebook-ads-underreporting-conversions"
+          ],
+          "cta_app": "trackproof",
+          "publish_week": 16
+        },
+        {
+          "slug": "shopify-utm-tracking-setup",
+          "title": "Shopify UTM Tracking: A Setup That Survives",
+          "primary_keyword": "shopify utm tracking",
+          "secondary_keywords": [
+            "utm parameters shopify",
+            "shopify campaign tracking"
+          ],
+          "archetype": "tutorial",
+          "intent": "transactional",
+          "target_words": 1600,
+          "internal_links_out": [
+            "shopify-server-side-tracking",
+            "shopify-tracking-mistakes",
+            "duplicate-purchase-events-shopify"
+          ],
+          "cta_app": "trackproof",
+          "publish_week": 18
+        }
+      ]
+    },
+    {
+      "app": "edge-cart",
+      "pillar": {
+        "slug": "shopify-cart-abandonment",
+        "title": "Shopify Cart Abandonment: Causes and Fixes",
+        "primary_keyword": "shopify cart abandonment",
+        "secondary_keywords": [
+          "abandoned cart shopify",
+          "cart abandonment rate",
+          "reduce cart abandonment"
+        ],
+        "archetype": "pillar",
+        "intent": "informational",
+        "target_words": 2900,
+        "internal_links_out": [
+          "slide-cart-alternatives-shopify",
+          "upcart-alternatives-shopify",
+          "cart-drawer-vs-cart-page",
+          "best-shopify-cart-drawer-apps",
+          "cart-upsell-ideas",
+          "free-shipping-bar-examples",
+          "shopify-cart-not-updating",
+          "shopify-checkout-drop-off",
+          "shopify-cart-drawer-slow",
+          "shopify-mobile-cart-ux",
+          "discount-code-field-cart-abandonment",
+          "add-cart-drawer-shopify",
+          "set-up-free-shipping-threshold-shopify",
+          "add-cart-upsells-shopify"
+        ],
+        "cta_app": "edge-cart",
+        "publish_week": 1
+      },
+      "posts": [
+        {
+          "slug": "slide-cart-alternatives-shopify",
+          "title": "Slide Cart Alternatives: 5 Shopify Drawers Compared",
+          "primary_keyword": "slide cart alternative",
+          "secondary_keywords": [
+            "slide cart pricing",
+            "slide cart competitors"
+          ],
+          "archetype": "alternative",
+          "intent": "commercial",
+          "target_words": 1900,
+          "internal_links_out": [
+            "shopify-cart-abandonment",
+            "cart-upsell-ideas",
+            "shopify-mobile-cart-ux"
+          ],
+          "cta_app": "edge-cart",
+          "publish_week": 3
+        },
+        {
+          "slug": "upcart-alternatives-shopify",
+          "title": "UpCart Alternatives for Shopify Cart Drawers",
+          "primary_keyword": "upcart alternative",
+          "secondary_keywords": ["upcart pricing", "upcart competitors"],
+          "archetype": "alternative",
+          "intent": "commercial",
+          "target_words": 1900,
+          "internal_links_out": [
+            "shopify-cart-abandonment",
+            "free-shipping-bar-examples",
+            "discount-code-field-cart-abandonment"
+          ],
+          "cta_app": "edge-cart",
+          "publish_week": 4
+        },
+        {
+          "slug": "cart-drawer-vs-cart-page",
+          "title": "Cart Drawer vs Cart Page: Which Converts Better",
+          "primary_keyword": "cart drawer vs cart page",
+          "secondary_keywords": [
+            "slide out cart vs cart page",
+            "shopify cart ux"
+          ],
+          "archetype": "alternative",
+          "intent": "commercial",
+          "target_words": 1900,
+          "internal_links_out": [
+            "shopify-cart-abandonment",
+            "shopify-cart-not-updating",
+            "add-cart-drawer-shopify"
+          ],
+          "cta_app": "edge-cart",
+          "publish_week": 6
+        },
+        {
+          "slug": "best-shopify-cart-drawer-apps",
+          "title": "Best Shopify Cart Drawer Apps, Compared Honestly",
+          "primary_keyword": "best shopify cart drawer apps",
+          "secondary_keywords": [
+            "shopify slide cart app",
+            "shopify cart upsell app"
+          ],
+          "archetype": "listicle",
+          "intent": "commercial",
+          "target_words": 1800,
+          "internal_links_out": [
+            "shopify-cart-abandonment",
+            "shopify-checkout-drop-off",
+            "set-up-free-shipping-threshold-shopify"
+          ],
+          "cta_app": "edge-cart",
+          "publish_week": 7
+        },
+        {
+          "slug": "cart-upsell-ideas",
+          "title": "9 Cart Upsell Ideas That Do Not Annoy Buyers",
+          "primary_keyword": "cart upsell ideas",
+          "secondary_keywords": [
+            "shopify cart upsell examples",
+            "cross sell in cart"
+          ],
+          "archetype": "listicle",
+          "intent": "commercial",
+          "target_words": 1800,
+          "internal_links_out": [
+            "shopify-cart-abandonment",
+            "shopify-cart-drawer-slow",
+            "add-cart-upsells-shopify",
+            "shopify-product-bundles"
+          ],
+          "cta_app": "edge-cart",
+          "publish_week": 9
+        },
+        {
+          "slug": "free-shipping-bar-examples",
+          "title": "Free Shipping Bar Examples Worth Copying",
+          "primary_keyword": "free shipping bar examples",
+          "secondary_keywords": [
+            "shopify free shipping bar",
+            "shipping progress bar"
+          ],
+          "archetype": "listicle",
+          "intent": "commercial",
+          "target_words": 1800,
+          "internal_links_out": [
+            "shopify-cart-abandonment",
+            "shopify-mobile-cart-ux",
+            "slide-cart-alternatives-shopify"
+          ],
+          "cta_app": "edge-cart",
+          "publish_week": 11
+        },
+        {
+          "slug": "shopify-cart-not-updating",
+          "title": "Shopify Cart Not Updating? 6 Things to Check",
+          "primary_keyword": "shopify cart not updating",
+          "secondary_keywords": [
+            "shopify cart bug",
+            "cart quantity not changing"
+          ],
+          "archetype": "problem",
+          "intent": "informational",
+          "target_words": 1700,
+          "internal_links_out": [
+            "shopify-cart-abandonment",
+            "discount-code-field-cart-abandonment",
+            "upcart-alternatives-shopify"
+          ],
+          "cta_app": "edge-cart",
+          "publish_week": 18
+        },
+        {
+          "slug": "shopify-checkout-drop-off",
+          "title": "Shopify Checkout Drop-Off: Where Buyers Leave",
+          "primary_keyword": "shopify checkout drop off",
+          "secondary_keywords": [
+            "checkout abandonment shopify",
+            "checkout funnel leaks"
+          ],
+          "archetype": "problem",
+          "intent": "informational",
+          "target_words": 1700,
+          "internal_links_out": [
+            "shopify-cart-abandonment",
+            "add-cart-drawer-shopify",
+            "cart-drawer-vs-cart-page"
+          ],
+          "cta_app": "edge-cart",
+          "publish_week": 20
+        },
+        {
+          "slug": "shopify-cart-drawer-slow",
+          "title": "Shopify Cart Drawer Slow to Open? Fix the Lag",
+          "primary_keyword": "shopify cart drawer slow",
+          "secondary_keywords": [
+            "cart drawer performance",
+            "shopify cart loading speed"
+          ],
+          "archetype": "problem",
+          "intent": "informational",
+          "target_words": 1700,
+          "internal_links_out": [
+            "shopify-cart-abandonment",
+            "set-up-free-shipping-threshold-shopify",
+            "best-shopify-cart-drawer-apps"
+          ],
+          "cta_app": "edge-cart",
+          "publish_week": 22
+        },
+        {
+          "slug": "shopify-mobile-cart-ux",
+          "title": "Shopify Mobile Cart UX: What Breaks on Phones",
+          "primary_keyword": "shopify mobile cart ux",
+          "secondary_keywords": [
+            "mobile cart conversion",
+            "shopify cart mobile issues"
+          ],
+          "archetype": "problem",
+          "intent": "informational",
+          "target_words": 1700,
+          "internal_links_out": [
+            "shopify-cart-abandonment",
+            "add-cart-upsells-shopify",
+            "cart-upsell-ideas"
+          ],
+          "cta_app": "edge-cart",
+          "publish_week": 23
+        },
+        {
+          "slug": "discount-code-field-cart-abandonment",
+          "title": "The Discount Code Field Is Costing You Orders",
+          "primary_keyword": "discount code field cart abandonment",
+          "secondary_keywords": [
+            "coupon field checkout",
+            "discount box abandonment"
+          ],
+          "archetype": "problem",
+          "intent": "informational",
+          "target_words": 1700,
+          "internal_links_out": [
+            "shopify-cart-abandonment",
+            "slide-cart-alternatives-shopify",
+            "free-shipping-bar-examples"
+          ],
+          "cta_app": "edge-cart",
+          "publish_week": 25
+        },
+        {
+          "slug": "add-cart-drawer-shopify",
+          "title": "How to Add a Cart Drawer to Shopify",
+          "primary_keyword": "how to add a cart drawer to shopify",
+          "secondary_keywords": [
+            "shopify slide cart setup",
+            "add side cart shopify"
+          ],
+          "archetype": "tutorial",
+          "intent": "transactional",
+          "target_words": 1600,
+          "internal_links_out": [
+            "shopify-cart-abandonment",
+            "upcart-alternatives-shopify",
+            "shopify-cart-not-updating"
+          ],
+          "cta_app": "edge-cart",
+          "publish_week": 13
+        },
+        {
+          "slug": "set-up-free-shipping-threshold-shopify",
+          "title": "How to Set a Free Shipping Threshold on Shopify",
+          "primary_keyword": "free shipping threshold shopify",
+          "secondary_keywords": [
+            "shopify free shipping setup",
+            "minimum order free shipping"
+          ],
+          "archetype": "tutorial",
+          "intent": "transactional",
+          "target_words": 1600,
+          "internal_links_out": [
+            "shopify-cart-abandonment",
+            "cart-drawer-vs-cart-page",
+            "shopify-checkout-drop-off"
+          ],
+          "cta_app": "edge-cart",
+          "publish_week": 14
+        },
+        {
+          "slug": "add-cart-upsells-shopify",
+          "title": "How to Add Cart Upsells to Shopify",
+          "primary_keyword": "how to add cart upsells shopify",
+          "secondary_keywords": [
+            "shopify cart upsell setup",
+            "in cart cross sell"
+          ],
+          "archetype": "tutorial",
+          "intent": "transactional",
+          "target_words": 1600,
+          "internal_links_out": [
+            "shopify-cart-abandonment",
+            "best-shopify-cart-drawer-apps",
+            "shopify-cart-drawer-slow"
+          ],
+          "cta_app": "edge-cart",
+          "publish_week": 16
+        }
+      ]
+    },
+    {
+      "app": "edge-bundles",
+      "pillar": {
+        "slug": "shopify-product-bundles",
+        "title": "Shopify Product Bundles: The Complete Guide",
+        "primary_keyword": "shopify product bundles",
+        "secondary_keywords": [
+          "bundle products shopify",
+          "shopify bundling strategy",
+          "product bundling"
+        ],
+        "archetype": "pillar",
+        "intent": "informational",
+        "target_words": 3100,
+        "internal_links_out": [
+          "bundler-alternatives-shopify",
+          "fast-bundle-alternatives-shopify",
+          "bundles-vs-volume-discounts",
+          "best-shopify-bundle-apps",
+          "product-bundle-examples",
+          "increase-average-order-value-shopify",
+          "shopify-single-item-orders",
+          "shopify-bundle-inventory-sync",
+          "shopify-bundle-discount-not-applying",
+          "bundle-discount-margin-math",
+          "bundles-not-selling",
+          "create-product-bundle-shopify",
+          "set-up-buy-x-get-y-shopify",
+          "set-up-volume-discounts-shopify"
+        ],
+        "cta_app": "edge-bundles",
+        "publish_week": 1
+      },
+      "posts": [
+        {
+          "slug": "bundler-alternatives-shopify",
+          "title": "Bundler App Alternatives for Shopify, Compared",
+          "primary_keyword": "bundler app alternative",
+          "secondary_keywords": ["bundler pricing", "bundler competitors"],
+          "archetype": "alternative",
+          "intent": "commercial",
+          "target_words": 1900,
+          "internal_links_out": [
+            "shopify-product-bundles",
+            "product-bundle-examples",
+            "bundle-discount-margin-math"
+          ],
+          "cta_app": "edge-bundles",
+          "publish_week": 3
+        },
+        {
+          "slug": "fast-bundle-alternatives-shopify",
+          "title": "Fast Bundle Alternatives for Shopify Merchants",
+          "primary_keyword": "fast bundle alternative",
+          "secondary_keywords": [
+            "fast bundle pricing",
+            "fast bundle competitors"
+          ],
+          "archetype": "alternative",
+          "intent": "commercial",
+          "target_words": 1900,
+          "internal_links_out": [
+            "shopify-product-bundles",
+            "increase-average-order-value-shopify",
+            "bundles-not-selling"
+          ],
+          "cta_app": "edge-bundles",
+          "publish_week": 5
+        },
+        {
+          "slug": "bundles-vs-volume-discounts",
+          "title": "Bundles vs Volume Discounts: Which to Run",
+          "primary_keyword": "bundles vs volume discounts",
+          "secondary_keywords": [
+            "quantity discount vs bundle",
+            "tiered pricing shopify"
+          ],
+          "archetype": "alternative",
+          "intent": "commercial",
+          "target_words": 1900,
+          "internal_links_out": [
+            "shopify-product-bundles",
+            "shopify-single-item-orders",
+            "create-product-bundle-shopify"
+          ],
+          "cta_app": "edge-bundles",
+          "publish_week": 6
+        },
+        {
+          "slug": "best-shopify-bundle-apps",
+          "title": "Best Shopify Bundle Apps, Ranked by Use Case",
+          "primary_keyword": "best shopify bundle apps",
+          "secondary_keywords": [
+            "shopify bundle app",
+            "product bundle app shopify"
+          ],
+          "archetype": "listicle",
+          "intent": "commercial",
+          "target_words": 1800,
+          "internal_links_out": [
+            "shopify-product-bundles",
+            "shopify-bundle-inventory-sync",
+            "set-up-buy-x-get-y-shopify"
+          ],
+          "cta_app": "edge-bundles",
+          "publish_week": 8
+        },
+        {
+          "slug": "product-bundle-examples",
+          "title": "11 Product Bundle Examples That Sell",
+          "primary_keyword": "product bundle examples",
+          "secondary_keywords": [
+            "bundle ideas ecommerce",
+            "bundle offers examples"
+          ],
+          "archetype": "listicle",
+          "intent": "commercial",
+          "target_words": 1800,
+          "internal_links_out": [
+            "shopify-product-bundles",
+            "shopify-bundle-discount-not-applying",
+            "set-up-volume-discounts-shopify"
+          ],
+          "cta_app": "edge-bundles",
+          "publish_week": 9
+        },
+        {
+          "slug": "increase-average-order-value-shopify",
+          "title": "How to Increase Average Order Value on Shopify",
+          "primary_keyword": "increase average order value shopify",
+          "secondary_keywords": ["aov shopify", "raise average order value"],
+          "archetype": "listicle",
+          "intent": "commercial",
+          "target_words": 1800,
+          "internal_links_out": [
+            "shopify-product-bundles",
+            "bundle-discount-margin-math",
+            "bundler-alternatives-shopify",
+            "shopify-cart-abandonment"
+          ],
+          "cta_app": "edge-bundles",
+          "publish_week": 11
+        },
+        {
+          "slug": "shopify-single-item-orders",
+          "title": "Single-Item Orders on Shopify: Why It Happens",
+          "primary_keyword": "single item orders shopify",
+          "secondary_keywords": ["one item per order", "basket size ecommerce"],
+          "archetype": "problem",
+          "intent": "informational",
+          "target_words": 1700,
+          "internal_links_out": [
+            "shopify-product-bundles",
+            "bundles-not-selling",
+            "fast-bundle-alternatives-shopify"
+          ],
+          "cta_app": "edge-bundles",
+          "publish_week": 18
+        },
+        {
+          "slug": "shopify-bundle-inventory-sync",
+          "title": "Shopify Bundle Inventory Sync Problems, Solved",
+          "primary_keyword": "shopify bundle inventory sync",
+          "secondary_keywords": [
+            "bundle stock tracking",
+            "bundle oversell shopify"
+          ],
+          "archetype": "problem",
+          "intent": "informational",
+          "target_words": 1700,
+          "internal_links_out": [
+            "shopify-product-bundles",
+            "create-product-bundle-shopify",
+            "bundles-vs-volume-discounts"
+          ],
+          "cta_app": "edge-bundles",
+          "publish_week": 20
+        },
+        {
+          "slug": "shopify-bundle-discount-not-applying",
+          "title": "Shopify Bundle Discount Not Applying? Why",
+          "primary_keyword": "shopify bundle discount not applying",
+          "secondary_keywords": [
+            "bundle discount not working",
+            "shopify discount conflict"
+          ],
+          "archetype": "problem",
+          "intent": "informational",
+          "target_words": 1700,
+          "internal_links_out": [
+            "shopify-product-bundles",
+            "set-up-buy-x-get-y-shopify",
+            "best-shopify-bundle-apps"
+          ],
+          "cta_app": "edge-bundles",
+          "publish_week": 22
+        },
+        {
+          "slug": "bundle-discount-margin-math",
+          "title": "Bundle Discount Margin: The Math Before You Run",
+          "primary_keyword": "bundle discount margin",
+          "secondary_keywords": [
+            "bundle profitability",
+            "discount margin calculation"
+          ],
+          "archetype": "problem",
+          "intent": "informational",
+          "target_words": 1700,
+          "internal_links_out": [
+            "shopify-product-bundles",
+            "set-up-volume-discounts-shopify",
+            "product-bundle-examples"
+          ],
+          "cta_app": "edge-bundles",
+          "publish_week": 24
+        },
+        {
+          "slug": "bundles-not-selling",
+          "title": "Why Your Bundles Are Not Selling",
+          "primary_keyword": "why bundles are not selling",
+          "secondary_keywords": [
+            "bundle low conversion",
+            "bundle offer ignored"
+          ],
+          "archetype": "problem",
+          "intent": "informational",
+          "target_words": 1700,
+          "internal_links_out": [
+            "shopify-product-bundles",
+            "bundler-alternatives-shopify",
+            "increase-average-order-value-shopify"
+          ],
+          "cta_app": "edge-bundles",
+          "publish_week": 25
+        },
+        {
+          "slug": "create-product-bundle-shopify",
+          "title": "How to Create a Bundle on Shopify (No Code)",
+          "primary_keyword": "how to create a bundle on shopify",
+          "secondary_keywords": [
+            "shopify bundle setup",
+            "make a product bundle"
+          ],
+          "archetype": "tutorial",
+          "intent": "transactional",
+          "target_words": 1600,
+          "internal_links_out": [
+            "shopify-product-bundles",
+            "fast-bundle-alternatives-shopify",
+            "shopify-single-item-orders"
+          ],
+          "cta_app": "edge-bundles",
+          "publish_week": 13
+        },
+        {
+          "slug": "set-up-buy-x-get-y-shopify",
+          "title": "How to Set Up Buy X Get Y on Shopify",
+          "primary_keyword": "buy x get y shopify",
+          "secondary_keywords": [
+            "bogo shopify setup",
+            "buy one get one shopify"
+          ],
+          "archetype": "tutorial",
+          "intent": "transactional",
+          "target_words": 1600,
+          "internal_links_out": [
+            "shopify-product-bundles",
+            "bundles-vs-volume-discounts",
+            "shopify-bundle-inventory-sync"
+          ],
+          "cta_app": "edge-bundles",
+          "publish_week": 15
+        },
+        {
+          "slug": "set-up-volume-discounts-shopify",
+          "title": "How to Set Up Volume Discounts on Shopify",
+          "primary_keyword": "shopify volume discounts setup",
+          "secondary_keywords": [
+            "quantity break shopify",
+            "tiered discount setup"
+          ],
+          "archetype": "tutorial",
+          "intent": "transactional",
+          "target_words": 1600,
+          "internal_links_out": [
+            "shopify-product-bundles",
+            "best-shopify-bundle-apps",
+            "shopify-bundle-discount-not-applying"
+          ],
+          "cta_app": "edge-bundles",
+          "publish_week": 16
+        }
+      ]
+    },
+    {
+      "app": "edge-reviews",
+      "pillar": {
+        "slug": "shopify-product-reviews",
+        "title": "Shopify Product Reviews: The Complete Guide",
+        "primary_keyword": "shopify product reviews",
+        "secondary_keywords": [
+          "product reviews shopify",
+          "customer reviews ecommerce",
+          "review strategy shopify"
+        ],
+        "archetype": "pillar",
+        "intent": "informational",
+        "target_words": 2800,
+        "internal_links_out": [
+          "judge-me-alternatives",
+          "loox-alternatives",
+          "yotpo-alternatives",
+          "best-shopify-review-apps",
+          "review-request-email-examples",
+          "get-more-product-reviews",
+          "review-request-response-rate",
+          "fake-reviews-shopify",
+          "respond-to-negative-reviews",
+          "review-stars-not-showing-google",
+          "import-reviews-shopify",
+          "add-review-widget-shopify",
+          "collect-photo-reviews-shopify"
+        ],
+        "cta_app": "edge-reviews",
+        "publish_week": 1
+      },
+      "posts": [
+        {
+          "slug": "judge-me-alternatives",
+          "title": "Judge.me Alternatives: 5 Shopify Review Apps",
+          "primary_keyword": "judge.me alternative",
+          "secondary_keywords": ["judge me pricing", "judge me competitors"],
+          "archetype": "alternative",
+          "intent": "commercial",
+          "target_words": 1900,
+          "internal_links_out": [
+            "shopify-product-reviews",
+            "review-request-email-examples",
+            "respond-to-negative-reviews"
+          ],
+          "cta_app": "edge-reviews",
+          "publish_week": 3
+        },
+        {
+          "slug": "loox-alternatives",
+          "title": "Loox Alternatives for Photo Reviews on Shopify",
+          "primary_keyword": "loox alternative",
+          "secondary_keywords": ["loox pricing", "loox competitors"],
+          "archetype": "alternative",
+          "intent": "commercial",
+          "target_words": 1900,
+          "internal_links_out": [
+            "shopify-product-reviews",
+            "get-more-product-reviews",
+            "review-stars-not-showing-google"
+          ],
+          "cta_app": "edge-reviews",
+          "publish_week": 5
+        },
+        {
+          "slug": "yotpo-alternatives",
+          "title": "Yotpo Alternatives for Growing Shopify Stores",
+          "primary_keyword": "yotpo alternative",
+          "secondary_keywords": ["yotpo pricing", "yotpo competitors"],
+          "archetype": "alternative",
+          "intent": "commercial",
+          "target_words": 1900,
+          "internal_links_out": [
+            "shopify-product-reviews",
+            "review-request-response-rate",
+            "import-reviews-shopify"
+          ],
+          "cta_app": "edge-reviews",
+          "publish_week": 7
+        },
+        {
+          "slug": "best-shopify-review-apps",
+          "title": "Best Shopify Review Apps, Compared Honestly",
+          "primary_keyword": "best shopify review apps",
+          "secondary_keywords": [
+            "shopify review app",
+            "product review app shopify"
+          ],
+          "archetype": "listicle",
+          "intent": "commercial",
+          "target_words": 1800,
+          "internal_links_out": [
+            "shopify-product-reviews",
+            "fake-reviews-shopify",
+            "add-review-widget-shopify"
+          ],
+          "cta_app": "edge-reviews",
+          "publish_week": 8
+        },
+        {
+          "slug": "review-request-email-examples",
+          "title": "8 Review Request Email Examples That Get Replies",
+          "primary_keyword": "review request email examples",
+          "secondary_keywords": [
+            "ask for review email",
+            "review email template"
+          ],
+          "archetype": "listicle",
+          "intent": "commercial",
+          "target_words": 1800,
+          "internal_links_out": [
+            "shopify-product-reviews",
+            "respond-to-negative-reviews",
+            "collect-photo-reviews-shopify"
+          ],
+          "cta_app": "edge-reviews",
+          "publish_week": 10
+        },
+        {
+          "slug": "get-more-product-reviews",
+          "title": "How to Get More Product Reviews on Shopify",
+          "primary_keyword": "how to get more product reviews",
+          "secondary_keywords": [
+            "increase review volume",
+            "collect more reviews"
+          ],
+          "archetype": "listicle",
+          "intent": "commercial",
+          "target_words": 1800,
+          "internal_links_out": [
+            "shopify-product-reviews",
+            "review-stars-not-showing-google",
+            "judge-me-alternatives"
+          ],
+          "cta_app": "edge-reviews",
+          "publish_week": 11
+        },
+        {
+          "slug": "review-request-response-rate",
+          "title": "Review Request Response Rate Too Low? Fix It",
+          "primary_keyword": "review request response rate",
+          "secondary_keywords": [
+            "review email open rate",
+            "low review conversion"
+          ],
+          "archetype": "problem",
+          "intent": "informational",
+          "target_words": 1700,
+          "internal_links_out": [
+            "shopify-product-reviews",
+            "import-reviews-shopify",
+            "loox-alternatives"
+          ],
+          "cta_app": "edge-reviews",
+          "publish_week": 19
+        },
+        {
+          "slug": "fake-reviews-shopify",
+          "title": "Fake Reviews on Shopify: How to Spot and Avoid",
+          "primary_keyword": "fake reviews shopify",
+          "secondary_keywords": [
+            "review fraud ecommerce",
+            "fake review penalties"
+          ],
+          "archetype": "problem",
+          "intent": "informational",
+          "target_words": 1700,
+          "internal_links_out": [
+            "shopify-product-reviews",
+            "add-review-widget-shopify",
+            "yotpo-alternatives"
+          ],
+          "cta_app": "edge-reviews",
+          "publish_week": 20
+        },
+        {
+          "slug": "respond-to-negative-reviews",
+          "title": "How to Respond to Negative Reviews Without Harm",
+          "primary_keyword": "how to respond to negative reviews",
+          "secondary_keywords": [
+            "bad review reply",
+            "handling one star reviews"
+          ],
+          "archetype": "problem",
+          "intent": "informational",
+          "target_words": 1700,
+          "internal_links_out": [
+            "shopify-product-reviews",
+            "collect-photo-reviews-shopify",
+            "best-shopify-review-apps"
+          ],
+          "cta_app": "edge-reviews",
+          "publish_week": 22
+        },
+        {
+          "slug": "review-stars-not-showing-google",
+          "title": "Review Stars Not Showing in Google? Here's Why",
+          "primary_keyword": "review stars not showing in google",
+          "secondary_keywords": [
+            "rich snippets reviews",
+            "product schema stars"
+          ],
+          "archetype": "problem",
+          "intent": "informational",
+          "target_words": 1700,
+          "internal_links_out": [
+            "shopify-product-reviews",
+            "judge-me-alternatives",
+            "review-request-email-examples"
+          ],
+          "cta_app": "edge-reviews",
+          "publish_week": 24
+        },
+        {
+          "slug": "import-reviews-shopify",
+          "title": "How to Import Reviews to Shopify Safely",
+          "primary_keyword": "how to import reviews to shopify",
+          "secondary_keywords": [
+            "review migration shopify",
+            "csv review import"
+          ],
+          "archetype": "tutorial",
+          "intent": "transactional",
+          "target_words": 1600,
+          "internal_links_out": [
+            "shopify-product-reviews",
+            "loox-alternatives",
+            "get-more-product-reviews"
+          ],
+          "cta_app": "edge-reviews",
+          "publish_week": 13
+        },
+        {
+          "slug": "add-review-widget-shopify",
+          "title": "How to Add Reviews to a Shopify Product Page",
+          "primary_keyword": "how to add reviews to shopify product page",
+          "secondary_keywords": [
+            "review widget shopify",
+            "product page review block"
+          ],
+          "archetype": "tutorial",
+          "intent": "transactional",
+          "target_words": 1600,
+          "internal_links_out": [
+            "shopify-product-reviews",
+            "yotpo-alternatives",
+            "review-request-response-rate"
+          ],
+          "cta_app": "edge-reviews",
+          "publish_week": 15
+        },
+        {
+          "slug": "collect-photo-reviews-shopify",
+          "title": "How to Collect Photo Reviews on Shopify",
+          "primary_keyword": "how to collect photo reviews",
+          "secondary_keywords": [
+            "ugc reviews shopify",
+            "customer photo reviews"
+          ],
+          "archetype": "tutorial",
+          "intent": "transactional",
+          "target_words": 1600,
+          "internal_links_out": [
+            "shopify-product-reviews",
+            "best-shopify-review-apps",
+            "fake-reviews-shopify"
+          ],
+          "cta_app": "edge-reviews",
+          "publish_week": 17
+        }
+      ]
+    },
+    {
+      "app": "edge-subscriptions",
+      "pillar": {
+        "slug": "shopify-subscriptions",
+        "title": "Shopify Subscriptions: The Complete Guide",
+        "primary_keyword": "shopify subscriptions",
+        "secondary_keywords": [
+          "subscription shopify",
+          "recurring orders shopify",
+          "subscription ecommerce"
+        ],
+        "archetype": "pillar",
+        "intent": "informational",
+        "target_words": 3100,
+        "internal_links_out": [
+          "recharge-alternatives",
+          "appstle-alternatives",
+          "subscription-vs-one-time-purchase",
+          "best-shopify-subscription-apps",
+          "subscription-box-ideas",
+          "reduce-subscription-churn",
+          "failed-subscription-payments",
+          "subscribers-cancelling-after-first-order",
+          "shopify-subscription-migration",
+          "shopify-subscription-customer-portal",
+          "set-up-subscriptions-shopify",
+          "set-up-subscription-discounts",
+          "build-subscription-dunning-flow"
+        ],
+        "cta_app": "edge-subscriptions",
+        "publish_week": 2
+      },
+      "posts": [
+        {
+          "slug": "recharge-alternatives",
+          "title": "Recharge Alternatives for Shopify Subscriptions",
+          "primary_keyword": "recharge alternative",
+          "secondary_keywords": ["recharge pricing", "recharge competitors"],
+          "archetype": "alternative",
+          "intent": "commercial",
+          "target_words": 1900,
+          "internal_links_out": [
+            "shopify-subscriptions",
+            "subscription-box-ideas",
+            "shopify-subscription-migration"
+          ],
+          "cta_app": "edge-subscriptions",
+          "publish_week": 3
+        },
+        {
+          "slug": "appstle-alternatives",
+          "title": "Appstle Alternatives for Shopify Subscriptions",
+          "primary_keyword": "appstle alternative",
+          "secondary_keywords": ["appstle pricing", "appstle competitors"],
+          "archetype": "alternative",
+          "intent": "commercial",
+          "target_words": 1900,
+          "internal_links_out": [
+            "shopify-subscriptions",
+            "reduce-subscription-churn",
+            "shopify-subscription-customer-portal"
+          ],
+          "cta_app": "edge-subscriptions",
+          "publish_week": 5
+        },
+        {
+          "slug": "subscription-vs-one-time-purchase",
+          "title": "Subscription vs One-Time Purchase: Which Fits",
+          "primary_keyword": "subscription vs one time purchase",
+          "secondary_keywords": [
+            "recurring vs single order",
+            "subscribe and save"
+          ],
+          "archetype": "alternative",
+          "intent": "commercial",
+          "target_words": 1900,
+          "internal_links_out": [
+            "shopify-subscriptions",
+            "failed-subscription-payments",
+            "set-up-subscriptions-shopify"
+          ],
+          "cta_app": "edge-subscriptions",
+          "publish_week": 7
+        },
+        {
+          "slug": "best-shopify-subscription-apps",
+          "title": "Best Shopify Subscription Apps, Compared",
+          "primary_keyword": "best shopify subscription apps",
+          "secondary_keywords": [
+            "shopify subscription app",
+            "recurring billing app shopify"
+          ],
+          "archetype": "listicle",
+          "intent": "commercial",
+          "target_words": 1800,
+          "internal_links_out": [
+            "shopify-subscriptions",
+            "subscribers-cancelling-after-first-order",
+            "set-up-subscription-discounts"
+          ],
+          "cta_app": "edge-subscriptions",
+          "publish_week": 8
+        },
+        {
+          "slug": "subscription-box-ideas",
+          "title": "12 Subscription Box Ideas That Hold Retention",
+          "primary_keyword": "subscription box ideas",
+          "secondary_keywords": [
+            "subscription business ideas",
+            "recurring product ideas"
+          ],
+          "archetype": "listicle",
+          "intent": "commercial",
+          "target_words": 1800,
+          "internal_links_out": [
+            "shopify-subscriptions",
+            "shopify-subscription-migration",
+            "build-subscription-dunning-flow"
+          ],
+          "cta_app": "edge-subscriptions",
+          "publish_week": 10
+        },
+        {
+          "slug": "reduce-subscription-churn",
+          "title": "How to Reduce Subscription Churn on Shopify",
+          "primary_keyword": "how to reduce subscription churn",
+          "secondary_keywords": [
+            "subscriber retention",
+            "churn rate subscriptions"
+          ],
+          "archetype": "listicle",
+          "intent": "commercial",
+          "target_words": 1800,
+          "internal_links_out": [
+            "shopify-subscriptions",
+            "shopify-subscription-customer-portal",
+            "recharge-alternatives"
+          ],
+          "cta_app": "edge-subscriptions",
+          "publish_week": 12
+        },
+        {
+          "slug": "failed-subscription-payments",
+          "title": "Failed Subscription Payments: Recover the Revenue",
+          "primary_keyword": "failed subscription payments",
+          "secondary_keywords": [
+            "involuntary churn",
+            "declined recurring card"
+          ],
+          "archetype": "problem",
+          "intent": "informational",
+          "target_words": 1700,
+          "internal_links_out": [
+            "shopify-subscriptions",
+            "set-up-subscriptions-shopify",
+            "appstle-alternatives"
+          ],
+          "cta_app": "edge-subscriptions",
+          "publish_week": 19
+        },
+        {
+          "slug": "subscribers-cancelling-after-first-order",
+          "title": "Subscribers Cancelling After the First Order",
+          "primary_keyword": "subscription first order cancellation",
+          "secondary_keywords": [
+            "first month churn",
+            "subscription cancel rate"
+          ],
+          "archetype": "problem",
+          "intent": "informational",
+          "target_words": 1700,
+          "internal_links_out": [
+            "shopify-subscriptions",
+            "set-up-subscription-discounts",
+            "subscription-vs-one-time-purchase"
+          ],
+          "cta_app": "edge-subscriptions",
+          "publish_week": 21
+        },
+        {
+          "slug": "shopify-subscription-migration",
+          "title": "Shopify Subscription Migration Without Losses",
+          "primary_keyword": "shopify subscription migration",
+          "secondary_keywords": [
+            "move subscribers between apps",
+            "subscription contract migration"
+          ],
+          "archetype": "problem",
+          "intent": "informational",
+          "target_words": 1700,
+          "internal_links_out": [
+            "shopify-subscriptions",
+            "build-subscription-dunning-flow",
+            "best-shopify-subscription-apps"
+          ],
+          "cta_app": "edge-subscriptions",
+          "publish_week": 22
+        },
+        {
+          "slug": "shopify-subscription-customer-portal",
+          "title": "Shopify Subscription Customer Portal Problems",
+          "primary_keyword": "shopify subscription customer portal",
+          "secondary_keywords": [
+            "subscriber self service",
+            "manage subscription page"
+          ],
+          "archetype": "problem",
+          "intent": "informational",
+          "target_words": 1700,
+          "internal_links_out": [
+            "shopify-subscriptions",
+            "recharge-alternatives",
+            "subscription-box-ideas"
+          ],
+          "cta_app": "edge-subscriptions",
+          "publish_week": 24
+        },
+        {
+          "slug": "set-up-subscriptions-shopify",
+          "title": "How to Set Up Subscriptions on Shopify",
+          "primary_keyword": "how to set up subscriptions on shopify",
+          "secondary_keywords": [
+            "selling plans shopify",
+            "recurring order setup"
+          ],
+          "archetype": "tutorial",
+          "intent": "transactional",
+          "target_words": 1600,
+          "internal_links_out": [
+            "shopify-subscriptions",
+            "appstle-alternatives",
+            "reduce-subscription-churn"
+          ],
+          "cta_app": "edge-subscriptions",
+          "publish_week": 13
+        },
+        {
+          "slug": "set-up-subscription-discounts",
+          "title": "How to Set Up Shopify Subscription Discounts",
+          "primary_keyword": "shopify subscription discount setup",
+          "secondary_keywords": [
+            "subscribe and save discount",
+            "recurring discount shopify"
+          ],
+          "archetype": "tutorial",
+          "intent": "transactional",
+          "target_words": 1600,
+          "internal_links_out": [
+            "shopify-subscriptions",
+            "subscription-vs-one-time-purchase",
+            "failed-subscription-payments"
+          ],
+          "cta_app": "edge-subscriptions",
+          "publish_week": 15
+        },
+        {
+          "slug": "build-subscription-dunning-flow",
+          "title": "How to Build a Subscription Dunning Flow",
+          "primary_keyword": "subscription dunning emails",
+          "secondary_keywords": [
+            "payment retry flow",
+            "dunning sequence ecommerce"
+          ],
+          "archetype": "tutorial",
+          "intent": "transactional",
+          "target_words": 1600,
+          "internal_links_out": [
+            "shopify-subscriptions",
+            "best-shopify-subscription-apps",
+            "subscribers-cancelling-after-first-order"
+          ],
+          "cta_app": "edge-subscriptions",
+          "publish_week": 17
+        }
+      ]
+    },
+    {
+      "app": "edge-timer",
+      "pillar": {
+        "slug": "shopify-countdown-timer",
+        "title": "Shopify Countdown Timer: The Complete Guide",
+        "primary_keyword": "shopify countdown timer",
+        "secondary_keywords": [
+          "countdown timer shopify",
+          "urgency timer",
+          "sales countdown"
+        ],
+        "archetype": "pillar",
+        "intent": "informational",
+        "target_words": 2600,
+        "internal_links_out": [
+          "hextom-countdown-timer-alternatives",
+          "countdown-timer-vs-stock-counter",
+          "best-shopify-countdown-timer-apps",
+          "urgency-marketing-examples",
+          "scarcity-tactics-ecommerce",
+          "fake-urgency-ecommerce",
+          "countdown-timer-not-showing-shopify",
+          "countdown-timer-timezone-problems",
+          "flash-sale-not-converting",
+          "add-countdown-timer-shopify",
+          "run-flash-sale-shopify",
+          "add-low-stock-alerts-shopify"
+        ],
+        "cta_app": "edge-timer",
+        "publish_week": 2
+      },
+      "posts": [
+        {
+          "slug": "hextom-countdown-timer-alternatives",
+          "title": "Hextom Countdown Timer Alternatives for Shopify",
+          "primary_keyword": "hextom countdown timer alternative",
+          "secondary_keywords": ["hextom pricing", "hextom competitors"],
+          "archetype": "alternative",
+          "intent": "commercial",
+          "target_words": 1900,
+          "internal_links_out": [
+            "shopify-countdown-timer",
+            "scarcity-tactics-ecommerce",
+            "flash-sale-not-converting"
+          ],
+          "cta_app": "edge-timer",
+          "publish_week": 4
+        },
+        {
+          "slug": "countdown-timer-vs-stock-counter",
+          "title": "Countdown Timer vs Stock Counter: Which Works",
+          "primary_keyword": "countdown timer vs stock counter",
+          "secondary_keywords": ["urgency vs scarcity", "low stock badge"],
+          "archetype": "alternative",
+          "intent": "commercial",
+          "target_words": 1900,
+          "internal_links_out": [
+            "shopify-countdown-timer",
+            "fake-urgency-ecommerce",
+            "add-countdown-timer-shopify"
+          ],
+          "cta_app": "edge-timer",
+          "publish_week": 5
+        },
+        {
+          "slug": "best-shopify-countdown-timer-apps",
+          "title": "Best Shopify Countdown Timer Apps, Compared",
+          "primary_keyword": "best shopify countdown timer apps",
+          "secondary_keywords": ["shopify timer app", "urgency app shopify"],
+          "archetype": "listicle",
+          "intent": "commercial",
+          "target_words": 1800,
+          "internal_links_out": [
+            "shopify-countdown-timer",
+            "countdown-timer-not-showing-shopify",
+            "run-flash-sale-shopify"
+          ],
+          "cta_app": "edge-timer",
+          "publish_week": 8
+        },
+        {
+          "slug": "urgency-marketing-examples",
+          "title": "10 Urgency Marketing Examples That Are Honest",
+          "primary_keyword": "urgency marketing examples",
+          "secondary_keywords": [
+            "urgency tactics ecommerce",
+            "deadline marketing"
+          ],
+          "archetype": "listicle",
+          "intent": "commercial",
+          "target_words": 1800,
+          "internal_links_out": [
+            "shopify-countdown-timer",
+            "countdown-timer-timezone-problems",
+            "add-low-stock-alerts-shopify"
+          ],
+          "cta_app": "edge-timer",
+          "publish_week": 10
+        },
+        {
+          "slug": "scarcity-tactics-ecommerce",
+          "title": "Scarcity Tactics in Ecommerce That Still Work",
+          "primary_keyword": "scarcity tactics ecommerce",
+          "secondary_keywords": [
+            "scarcity marketing",
+            "limited stock messaging"
+          ],
+          "archetype": "listicle",
+          "intent": "commercial",
+          "target_words": 1800,
+          "internal_links_out": [
+            "shopify-countdown-timer",
+            "flash-sale-not-converting",
+            "hextom-countdown-timer-alternatives"
+          ],
+          "cta_app": "edge-timer",
+          "publish_week": 12
+        },
+        {
+          "slug": "fake-urgency-ecommerce",
+          "title": "Fake Urgency Is Costing You Repeat Customers",
+          "primary_keyword": "fake urgency ecommerce",
+          "secondary_keywords": [
+            "dark patterns ecommerce",
+            "evergreen countdown risks"
+          ],
+          "archetype": "problem",
+          "intent": "informational",
+          "target_words": 1700,
+          "internal_links_out": [
+            "shopify-countdown-timer",
+            "add-countdown-timer-shopify",
+            "countdown-timer-vs-stock-counter",
+            "shopify-product-reviews"
+          ],
+          "cta_app": "edge-timer",
+          "publish_week": 19
+        },
+        {
+          "slug": "countdown-timer-not-showing-shopify",
+          "title": "Countdown Timer Not Showing on Shopify? Fix It",
+          "primary_keyword": "countdown timer not showing shopify",
+          "secondary_keywords": [
+            "timer not displaying",
+            "theme app block missing"
+          ],
+          "archetype": "problem",
+          "intent": "informational",
+          "target_words": 1700,
+          "internal_links_out": [
+            "shopify-countdown-timer",
+            "run-flash-sale-shopify",
+            "best-shopify-countdown-timer-apps"
+          ],
+          "cta_app": "edge-timer",
+          "publish_week": 21
+        },
+        {
+          "slug": "countdown-timer-timezone-problems",
+          "title": "Countdown Timer Timezone Problems, Solved",
+          "primary_keyword": "countdown timer timezone",
+          "secondary_keywords": ["timer wrong time", "sale end time timezone"],
+          "archetype": "problem",
+          "intent": "informational",
+          "target_words": 1700,
+          "internal_links_out": [
+            "shopify-countdown-timer",
+            "add-low-stock-alerts-shopify",
+            "urgency-marketing-examples"
+          ],
+          "cta_app": "edge-timer",
+          "publish_week": 23
+        },
+        {
+          "slug": "flash-sale-not-converting",
+          "title": "Flash Sale Not Converting? Diagnose It Fast",
+          "primary_keyword": "flash sale not converting",
+          "secondary_keywords": [
+            "flash sale mistakes",
+            "sale traffic no orders"
+          ],
+          "archetype": "problem",
+          "intent": "informational",
+          "target_words": 1700,
+          "internal_links_out": [
+            "shopify-countdown-timer",
+            "hextom-countdown-timer-alternatives",
+            "scarcity-tactics-ecommerce"
+          ],
+          "cta_app": "edge-timer",
+          "publish_week": 24
+        },
+        {
+          "slug": "add-countdown-timer-shopify",
+          "title": "How to Add a Countdown Timer to a Product Page",
+          "primary_keyword": "add countdown timer to shopify product page",
+          "secondary_keywords": [
+            "product page countdown timer",
+            "timer theme app block"
+          ],
+          "archetype": "tutorial",
+          "intent": "transactional",
+          "target_words": 1600,
+          "internal_links_out": [
+            "shopify-countdown-timer",
+            "countdown-timer-vs-stock-counter",
+            "fake-urgency-ecommerce"
+          ],
+          "cta_app": "edge-timer",
+          "publish_week": 14
+        },
+        {
+          "slug": "run-flash-sale-shopify",
+          "title": "How to Run a Flash Sale on Shopify",
+          "primary_keyword": "how to run a flash sale on shopify",
+          "secondary_keywords": [
+            "flash sale setup",
+            "limited time offer shopify"
+          ],
+          "archetype": "tutorial",
+          "intent": "transactional",
+          "target_words": 1600,
+          "internal_links_out": [
+            "shopify-countdown-timer",
+            "best-shopify-countdown-timer-apps",
+            "countdown-timer-not-showing-shopify"
+          ],
+          "cta_app": "edge-timer",
+          "publish_week": 15
+        },
+        {
+          "slug": "add-low-stock-alerts-shopify",
+          "title": "How to Add Low Stock Alerts to Shopify",
+          "primary_keyword": "shopify low stock alert",
+          "secondary_keywords": ["inventory countdown", "stock counter setup"],
+          "archetype": "tutorial",
+          "intent": "transactional",
+          "target_words": 1600,
+          "internal_links_out": [
+            "shopify-countdown-timer",
+            "urgency-marketing-examples",
+            "countdown-timer-timezone-problems"
+          ],
+          "cta_app": "edge-timer",
+          "publish_week": 17
+        }
+      ]
+    },
+    {
+      "app": "edge-currency",
+      "pillar": {
+        "slug": "shopify-multi-currency",
+        "title": "Shopify Multi-Currency: The Complete Guide",
+        "primary_keyword": "shopify multi currency",
+        "secondary_keywords": [
+          "multi currency shopify",
+          "sell in local currency",
+          "shopify international pricing"
+        ],
+        "archetype": "pillar",
+        "intent": "informational",
+        "target_words": 2700,
+        "internal_links_out": [
+          "coin-currency-converter-alternatives",
+          "shopify-markets-vs-currency-app",
+          "best-shopify-currency-converter-apps",
+          "international-ecommerce-mistakes",
+          "cross-border-ecommerce-checklist",
+          "international-traffic-not-converting",
+          "shopify-currency-rounding",
+          "duties-and-taxes-at-checkout",
+          "shopify-currency-converter-not-working",
+          "enable-multi-currency-shopify",
+          "set-up-shopify-markets",
+          "add-currency-switcher-shopify"
+        ],
+        "cta_app": "edge-currency",
+        "publish_week": 2
+      },
+      "posts": [
+        {
+          "slug": "coin-currency-converter-alternatives",
+          "title": "Coin Currency Converter Alternatives for Shopify",
+          "primary_keyword": "coin currency converter alternative",
+          "secondary_keywords": [
+            "coin app pricing",
+            "currency converter competitors"
+          ],
+          "archetype": "alternative",
+          "intent": "commercial",
+          "target_words": 1900,
+          "internal_links_out": [
+            "shopify-multi-currency",
+            "cross-border-ecommerce-checklist",
+            "shopify-currency-converter-not-working"
+          ],
+          "cta_app": "edge-currency",
+          "publish_week": 4
+        },
+        {
+          "slug": "shopify-markets-vs-currency-app",
+          "title": "Shopify Markets vs a Currency Converter App",
+          "primary_keyword": "shopify markets vs currency converter",
+          "secondary_keywords": [
+            "shopify markets limits",
+            "native vs app currency"
+          ],
+          "archetype": "alternative",
+          "intent": "commercial",
+          "target_words": 1900,
+          "internal_links_out": [
+            "shopify-multi-currency",
+            "international-traffic-not-converting",
+            "enable-multi-currency-shopify"
+          ],
+          "cta_app": "edge-currency",
+          "publish_week": 6
+        },
+        {
+          "slug": "best-shopify-currency-converter-apps",
+          "title": "Best Shopify Currency Converter Apps, Compared",
+          "primary_keyword": "best shopify currency converter apps",
+          "secondary_keywords": [
+            "shopify currency app",
+            "geolocation currency shopify"
+          ],
+          "archetype": "listicle",
+          "intent": "commercial",
+          "target_words": 1800,
+          "internal_links_out": [
+            "shopify-multi-currency",
+            "shopify-currency-rounding",
+            "set-up-shopify-markets"
+          ],
+          "cta_app": "edge-currency",
+          "publish_week": 9
+        },
+        {
+          "slug": "international-ecommerce-mistakes",
+          "title": "9 International Ecommerce Mistakes to Avoid",
+          "primary_keyword": "international ecommerce mistakes",
+          "secondary_keywords": [
+            "selling abroad mistakes",
+            "cross border errors"
+          ],
+          "archetype": "listicle",
+          "intent": "commercial",
+          "target_words": 1800,
+          "internal_links_out": [
+            "shopify-multi-currency",
+            "duties-and-taxes-at-checkout",
+            "add-currency-switcher-shopify"
+          ],
+          "cta_app": "edge-currency",
+          "publish_week": 10
+        },
+        {
+          "slug": "cross-border-ecommerce-checklist",
+          "title": "Cross-Border Ecommerce Checklist for Shopify",
+          "primary_keyword": "cross border ecommerce checklist",
+          "secondary_keywords": [
+            "international selling checklist",
+            "global ecommerce setup"
+          ],
+          "archetype": "listicle",
+          "intent": "commercial",
+          "target_words": 1800,
+          "internal_links_out": [
+            "shopify-multi-currency",
+            "shopify-currency-converter-not-working",
+            "coin-currency-converter-alternatives"
+          ],
+          "cta_app": "edge-currency",
+          "publish_week": 12
+        },
+        {
+          "slug": "international-traffic-not-converting",
+          "title": "International Traffic Not Converting? Why",
+          "primary_keyword": "international traffic not converting",
+          "secondary_keywords": [
+            "foreign visitors bounce",
+            "overseas conversion rate"
+          ],
+          "archetype": "problem",
+          "intent": "informational",
+          "target_words": 1700,
+          "internal_links_out": [
+            "shopify-multi-currency",
+            "enable-multi-currency-shopify",
+            "shopify-markets-vs-currency-app",
+            "shopify-cart-abandonment"
+          ],
+          "cta_app": "edge-currency",
+          "publish_week": 19
+        },
+        {
+          "slug": "shopify-currency-rounding",
+          "title": "Shopify Currency Rounding Looks Wrong: Fix It",
+          "primary_keyword": "shopify currency rounding",
+          "secondary_keywords": [
+            "price rounding rules",
+            "odd converted prices"
+          ],
+          "archetype": "problem",
+          "intent": "informational",
+          "target_words": 1700,
+          "internal_links_out": [
+            "shopify-multi-currency",
+            "set-up-shopify-markets",
+            "best-shopify-currency-converter-apps"
+          ],
+          "cta_app": "edge-currency",
+          "publish_week": 21
+        },
+        {
+          "slug": "duties-and-taxes-at-checkout",
+          "title": "Duties and Taxes at Checkout: Stop the Shock",
+          "primary_keyword": "duties and taxes at checkout",
+          "secondary_keywords": ["ddp vs dap shopify", "import fees checkout"],
+          "archetype": "problem",
+          "intent": "informational",
+          "target_words": 1700,
+          "internal_links_out": [
+            "shopify-multi-currency",
+            "add-currency-switcher-shopify",
+            "international-ecommerce-mistakes"
+          ],
+          "cta_app": "edge-currency",
+          "publish_week": 23
+        },
+        {
+          "slug": "shopify-currency-converter-not-working",
+          "title": "Shopify Currency Converter Not Working? Check",
+          "primary_keyword": "shopify currency converter not working",
+          "secondary_keywords": [
+            "currency switcher broken",
+            "wrong currency shown"
+          ],
+          "archetype": "problem",
+          "intent": "informational",
+          "target_words": 1700,
+          "internal_links_out": [
+            "shopify-multi-currency",
+            "coin-currency-converter-alternatives",
+            "cross-border-ecommerce-checklist"
+          ],
+          "cta_app": "edge-currency",
+          "publish_week": 25
+        },
+        {
+          "slug": "enable-multi-currency-shopify",
+          "title": "How to Turn On Multi-Currency in Shopify Payments",
+          "primary_keyword": "shopify payments multi currency setup",
+          "secondary_keywords": [
+            "enable currencies shopify payments",
+            "shopify payments supported currencies"
+          ],
+          "archetype": "tutorial",
+          "intent": "transactional",
+          "target_words": 1600,
+          "internal_links_out": [
+            "shopify-multi-currency",
+            "shopify-markets-vs-currency-app",
+            "international-traffic-not-converting"
+          ],
+          "cta_app": "edge-currency",
+          "publish_week": 14
+        },
+        {
+          "slug": "set-up-shopify-markets",
+          "title": "How to Set Up Shopify Markets Correctly",
+          "primary_keyword": "how to set up shopify markets",
+          "secondary_keywords": [
+            "shopify markets configuration",
+            "market specific pricing"
+          ],
+          "archetype": "tutorial",
+          "intent": "transactional",
+          "target_words": 1600,
+          "internal_links_out": [
+            "shopify-multi-currency",
+            "best-shopify-currency-converter-apps",
+            "shopify-currency-rounding"
+          ],
+          "cta_app": "edge-currency",
+          "publish_week": 16
+        },
+        {
+          "slug": "add-currency-switcher-shopify",
+          "title": "How to Add a Currency Switcher to Shopify",
+          "primary_keyword": "how to add a currency switcher to shopify",
+          "secondary_keywords": [
+            "currency selector shopify",
+            "country selector setup"
+          ],
+          "archetype": "tutorial",
+          "intent": "transactional",
+          "target_words": 1600,
+          "internal_links_out": [
+            "shopify-multi-currency",
+            "international-ecommerce-mistakes",
+            "duties-and-taxes-at-checkout"
+          ],
+          "cta_app": "edge-currency",
+          "publish_week": 17
+        }
+      ]
+    }
+  ]
+}

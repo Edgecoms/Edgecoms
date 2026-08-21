@@ -64,7 +64,6 @@ export const GhostBuild = ({
 		>
 			{lines.map((words, lineIdx) => (
 				<span
-					// biome-ignore lint/suspicious/noArrayIndexKey: line order is the identity
 					key={`line-${lineIdx}`}
 					style={{ display: "block", whiteSpace: "pre" }}
 				>

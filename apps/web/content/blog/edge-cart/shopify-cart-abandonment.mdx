@@ -1,0 +1,198 @@
+---
+title: "Shopify Cart Abandonment: Causes and Fixes"
+slug: "shopify-cart-abandonment"
+app: "edge-cart"
+archetype: "pillar"
+author: "anurag"
+description: "Shopify cart abandonment explained: what a normal rate looks like, the researched reasons shoppers leave, and the fixes that work in the order worth doing them."
+primaryKeyword: "shopify cart abandonment"
+secondaryKeywords:
+  - "abandoned cart shopify"
+  - "cart abandonment rate"
+  - "reduce cart abandonment"
+publishedAt: "2026-08-24"
+updatedAt: "2026-08-24"
+imageAlt: "Placeholder illustration for the Shopify cart abandonment guide"
+internalLinks:
+  - "shopify-server-side-tracking"
+  - "shopify-product-bundles"
+  - "shopify-product-reviews"
+tldr: "Shopify cart abandonment is when a shopper adds to cart and leaves without buying. The documented average across 50 studies is 70.22%. Most of it is not indecision. It is unexpected shipping costs, forced account creation, slow delivery and checkout friction, and each of those has a specific fix."
+faq:
+  - question: "What is a good cart abandonment rate on Shopify?"
+    answer: "The average documented rate is 70.22% across 50 studies, so anything meaningfully below that is doing well. Chasing a specific number is less useful than watching your own rate over time, because the figure moves with traffic mix. Paid social sends more browsers than branded search does, and a month of heavy prospecting will push the rate up without anything getting worse."
+    source: "https://baymard.com/lists/cart-abandonment-rate"
+  - question: "Is an abandoned cart the same as an abandoned checkout?"
+    answer: "No, and Shopify treats them differently. An abandoned cart is someone who added an item and never reached checkout. An abandoned checkout is someone who entered contact details and stopped before paying. The second group is far smaller, far closer to buying, and the only one you have an email address for."
+  - question: "Do abandoned cart emails still work?"
+    answer: "Yes, but they can only reach the small share of abandoners who gave you an email, which means they recover a slice of a slice. They are worth running and they are not a strategy. Fixing the reason people leave is worth more than getting better at chasing them afterwards."
+  - question: "Should I show shipping costs before checkout?"
+    answer: "Yes. Extra costs are the single most cited reason for abandoning during checkout, at 40% in Baymard's research. A shopper who sees the shipping cost on the product page and continues has already accepted it. A shopper who meets it on the payment step feels ambushed, and some of them leave over the principle rather than the amount."
+    source: "https://baymard.com/lists/cart-abandonment-rate"
+  - question: "Does a cart drawer actually reduce abandonment versus a cart page?"
+    answer: "It removes one full page load between deciding to buy and buying, and it keeps the shopper on the page they were browsing. That helps most on mobile and on stores where people add several items across a session. It is not a fix for a cart abandoned over price, delivery time or trust. Those need the answers further down this page."
+---
+
+You had 4,100 sessions last week, 780 people added something to a cart, and 214 of them bought. The other 566 got as far as choosing a product, deciding they wanted it, putting it in the cart, and then left.
+
+That is the part that stings. These are not window shoppers who bounced off the homepage. Every one of them told you what they wanted and how much they were willing to spend.
+
+**Shopify cart abandonment** is usually treated as a mood problem, fixed with a discount code and a reminder email. It mostly isn't. A large share of it is caused by specific, findable things your store does between "add to cart" and "pay". Those have specific fixes that don't cost you margin.
+
+## What counts as Shopify cart abandonment?
+
+Get the definition straight first, because Shopify reports two different things and merchants routinely mix them up.
+
+- **An abandoned cart** is a shopper who added an item and never reached the checkout. You usually have no contact details for them. This is the big group.
+- **An abandoned checkout** is a shopper who entered their details and stopped before paying. Shopify records these individually, and you can email them. This is the small group.
+
+They fail for different reasons and they need different fixes. Somebody who never reached checkout was lost on your product page, your cart, or in the gap between them. Somebody who abandoned at the payment step was lost by the checkout itself: the cost, the delivery date, the form, or the trust.
+
+If you only ever look at the abandoned checkouts list, you are studying the smaller and later of the two problems, because it is the one Shopify puts a screen in front of you for.
+
+### How the rate is calculated
+
+The formula everyone uses is straightforward:
+
+> Abandonment rate = 1 − (completed purchases ÷ carts created)
+
+The trap is what you count as a cart. If your theme creates a cart the moment someone hits "add to cart", every accidental tap and every price-check counts as an abandonment. If you only count carts that reached a viewed cart page, you will flatter yourself by several points. Neither is wrong, but you have to pick one and keep it, because a rate measured two ways across two months is not a trend. It is two unrelated numbers.
+
+Shopify's own analytics will give you the session-level version of this in the conversion funnel. That is the one to standardise on, if only because it is the one that keeps working when you change your theme.
+
+## What is a normal abandonment rate?
+
+The most useful benchmark is Baymard Institute's, because it is an average of published research rather than one vendor's customer base. Their figure is <Cite href="https://baymard.com/lists/cart-abandonment-rate">70.22% – average documented online shopping cart abandonment rate</Cite>, drawn from 50 separate studies published between 2006 and 2025.
+
+Two things follow from that number, and the second one matters more.
+
+- **Roughly seven in ten filled carts do not convert, everywhere, and always have.** A rate near <Cite href="https://baymard.com/lists/cart-abandonment-rate">the documented 70.22% average</Cite> is not evidence that your store is broken.
+- **The rate is not a quality score.** It moves with traffic mix. Push hard on cold prospecting and it will rise, because you have bought more browsers. Run a branded-search-heavy month and it will fall. Comparing your number to an industry average tells you very little; comparing this month to last month, with the traffic mix held roughly steady, tells you a lot.
+
+Track it as a trend on your own store. Treat <Cite href="https://baymard.com/lists/cart-abandonment-rate">the documented average</Cite> as context, not as a target.
+
+<PostCta />
+
+## Why do shoppers abandon a cart they filled?
+
+This is the part where guessing is expensive and research is cheap. Baymard asked people who had abandoned during checkout why they did it, excluding the segment who were only ever browsing. The reasons, in their order:
+
+| Reason given | Share | What it actually means |
+| --- | --- | --- |
+| Extra costs too high (shipping, tax, fees) | <Cite href="https://baymard.com/lists/cart-abandonment-rate">40%</Cite> | The total at the end did not match the total they had in their head |
+| Delivery was too slow | <Cite href="https://baymard.com/lists/cart-abandonment-rate">20%</Cite> | They found out the date too late to plan around it |
+| Didn't trust the site with card details | <Cite href="https://baymard.com/lists/cart-abandonment-rate">19%</Cite> | Nothing on the page earned the card number |
+| Site required account creation | <Cite href="https://baymard.com/lists/cart-abandonment-rate">18%</Cite> | You asked for a commitment before giving them anything |
+| Checkout too long or complicated | <Cite href="https://baymard.com/lists/cart-abandonment-rate">17%</Cite> | Too many fields, too many steps |
+| Website errors or crashes | <Cite href="https://baymard.com/lists/cart-abandonment-rate">17%</Cite> | Something broke and they did not try again |
+
+Read that list again with one thing in mind: almost none of it is about the product or the price of the product. It is about surprises, delays, friction and doubt. Four things you control completely.
+
+There is an important caveat in how that research was built. The percentages above exclude the respondents who said they were only browsing. Those are the people who add to cart the way other people open a browser tab, with no intention of buying today. That group is real and it is large, and no amount of checkout work converts them. Which means two things at once: your headline abandonment rate contains a permanent floor you cannot optimise away, and the reasons above describe the people who *did* want to buy and changed their minds. Those are the ones worth spending on.
+
+<Callout title="Why the shares sum to more than the whole">
+Respondents could give more than one reason, which is realistic. A shopper who meets an unexpected shipping charge on a slow delivery estimate will cite both. Treat the numbers as how often each reason is present, not as a division of the pie.
+</Callout>
+
+## How do you find where your own store is leaking?
+
+Before fixing anything, find out which step is losing people. Build the funnel once and the priorities become obvious.
+
+1. **Product page views.** Everyone who saw something they could buy.
+2. **Add to cart.** The first real signal of intent.
+3. **Cart viewed or drawer opened.** Some stores skip this if the drawer opens automatically.
+4. **Checkout started.** Shopify counts this as reaching the checkout, before any details are entered.
+5. **Contact information completed.** The point where an abandoned checkout becomes recoverable.
+6. **Payment attempted.**
+7. **Order placed.**
+
+Take the percentage that survives each step for the last 30 days. The single worst step is where your money is, and it is very often not where you assumed.
+
+- **Heavy loss between 2 and 4** means the problem is your cart, not your checkout. People added and never even started paying.
+- **Heavy loss between 4 and 5** is usually forced account creation, or a form that asks for too much before it gives a total.
+- **Heavy loss between 5 and 6** is almost always cost or delivery date. They had a number in mind, and the real number was different.
+- **Heavy loss between 6 and 7** is a payment problem: a declined method, a missing local wallet, or an outright error.
+
+To make that concrete, here is what a leak looks like when you write it down.
+
+<Example>
+A store doing 10,000 product views a month sees 1,900 adds to cart (19%), 1,200 checkouts started (63% of adds), 900 reaching contact details (75% of those), and 620 orders (69% again).
+
+The eye goes straight to the 19% add-to-cart rate, because it is the smallest number on the page. But the biggest absolute loss is the 700 people who added something and never started checkout, and the second biggest is the 280 who started and never gave contact details. Fixing the product page would be the intuitive move, and the wrong one.
+</Example>
+
+One caveat that will save you a week: make sure the numbers you are reading are real before you act on them. Ad-blocked and dropped events distort every funnel, and a step that looks like a catastrophe is sometimes just a step whose tracking is failing. [Server-side tracking](/blog/shopify-server-side-tracking) is worth fixing before you spend a month optimising against a phantom drop.
+
+<PostCta />
+
+## How do you fix the cost problem?
+
+Unexpected cost is the biggest single cause, and it is not really a pricing problem. It is a timing problem. The shopper is not refusing to pay for shipping. They are refusing to be told about it at the last possible moment.
+
+- **Show shipping before the cart, not at payment.** A number on the product page that a shopper reads and continues past has been accepted. The same number at the payment step reads as a trick.
+- **Give the threshold a visible target.** "Spend £12 more for free delivery" turns a cost into a goal. It also raises order value, which is the same mechanic working in your favour.
+- **Make the threshold reachable.** A free-shipping bar set well above your average order value doesn't motivate anyone; it just tells most of your shoppers they have lost before they started. Set it a little above where your orders naturally land.
+- **Fold the cost into the price if the maths works.** Some categories are simply better sold at an all-in price. Test it rather than assuming.
+- **Never introduce a new fee after the shipping step.** Handling fees and surcharges revealed at payment are the purest form of this failure.
+
+## How do you fix the friction problems?
+
+Account creation and checkout length are two versions of the same mistake: asking for effort before delivering value.
+
+- **Offer guest checkout, prominently.** Not hidden under a "continue as guest" link below the login form. You can invite them to create an account after the order, when they have a reason to.
+- **Cut fields to what you need to ship and contact.** Every optional field is a small tax paid by every shopper for the benefit of one report nobody reads.
+- **Support the wallets your shoppers already use.** Shop Pay, Apple Pay and Google Pay skip the form entirely for people who have already trusted someone else with the details.
+- **Remove the page load between cart and checkout.** A cart drawer keeps the shopper where they were and takes one full navigation out of the path. On mobile, where a page load is a visible pause and a scroll position lost, this is the biggest structural win available in the cart.
+- **Watch the discount code field.** An empty box labelled "promo code" tells a shopper that a better price exists and they don't have it. Some of them leave to go and find it, and a share of those never come back.
+
+<PostCta />
+
+## How do you fix the trust problems?
+
+Nineteen per cent said they did not trust the site with their card. That is not a payment-processor problem. Nothing on the page had earned the card number yet.
+
+- **Put proof at the point of doubt.** Reviews belong on the product page and in the cart, where the decision is being made, not on a separate page nobody visits. If you have [collected real reviews](/blog/shopify-product-reviews), this is where they earn their keep.
+- **State the returns policy where the money is asked for.** "30 days, we pay return shipping" removes most of the perceived risk of being wrong.
+- **Show the delivery date, not the shipping speed.** "Arrives 28–30 August" is a fact. "3–5 business days" is homework.
+- **Look like a real business.** A findable address, a real support email and a response-time promise do more for card confidence than any badge graphic.
+- **Fix your errors.** Seventeen per cent abandoned because something broke. Load your own checkout on a mid-range Android phone on a slow connection once a month and watch what happens.
+
+## Do abandoned cart emails still work?
+
+They work, and they are also the most over-rated item on this list.
+
+The arithmetic is the problem. Recovery emails can only reach shoppers who gave you an email address, which means they only reach abandoned *checkouts*, the small group. Of the seven in ten who abandoned, most never got that far, so most were never reachable. A recovery flow with an excellent open rate is still operating on a slice of a slice.
+
+Run them anyway, because the incremental cost is near zero:
+
+- **Send the first one within an hour**, while the decision is still warm and the reason is still true.
+- **Lead with the objection, not the discount.** If the delivery date was the problem, say the delivery date. A discount aimed at a delivery objection just trains people to abandon.
+- **Hold the discount for the third message, if at all.** Discount too early and you will pay margin on shoppers who were going to come back anyway.
+- **Cap the sequence.** Three messages. After that you are not recovering a sale, you are training an unsubscribe.
+
+<PostCta />
+
+## How do you know whether a fix worked?
+
+Abandonment rate on its own is a bad scorecard, because it moves for reasons that have nothing to do with your changes.
+
+Watch these instead, over a period long enough to mean something:
+
+- **Step-level conversion at the step you changed.** If you moved shipping costs earlier, the number to watch is checkout-started to payment-attempted, not the headline rate.
+- **Revenue per session.** The only figure that cannot be gamed by a change that improves one step and damages another.
+- **Average order value alongside it.** A free-shipping threshold should move both. If abandonment falls and order value falls further, you have discounted your way to a worse business.
+- **A full purchase cycle before judging.** Considered purchases have a lag. Reading a week of data on a product people think about for a fortnight will mislead you in both directions.
+
+<Callout title="Change one thing at a time" tone="warning">
+The temptation with a list like this is to do all of it in one weekend. Then the rate moves four points and you have no idea which change did it, or whether two of them cancelled each other out. Ship them one at a time, in the order your funnel says they matter.
+</Callout>
+
+## Where does Edge Cart fit?
+
+Most of the fixes above are decisions rather than software: what you charge for delivery, when you say so, whether you force an account. Edge Cart handles the structural part of the list: the cart itself.
+
+It replaces the cart page with a drawer that opens in place, so the step between deciding and paying stops costing a page load. The free-shipping progress bar makes the threshold a visible target rather than a surprise at the end. And because the drawer is the last surface a buyer sees, it is also where a relevant add-on has the best chance of being welcome rather than annoying.
+
+None of that will rescue a cart abandoned over a delivery date or a price. It fixes the share of the seven in ten that you were losing to the mechanics of your own store.
+
+<PostCta />

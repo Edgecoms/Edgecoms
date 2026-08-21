@@ -1,0 +1,155 @@
+---
+title: "Duplicate Purchase Events on Shopify: The Fix"
+slug: "duplicate-purchase-events-shopify"
+app: "trackproof"
+archetype: "problem"
+author: "anurag"
+description: "Duplicate purchase events Shopify stores send will inflate every ROAS you report. Prove the over-count, catch the second sender, and repair the old numbers."
+primaryKeyword: "duplicate purchase events shopify"
+secondaryKeywords: ["event deduplication meta", "double counted conversions"]
+publishedAt: "2027-01-25"
+updatedAt: "2027-01-25"
+imageAlt: "Placeholder illustration of one Shopify order splitting into two conversion events"
+internalLinks:
+  - "shopify-server-side-tracking"
+  - "server-side-tracking-vs-pixel"
+  - "shopify-subscriptions"
+tldr: "A duplicate purchase event means two senders described the same Shopify order and the platform never merged them. Prove it on one closed day by counting platform purchases against Shopify orders, catch the second sender with a live test order, give both copies one order derived ID, then restate the inflated numbers you already reported."
+faq:
+  - question: "Can I stop the double count by switching one sender off?"
+    answer: "You can, and you will lose whatever that sender was contributing on its own. Browser copies carry click context the server never sees, and server copies carry orders the browser missed. Switching one off swaps an inflated number for an incomplete one. Fix the shared identifier instead, and use a one day shutdown only when you need an emergency clean read."
+  - question: "Both copies carry the same event ID. Why does Meta still count two?"
+    answer: "Because the ID is only half the match. Meta requires the event ID and the event name to agree, and the two copies have to arrive inside a 48 hour window. A server retry that lands three days later misses that window, and a name mismatch between the browser call and the server call defeats the match even when the IDs are byte for byte identical."
+    source: "https://developers.facebook.com/docs/marketing-api/conversions-api/deduplicate-pixel-and-server-events/"
+  - question: "Does GA4 deduplicate server events the way Meta does?"
+    answer: "No, and treating it that way is how stores end up with two users per order. Measurement Protocol needs an api_secret, and for a web stream the client_id you send has to match the ID the Google tag generated in the browser. Invent one and GA4 records a separate user rather than merging the purchase into the existing session."
+    source: "https://developers.google.com/analytics/devguides/collection/protocol/ga4/sending-events"
+  - question: "Should I delete the bad conversions from the ad platform?"
+    answer: "There is no clean delete for events a platform has already received, and offline correction uploads usually add a third copy of the same order rather than cancelling anything. Leave the raw history alone. Annotate the date the fix shipped, publish a correction factor for the affected weeks, and make Shopify orders the number of record going forward."
+  - question: "Are subscription renewals duplicates of the original order?"
+    answer: "No. They are genuine separate orders that never touch a browser, because Shopify creates the subscription contract at checkout and bills against it later. Only your server sender sees them. They belong in revenue reporting and they do not belong in acquisition ROAS, so tag them at source and decide deliberately which report is allowed to count them."
+    source: "https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans"
+---
+
+Your ad platform reports forty-one purchases for Tuesday. Shopify reports twenty-nine orders. Nobody was charged twice, nobody has complained, every dashboard is green. The money is right. The count is not.
+
+That is what duplicate purchase events shopify stores produce when two senders describe the same order and the platform never works out they are the same order. The browser sends one copy, the server sends another, deduplication was supposed to fold them together, and it failed quietly.
+
+Over-counting is more dangerous than under-counting because it flatters you. A campaign looks profitable, you raise its budget, and the error compounds for a quarter before anyone checks. What follows is the forensic order. Prove it, catch the second sender, understand why matching IDs still fail, then repair the numbers you already reported.
+
+## How do you prove you are over-counting rather than growing?
+
+Growth moves both numbers. Over-counting moves one. That is the whole test, and it takes twenty minutes.
+
+1. **Pick a finished day at least a week old.** Recent days keep collecting attributed conversions after they end, so a live comparison looks wrong for reasons that mean nothing.
+2. **Export the Shopify orders for that day** in your store's timezone, not the platform's. An offset alone can invent a gap.
+3. **Pull the platform purchase count by event time**, not by ad click date. Attributed reporting answers a different question.
+4. **Compare counts before revenue.** If the platform count is a clean multiple of the Shopify count, you have whole order duplication.
+5. **Then compare revenue.** If it is inflated by the same proportion as the count, both copies carry the full order value. If counts match but revenue is high, the problem is line items, not senders.
+
+Repeat for four finished weeks and write the ratio down each time. A ratio that has sat in the same place all year describes your store's structure. One that jumped in a single week describes something you shipped, and that week is where the investigation starts.
+
+<Callout title="Check the direction before you panic" tone="warning">
+If your platform number is lower than your Shopify order count, this is the wrong post. Under-reporting has different causes, and fixing a duplicate you do not have makes the shortfall worse.
+</Callout>
+
+## Which sender causes duplicate purchase events on Shopify?
+
+Stop reading configuration screens. Configuration says what should happen. Place a real order and watch what actually leaves the store.
+
+Open the network tab, filter to the collection endpoint for the platform you are auditing, and complete a checkout. Count the purchase calls. One is correct. Two from the browser alone means two browser installs, before the server speaks.
+
+- **The old app you uninstalled.** Uninstalling rarely removes the snippet a previous agency pasted into `theme.liquid`. The app is gone and its pixel still fires.
+- **A tag manager plus a native app.** GTM loads a purchase tag, the Shopify sales channel integration sends its own, and neither knows about the other.
+- **Two server side senders.** A conversion app and a CRM integration both listen to the orders webhook and post to the same endpoint under different identifiers.
+- **The same app configured twice.** Two datasets, or a staging pixel ID left in the theme beside the live one.
+- **A custom pixel in the checkout sandbox.** Shopify's Web Pixels API runs pixels inside Lax or Strict sandboxes with controlled APIs, <Cite href="https://shopify.dev/docs/api/web-pixels-api">documented here</Cite>. It is not in your theme files, so a code search never finds it.
+
+Log every purchase call with its source, event name and identifier. That list, not a settings page, is your sender inventory.
+
+<PostCta />
+
+## Why does an event ID that looks identical still fail to deduplicate?
+
+Here is where most stores stall. They set an event ID on both copies, check both by eye, and still get two.
+
+Meta merges a browser copy and a server copy only when the event ID and the event name both match, and only when the pair arrives inside a 48 hour window <Cite href="https://developers.facebook.com/docs/marketing-api/conversions-api/deduplicate-pixel-and-server-events/">per its documentation</Cite>. Every part of that sentence is a way to fail.
+
+- **The name disagrees.** One sender emits `Purchase`, the other `purchase`. The IDs match perfectly and the events never meet.
+- **The ID is random rather than derived.** A UUID generated in the browser cannot be reproduced by a server that never saw it.
+- **The two sides key off different objects.** The browser uses the checkout token, the server uses the order ID. Both are stable and neither is the same string.
+- **Something decorates the value.** A prefix like `order_`, a trailing timestamp, a retry counter. All look identical in a truncating dashboard.
+- **The copies arrive too far apart.** A queued job retrying after an outage lands days later, outside the window, and the browser copy has already been counted alone.
+
+The rule that survives all five: derive one deterministic ID from the Shopify order ID, send that exact string from every sender, and never generate it twice.
+
+## What happens when a shopper refreshes or bookmarks the thank-you page?
+
+A server sends a purchase once, when the order is created. A browser pixel fires whenever its page renders. Different contracts, and shoppers exploit the gap by accident.
+
+The thank-you page gets reloaded constantly. People refresh to check the order went through, bookmark it for the tracking number, forward the URL to whoever is paying, click back into it after an upsell. Every render can fire another purchase.
+
+Deduplication rescues you only if the refired copy carries the same event ID as the first. If the ID is generated fresh on each page view, every refresh is a new purchase, and the count climbs with no code change to blame.
+
+- **Derive, do not generate.** An ID built from the order ID is identical on the tenth render and the first.
+- **Do not trust browser storage as the only guard.** Safari deletes all script writable storage after seven days of Safari use without user interaction on the site, <Cite href="https://webkit.org/blog/10218/full-third-party-cookie-blocking-and-more/">as WebKit documents</Cite>, so a bookmark opened a fortnight later reads as a first visit.
+- **Watch the window too.** Even a correct ID stops merging once the reload falls outside the platform's matching window.
+
+<PostCta />
+
+## Do order edits, refunds and subscription renewals create phantom purchases?
+
+Some are bugs. Some are real orders that only look wrong in an ad report. Telling them apart matters, because the fixes point in opposite directions.
+
+**Order edits are the most common self-inflicted one.** If your integration listens to an order updated webhook rather than order created, every edit re-emits a purchase. A gift note, a quantity change, an address fix, and the order counts again. Fire on creation, key the emission on the order ID, and make a repeat delivery a no-op.
+
+**Refunds do not undo a conversion.** Nothing you send later removes the original from the platform's history. What you can do is stop a refund reaching a sender that treats any order mutation as a fresh purchase. Report gross conversions from the platform and net revenue from Shopify.
+
+**Renewals are real orders, not duplicates.** Shopify creates subscription contracts at checkout and bills against them afterwards, <Cite href="https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans">per the selling plans guide</Cite>, so a renewal never touches a browser and only your server sender sees it. Correct behaviour, and it still wrecks acquisition ROAS, because the ad that won the customer gets credited every month forever. Tag renewals at source and keep them out of prospecting reports. More in our [subscriptions guide](/blog/shopify-subscriptions).
+
+**Test and draft orders count too.** Your test checkouts, POS orders and draft orders all land in the Shopify export you are comparing against. Exclude them from both sides.
+
+## Why do Meta, GA4 and TikTok each need a different deduplication key?
+
+One order, three platforms, three contracts. A setup that dedupes cleanly on Meta can double count on GA4 the same week, because the platforms are not solving the same problem.
+
+| Platform | What it matches on | The rule that bites | Failure mode |
+| --- | --- | --- | --- |
+| Meta | Event ID and event name together | Copies must arrive within 48 hours <Cite href="https://developers.facebook.com/docs/marketing-api/conversions-api/deduplicate-pixel-and-server-events/">(docs)</Cite> | A late retry or a casing mismatch counts twice |
+| GA4 | client_id continuity, plus an api_secret | The client_id must match the ID the Google tag generated <Cite href="https://developers.google.com/analytics/devguides/collection/protocol/ga4/sending-events">(docs)</Cite> | A fabricated client_id creates a second user and session |
+| TikTok | Event ID shared via Pixel and Events API | The first event received is the one kept <Cite href="https://ads.tiktok.com/help/article/event-deduplication?lang=en">(docs)</Cite> | The slower copy is discarded, taking its extra data with it |
+
+Two consequences. GA4 does not merge a browser purchase and a server purchase the way Meta does, so an invented client_id inflates users and sessions as well as purchases. TikTok discards rather than merges, so whichever copy arrives second contributes nothing, and the richer payload has to be the fast one.
+
+Build one internal identity per order, then let each adapter wrap it in that platform's envelope. That split is covered in our [Shopify server side tracking guide](/blog/shopify-server-side-tracking).
+
+<PostCta />
+
+## How do you repair the ROAS numbers you already reported to a client?
+
+Fixing the pipeline is the easy half. The reported history is still wrong, sitting in decks and spreadsheets, and someone will notice conversions fell off a cliff the day you shipped the fix.
+
+Find the start date first. Walk the weekly ratios backwards until one returns to normal. That week holds the change that caused it.
+
+<Example>
+A campaign reported 40 purchases on 4,000 of spend, so the deck said a ROAS of 5.0 on 20,000 of tracked revenue. Shopify shows 25 orders for that period. The correction factor is 25 divided by 40, or 0.625. That gives 12,500 of real revenue and a corrected ROAS of 3.13. Substitute your own counts.
+</Example>
+
+Then do these four things, in this order.
+
+1. **Restate against Shopify, not a second platform.** Shopify took the money. It is the ledger, and the only source that cannot be double counting itself.
+2. **Publish one correction factor per period.** A single number the client applies to any report they hold beats reissuing every document.
+3. **Annotate the fix date in the ad platform.** The drop needs a label before someone opens the chart in six months and reads it as a collapse.
+4. **Say it before they find it.** A correction you volunteer is a competence story. The same one found by a client is a trust problem.
+
+Leave the raw event history alone. There is no clean delete, and an offline upload meant to cancel a duplicate usually becomes a third record of that order.
+
+## How does Trackproof guarantee one order, one event?
+
+Trackproof treats the Shopify order as the unit of truth. One order produces exactly one internal event, the event ID is derived from the order ID rather than generated, and a repeat delivery of that order ID is a no-op instead of a second conversion. The identity is then wrapped per platform: Meta gets its event ID and event name pair, GA4 gets a client_id from the actual Google tag, TikTok gets its shared ID on the fast copy. It is <Cite href="https://apps.shopify.com/trackproof">free on the Shopify App Store</Cite> and has no reviews yet, because it is new.
+
+It is not always the right answer. If you run a single browser pixel and no server sender, you cannot have this problem, and adding an app would create it. If your stack is already built on server side Google Tag Manager, a free container based option such as <Cite href="https://apps.shopify.com/server-gtm">Stape</Cite> fits that architecture more naturally than we do.
+
+The rule underneath is not about any app. Decide which single system owns the identity of an order, derive every event ID from it, and never let a second system invent one.
+
+<PostCta />

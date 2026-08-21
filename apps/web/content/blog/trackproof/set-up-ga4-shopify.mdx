@@ -1,0 +1,188 @@
+---
+title: "How to Set Up GA4 on Shopify Without Losing Data"
+slug: "set-up-ga4-shopify"
+app: "trackproof"
+archetype: "tutorial"
+author: "anurag"
+description: "How to set up GA4 on Shopify in the order that protects your history: which settings are permanent, which are reversible, and how to sequence the build."
+primaryKeyword: "how to set up ga4 on shopify"
+secondaryKeywords: ["shopify ga4 ecommerce tracking", "ga4 shopify configuration"]
+publishedAt: "2026-11-23"
+updatedAt: "2026-11-23"
+imageAlt: "Placeholder illustration of a GA4 property setup screen beside a Shopify storefront"
+internalLinks:
+  - "shopify-server-side-tracking"
+  - "server-side-tracking-vs-pixel"
+  - "ga4-not-tracking-shopify-purchases"
+tldr: "Set GA4 up in order of what cannot be undone. Timezone, currency, data retention and reporting identity apply forwards only, so decide them before the first event lands. Then install through Shopify Customer Events, send ecommerce events with full parameters, mark one key event, protect session continuity, and verify in DebugView."
+faq:
+  - question: "Does raising data retention bring back the months GA4 already deleted?"
+    answer: "No. Retention governs how long GA4 keeps user and event level detail, and expired rows are deleted rather than archived. Changing the setting protects data collected from that point onward and nothing before it. That is the whole argument for setting it on the day the property is created, while there is still nothing at stake."
+  - question: "Can I mark a key event now and see conversions for last quarter?"
+    answer: "No. GA4 counts a key event from the moment you flag it. The purchase events for last quarter still exist and still show as events, but the conversion column stays at zero. Any year on year comparison that crosses your flag date shows a step change caused entirely by the settings, not by trading."
+  - question: "Should I install through the theme or through Customer Events?"
+    answer: "Customer Events. Shopify's Web Pixels API runs your pixel inside a sandbox with controlled APIs, which is what lets one subscription cover the storefront, the checkout and the thank you page with no theme edits. A theme snippet stops at the checkout boundary, so you get clean sessions and no purchases."
+    source: "https://shopify.dev/docs/api/web-pixels-api"
+  - question: "Why will GA4 revenue never match my Shopify admin exactly?"
+    answer: "Because they measure different things. Shopify records what was charged. GA4 records what a browser managed to send. Blocked scripts, declined consent, closed tabs and phone calls to your support team all sit between the two totals. Agree a tolerance you can live with, compare full closed days, and watch the trend rather than any single day."
+  - question: "Do I need a second GA4 property for testing?"
+    answer: "No, and a second property usually makes things worse because the two configurations drift apart within a month. Use one property. Enable debug mode in your own browser for testing, and define an internal traffic filter for your office and agency addresses on day one so your own test orders never reach the reports."
+---
+
+You open GA4 to compare this year's peak week against last year's. The rows are not wrong. They are empty. The detail was deleted months ago because nobody changed a dropdown on the day the property was created.
+
+That is the part nobody warns you about with how to set up GA4 on Shopify. Installing the tag is the easy half. The hard half is a short list of settings that apply forwards only, and no support ticket recovers what they cost you.
+
+So this guide runs in order of irreversibility, not in the order the setup wizard walks you through. Configure, install, verify. Do it that way and next year's report still means something.
+
+## Which GA4 decisions can never be fixed retroactively?
+
+Sort every setting before you touch anything. The permanent ones are cheap on day one and expensive on day two hundred.
+
+| Setting | Can you change it later? | What it costs you if you get it wrong |
+| --- | --- | --- |
+| Reporting timezone | Yes | Data before the change keeps the old day boundaries, so a year on year chart never lines up again |
+| Reporting currency | Yes | Historic revenue is not reconverted, leaving two units in one column |
+| Data retention window | Yes, forwards only | Detail already deleted is gone permanently |
+| Reporting identity | Yes | User counts shift at the switch date and cannot be restated |
+| Key event flags | Yes, forwards only | Conversions count from the flag date, so earlier periods sit at zero |
+| Internal traffic filters | Yes, forwards only | Your own sessions stay baked into past reports |
+| Property and stream names | Yes, freely | Nothing, rename whenever you like |
+
+The pattern: anything that touches **collection or counting** is forwards only. Anything cosmetic is free.
+
+- **Retention is the one that bites.** The default keeps less than most merchants assume. Nobody notices until an exploration across a full year comes back blank.
+- **Timezone drives every daily total.** If it does not match the timezone finance uses, every daily reconciliation is off by a few hours of orders, forever.
+- **Currency is a display decision with permanent consequences.** Pick the currency you report the business in, not the one your busiest market charges in.
+
+<Callout title="Do this before the first real visitor" tone="warning">
+Finish every forwards-only row above before you install anything. Ten minutes of dropdowns protects the whole history of the property.
+</Callout>
+
+## How do you create the property and stream so the data is still readable in a year?
+
+This is the configuration pass. No Shopify work yet, and no events arriving while you do it.
+
+1. **Create the property** under the account that will still own it after any agency change. Name it for the store and domain, not for a project.
+2. **Set the reporting timezone** to the one finance already uses. Write it down where the team can see.
+3. **Set the reporting currency** to your accounting currency. On a multi-currency store the currency you charge in and the one you report in need not agree, so choose deliberately.
+4. **Raise data retention to the longest option available**, then reopen the screen to confirm it stuck.
+5. **Choose the reporting identity** and record it with a date, so a future analyst can explain any step change.
+6. **Create one web data stream** for the storefront domain. One stream. Extra streams are the most common cause of doubled sessions.
+7. **Define internal traffic filters** for your office, home and agency, and set them active rather than testing.
+8. **Copy the measurement ID** into a note. You need it once, in the next section, and never again.
+
+Steps four through seven cannot be backdated. If you are interrupted, be interrupted after them.
+
+<PostCta />
+
+## How to set up GA4 on Shopify without editing the theme
+
+Install through Customer Events. Shopify's Web Pixels API runs your code in a Lax or Strict sandbox with controlled APIs <Cite href="https://shopify.dev/docs/api/web-pixels-api">per Shopify's Web Pixels API documentation</Cite>, and that sandbox is what lets one subscription cover the storefront, the checkout and the thank you page.
+
+A theme snippet cannot do that. Checkout is not your theme. Snippet installs give tidy sessions, healthy page views and no purchases, the worst failure mode of all because everything looks alive.
+
+1. Open **Settings, then Customer events** in the Shopify admin and add a custom pixel.
+2. Name it plainly, for example `GA4 web`, so the next person knows what it does.
+3. Load the Google tag with your measurement ID, then subscribe to the customer events you need.
+4. **Map each Shopify event to its GA4 counterpart explicitly.** Do not assume the names line up.
+5. Set the pixel's privacy permissions to match how your consent banner classifies analytics.
+6. Save, then connect the pixel so it runs.
+
+One consequence to hold onto: the sandbox cannot reach the parent page, so anything you used to read off `window` is gone.
+
+## Which ecommerce events matter, and which parameters must ride along?
+
+Six events carry almost all the value. Send those properly first. A partial event is worse than a missing one, because it looks like data.
+
+| Event | Fires when | Parameters that must be present |
+| --- | --- | --- |
+| `view_item` | Product page loads | `items`, `currency`, `value` |
+| `add_to_cart` | Item added | `items`, `currency`, `value` |
+| `begin_checkout` | Checkout starts | `items`, `currency`, `value` |
+| `add_payment_info` | Payment step submitted | `items`, `currency`, `value` |
+| `purchase` | Order completed | `transaction_id`, `items`, `currency`, `value` |
+| `refund` | Refund issued | `transaction_id`, `currency`, `value` |
+
+- **`items` is not optional.** Without it your product report is empty while revenue looks fine, and you will not notice for a month.
+- **`value` and `currency` travel together.** A value with no currency code is a number GA4 cannot bank.
+- **`transaction_id` must be the real order identifier**, stable and unique, taken from the order rather than generated in the browser.
+- **Send tax and shipping as their own parameters** rather than folding them into `value`, or your average order value quietly inflates.
+
+Item-level detail is the only reason to run ecommerce tracking rather than a revenue total. Send it.
+
+<PostCta />
+
+## How do you mark key events so conversion counts stay comparable over time?
+
+A key event is a flag, not a recalculation. GA4 counts from the moment you set it, so every period before that date reports zero conversions even though the events are sitting right there. This belongs in the configuration pass, not in month three.
+
+1. Send one real test purchase so the `purchase` event exists.
+2. Open **Admin, then Events**, find `purchase` and mark it as a key event.
+3. Set its counting method deliberately. Once per session and once per event answer different questions.
+4. Stop there. Mark nothing else in week one.
+5. Record the flag date in the same note as your other permanent choices.
+
+The temptation is to flag six events so the dashboard looks busy. Resist it. Every extra key event dilutes the number you steer the business by, and un-flagging later leaves a second step change.
+
+- **One primary key event per property.** For a store that is `purchase`.
+- **Secondary flags come after a quarter of clean data**, once you know which upper-funnel action predicts a sale.
+- **Never re-flag to fix a reporting gap.** It creates a discontinuity rather than filling one.
+
+## How do you keep checkout from starting a fresh session and stealing the source?
+
+This failure costs the most money and is the hardest to see. A shopper arrives from a paid campaign, browses, then moves to checkout. If GA4 treats that hop as a new visit, the session restarts and the purchase is attributed to a referral from your own store.
+
+Paid campaigns look weak. Direct and referral look strong. Budget follows the wrong numbers.
+
+1. In your web stream's tag settings, open **Configure your domains**.
+2. Add every domain the shopper legitimately crosses, including checkout.
+3. Add the same domains to your **unwanted referrals** list so they cannot open a session.
+4. Confirm your pixel is subscribed to checkout events, not only storefront ones.
+5. Place a real order and watch DebugView from landing to thank you page. It should be one session with one source.
+
+<Example>
+Suppose one purchase in five starts a fresh session at checkout and you spend 10,000 a month on paid social. A fifth of that channel's revenue lands under referral. The return reads a fifth lower than it is, and the obvious reaction is to cut a budget that was working. Substitute your own figures.
+</Example>
+
+Session continuity is also why browser storage matters. Safari deletes all script-writable storage after seven days of Safari use without interaction on the site <Cite href="https://webkit.org/blog/10218/full-third-party-cookie-blocking-and-more/">as documented by WebKit</Cite>. A long consideration window loses its origin story whatever you configure. If that describes your customers, read [server-side tracking versus the pixel](/blog/server-side-tracking-vs-pixel).
+
+<PostCta />
+
+## How do you prove it works in DebugView before anyone builds a report on it?
+
+DebugView shows events as they land, so verification is a fifteen minute job, not a next-day wait.
+
+1. Enable debug mode in your browser and confirm your device appears in DebugView.
+2. Load a product page. Expect `view_item` with populated `items`.
+3. Add to cart, then begin checkout. Watch each event arrive in order.
+4. Complete a real order with a discount code that takes it to a low value.
+5. Open the `purchase` event and read every parameter: `transaction_id`, `value`, `currency`, `items`.
+6. Confirm the journey stayed inside one session with one source.
+7. Refund the test order, then check the refund event.
+
+Here is what a broken build looks like.
+
+- **Storefront events arrive and `purchase` never does.** The pixel is not seeing checkout. Almost always a theme install.
+- **`purchase` arrives with a `value` but no `items`.** The item array is not being built. Revenue reports fine, product reports stay empty.
+- **A second session begins at checkout.** Your domain configuration is incomplete.
+- **Two identical purchase events land together.** Something is measuring twice. Find it now, not after a month of inflated revenue.
+- **Nothing appears in DebugView.** Debug mode is off, or your internal traffic filter is doing exactly what you asked it to.
+
+Only after all seven pass should anyone build a dashboard on this property.
+
+## Where does Trackproof stop and GA4 configuration begin?
+
+Trackproof handles delivery. It sends your Shopify events from the server with the identifiers intact. It does not set your retention window, choose your reporting identity or decide which event deserves a key event flag. Nothing can. Those are business decisions dressed as dropdowns.
+
+Plenty of tools imply the configuration comes free with the install. It does not. Everything above the DebugView section is yours to own, whichever tool you use.
+
+- **Configuration is the hour of work here.** Do it once, correctly, on day one.
+- **Delivery is the ongoing problem.** Blocked scripts, closed tabs and short storage windows erode client-side collection every month, which is what [server-side tracking](/blog/shopify-server-side-tracking) addresses.
+- **Trackproof is free and has no reviews yet** <Cite href="https://apps.shopify.com/trackproof">on the Shopify App Store</Cite>, so judge it on your own test order, not on our word.
+
+If you would rather buy a long review history, Littledata shows 4.8 stars from 124 reviews and Elevar 4.6 from 137 <Cite href="https://apps.shopify.com/littledata">Littledata</Cite> <Cite href="https://apps.shopify.com/gtm-datalayer-by-elevar">Elevar</Cite>. Both cost real money: Littledata Scale is $199 a month up to 1,500 orders, Elevar Core $225 a month up to 2,000. For some stores that is the right trade. Either way, get the configuration right first. No tool fixes a property that was configured after the traffic arrived.
+
+<CheckedOn date="22 August 2026" />
+
+<PostCta />

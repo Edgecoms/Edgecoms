@@ -1,0 +1,182 @@
+---
+title: "How to Set Up Meta CAPI on Shopify (Step by Step)"
+slug: "set-up-meta-capi-shopify"
+app: "trackproof"
+archetype: "tutorial"
+author: "anurag"
+description: "How to set up Meta CAPI Shopify stores can trust: choose the right route, mint a durable token, build the payload, share one event ID, verify, then ramp."
+primaryKeyword: "how to set up meta capi shopify"
+secondaryKeywords: ["meta conversions api shopify", "facebook capi setup"]
+publishedAt: "2026-11-09"
+updatedAt: "2026-11-09"
+imageAlt: "Placeholder illustration of a server sending a purchase event to Meta alongside a browser pixel"
+internalLinks:
+  - "shopify-server-side-tracking"
+  - "analyzify-alternatives-shopify"
+  - "meta-pixel-not-tracking-shopify"
+tldr: "Meta CAPI sends your Shopify purchases to Meta from a server instead of the shopper's browser. Choose one delivery route on purpose, mint a system user token, build a Purchase payload with hashed customer fields, stamp one shared event ID on both senders, prove it in Test Events, then ramp while the pixel keeps running."
+faq:
+  - question: "Do I need a developer for this, or can I finish it inside Meta?"
+    answer: "The native Facebook and Instagram sales channel needs no code. You connect the channel, choose your dataset, and Meta handles delivery. The webhook route in this guide needs somebody who can deploy a small endpoint and set an environment variable. If nobody on your team can do that today, take the native route or an app and revisit later."
+  - question: "Which customer fields get hashed and which do not?"
+    answer: "Email, phone, first name, last name, city, state, postcode, country code and any external customer ID are lowercased, trimmed, then hashed with SHA-256. The IP address, the user agent, the fbp browser ID and the fbc click ID travel in plain text. Hashing those four breaks matching rather than protecting anybody, so leave them alone."
+  - question: "How long is the window for a server event to deduplicate against the pixel?"
+    answer: "Meta pairs a browser event and a server event when the event ID and the event name both match, within a 48-hour window. Send the server copy days later and it counts as a second purchase. Fire your webhook as the order lands rather than batching events into a nightly job."
+    source: "https://developers.facebook.com/docs/marketing-api/conversions-api/deduplicate-pixel-and-server-events/"
+  - question: "Can I switch the browser pixel off once server events arrive?"
+    answer: "No. The pixel carries the click identifiers that tie a conversion to a specific ad, and your server never sees them by itself. Keep both senders running permanently. The server is the durable one, the pixel is the one with the richest attribution signal, and Meta expects the pair rather than a winner."
+  - question: "How soon will I know whether the build actually worked?"
+    answer: "Test Events tells you within seconds whether the payload is correct, which is the only fast feedback you get. Reported purchases move within a day. Cost per acquisition and delivery only shift after Meta relearns on the fuller signal, so wait a full attribution window before you judge results or touch bids."
+---
+
+Your Meta pixel works. Purchases appear in Events Manager, the number just quietly smaller than the one in your Shopify admin, and every guide on how to set up Meta CAPI on Shopify either tells you to install an app or drops forty lines of code with no explanation of a single field.
+
+This is the whole build, in the order an engineer would do it: route, token, payload, shared event ID, verification, ramp.
+
+The browser pixel stays exactly as it is. You finish with two senders and zero change on a shopper's device.
+
+## What do you need in hand before you touch anything?
+
+Gather these before you open an editor. Almost every failed setup I have inherited improvised one of them halfway through.
+
+| What you need | Where it lives | Why it matters |
+| --- | --- | --- |
+| Dataset ID, the pixel ID | Events Manager, top of the dataset page | Every request is addressed to this ID |
+| Business Manager admin access | business.facebook.com settings | You cannot create a system user without it |
+| Somewhere to run server code | Your host, or a serverless function | The request leaves from a machine you control |
+| Shopify order webhook access | Shopify admin, or a custom app | This is your purchase trigger |
+| Environment variables | Your host | The token never goes near a theme file |
+| One repeatable test order | A draft order you can refund | Verification needs a real payload, not a guess |
+
+Two decisions belong here, not three sections later.
+
+- **Consent.** Decide how you know a shopper agreed to marketing tracking, and how that flag reaches your server. A server event fired for somebody who declined is the same violation as a pixel, and harder to spot because nothing runs in their browser.
+- **Scope.** Purchase only. Add to cart and the rest follow once purchase is proven end to end. Five events at once is five things to debug, and they fail in ways that look identical.
+
+## Which of the three routes to CAPI should you take, and why not the easiest one?
+
+Three honest ways exist to move a purchase from Shopify into Meta. Pick one deliberately. Running two at once, usually by accident, is the most common cause of numbers nobody trusts.
+
+| Route | Where the code lives | Control you get | Who it suits |
+| --- | --- | --- | --- |
+| Native Facebook and Instagram sales channel | Nowhere, Meta runs it | Very little | Simple catalogue, standard purchase, no custom values |
+| Tracking app or server-side container | The vendor's infrastructure | Moderate, configured not written | Teams without a backend engineer but with real requirements |
+| Your own endpoint on a Shopify webhook | Your server | Total | Subscriptions, bundles, custom pricing, anything unusual |
+
+The easiest is the native sales channel, and for a plain store it is genuinely the right answer. It goes wrong when you need to see inside it: no payload to read when revenue looks off, no place to put a rule when discounts or bundle pricing need one, no way to inspect which event ID either sender used, and no room past the standard events.
+
+The rest of this guide takes the third route, because it shows plainly what the other two do on your behalf, and assumes your own small endpoint on Shopify's order webhook.
+
+Two things justify the extra work. Browser storage is not durable: Safari deletes all script-writable storage after seven days of Safari use without interaction on the site, <Cite href="https://webkit.org/blog/10218/full-third-party-cookie-blocking-and-more/">per WebKit</Cite>. And the pixel still has to stay, since it carries click identifiers your server never sees. The longer argument is in our [server-side tracking guide](/blog/shopify-server-side-tracking).
+
+<PostCta />
+
+## How do you mint and store the access token so it survives staff turnover?
+
+Ignore the quick token button on the dataset page. It ties event delivery to one person's account. When they change role or leave, your purchases stop arriving and nobody connects the two events for a fortnight.
+
+1. Open Business Manager settings, then **Users**, then **System users**. Create one and name it after the job, not the person: `capi-shopify-purchase`.
+2. Give it **Employee** access. Go higher only when something concrete fails.
+3. Click **Add assets**, choose **Datasets**, select your pixel, grant **Manage dataset**.
+4. Click **Generate new token**, select your business app, tick the `ads_management` scope and nothing else.
+5. Copy the token once. Meta will not show it again. Put it into your host's environment variables as `META_CAPI_TOKEN`.
+6. Note in your password manager which system user owns the token and which app generated it, then set a reminder to rotate it.
+
+<Callout title="Treat this token like a payment key" tone="warning">
+Anybody holding it can write events into your dataset, shaping your reported revenue and how Meta spends your budget. It must never appear in a theme file, a script tag, a client bundle, a support ticket or a screenshot. If it does, revoke it in Business Manager first.
+</Callout>
+
+## How do you build the purchase payload field by field?
+
+A CAPI request is a POST to the events endpoint for your dataset, carrying a `data` array with one event object. Here is what that object needs for a purchase.
+
+| Field | Group | Notes |
+| --- | --- | --- |
+| `event_name` | top level | Exactly `Purchase`, capital P |
+| `event_time` | top level | Unix time in **seconds**, not milliseconds |
+| `event_id` | top level | Your shared ID, built in the next section |
+| `action_source`, `event_source_url` | top level | `website`, and the thank-you page URL |
+| `em`, `ph`, `fn`, `ln`, `ct`, `st`, `zp`, `country`, `external_id` | user_data | Lowercased, trimmed, SHA-256 hashed |
+| `client_ip_address`, `client_user_agent`, `fbp`, `fbc` | user_data | Plain text, never hashed |
+| `currency`, `value` | custom_data | ISO code read off the order, and the amount charged |
+| `contents`, `content_type`, `order_id` | custom_data | Line items with `id`, `quantity`, `item_price` |
+
+Three rules sit behind most broken payloads.
+
+- **Normalise before hashing.** Lowercase, strip whitespace, then hash. `Anna@Shop.com ` and `anna@shop.com` give different hashes and only one matches a real person.
+- **Never double-hash.** If a value reached you already hashed, send it untouched. Hashing a hash gives a string that matches nothing and reports no error.
+- **Send what you charged.** Not the subtotal, not the pre-discount total, and not a number assembled in a way nobody wrote down.
+
+<Example>
+An order has a 60.00 subtotal, a 10.00 discount, 5.00 shipping and 2.75 tax. The customer pays 57.75. Send 60.00 as the value and every 100 orders reports 225.00 of revenue that never existed, and Meta optimises toward it. Pick your definition once, apply it in both senders, write it down.
+</Example>
+
+<PostCta />
+
+## How do you generate one event ID and get both senders to use it?
+
+Two senders, one order, one ID. Meta pairs the copies when the event ID **and** the event name both match, inside a 48-hour window, <Cite href="https://developers.facebook.com/docs/marketing-api/conversions-api/deduplicate-pixel-and-server-events/">as documented here</Cite>.
+
+1. **Choose a deterministic source.** The Shopify order ID. It exists before either sender fires, it never changes, and it is unique.
+2. **Derive the ID identically in both places.** Something like `purchase_<order_id>`. Same prefix, same casing, no timestamps.
+3. **Set it on the browser event.** Read the order ID inside your web pixel and pass it as the `eventID` on the Purchase call.
+4. **Set it on the server event.** Your webhook already holds the order. Build the same string, send it as `event_id`.
+5. **Send the server copy promptly.** As the webhook lands, not from a nightly batch, so both copies fall inside the window.
+6. **Read both spellings before deploying.** `Purchase_1234` and `purchase_1234` are two different events.
+
+<Callout title="The mistake that costs a week" tone="warning">
+Generating a random UUID independently on each side. Both events arrive perfectly formed, both validate, and they never pair. If you cannot read one shared value from both senders, you have two IDs, not one.
+</Callout>
+
+## How do you verify with Test Events before a real order exists?
+
+Test Events is the only honest confirmation, and it needs no customer. It shows the raw object you sent, which reporting dashboards hide.
+
+1. Open Events Manager, select your dataset, click the **Test events** tab.
+2. Copy the `test_event_code` shown at the top of the panel.
+3. Add it as a top-level field on your payload, alongside `event_name`.
+4. Trigger it: place a draft order you refund, or replay a saved webhook body with curl.
+5. Watch the panel. Your event appears within seconds, labelled as a server event.
+6. Click into it and read every parameter: value, currency, event ID, and which user data fields Meta says it received, not which you believe you sent.
+7. Remove the test code before you ship. Left in, live events keep landing in the test view and never reach your dataset.
+
+What it looks like when this goes wrong.
+
+| Symptom | Usual cause |
+| --- | --- |
+| Nothing appears at all | Bad token, wrong dataset ID, or your host blocking outbound requests |
+| Event appears, value is 0 | You sent a string Meta could not parse, or read the wrong order field |
+| Timestamp sits in the future | Milliseconds sent where seconds were expected |
+| User data fields listed as not received | Hashed twice, or normalised after hashing instead of before |
+| Event arrives as `action_source: other` | You omitted the field, so Meta guessed |
+| Two purchases per order in reporting | Event IDs do not match, or the copies arrived too far apart |
+
+A missing browser copy here is a separate fault. Diagnose the pixel before blaming what you just built.
+
+<PostCta />
+
+## How do you cut over without disturbing the pixel that still works?
+
+Nothing gets switched off here. You are adding a second sender to a system that already works, so stage it.
+
+1. **Deploy in log-only mode.** Build the full payload, write it to your logs, send nothing. Read ten real ones against the orders in your Shopify admin.
+2. **Enable sending for a slice.** One market, or any filter you can apply cleanly and reverse in a minute.
+3. **Compare for two days.** Server events received against orders placed in that slice. Gaps need explanations.
+4. **Ramp to all orders** once the slice is clean, not once the code looks finished.
+5. **Change nothing about the pixel.** Not the code, not the placement, not the events it fires.
+6. **Watch event match quality** that week, and add user data fields if it looks thin.
+
+The pixel is half of the pair, permanently, and the half carrying click attribution.
+
+## What does Trackproof replace in steps 3 through 6?
+
+Trackproof does the token, the payload, the shared event ID and the verification. Connect your dataset and the purchase event ships with hashed user data, the currency read off the order, and one event ID on both senders. It is free <Cite href="https://apps.shopify.com/trackproof">on the Shopify App Store</Cite>, and new enough to have no reviews yet, which you should weigh honestly.
+
+- **Take Trackproof if** you want steps three through six handled and your checkout is a normal Shopify checkout.
+- **Build it yourself if** your value calculation needs judgement: subscriptions, bundles, partial fulfilment, margin-based optimisation.
+- **Take the native sales channel if** you want the smallest surface and accept that you cannot inspect it.
+- **Look elsewhere if** you need warehouse-level modelling across many destinations. Different budget, different category, compared in our [alternatives roundup](/blog/analyzify-alternatives-shopify).
+
+Whichever you choose, verification belongs to you. Open Test Events, read the actual object, confirm the value matches what the customer paid.
+
+<PostCta />

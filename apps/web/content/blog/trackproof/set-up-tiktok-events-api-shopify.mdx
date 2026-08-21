@@ -1,0 +1,158 @@
+---
+title: "How to Set Up the TikTok Events API on Shopify"
+slug: "set-up-tiktok-events-api-shopify"
+app: "trackproof"
+archetype: "tutorial"
+author: "anurag"
+description: "A tiktok events api shopify setup built for TikTok, not ported from Meta: scoped token, ttclid capture, identity shapes, test event, then live orders."
+primaryKeyword: "tiktok events api shopify setup"
+secondaryKeywords: ["tiktok events api integration", "tiktok server side tracking"]
+publishedAt: "2026-12-07"
+updatedAt: "2026-12-07"
+imageAlt: "Placeholder illustration for the TikTok Events API Shopify setup guide"
+internalLinks:
+  - "shopify-server-side-tracking"
+  - "best-shopify-conversion-tracking-apps"
+  - "facebook-ads-underreporting-conversions"
+tldr: "The TikTok Events API posts purchase events from your server instead of the shopper's browser. Create a pixel, mint a token scoped to it, capture the ttclid click identifier on the landing page and store it server side, hash the identity fields, then send each paid order with the same event ID your browser event used."
+faq:
+  - question: "Can I reuse the payload builder I already wrote for Meta?"
+    answer: "Only the plumbing around it. The HTTP call, the retry logic and the queue all carry over fine. The body does not. Event names, the nesting of value and currency, the identity field names and the click identifier are all different, and TikTok silently accepts an event it cannot match rather than rejecting it. Rebuild the body from TikTok's own field list."
+  - question: "Which event should I send first, and why only one?"
+    answer: "Send the purchase event and nothing else until it is proven. It is the event your reporting is judged on, it fires once per order, and you can reconcile it against a number you already trust in the Shopify admin. Adding view content and add to cart at the same time means several integrations failing at once with one set of logs."
+  - question: "What happens if both the pixel and the server send the same order?"
+    answer: "That is the intended design, provided both carry an identical event ID. TikTok asks you to share the event ID through both the Pixel and the Events API and keeps the first event it receives. Without the shared ID you get two purchases for one order, and every downstream number doubles quietly."
+    source: "https://ads.tiktok.com/help/article/event-deduplication?lang=en"
+  - question: "Why store ttclid on my server instead of in a browser cookie?"
+    answer: "Because the browser copy is on a clock. Safari deletes all script-writable storage after seven days of Safari use without interaction on the site, so a shopper who clicks an ad, waits a week and then buys arrives with nothing attached. Move the identifier to your own record of the session as soon as you see it."
+    source: "https://webkit.org/blog/10218/full-third-party-cookie-blocking-and-more/"
+  - question: "Do I need checkout extensibility or a particular Shopify plan?"
+    answer: "The server half needs neither. It runs outside the store entirely, triggered by an order webhook, so nothing in your checkout setup touches it. The browser half runs through the Web Pixels API, which gives you controlled APIs inside a Lax or Strict sandbox. What you cannot do any more is drop a script into checkout and read whatever you like."
+    source: "https://shopify.dev/docs/api/web-pixels-api"
+---
+
+Your TikTok Ads Manager reports four purchases. Shopify shows nineteen orders that came in from TikTok landing pages the same day. The pixel is installed and firing. The gap is not a reporting delay, it is every purchase event a browser was supposed to send and never did.
+
+A **tiktok events api shopify setup** closes that gap by sending the event from your server. If your instincts were trained on Meta, that is both an advantage and a trap. The architecture is the same shape. The field names, the click identifier, the deduplication rule and the token model are not, and TikTok will happily accept an event it cannot match to a single human being.
+
+Build it in this order and a mistake surfaces before it costs you a week: pixel and token, click identifier capture, identity fields, one test event, then real orders.
+
+## What does TikTok expect that Meta's Conversions API does not?
+
+Six differences are where a Meta-shaped port usually breaks. Read the table first, because each row is a habit that produces a request TikTok returns a success code for.
+
+| Your Meta habit | What TikTok expects instead |
+| --- | --- |
+| Event named `Purchase` | The completed payment event, under TikTok's own name |
+| `value` and `currency` at the top of the event | Both nested inside a `properties` object |
+| Identity fields under `user_data` | Identity fields under `user`, with different key names |
+| `fbc` and `fbp` from the browser | `ttclid` from the ad click and `ttp` from the cookie |
+| A business-wide system user token | A token minted against one pixel |
+| Test mode toggled in a panel | A test event code passed on the request itself |
+
+Two of those deserve more than a table row.
+
+- **Deduplication resolves differently.** Meta matches on the event ID and the event name together, inside a 48-hour window <Cite href="https://developers.facebook.com/docs/marketing-api/conversions-api/deduplicate-pixel-and-server-events/">per its own documentation</Cite>. TikTok asks you to share the event ID through both the Pixel and the Events API and keeps the first event it receives <Cite href="https://ads.tiktok.com/help/article/event-deduplication?lang=en">rather than merging them</Cite>. If the browser arrives first, its version is the one that survives, so the server payload has to be at least as complete.
+- **The click identifier is a URL parameter, not a cookie your library manages.** Meta's helper libraries hide a lot of `fbc` handling. On TikTok, spotting `ttclid` on landing and keeping it is your job.
+
+<Callout title="Do not port the payload, port the pipeline" tone="warning">
+Reuse your queue, your retry logic and your secret handling. Rebuild the request body from TikTok's field list with a blank file. A payload that is almost right returns the same success response as one that is completely right.
+</Callout>
+
+## How do you start a TikTok Events API Shopify setup with the right pixel and token?
+
+You need a pixel in manual mode, and a token attached to that pixel rather than to your whole business account.
+
+1. **Open Events Manager in TikTok Ads Manager** and create a pixel, or open the one your store already uses. Two pixels for one store is the single most expensive mistake available here, so check for an existing one first.
+2. **Choose manual setup, not the partner integration**, if you are running the server half yourself. The partner path installs its own browser code, and you end up debugging two integrations that both think they own the purchase event.
+3. **Copy the pixel ID** into your notes. Every request you send is addressed to it.
+4. **Generate an access token from the Events API section** of that pixel's settings. Scope it to this pixel only. A token with wider reach is a bigger blast radius for no benefit.
+5. **Store the token in an environment variable** on whatever host runs your endpoint. Not in a theme file, not in a metafield, not in a Shopify script. Anything readable from the storefront is readable by anyone.
+6. **Write the fail-closed branch first.** If the token variable is missing, your endpoint should refuse to run and log loudly. It must never fall back to sending an unauthenticated request or silently skipping the order.
+7. **Confirm your host allows outbound HTTPS.** Some serverless configs block egress by default, and that failure looks identical to a bad token.
+
+Leave the pixel's browser code installed and untouched throughout. You are adding a second sender, not replacing the first.
+
+<PostCta />
+
+## How do you capture ttclid and carry it through checkout to your server?
+
+This is the step Meta veterans skip, and it is the one that decides whether your events match. A shopper taps an ad, lands with `?ttclid=...` in the URL, browses, leaves, and buys four days later from a bookmark. By the time the order exists, nothing in the checkout knows that click happened.
+
+So capture it at the moment it appears and persist it somewhere you control.
+
+1. **Read `ttclid` from the query string on the first page view.** Read `_ttp` at the same time if it is available.
+2. **Send both to your own server immediately**, through an app proxy endpoint or your own domain, and write them against a session identifier you generate.
+3. **Set your own first-party cookie** holding that session identifier, not the raw click ID.
+4. **Attach the session identifier to the cart** as a cart attribute so it rides the order through checkout into the order payload.
+5. **On order creation, look the click ID up** by that session identifier and put it in the event.
+
+Two constraints shape this. Storefront code runs inside the Web Pixels API sandbox, which gives you controlled APIs in a Lax or Strict environment <Cite href="https://shopify.dev/docs/api/web-pixels-api">rather than free access to the page</Cite>. And browser storage expires on someone else's schedule: Safari deletes all script-writable storage after seven days of Safari use without interaction on the site <Cite href="https://webkit.org/blog/10218/full-third-party-cookie-blocking-and-more/">under Intelligent Tracking Prevention</Cite>. A server-side record has neither limit. The same reasoning applies to every other ad platform, as covered in the [server-side tracking guide](/blog/shopify-server-side-tracking).
+
+## How do you shape the identity fields TikTok will actually match on?
+
+TikTok matches on a bundle of signals. None is individually mandatory, which is why a thin event returns a success code and then attributes nothing. Send everything you legitimately hold for that order.
+
+| Field | Shape | Hashed? |
+| --- | --- | --- |
+| Email | Lowercase, trimmed, then SHA-256 hex | Yes |
+| Phone | E.164 with country code, then SHA-256 hex | Yes |
+| External ID | Your stable customer or order ID, then SHA-256 | Yes |
+| `ttclid` | Exactly as it appeared in the URL | No |
+| `ttp` | The `_ttp` cookie value exactly as stored | No |
+| IP address | The shopper's address, not your server's | No |
+| User agent | The shopper's browser string | No |
+
+Three rules that catch people out.
+
+- **Normalise before you hash, never after.** Lowercasing a hash produces a valid-looking string that matches nobody.
+- **Hash once.** Passing an already-hashed value through your hashing helper a second time is the most common silent failure in any server integration.
+- **Send the shopper's IP and user agent, not your server's.** An event that claims every customer shares one IP address in your hosting region is worse than an event with no IP at all.
+
+For the event body itself, `value` must be a number rather than a string, `currency` must be the ISO code from the order, and your `contents` array should carry content IDs that match the product IDs in your TikTok catalogue. Mismatched IDs break product-level reporting while order-level revenue still looks fine.
+
+Decide your value definition once and apply it everywhere.
+
+<Example>
+An order has items totalling 80.00, shipping of 6.00, tax of 4.80, and a 10.00 discount already applied to the items. If you define value as items after discount, you send 80.00. If you define it as what the customer paid, you send 90.80. Both are defensible. Sending 80.00 from the browser and 90.80 from the server is not, because your revenue then depends on which sender arrived first.
+</Example>
+
+<PostCta />
+
+## How do you send a test event and then tie it to a real Shopify order?
+
+Prove the transport before you wire it to anything. A test event code on the request routes that event into the debugging view instead of reporting, so you can iterate without polluting your numbers.
+
+1. **Copy the test event code** from your pixel's testing section in Events Manager.
+2. **Post one handcrafted purchase event** from your terminal, with a fake order ID, a real currency, a value of 1.00, and the test code on the request.
+3. **Watch the debugging view.** The event should appear within seconds.
+4. **Open it and read every field back.** Not the summary line. Confirm value, currency, event ID, and which identity fields TikTok says it received.
+5. **Add hashed email and phone** from a test customer and send again. The received-field list should grow.
+6. **Now wire it to the real trigger.** Fire your endpoint from the Shopify order creation webhook, or from an order paid handler if you only want captured orders.
+7. **Generate the event ID deterministically** from the order ID, so the browser and the server produce the identical string for the same order without coordinating.
+8. **Place one real test order** and confirm it lands with the correct total and a populated `ttclid` if you clicked through an ad to place it.
+9. **Remove the test event code** and deploy. Live traffic with the code attached never reaches reporting at all.
+
+What it looks like when it has gone wrong.
+
+| Symptom | Usual cause |
+| --- | --- |
+| Nothing arrives at all | Bad token, wrong pixel ID, or blocked outbound egress |
+| Event arrives, matched to nobody | Identity fields hashed twice, or normalised after hashing |
+| Revenue doubles overnight | Event ID differs between the two senders |
+| Value is zero or missing | A string sent where a number was expected |
+| Reporting stays empty while the debug view fills | Test event code still attached in production |
+| `ttclid` empty on every order | Capture happens at checkout instead of at landing |
+
+## How does Trackproof collapse this into one screen?
+
+Trackproof does steps two through nine for you. You connect the pixel, and it captures `ttclid` at landing, stores it server side against the session, hashes the identity fields, and sends each paid order with an event ID shared with the browser event. It is free <Cite href="https://apps.shopify.com/trackproof">on the Shopify App Store</Cite> and has no reviews yet, which is worth weighing honestly against tools with years of history behind them.
+
+- **Use Trackproof if** your checkout is a standard Shopify one and you want the click identifier handling and hashing done for you.
+- **Build it yourself if** your value definition is unusual: subscriptions, partial fulfilment, bundles, or pricing logic that lives outside Shopify.
+- **Use TikTok's own partner integration if** you want the least possible work and are content with browser-side coverage plus whatever the partner path sends.
+- **Look at a warehouse-first vendor if** you need modelled attribution across many destinations with SQL underneath. That is a different budget and a different category.
+
+Whichever you choose, run the verification yourself. Open the debugging view, read the fields TikTok says it received, and reconcile a day of orders against a day of reported purchases before you bid on the number. If you are still weighing whether the server path is worth the work, the [comparison with browser pixels](/blog/server-side-tracking-vs-pixel) sets out the tradeoff.
+
+<PostCta />

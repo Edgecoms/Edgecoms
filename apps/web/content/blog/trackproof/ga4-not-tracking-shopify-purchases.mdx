@@ -1,0 +1,162 @@
+---
+title: "GA4 Not Tracking Shopify Purchases: 6 Causes"
+slug: "ga4-not-tracking-shopify-purchases"
+app: "trackproof"
+archetype: "problem"
+author: "anurag"
+description: "GA4 not tracking Shopify purchases is six faults wearing one symptom. Confirm which one you have in DebugView in a minute, then apply only that fix."
+primaryKeyword: "ga4 not tracking shopify purchases"
+secondaryKeywords:
+  - "ga4 missing purchase events"
+  - "shopify ga4 revenue mismatch"
+publishedAt: "2027-01-04"
+updatedAt: "2027-01-04"
+imageAlt: "Placeholder illustration of a GA4 ecommerce report with an empty purchase row"
+internalLinks:
+  - "shopify-server-side-tracking"
+  - "server-side-tracking-vs-pixel"
+  - "shopify-multi-currency"
+tldr: "GA4 showing Shopify sessions but no purchases has six likely causes: the purchase event never fires on the order-confirmation page, Consent Mode defaults to denied, transaction_id is missing, value or currency is malformed, two measurement IDs split your data, or a data filter hides it. DebugView identifies which in one test order."
+faq:
+  - question: "Why does GA4 show sessions and add-to-carts but zero purchases?"
+    answer: "Sessions are recorded by the tag on your storefront. Purchases have to be recorded by something that survives into checkout, which is a different environment with different rules. When your purchase event lives only in old theme code, the storefront half keeps working perfectly and the checkout half never runs. The report looks half broken because it is."
+  - question: "Does every GA4 purchase event really need a transaction_id?"
+    answer: "Treat it as mandatory. It is the only thing telling GA4 that two events describe the same order rather than two separate orders. Send the Shopify order id or order name, identical every time that order reports, and never a value generated fresh in the browser. A random id per page load inflates your order count instead of protecting it."
+  - question: "Will fixing Consent Mode recover the purchases I already lost?"
+    answer: "No. Consent decisions are applied at collection time, so a suppressed event was never sent and nothing is queued for reprocessing. You only fix it going forward. That is the argument for checking consent in your first hour of diagnosis rather than your second week, because every day of delay is a day of orders you cannot recover."
+  - question: "Is one clean purchase in DebugView proof that it is fixed?"
+    answer: "It proves the event can fire. It does not prove it fires for everyone. Your test runs with consent granted, on a desktop browser, from an IP address you may have filtered out of reports. Confirm properly by comparing one full closed day of GA4 purchases against Shopify orders, then repeating that comparison a week later."
+  - question: "Should I check transaction_id or currency first?"
+    answer: "Check transaction_id first. A missing or repeated id breaks your order count, which is usually the number you noticed. A malformed currency or value normally leaves the count intact and zeroes the revenue instead. If both count and revenue are wrong, start with the id. If only revenue is wrong, skip straight to currency."
+---
+
+Shopify says thirty-eight orders yesterday. GA4 says four. Or it says nothing at all, and the purchase row in your ecommerce report sits empty while sessions and add-to-carts climb all day as though everything is fine.
+
+**GA4 not tracking Shopify purchases** is not one bug. It is six separate faults that all produce the same empty row, and the fix for any one of them does nothing for the other five. Guessing costs you a week of orders you will never get back.
+
+Work down the list in order. Each cause has one specific thing to look for before you change anything. Confirm the fault, then fix only that.
+
+## Is GA4 not tracking Shopify purchases, or just reporting them late?
+
+Plenty of the panicked emails I get about this are not a tracking fault. They are someone reading a report that has not finished processing.
+
+GA4 has three surfaces and they disagree with each other by design. Knowing which to trust saves you fixing something that was never broken.
+
+| Where you look | How fresh it is | What it can actually prove |
+| --- | --- | --- |
+| DebugView | Seconds | Whether the event fires at all, and exactly what parameters it carried |
+| Realtime report | Minutes | Whether real shoppers, not only you, are producing purchases right now |
+| Ecommerce purchases report | Not live | Whether yesterday's volume and revenue match Shopify |
+
+- **DebugView is the only place you diagnose.** It shows the event and every parameter attached to it. Everything else shows you a total, and a total cannot tell you why.
+- **Standard reports are for judging volume, never presence.** Read them the next morning against a closed day. Diagnosing from a report still filling in wastes an afternoon.
+- **A gap that shrinks overnight was latency.** A gap that is still there when you compare two closed days is a fault, and one of the six below owns it.
+
+<Callout title="Compare like for like before you panic" tone="warning">
+Shopify counts an order the moment it is placed. GA4 counts a purchase only if it was sent and allowed. Cancelled orders, draft orders, POS sales and app-created orders never pass through a browser, so they can never appear in GA4. Strip those out of your Shopify number first. Some of your gap will vanish before you touch a setting.
+</Callout>
+
+## Cause 1: Does the purchase event fire at all on the order-confirmation page?
+
+This is the one I find most often, and the easiest to confirm. Your storefront and your checkout are different environments. Code that runs on a product page has no automatic right to run after payment.
+
+Shopify's modern pixel surface runs custom pixels inside a sandbox with only controlled APIs available <Cite href="https://shopify.dev/docs/api/web-pixels-api">per the Web Pixels API docs</Cite>. Anything written years ago that assumed free access to the page will not execute there. It fails silently. Nothing in your admin turns red.
+
+Run this before you form a theory:
+
+1. Open your GA4 property, then Admin, then DebugView. Leave it open on a second screen.
+2. In a fresh browser profile with no ad blocker, enable debug mode so your own session appears in DebugView.
+3. Place a real, low-value test order and pay for it. Bogus-gateway orders do not always reach the same confirmation flow, so pay properly and refund afterwards.
+4. Watch the event stream on the confirmation page. You are looking for one event named exactly `purchase`, lowercase.
+5. Click that event and read every parameter. Screenshot it. It answers causes three and four as well.
+
+What the outcome tells you:
+
+- **No `purchase` event appears at all.** Your tracking never runs after payment. The fix is to move purchase tracking into a supported checkout surface rather than patching theme code that no longer executes there.
+- **An event appears with a different name.** GA4 only builds ecommerce reports from the reserved `purchase` name. A custom name like `order_complete` collects data into a void your reports never read.
+- **The event appears but only sometimes.** That is a race condition, usually a tag firing before the redirect completes. Server-side collection removes the race, which is the core argument in [server-side tracking versus pixels](/blog/server-side-tracking-vs-pixel).
+
+<PostCta />
+
+## Cause 2: Is Consent Mode defaulting your buyers to denied?
+
+Consent Mode is doing exactly what it was configured to do, which is the problem. A banner that sets `analytics_storage` to denied by default and never sends the update call when a shopper accepts leaves you with a property that is technically perfect and empty.
+
+The symptom is distinctive. Purchases are not missing at random. They are missing in a block, and often for one geography while another looks healthy.
+
+- **Check the default state, not the banner UI.** A banner can look like it grants consent visually while never calling the update. DebugView shows the consent state carried on the event itself.
+- **Check the region scoping.** Many banners apply denied-by-default only to EEA and UK traffic. If your GA4 purchases collapsed for European buyers and held steady elsewhere, this is your cause.
+- **Nothing is recoverable.** Suppressed events were never sent. No backfill, no reprocessing, no queue. Check consent early rather than last.
+
+## Cause 3: Is transaction_id missing, so GA4 folds many orders into one?
+
+GA4 uses `transaction_id` to decide whether two purchase events describe the same order or two different orders. Remove it and the model breaks in a way that looks like missing data.
+
+Look at the screenshot you took in cause one. If `transaction_id` is absent, empty, or the same string on every order, you have found it.
+
+- **Missing entirely.** GA4 has no way to separate orders. Your purchase count sinks far below your Shopify order count and your revenue goes with it.
+- **A static or hardcoded value.** Every order collapses into one transaction. This is the version that produces a purchase count of one, day after day, whatever your volume.
+- **A fresh random value per page load.** The opposite failure. A shopper refreshing the confirmation page books a second order, and your GA4 count sits above Shopify instead of below it.
+- **The fix is always the same.** Send Shopify's own order id or order name, unchanged, every time that order reports. It exists already, it is unique already, and it is what your finance team will reconcile against.
+
+<Example>
+A store takes 100 orders in a day at an average of 60.00 GBP, so Shopify reports 6,000.00 GBP. The purchase event fires correctly but carries no transaction_id, so GA4 cannot separate the orders and reports a count far below 100 with revenue to match. The tag was never broken. One absent parameter did all of it. Substitute your own figures.
+</Example>
+
+<PostCta />
+
+## Cause 4: Is the value or currency malformed, so revenue lands as zero?
+
+This cause has a different fingerprint. Your purchase count is correct. Your revenue is zero, or a number that resembles nothing in Shopify.
+
+GA4 wants `value` as a plain number and `currency` as a valid three-letter ISO code. It is strict about both and it does not warn you.
+
+- **A currency symbol inside the value.** Sending `"£60.00"` rather than `60.00` gives GA4 a string where it expects a number. Revenue lands as zero while the order still counts.
+- **A comma as the decimal separator.** European formatting like `60,00` fails the same way, and only for the locales that format that way, which is why the gap can look regional.
+- **A missing or invalid currency code.** No code, a lowercase code or a symbol instead of a code, and GA4 has no way to book the amount. `GBP` works. `gbp` and `£` should not be relied on.
+- **A presentment amount paired with the shop currency code.** This is the nasty one on international stores. The shopper pays in dollars, your tag sends that number with `GBP`, and GA4 books an amount nobody was ever charged. If you sell in several currencies, read the [multi-currency setup notes](/blog/shopify-multi-currency) before you trust any revenue figure.
+
+## Cause 5: Are two measurement IDs on the page, sending purchases to the property you never open?
+
+Shopify stores accumulate tracking. The theme has a snippet from a developer two years ago, an app added its own integration, someone connected Google and YouTube, and a GTM container carries a GA4 tag too. Each can carry a different measurement ID.
+
+Nothing errors. The data is collected beautifully into a property nobody has opened since it was created.
+
+- **Count the IDs, do not assume.** Open the confirmation page source and search for `G-`. More than one distinct ID is your answer.
+- **Match the ID in DebugView to the property in your address bar.** Both are easy to assume and easy to get wrong. Do this ten second check before anything harder.
+- **Look for the split shape.** Sessions look normal because the storefront tag is right, while purchases go elsewhere because the checkout integration was configured against a different ID.
+- **Remove, do not add.** The instinct is to install another integration so the purchase reaches the right property. That leaves you with duplicate events and a harder problem. Delete the redundant installs until exactly one path remains.
+
+<PostCta />
+
+## Cause 6: Is a data filter or an unfinished internal-traffic rule hiding them from you?
+
+The events arrived. They are in the property. You cannot see them, because a filter at property level is removing them before the report is built.
+
+It is maddening, because everything upstream looks perfect.
+
+- **Internal traffic filters left active on a stale IP range.** Your office IP changed, the range in the filter did not, and now a block of ordinary shopper traffic is being classified as internal and excluded.
+- **Developer traffic filters catching real sessions.** Anything that sets the debug flag gets swept in, including a shopper whose browser extension sets it unintentionally.
+- **Reading a filtered data stream by habit.** Compare the unfiltered view against your working view for the same day. If the purchases appear in one and not the other, you have your cause.
+- **Filters never backfill.** Turning one off recovers nothing retroactively. Excluded data is gone.
+
+## Which of these six can Trackproof rule out, and which stay yours?
+
+Straight answer, because a vague one costs you a day. Three of these six are structural, and a purchase sent from the order rather than the browser removes them permanently. Three are settings decisions inside your own Google property, and no app can make them for you.
+
+| Cause | Removed by server-side collection | Stays your job |
+| --- | --- | --- |
+| 1. Event never fires in checkout | Yes | |
+| 2. Consent defaults to denied | | Yes |
+| 3. transaction_id missing | Yes | |
+| 4. value or currency malformed | Yes | |
+| 5. Two measurement IDs | | Yes |
+| 6. Data filter hiding events | | Yes |
+
+[Trackproof](https://apps.shopify.com/trackproof) sends the purchase from the order itself, with Shopify's own order id as `transaction_id` and the order's own currency, so causes one, three and four stop being possible rather than being fixed. It is free and it has no reviews yet, which you should know before installing anything.
+
+What it will not do is decide your consent policy, audit an install you inherited, or unpick a filter you set last year. If you would rather buy something with years of review history behind it, Elevar starts at $225/mo for 2,000 orders <Cite href="https://apps.shopify.com/gtm-datalayer-by-elevar">on its App Store listing</Cite> and Littledata at $199/mo for 1,500 orders <Cite href="https://apps.shopify.com/littledata">on its listing</Cite>, both checked on 22 August 2026. For the underlying model, start with [server-side tracking on Shopify](/blog/shopify-server-side-tracking).
+
+Whatever you install, verify it the same way. One closed day, GA4 purchases against Shopify orders, compared again a week later.
+
+<PostCta />

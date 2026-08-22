@@ -1,0 +1,148 @@
+---
+title: "How to Import Reviews to Shopify Safely"
+slug: "import-reviews-shopify"
+app: "edge-reviews"
+archetype: "tutorial"
+author: "anurag"
+description: "The mechanics of how to import reviews to Shopify without losing rows: what to export first, which identifier to match on, and how to prove nothing dropped."
+primaryKeyword: "how to import reviews to shopify"
+secondaryKeywords: ["review migration shopify", "csv review import"]
+publishedAt: "2026-11-16"
+updatedAt: "2026-11-16"
+imageAlt: "Placeholder illustration of a review migration between two Shopify apps"
+internalLinks:
+  - "shopify-product-reviews"
+  - "fake-reviews-shopify"
+  - "yotpo-alternatives"
+tldr: "Export everything from the old review app before billing lapses, including the photo files rather than the photo URLs. Match rows on a real product identifier, never on the product title, and carry the original review ID through as a column. Keep original dates. Afterwards, reconcile three counts per product and investigate any gap."
+faq:
+  - question: "Will I lose my review photos when I switch apps?"
+    answer: "You will if you only export the CSV. Photo columns usually hold URLs pointing at the old vendor's storage, and those stop resolving once your plan lapses. Download the binaries to a local folder keyed by review ID while the account is still active, then upload them to Shopify Files or supply them to the importer directly."
+  - question: "Can I keep the verified-buyer badge on imported reviews?"
+    answer: "Usually not, and you should be sceptical of any importer that offers to set it for you on arbitrary rows. Verified status is derived from an order match at the moment the review was collected. Carry the order number in your export if you have it. Some apps will rematch it against Shopify orders and re-derive the badge honestly."
+  - question: "How long should a review import take?"
+    answer: "The import itself is usually minutes. The preparation is the work, and for a catalogue with renamed products it is a day. Budget most of that for building the crosswalk between the old app's product references and your current Shopify product IDs, plus the sample run on a development store before you touch production."
+  - question: "What happens if I run the same import file twice?"
+    answer: "It depends entirely on whether your file carries the old app's review ID in a column the importer treats as a unique key. With one, a second run is a no-op or an update. Without one, you get a duplicate of every row and a rating aggregate built on doubled data. Check this before the first run, not the second."
+  - question: "Do imported reviews still qualify for star markup?"
+    answer: "Only if they are genuinely yours and genuinely visible. Google requires that review content marked up on a page be readily available to users on that same page, so reviews sitting in an app database but not rendered in the widget do not qualify no matter how they arrived."
+    source: "https://developers.google.com/search/docs/appearance/structured-data/review-snippet"
+---
+
+You cancelled the old review app on a Tuesday. On the Friday the widget went blank, and four years of customer photos went with it. The export you took is a CSV with a column called `product` that holds a product title, and titles are not identifiers.
+
+That is the failure mode nobody warns you about. Nothing errors. The importer reports success, the stars come back, and months later part of your catalogue has quietly lost its proof because three products got renamed.
+
+So the real question behind **how to import reviews to Shopify** is not which button to press. It is bookkeeping: what to pull out before the subscription lapses, which key to match rows on, and how to prove afterwards that what went in came out.
+
+## What do you need out of the old app before the subscription ends?
+
+The export window is the part people compress, and the only part you cannot redo. Once billing lapses most apps drop you to read-only, then stop serving your media. Export first, check the file opens, then cancel. You need more than review text.
+
+| Field | Why it matters | What breaks without it |
+| --- | --- | --- |
+| Review ID from the old app | Your idempotency key and join key | Re-runs duplicate everything |
+| Rating | The aggregate is built from it | Averages are wrong, silently |
+| Original created date | Chronology and recency sorting | Every review is dated today |
+| Product reference | The matching key | Rows land nowhere |
+| Photo and video files | The most-looked-at content you own | Media dies with the subscription |
+| Order number | Lets a new app re-derive verified status | The badge cannot be rebuilt |
+| Status and locale | Moderation and language | Hidden reviews go live in the wrong copy |
+
+Two more things while you can. Screenshot five product pages showing the count and star average, your ground truth later. And export your Shopify products with `id`, `handle` and `title` as the crosswalk.
+
+<Callout title="Export before you cancel, not during the grace period" tone="warning">
+Grace periods cover the dashboard, not the CDN. The CSV keeps working long after the image URLs inside it stop resolving, which is what makes the loss invisible until the new widget is live.
+</Callout>
+
+## Should reviews be matched on handle, SKU or product ID?
+
+This one decision causes most orphaned rows. The three candidates behave differently.
+
+- **Product ID.** Numeric and immutable for the life of the product. If the old app was installed on this store, its product reference is usually a copy of your real Shopify product ID, the best key available. If reviews were themselves imported from elsewhere, those IDs are foreign, so check ten against your product export first.
+- **Handle.** The slug in `/products/blue-merino-crew`. Readable, easy to debug, and mutable. Shopify keeps a URL redirect when a handle changes, but the handle field is simply the new value, so a CSV exported before a rename will not match after.
+- **SKU.** Lives on the variant, not the product. Five sizes means five SKUs and one review list, so matching on SKU means picking which variant stands for the product. You will get that wrong somewhere.
+
+Match on product ID, fall back to handle, use SKU only as a third pass. Build a crosswalk sheet with four columns: old product reference, resolved Shopify product ID, handle, match method. Rows that resolve by none of the three go in a rejects tab and get fixed by hand.
+
+Never match on title. Titles carry trailing whitespace, smart quotes and seasonal edits, and a fuzzy match is how reviews for the black version land on the navy one.
+
+<PostCta />
+
+## How to import reviews to Shopify without silently dropping rows
+
+Importers reject rows for boring reasons, and they write it to a log nobody opens. Shape the file so there is nothing to reject.
+
+- **Save as UTF-8 without a byte order mark.** Excel writes CP1252 or adds a BOM. If you see `Ã©` where an accent should be, the encoding is wrong and re-importing will not fix it.
+- **Quote every field.** Review bodies contain commas, quotation marks and line breaks. One unquoted newline shifts every following row by a column, producing a file that imports cleanly and is wrong.
+- **Use ISO 8601 dates with an offset**, like `2024-03-11T09:14:00Z`. Ambiguous formats get read as US ordering, so the eleventh of March becomes the third of November.
+- **Keep ratings as bare integers.** Not `5.0`, not `5 stars`, not star glyphs. A rating column parsed as text drops out of the aggregate.
+- **Never default a missing rating to five.** Put those rows in the rejects tab. Defaulting is the one edit that changes a number a customer sees.
+- **Carry `external_id`** holding the old app's review ID, and confirm the importer treats it as a unique key. That is what makes a second run safe and verification possible at all.
+
+## What happens to photos, replies and verified-buyer badges in transit?
+
+These three are where migrations lose the content doing the most work, and photos are the least portable thing you own.
+
+- **Photos and video are references, not data.** Your CSV holds URLs on the old vendor's domain, sometimes with an expiring token attached. Write a script that walks the CSV and downloads every file into a folder named by `external_id`, then check the folder count against the media URLs in the file.
+- **Re-hosting is your problem.** Importers accept an uploaded file or a URL reachable at import time. Shopify Files works as the interim host. Pointing the new app at the old vendor's CDN does not.
+- **Replies are usually a separate object.** With no reply column, your replies either vanish or land as standalone reviews with a staff name on them. Decide which before you run, not after you see it live.
+- **The verified badge is a claim, not a field.** It was derived by matching a reviewer against an order at collection time, and it does not travel. Carry the order number and let the new app rematch. That is the only true version of the badge.
+
+If you are choosing an app partly on this, the wider [review strategy questions](/blog/shopify-product-reviews) matter more than the feature list.
+
+<PostCta />
+
+## How do you stop dates, author names and locales being rewritten?
+
+The default behaviour of nearly every importer is to stamp `created_at` as the moment of import. Left alone, four years of accumulated proof becomes one implausible Tuesday, recency sorting stops meaning anything, and a careful shopper can see the whole thing arrived at once.
+
+- **Insist on a date column and confirm it is honoured.** Import twenty rows, look at the dates on the page, then run the rest. Two minutes, and it prevents a mess that looks unfixable.
+- **Keep author names exactly as displayed.** If the old widget showed `Jane D.`, that is what customers saw. Do not expand initials you do not have, and do not title-case what was lowercase.
+- **Preserve the language code.** On a multi-language storefront, reviews with no locale get bucketed into the default language and shown to everyone.
+
+## How do you dry-run the import and roll it back if it goes wrong?
+
+Never make production the first attempt. This is the procedure.
+
+1. **Spin up a development store** and install the target app on it. This is what they are for.
+2. **Cut a 200-row sample** that is deliberately awkward: 50 oldest, 50 newest, 50 with photos, 50 with emoji, apostrophes, accents or replies.
+3. **Import the sample** and write down the exact start time. You will need it as a rollback filter.
+4. **Read the rejection log.** Compare rows in the file, rows accepted, rows rejected. If the app produces no log, that is a finding, and better known now than at 3,000 rows.
+5. **Open ten product pages** and compare against your screenshots. Count, average, order, photos.
+6. **Check the awkward cases individually.** One emoji review, one very long one, one 1-star, one with a reply.
+7. **Fix the mapping sheet**, import the full file to the development store, and repeat steps 4 and 5 at scale.
+8. **Pause outgoing review requests** before touching production, so no new review lands mid-import and skews your counts.
+9. **Run production**, recording the batch identifier or timestamp.
+10. **Confirm the rollback path in advance.** You want to select by batch or `external_id` and bulk delete. If the app cannot, rollback is manual, and you need to know that before you run.
+
+It has gone wrong if you see: every review dated today, a product with reviews in the CSV showing zero on the page, an average that moved when the file said it should not, `Ã©` in place of accents, broken image placeholders, or a widget count that disagrees with the app admin.
+
+<PostCta />
+
+## How do you verify the aggregate and the markup once it has landed?
+
+Verification is three numbers and a diff. Reconcile rows in the export, rows the importer accepted, and reviews now live. Any gap needs a name. "Probably fine" is not a name.
+
+<Example>
+Your export has 3,412 rows. The importer log says 3,398 created and 14 skipped for a blank rating, which you expected. The app admin shows 3,340, leaving 58 unaccounted for. A per-product diff points at three handles renamed in a catalogue tidy last year. Fix those in the crosswalk and re-import only those 58, using `external_id` so nothing duplicates.
+</Example>
+
+A matching total can hide two errors that cancel out, so do the per-product comparison too. Pivot the CSV by product, export the new app's per-product counts, diff the columns, and look at anything non-zero.
+
+- **Recompute the average from the CSV** and compare it against the widget on three or four products. A mismatch usually means the rating column parsed as text.
+- **Spot check the extremes.** Oldest, longest, lowest rating, one with photos, one with a reply. Extremes are where mapping errors surface.
+- **Confirm the reviews are actually rendered.** Google's guidance is that review content marked up on a page must be readily available to users on that same page <Cite href="https://developers.google.com/search/docs/appearance/structured-data/review-snippet">per its review snippet documentation</Cite>, so reviews sitting in a database but not shown in the widget support no markup.
+- **Keep the export, the log and the crosswalk** for a year. If anyone questions a review later, that folder is your answer.
+
+## Where does Edge Reviews fit in a migration?
+
+Edge Reviews is our review app. It has a free plan and it imports existing reviews. It is also new, so it does not have the years of edge-case handling the established apps do, and I would rather say that here than have you find it out mid-migration.
+
+Where it fits: a store leaving an expensive suite that wants reviews to land somewhere free and simple, with the mapping visible rather than hidden. If the move is part of leaving a bundled platform, the sequencing is covered in the [Yotpo alternatives breakdown](/blog/yotpo-alternatives).
+
+Where it does not: if your migration is complicated or heavy on media, Judge.me is the honest recommendation. It sits at 5.0 stars across 43,884 reviews with a permanent free plan including unlimited photo and video reviews <Cite href="https://apps.shopify.com/judgeme">on the Shopify App Store</Cite>, and it has run this migration more times than anyone. Being second choice for a hard migration is not a problem. Losing your reviews is.
+
+Whichever you pick, the mechanics do not change. Export before you cancel, match on a real identifier, keep the original dates, count what landed.
+
+<PostCta />

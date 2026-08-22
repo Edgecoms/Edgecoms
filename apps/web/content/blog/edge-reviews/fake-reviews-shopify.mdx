@@ -1,0 +1,166 @@
+---
+title: "Fake Reviews on Shopify: How to Spot and Avoid"
+slug: "fake-reviews-shopify"
+app: "edge-reviews"
+archetype: "problem"
+author: "anurag"
+description: "A clear line on fake reviews Shopify merchants can act on: what the FTC counts as fake, how to spot fabricated reviews, and what hosting them costs."
+primaryKeyword: "fake reviews shopify"
+secondaryKeywords:
+  - "review fraud ecommerce"
+  - "fake review penalties"
+publishedAt: "2027-01-04"
+updatedAt: "2027-01-04"
+imageAlt: "Placeholder illustration of a review moderation queue with suspicious entries flagged"
+internalLinks:
+  - "shopify-product-reviews"
+  - "import-reviews-shopify"
+  - "best-shopify-review-apps"
+tldr: "A fake review is any review that misrepresents who wrote it or whether they used the product. Under the FTC's 2024 rule that covers bought reviews, undisclosed insider reviews, and suppressing the negative ones. Verify against orders, disclose incentives, publish every rating, and keep a written policy you can show."
+faq:
+  - question: "Are AI-written reviews allowed if the customer really did buy the product?"
+    answer: "A real customer using a writing tool to tidy their own words is not the problem. A review generated about a product nobody used is, because the misrepresentation is about experience, not about which keyboard produced the text. The practical test is whether a real purchaser stands behind every sentence. If the answer needs qualifying, do not publish it."
+  - question: "Can I ask my own employees to review our products?"
+    answer: "Only with a clear and conspicuous disclosure of the relationship, sitting with the review itself rather than buried in a policy page. The same applies to founders, contractors, and immediate family. Quietly soliciting reviews from relatives is treated as an insider review even when the relative genuinely bought and liked the product."
+  - question: "Is offering a discount in exchange for a review against the rules?"
+    answer: "Offering something of value is not automatically prohibited. Conditioning it on the review being positive is. Disclose the incentive, offer it identically to everyone who reviews regardless of rating, and never hint at what you would like written. If your email promises a reward for five stars, rewrite the email before you send another one."
+  - question: "What do I do if a competitor buys negative reviews on my store?"
+    answer: "Collect evidence before you react. Export the reviews with timestamps, order matches, and reviewer details, then look for the pattern across a window rather than arguing about one review. Report it to your review app and the marketplace involved. Do not buy positive reviews to balance the ledger, because that turns their offence into yours."
+  - question: "Does moderating reviews put me at risk of a suppression claim?"
+    answer: "Not if you moderate on properties of the review rather than the rating. Removing abuse, spam, personal data, and reviews about the wrong product is normal housekeeping. Holding a one-star review because it is one star is not. Write your criteria down first, apply them the same way to every rating, and keep the log."
+---
+
+You approve reviews on a Tuesday morning and something is off. Four five-star reviews landed overnight on a product that sold eleven units last month. The names look plausible. The text is fluent, complimentary and says nothing a person who actually owned the thing would say.
+
+Nobody at your company ordered them. Fake reviews Shopify merchants never asked for do arrive on their own: review farms seed real storefronts to build reviewer histories, and competitors occasionally pay for the negative kind.
+
+This post covers where the legal line sits, how to recognise a fabricated review before you approve it, and what it costs you once the corpus stops looking clean.
+
+## What actually counts as a fake review under the FTC's rule?
+
+The FTC's Rule on the Use of Consumer Reviews and Testimonials came into force in October 2024. Most merchants assume it is only about buying reviews in bulk. It names more than that.
+
+- **Reviews from people who do not exist or did not use the product.** This is the core prohibition. It covers invented reviewers, and it covers text generated about a product nobody actually bought. The offence is the misrepresentation of experience.
+- **Buying reviews with a sentiment condition attached.** Paying cash, product or credit for a review is not itself the problem. Paying for a *positive* review is, and so is paying for a negative one about someone else.
+- **Insider reviews without disclosure.** Officers, employees, contractors and their immediate relatives. The disclosure has to sit with the review, and the rule also reaches managers who quietly solicit reviews from family.
+- **A review site you control, presented as independent.** If you run the venue and it looks neutral, that framing is the deception.
+- **Suppression.** Unfounded legal threats to get a negative review pulled, and publishing a filtered slice while implying it is all of them.
+
+The rule attaches to what you knew or should have known. Hiring an agency does not move liability off your store, and neither does inheriting reviews with an acquired brand and never checking them.
+
+## Which everyday tactics create fake reviews Shopify merchants never intended?
+
+Almost nobody in my agency inbox set out to commit review fraud. They ran an ordinary growth tactic that happens to be one.
+
+- **Launch-day seeding by the team.** Five staff members write the first five reviews so the page is not empty. No disclosure, so all five are insider reviews.
+- **The friends-and-family round.** Same problem, one step removed. The relationship requires disclosure, not the sincerity.
+- **An incentive tied to the rating.** "Leave a five-star review, get a discount code" is the version everyone recognises. "Loved it? Here's a coupon" is the same offer wearing a jumper.
+- **Demo reviews the theme shipped with.** Placeholder content nobody removed before launch. Fabricated is fabricated, even when it was an oversight.
+- **Supplier review packs.** A supplier hands over a CSV of reviews for the same white-label product. You cannot verify a single one.
+- **Sending the request only to the happy half.** A flow that asks "how did we do?" and routes the low scorers to a support form instead of the review widget. That is gating, covered further down.
+- **Tidying up a review before publishing.** Fixing a typo is fine. Rewriting a sentence so it lands better changes what the customer said.
+
+Getting the ask right without any of this is mostly timing and the wording of one email. Our guide to [Shopify product reviews](/blog/shopify-product-reviews) covers the mechanics.
+
+<PostCta />
+
+## How do you spot a fabricated review in your own moderation queue?
+
+Single signals prove nothing. A real customer can leave four generic words. Cluster two or three on the same review and you have something.
+
+| Signal | What it looks like | What to do |
+| --- | --- | --- |
+| No matching order | Reviewer email or name has no order in the last 24 months | Hold, request verification |
+| Arrival burst | Several reviews within an hour on a slow-selling SKU | Hold the whole batch, not one |
+| Rating and text disagree | Five stars with a body describing a fault | Read again, usually a bot template |
+| Product-name stuffing | Full product title repeated in the body | Strong signal of generated text |
+| Reused photo | Image appears on other sites or is a studio shot | Reverse image search before approving |
+
+A triage sequence that takes about a minute per suspicious review:
+
+1. **Match it to an order.** Verified purchase status is the cheapest filter you have. Turn it on and display it.
+2. **Check the timing.** A review predating delivery is either about the packaging or about nothing.
+3. **Read for owner detail.** Real reviews mention the mundane: a strap that rubs, a colour that reads warmer than the photo.
+4. **Reverse image search any photo.** Fifteen seconds, and it catches the laziest farms outright.
+5. **Hold, do not delete.** Keep the record, the timestamp and the metadata. If this ever becomes a dispute, the log is your defence.
+6. **Log the decision and the reason.** One line per review. That log is what shows you moderate consistently.
+
+## How do you tell whether a competitor's reviews were bought?
+
+You cannot prove it from outside, and you should be careful about saying so publicly. You can usually tell.
+
+- **Velocity against plausible sales.** Estimate their order volume from stock movement or bestseller ranking, then compare. Reviews cannot outrun orders. If the count climbs faster than they could plausibly be shipping, something else is filling it.
+- **The shape of the distribution.** Genuine corpora have a body of threes and fours. A wall of fives with a handful of ones and nothing between is a bought block sitting on a real base.
+- **Names that travel.** Reviewer names and avatars that show up on unrelated stores in unrelated categories.
+- **Reviews older than the product.** Check the review dates against when the product was first listed.
+
+What to do with it: document, report it through the review app and the marketplace, and stop there. Retaliating by buying your own moves the violation onto your store, and you become the one with the paper trail.
+
+<PostCta />
+
+## What happens to your rich results once Google decides the corpus is not clean?
+
+The immediate cost is not a fine. It is stars vanishing from your search listings catalogue-wide, which shows up as a click-through collapse a week before anyone works out why.
+
+Google's guidance on review snippets is specific about two things that catch stores out. The review content has to be visible to users on the page carrying the markup, and entities that control the reviews about themselves are not eligible for the star feature <Cite href="https://developers.google.com/search/docs/appearance/structured-data/review-snippet">Google review snippet documentation</Cite>. A review corpus that a store curates for sentiment is trending straight towards the second of those.
+
+The wider costs stack up quietly:
+
+- **Ad platform review.** Deceptive social proof is a policy problem for Meta and Google Ads, not only for search.
+- **Marketplace suspension.** Sell the same catalogue on a marketplace and a manipulation finding there can end the channel.
+- **Your own data goes blind.** The underrated one. Once part of the corpus is fake, you cannot read reviews to find out which SKU has a quality problem.
+
+<Callout title="The asymmetry" tone="warning">
+Reviews take months to accumulate and one enforcement action to lose. There is no partial rollback. When stars are pulled they go from every product page, including the ones you never touched.
+</Callout>
+
+## Is review gating or publishing only the good ones defensible?
+
+No, and the version merchants run is usually the polite one, which makes it harder to spot.
+
+Gating is any flow that predicts sentiment before deciding where the customer lands. The classic build asks "how would you rate us, one to five?" in an email, sends four and five to the review widget, and routes one to three to a support form with a sympathetic subject line. Helping unhappy customers is good. Using their answer to keep them out of the public corpus is the suppression the rule names. The same applies to a queue where negative reviews sit in moderation indefinitely while positive ones auto-publish, and to a widget with a minimum star rating for display.
+
+What you can do without any of this:
+
+- **Moderate on content, not rating.** Abuse, spam, personal data, competitor URLs, wrong product. Apply the criteria identically to a one and a five.
+- **Hold anything unverified.** Pending is a legitimate state while you match a review to an order, as long as it resolves for every rating on the same timetable.
+- **Reply in public.** A well-answered one star does more for a sceptical shopper than its absence.
+- **Publish the distribution.** Showing the full spread is what makes the average believable.
+
+The test is simple. If you swapped the rating on a held review and it would have gone live, you are gating.
+
+<PostCta />
+
+## What should your written review policy actually say?
+
+Have one, publish it at a URL, and link it from every review request you send. It costs an afternoon, and it is the most useful thing you can produce if anyone ever asks how your corpus was built.
+
+1. **Who may review.** Verified purchasers only, or purchasers plus a disclosed sampling programme. Say which.
+2. **How you verify.** Order matching on email or order number, and how long a review can stay pending.
+3. **What you do with incentives.** Whether you offer any, that they go to every reviewer regardless of rating, and how the disclosure appears on the review.
+4. **Employee and family rules.** Whether insiders may review at all, and the exact disclosure label that goes with it if they can.
+5. **Your moderation criteria.** The list, in full, with no clause about ratings anywhere in it.
+6. **Your publication timetable.** The same window for every rating. Naming it removes the argument.
+7. **What you never do.** Edit review text, reorder to hide negatives, or delete a review for being critical.
+8. **Retention and export.** How long records are kept, and that metadata travels with the review if you migrate apps.
+
+Then follow it. A published policy you ignore is worse evidence than no policy at all.
+
+## Where does Edge Reviews fit in keeping a corpus defensible?
+
+Edge Reviews is our own app and it is new, so treat this section accordingly. It has a free plan and it imports your existing reviews, which is the part that matters here: moving a corpus without losing timestamps, ratings and author records is what keeps it provable later.
+
+If your priority is the most battle-tested moderation tooling available today, the honest answer is Judge.me. Its free plan is permanent, includes unlimited reviews and unlimited photo and video reviews, and it carries 5.0 stars across 43,884 reviews <Cite href="https://apps.shopify.com/judgeme">Shopify App Store</Cite>.
+
+| App | Rating and reviews | Free tier | Paid entry |
+| --- | --- | --- | --- |
+| Judge.me <Cite href="https://apps.shopify.com/judgeme">listing</Cite> | 5.0, 43,884 reviews | Permanent, unlimited reviews and media | $15/mo Awesome, 15-day trial |
+| Loox <Cite href="https://apps.shopify.com/loox">listing</Cite> | 4.9, 9,051 reviews | Up to 500 orders | $49.99/mo including 300 orders |
+| Yotpo <Cite href="https://apps.shopify.com/yotpo-social-reviews">listing</Cite> | 4.8, 4,392 reviews | Up to 50 monthly orders | $15/mo Starter |
+| Edge Reviews <Cite href="https://apps.shopify.com/edge-reviews">listing</Cite> | New, no reviews yet | Free plan, imports existing reviews | Not applicable |
+
+<CheckedOn date="22 August 2026" />
+
+Whichever you run, defensibility comes from the process rather than the software: verified purchase matching switched on, one moderation ruleset applied to every rating, incentives disclosed on the review itself, and a decision log you could hand to someone. If you are still choosing, our comparison of the [best Shopify review apps](/blog/best-shopify-review-apps) covers the trade-offs.
+
+<PostCta />

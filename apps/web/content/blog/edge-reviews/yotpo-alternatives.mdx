@@ -1,0 +1,182 @@
+---
+title: "Yotpo Alternatives for Growing Shopify Stores"
+slug: "yotpo-alternatives"
+app: "edge-reviews"
+archetype: "alternative"
+author: "anurag"
+description: "Unbundling Yotpo? This yotpo alternative guide prices reviews, loyalty and SMS separately and gives you a migration order that avoids a dark week."
+primaryKeyword: "yotpo alternative"
+secondaryKeywords:
+  - "yotpo pricing"
+  - "yotpo competitors"
+publishedAt: "2026-09-28"
+updatedAt: "2026-09-28"
+imageAlt: "Placeholder illustration of a bundled app suite being split into separate tools"
+internalLinks:
+  - "shopify-product-reviews"
+  - "review-stars-not-showing-google"
+  - "import-reviews-shopify"
+tldr: "A Yotpo alternative is really three decisions. Reviews, loyalty and SMS each need their own replacement and their own quote. Price the reviews module on its own first, export your corpus before your notice window expires, then migrate reviews last, after the new app has run in parallel and matched your collection rate."
+faq:
+  - question: "Can I keep Yotpo for loyalty and move only reviews elsewhere?"
+    answer: "Usually yes, and it is often the sensible first move. The risk is commercial rather than technical. A bundled agreement may price the remaining modules differently once one drops out, so ask for the revised quote in writing before you install anything. Technically the two run side by side without conflict as long as only one app renders review widgets."
+  - question: "Do I lose my reviews if I cancel Yotpo?"
+    answer: "The text usually survives because you export it before cancelling. Photos are the part people lose. If review images sit on the vendor's CDN, your export may contain links that stop resolving after the account closes. Pull a full export while the account is still active, confirm the image files actually download, and only then start the cancellation clock."
+  - question: "What does the Yotpo reviews app cost on its own?"
+    answer: "The Shopify listing shows a free plan up to 50 monthly orders, Starter at $15 a month and Pro at $119 a month, with paid pricing varying by order volume. That is the standalone app price. It is not what an enterprise suite contract charges you, which is why allocating your invoice by module is the first job."
+    source: "https://apps.shopify.com/yotpo-social-reviews"
+  - question: "Will my star ratings disappear from Google after I migrate?"
+    answer: "They can, and the usual cause is markup that no longer matches what a visitor sees. Google requires review snippets to be visible on the page carrying the markup, and treats self-controlled reviews as ineligible for stars. After cutover, confirm the new app renders the reviews in the page body and emits its own structured data before you remove the old snippet."
+    source: "https://developers.google.com/search/docs/appearance/structured-data/review-snippet"
+  - question: "How long should I run both review apps in parallel?"
+    answer: "One full purchase-to-review cycle. That is your delivery time plus however long the new request sequence takes to finish asking. You need enough orders through the new flow to compare collection rates fairly. Cutting the parallel run short is how stores find out far too late that the new sequence sends at the wrong moment and nobody replies."
+---
+
+The invoice says one number. Inside it are reviews, loyalty and SMS, plus whatever got added during a renewal call two years ago. The quote has gone up again and you cannot tell which module is responsible, because nobody has shown you the split.
+
+That is the real reason most stores start looking for a Yotpo alternative. Not because the reviews product stopped working. Because a bundle is easy to buy and hard to price, and once you cannot price it you cannot judge it.
+
+This post is about unbundling. What replacing reviews, loyalty and SMS separately costs you, what your agreement lets you do and when, and the order of operations that avoids a week where nothing collects, displays or sends.
+
+## What are you buying when you buy Yotpo rather than a review app?
+
+You are buying a platform, and platforms are priced on the assumption that you use most of them. That assumption is doing a lot of work in your contract.
+
+- **A shared customer record.** Points balance, review history and SMS consent hang off one profile. Split them and you own the joining, usually through your email platform or customer tags.
+- **One commercial relationship.** One renewal, one account manager, one place to escalate. Real value, and it disappears the moment you go to three vendors.
+- **Cross-module triggers.** Points awarded for leaving a review, an SMS asking for one. These are the behaviours you rebuild by hand, and usually the only integrations anyone misses.
+- **A single support queue.** When widgets and points break in the same week you file once. With three tools you file three times and each one blames the other two.
+
+None of that is fake. The question is whether it is worth the premium, and you cannot answer that until you know the premium.
+
+## Which modules of the suite does your store actually use in a given week?
+
+Open the admin and count real usage over the last thirty days, not the modules you meant to activate.
+
+- **Reviews.** How many requests went out, how many published. This is the number that matters most and the one people quote least.
+- **Loyalty.** Points issued is vanity. Points redeemed is the metric. A programme nobody redeems from is a liability on your balance sheet, not a retention tool.
+- **SMS.** Campaigns sent last month, and revenue attributed. If the answer is a Black Friday blast and nothing since, you are paying rent on a channel you do not operate.
+- **Anything else.** Subscriptions, referrals, visual UGC. Note them. They are what quietly makes a switch harder than it looked.
+
+<Callout title="Dormant modules still bill" tone="warning">
+A module you have not opened in six months is not free inside a bundle. It is part of the number you are being asked to renew. Count it as a cost you are choosing to keep, not a bonus you happen to have.
+</Callout>
+
+<PostCta />
+
+## How does bundled pricing hide the cost of the reviews module on its own?
+
+Because the contract does not have to show a per-module price, and the public listing prices are for a different product than the one you bought. The Shopify listing for the reviews app shows a free plan up to 50 monthly orders, Starter at $15 a month and Pro at $119 a month <Cite href="https://apps.shopify.com/yotpo-social-reviews">on the App Store listing</Cite>. If you are on a suite agreement, that is not your price and it never was.
+
+So allocate the invoice yourself. Any split beats no split, and the arithmetic is not hard.
+
+<Example>
+Say your suite costs $900 a month and covers reviews, loyalty and SMS.
+
+Split it evenly and reviews costs $300 a month. Against the standalone entry prices in the table further down, that looks terrible.
+
+Now split it by usage. If reviews drives most of your on-site conversion work and SMS has sent two campaigns all year, a fairer split might be $500 reviews, $300 loyalty, $100 SMS. SMS becomes the first thing you cut.
+
+Substitute your own invoice. The point is not the numbers. It is that the module you were about to replace may not be the one costing you the money.
+</Example>
+
+## What do three separate replacements add up to against one contract?
+
+Reviews is the easy one to price, because that market is crowded and public. Loyalty and SMS are not, and I am not going to invent numbers for them. Get written quotes and compare them against your allocation.
+
+Build the comparison sheet first, so the quotes land in a structure that makes the decision for you.
+
+| What you replace | What to ask every vendor | What quietly costs extra |
+| --- | --- | --- |
+| Reviews | Import format accepted, photo handling, widget theme support | Manual import help on large corpora |
+| Loyalty | How existing point balances transfer, redemption mechanism | Migration of liability, custom tier rules |
+| SMS | Carrier fees separate or bundled, consent record export | Per-message fees on top of the plan |
+| The glue | Which triggers your email platform can replace | Developer time to rebuild flows |
+
+The glue row is the one stores forget. When the suite goes, the automation between modules goes with it, and something still has to award points for a published review. Usually that is your email platform plus a webhook, an afternoon of work rather than a project. Scope it before you sign, not after.
+
+<PostCta />
+
+## What does your agreement say about term, notice and data export?
+
+Read the contract before you shortlist. Dull, and the section that saves people from paying a full year for something they stopped using in March.
+
+- **Term and auto renewal.** Annual terms renew silently. Find the date and work backwards from it.
+- **Notice window.** Thirty, sixty or ninety days is typical. Missing it by a day costs a full term.
+- **Export rights.** What formats, what fields, and whether photos come as files or as links to a CDN you are about to lose.
+- **Content ownership.** Reviews your customers wrote about your products should be yours. Confirm it in writing.
+
+Do the export first, verify it opens, then serve notice. In that order, never the reverse.
+
+## Which Yotpo alternative can absorb a corpus of your size without manual work?
+
+A store leaving a suite arrives with thousands of reviews and a folder of photos. Import capability matters more than feature lists at that point. Here is the live App Store picture.
+
+| App | Rating | Reviews | Entry price |
+| --- | --- | --- | --- |
+| Judge.me | 5.0 | 43,884 | Free plan, unlimited reviews; Awesome $15/mo |
+| Loox | 4.9 | 9,051 | Free up to 500 orders; Convert $49.99/mo |
+| Yotpo | 4.8 | 4,392 | Free up to 50 monthly orders; Starter $15/mo |
+| Edge Reviews | No reviews yet | New app | Free plan, imports existing reviews |
+
+<CheckedOn date="22 August 2026" />
+
+Ratings and pricing come from the live listings for <Cite href="https://apps.shopify.com/judgeme">Judge.me</Cite>, <Cite href="https://apps.shopify.com/loox">Loox</Cite>, <Cite href="https://apps.shopify.com/yotpo-social-reviews">Yotpo</Cite> and <Cite href="https://apps.shopify.com/edge-reviews">Edge Reviews</Cite>.
+
+If your corpus is large and you want the safest landing, Judge.me has by far the longest public track record of the four and its free plan does not cap review count. That is a real advantage and I am not going to pretend otherwise. If you are still working out what a review app should do for you at all, start with [how product reviews work on Shopify](/blog/shopify-product-reviews).
+
+<PostCta />
+
+## In what order should you migrate so nothing goes dark mid-switch?
+
+Sequence matters more than tool choice. Reviews move last, because they are the part customers see.
+
+1. **Export everything while the account is live.** Reviews, photos, point balances, consent records. Open every file. Confirm images download rather than 404.
+2. **Serve notice if your window is closing.** Do not let a deadline force the technical work into a bad week.
+3. **Replace SMS first.** It is the most self-contained module, and consent lists port cleanly. Nothing on your product pages changes.
+4. **Replace loyalty second.** Freeze earning for a day, import balances, verify a handful of real customer accounts by hand, then reopen redemption.
+5. **Install the new review app in collection-only mode.** New requests go out through the new tool. The old widgets keep rendering. Nothing visible changes yet.
+6. **Import the corpus and check it in a staging theme.** Counts, star averages and product mapping, before a single shopper sees it.
+7. **Swap widgets, then remove the old ones.** New widget in, verify on three product pages, then delete the old blocks. Never both live at once.
+8. **Cancel after a full billing cycle of clean data.** The old account is your rollback until then.
+
+## What breaks in your email platform and product feeds on cutover day?
+
+The review app is rarely what breaks. The things reading from it are.
+
+- **Review request flows.** If your email platform has its own request sequence, you now have two apps asking for the same review. Turn one off on day one, not day ten.
+- **Dynamic email blocks.** Any template pulling star ratings from the old app renders empty. Audit every template, including the ones that only send in December.
+- **Product feeds.** Aggregate rating fields in your Google and Meta feeds come from review data. They need repointing, and they refresh on the feed's schedule, not yours.
+- **Structured data.** The most common post-migration failure is stars vanishing from search results. Google requires review snippets to be visible on the page carrying the markup, and treats reviews an entity controls about itself as ineligible <Cite href="https://developers.google.com/search/docs/appearance/structured-data/review-snippet">under its review snippet guidance</Cite>. Two apps emitting markup at once, or markup left behind by an uninstalled app, both cause trouble.
+
+Check the feed and the markup in the same session you swap widgets. Both fail quietly, and neither shows up in revenue for weeks.
+
+<PostCta />
+
+## How do you prove the new stack collects at the same rate before you cancel?
+
+Take a baseline first. You cannot detect a drop against a number nobody wrote down.
+
+- **Requests sent per 100 orders.** How aggressive the old sequence really was.
+- **Reviews published per 100 orders.** The only outcome number that matters.
+- **Time from delivery to publish.** If the new tool asks earlier or later, response rate moves. You want to know which direction.
+
+<Example>
+Suppose the old app published 6 reviews per 100 orders and the new one publishes 4 per 100.
+
+At 1,000 orders a month that is 20 fewer reviews a month, or 240 a year.
+
+Before blaming the app, check the send timing. A request that arrives before the parcel does gets ignored, and that is a settings problem rather than a vendor problem.
+</Example>
+
+Run both for a full cycle. Compare, adjust the timing once, compare again. Then cancel.
+
+## Where does Edge Reviews fit for a store unbundling Yotpo?
+
+Edge Reviews is a review app. It is not a suite, and it will not replace your loyalty programme or your SMS channel. If keeping those three under one login is genuinely worth the premium, staying put is a defensible answer and you should stay.
+
+It is also new. It has no review count on the App Store yet, and I would rather say that plainly than dress it up. What it does have is a free plan and an importer built for this exact situation, which is a store arriving with a corpus it already owns and does not want to retype.
+
+For the largest and oldest corpora, Judge.me is the most proven destination of the four, and where I would send a store with no appetite for risk. For a store unbundling a suite, cutting the modules it never uses and wanting reviews to keep working while it does, Edge Reviews is built for the middle of that job. Take the export first either way.
+
+<PostCta />

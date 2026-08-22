@@ -1,0 +1,159 @@
+---
+title: "Review Stars Not Showing in Google? Here's Why"
+slug: "review-stars-not-showing-google"
+app: "edge-reviews"
+archetype: "problem"
+author: "anurag"
+description: "Review stars not showing in Google even though your markup validates? Diagnose it: timing, rendering, entity type, duplicate schema, and per-URL eligibility."
+primaryKeyword: "review stars not showing in google"
+secondaryKeywords:
+  - "rich snippets reviews"
+  - "product schema stars"
+publishedAt: "2027-02-08"
+updatedAt: "2027-02-08"
+imageAlt: "Placeholder illustration of a search result with missing review stars"
+internalLinks:
+  - "shopify-product-reviews"
+  - "add-review-widget-shopify"
+  - "yotpo-alternatives"
+tldr: "Valid markup is not the same as eligible markup. Stars usually disappear because the rating describes your business rather than a product, because the reviews are not present in the HTML Google crawls, because two apps emit competing Product blocks, or because the URL is simply not indexed yet."
+faq:
+  - question: "My schema validator says the page is valid, so why is Google ignoring it?"
+    answer: "A schema validator checks that the vocabulary is well formed. It does not check whether the page qualifies for a Google search feature. Those are separate tests with separate rules. Run the Rich Results Test against the live URL instead, because it reports eligibility for a specific feature rather than the correctness of your syntax."
+  - question: "Do I need aggregateRating, individual reviews, or both?"
+    answer: "Include both where you genuinely have both. An aggregateRating summarises what is on the page, and individual review objects give the rating a source. The rule that matters more than either is that whatever you mark up must be visible to a person reading the page, not just present in the JSON."
+  - question: "Can I mark up my store's overall rating on the homepage?"
+    answer: "Not for stars. Google treats reviews an entity controls about itself as ineligible for the review snippet, which is exactly what a site-wide rating on your own homepage is. Ratings belong on the product they describe, sourced from customers, and rendered in the page body where a shopper can read them."
+  - question: "Stars appeared for two weeks and then vanished. What changed?"
+    answer: "Usually nothing you did. Rich results are earned per URL and re-evaluated on every crawl, so a page can gain and lose them without any code change. Check whether the reviews still render server side, whether a recent theme or app update introduced a second Product block, and whether the URL is still indexed."
+  - question: "Does Google guarantee stars if I follow every rule?"
+    answer: "No. Structured data makes a page eligible for a rich result. It never entitles it to one. Google decides per query and per URL, and quality signals for the page as a whole feed into that decision. Correct markup is necessary, not sufficient, so fix the markup and then improve the page."
+---
+
+You pasted your product page into a schema validator. Green. No errors, no warnings. The `Product` block is there, `aggregateRating` is there, `ratingValue` and `reviewCount` are both populated. And there are still no stars next to your result.
+
+This is the frustrating version of the problem. **Review stars not showing in Google** because the markup is broken is a ten minute fix. Valid markup and no stars is a different bug. Something upstream of validity is disqualifying the page, and a validator does not test for any of it.
+
+What follows is the diagnosis in the order I run it. Cheap checks first, so you do not rewrite schema that was never the problem. Stop when the symptom matches yours.
+
+## Are the stars missing, or was the page never eligible in the first place?
+
+These are two different bugs and merchants routinely mix them up. Establish which one you have before touching anything. Search a distinctive phrase from a product page in quotes, then check whether any product on the store has ever shown stars.
+
+| What you observe | Most likely cause | Where to look first |
+| --- | --- | --- |
+| No product has ever shown stars | Entity type or rendering | The JSON-LD block itself |
+| Stars on some products, not others | Per-URL eligibility | Indexing and review volume |
+| Stars appeared then vanished | A recent theme or app change | Duplicate schema, crawl date |
+| Stars on the homepage only | Self-serving rating | Organization markup |
+
+- **Never had them** points at something structural. The wrong type, the wrong page, or reviews that Google's crawler never sees.
+- **Had them and lost them** points at a change. An app update, a theme update, or a page that dropped out of the index.
+
+## How long should you wait after publishing before calling it a failure?
+
+Longer than most people wait. There is no publish button for rich results. Google has to crawl the page, index it, evaluate eligibility, then decide per query whether to show the feature at all.
+
+A validator confirms step zero and nothing else. Your markup can be perfect while the crawler still holds a version of the page from before you fixed it.
+
+1. **Confirm the fix is live** by loading the product page in a private window and searching the raw source for `aggregateRating`.
+2. **Run URL Inspection** in Search Console on that exact URL and read the indexed version, not the live test.
+3. **Compare the two.** If the indexed version predates your fix, you are waiting on a crawl and nothing is wrong.
+4. **Request indexing** for one representative product. Not all of them. One is enough to learn whether the fix works.
+5. **Wait for the recrawl**, then check the indexed version again before touching any code.
+
+<Callout title="Do not change three things at once" tone="warning">
+The most common way merchants make this unfixable is by changing the schema, switching review apps and editing the theme in the same week. When stars come back you will not know which change did it, and when they do not, you have three suspects instead of one.
+</Callout>
+
+<PostCta />
+
+## Does the Rich Results Test agree that this URL is valid?
+
+Two tools, two different questions, and this is where most of the confusion lives. A schema validator answers "is this vocabulary well formed". Google's Rich Results Test answers "is this URL eligible for a search feature". A page can pass the first and fail the second every time, because eligibility rules sit outside the vocabulary.
+
+- **Test the URL, not the code.** Pasting your JSON-LD into the code box tests a fragment in isolation. Testing the live URL tests what Google's renderer actually assembled, which is the only version that counts.
+- **Read which feature it detects.** If the result lists product snippets but no review field inside it, your rating is either absent from the rendered output or attached to something other than the product.
+- **Check the rendered HTML tab.** It shows what Google's crawler built after JavaScript ran. If your reviews are missing there, the next two sections are your problem.
+
+## Is the markup describing the product, or describing your business?
+
+This is the single most common cause of a valid page with no stars.
+
+An `aggregateRating` attached to `Organization` or `LocalBusiness` on your own domain is a rating your business publishes about itself. Google's review snippet guidance is explicit that entities controlling the reviews about themselves are not eligible for the star feature, and that the review content has to be visible on the page carrying the markup. <Cite href="https://developers.google.com/search/docs/appearance/structured-data/review-snippet">Google's review snippet documentation</Cite>
+
+- **Look at what the rating hangs off.** In your JSON-LD, `aggregateRating` should sit inside a `Product`, not inside the site-wide `Organization` block your theme emits in the header.
+- **Watch for the store rating widget.** Plenty of review apps offer a store rating badge for the footer or the header. If that badge emits schema as well as pixels, you now have a self-serving rating on every URL in the store.
+- **Do not move a store rating onto products.** Publishing the same site-wide average on every product page is worse than having no stars, because the aggregate then describes nothing on the page.
+- **One product, one rating, from that product's own reviews.** That is the only arrangement that is reliably eligible.
+
+If you are still deciding how reviews should be structured across the store, the [complete guide to Shopify product reviews](/blog/shopify-product-reviews) covers the strategy side that sits underneath this.
+
+<PostCta />
+
+## Are your reviews in the HTML, or injected after the page has loaded?
+
+Most Shopify review apps render their widget client side. It calls the app's API after the page loads, then writes the stars and the review text into the DOM.
+
+Google can render JavaScript. But rendering is a second pass. It is not guaranteed to produce what your browser produced, and any failure in that pass takes your reviews with it.
+
+- **View source, do not inspect element.** Inspect element shows the DOM after scripts ran. View source shows what was sent. If `aggregateRating` only exists in the first, you are relying on rendering.
+- **Check the crawled HTML.** Search Console's URL Inspection has a crawled page view. That is the ground truth for what Google received.
+- **Watch for consent gating.** A review widget blocked until a cookie banner is accepted will never render for a crawler, because a crawler never clicks accept.
+- **Prefer markup emitted server side.** Liquid that writes the JSON-LD into the template at render time removes the entire class of problem. Many apps offer this as a setting called something like server side schema or theme app embed metafields.
+
+## Does the aggregate in the markup disagree with the reviews on the page?
+
+A validator cannot catch this, because both numbers are individually well formed. A human reviewer, or a quality classifier, absolutely can.
+
+<Example>
+Your JSON-LD declares reviewCount 486 and ratingValue 4.9. The widget on the page shows 11 reviews with an average of 4.2, because the other 475 belong to other products in the same collection. Both numbers are valid. Together they describe a page that does not exist.
+</Example>
+
+- **Count what a shopper can see.** The visible count and the marked-up count should match, or the marked-up count should be the honest total for that product with the rest paginated behind a control.
+- **Check your scale.** A five star widget with `bestRating` left at the default while your app stores ratings out of ten produces a valid, wrong number.
+- **Never mark up reviews you did not collect.** Ratings pulled in from another platform and merged into your product average put the whole domain at risk, not just one URL.
+
+<PostCta />
+
+## Is a second app emitting a competing block of product schema?
+
+Open your product page source and search for `"@type": "Product"`. Count the hits. If the answer is more than one, this is very likely your bug.
+
+The usual culprits are a theme that emits Product schema natively, a review app that emits its own, and an SEO app that emits a third for good measure. Each block is valid. Together they force Google to pick, and the one it picks may be the one without a rating.
+
+- **Audit the theme first.** Most modern Shopify themes ship product JSON-LD in a snippet, often called `structured-data` or similar. Many have a toggle in theme settings.
+- **Pick one owner.** Whichever source has the reviews should own the whole Product block. Disable the others rather than trying to make them agree.
+- **Check app embeds after every update.** An app update can re-enable a schema output you turned off months ago, which is a common cause of stars that vanish with no deploy on your side.
+
+## What is the Search Console enhancement report saying about these URLs?
+
+Search Console answers most of this directly, and it costs nothing to check.
+
+- **Look at the merchant listings and product snippets reports.** They list valid, valid with warnings, and invalid items separately. Warnings do not block a rich result. Errors do.
+- **Cross-check indexing.** A URL that is not indexed cannot show a rich result under any circumstances. Excluded by canonical and crawled but not indexed are both dead ends for stars.
+- **Read the manual actions page.** Spammy structured data is a real manual action, and it is the reason stars can disappear across an entire store at once.
+
+Fixing the underlying review supply matters here too. Products with thin or stale review sets tend to be the ones that never earn stars, which is a content problem rather than a markup one. [Getting more product reviews written](/blog/get-more-product-reviews) is the fix for that half.
+
+<PostCta />
+
+## Why are review stars not showing in Google for some products but fine on others?
+
+Because eligibility is decided per URL, per crawl, and per query. It is not a store-wide switch. Assuming the markup is identical across your catalogue, the differences that matter are usually these.
+
+- **Review volume on that product.** A product with one review and a product with ninety are not treated the same, even when both are marked up correctly.
+- **Indexing status.** Variant URLs, tagged collection URLs and canonicalised duplicates frequently are not indexed in their own right.
+- **Page quality overall.** Thin descriptions, out of stock products and near-duplicate pages all reduce the chance of any rich result, independently of your schema.
+
+This is why a store-wide fix often produces a partial result, and why partial is not evidence that the fix failed.
+
+## Where does Edge Reviews fit?
+
+Edge Reviews is our own review app. It has a free plan and it is new, so there is no App Store track record to weigh it against yet. Factor that in.
+
+What it does about this problem: it emits one `Product` block per product page at render time rather than writing it in after load, the aggregate is built from the reviews actually shown on that page, and it ships no site-wide store rating to compete with your product markup. It imports the reviews you already have, so migrating does not reset your counts.
+
+The honest caveat is that swapping review apps is the wrong first move. If your current app already emits server side markup, the fix is almost always a settings change or a duplicate block, and changing apps just adds a variable. Work through this list first. Change apps only if you reach the end and find your app cannot emit server rendered markup at all.
+
+<PostCta />

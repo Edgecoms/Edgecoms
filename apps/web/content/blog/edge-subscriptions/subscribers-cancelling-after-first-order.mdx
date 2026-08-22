@@ -1,0 +1,161 @@
+---
+title: "Subscribers Cancelling After the First Order"
+slug: "subscribers-cancelling-after-first-order"
+app: "edge-subscriptions"
+archetype: "problem"
+author: "anurag"
+description: "Diagnose subscription first order cancellation by exactly when it lands: before charge two, after the box, or at the reminder. Each timing has its own fix."
+primaryKeyword: "subscription first order cancellation"
+secondaryKeywords: ["first month churn", "subscription cancel rate"]
+publishedAt: "2027-01-04"
+updatedAt: "2027-01-04"
+imageAlt: "a first subscription box on a doorstep next to a cancellation notice"
+internalLinks:
+  - "shopify-subscriptions"
+  - "set-up-subscription-discounts"
+  - "reduce-subscription-churn"
+tldr: "Subscribers who quit inside the first cycle are answering a question you asked at three different moments. Cancels clustered before charge two, in the days after the first box lands, or within hours of the renewal reminder each point at a different broken promise. Fix the promise between purchase and second delivery."
+faq:
+  - question: "Is cancelling before the second charge the same problem as a failed payment?"
+    answer: "No, and mixing them will send you after the wrong fix. A failed payment is involuntary. The customer still wants the product and a card or a bank got in the way, so the answer is retries and dunning. A first cycle cancel is a person deciding against you on purpose. Split the two in your reporting before you diagnose anything."
+  - question: "Should the renewal reminder go out earlier or later?"
+    answer: "Earlier than you think, and never on the same day as the charge. A reminder that lands with no room to act leaves cancelling as the only available response. Give enough notice that skipping, delaying or changing the interval is a realistic alternative, and put those three actions in the message itself rather than behind a login."
+  - question: "How do I tell an accidental subscription from a real cancellation?"
+    answer: "Look at the gap between order creation and cancellation. Anything inside the first day or two, before a box could have arrived, is almost never a product judgement. Pair those timestamps with your support inbox and your first order refund requests. If the phrase is some version of I did not mean to, your purchase options are doing the damage."
+  - question: "Does the second cycle price need to be visible on the product page?"
+    answer: "Yes, because the contract is created at the point of sale, not later. Shopify automatically creates a subscription contract at checkout, and updates to a selling plan do not modify contracts that already exist. What the customer agrees to at checkout is what will charge them, so a price they only discover on the reminder reads as a bait."
+    source: "https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans"
+  - question: "What if the first cycle cancels only come from one discount code?"
+    answer: "Then you have an acquisition problem wearing a retention costume. Split your cohorts by the code used at sign-up and compare how many reach charge two. If one code survives far worse than the rest, that code is buying you first orders, not subscribers. Change what the code is worth or where it runs before touching your product."
+---
+
+Your subscriber count is not growing, and the reason is not new sign-ups. A large share of the people who subscribed last month are already gone, and they left before their second charge ever ran. Subscription first order cancellation is its own problem, separate from the slow bleed of long tenure churn, and it needs its own diagnosis.
+
+Here is the useful part. Every one of those cancels is timestamped, and the timestamp tells you which promise you broke. Someone who quits two hours after ordering is not judging the product. Someone who quits four days after the box arrived is. Someone who quits minutes after your renewal email lands is judging the email.
+
+Three windows, three causes, three fixes. All of them are made between the purchase and the second delivery. By the time a monthly report shows you the pattern, that cohort is already unfixable, so work on the next one.
+
+## What counts as subscription first order cancellation, and what rate is normal?
+
+Define it narrowly: a subscriber who cancels voluntarily before their second successful charge. Anything else muddies the diagnosis.
+
+The exclusion that matters most is involuntary loss. A declined card, a bank blocking a recurring charge, an expired card. Those subscribers did not choose to leave. They belong in a dunning and retry conversation, not this one, so filter them out first.
+
+On benchmarks I will disappoint you on purpose. I have no defensible industry figure for what share of first orders reach charge two, and inventing one would be worse than useless because you would tune against it. Measure yourself instead:
+
+- **Cohort by sign-up week, not calendar month.** A monthly rate mixes people who signed up on the first with people who signed up on the thirtieth and have not hit a renewal.
+- **Measure survival to charge two as a percentage of the cohort.** One number per week. The direction matters more than the value.
+- **Record hours elapsed, not just dates.** Hours between order and cancel, and between delivery and cancel. Those two fields do the rest of this post's work.
+- **Keep the stated reason separate from the timing.** Typed reasons are often polite fiction. Timing is not.
+
+Run that for four weeks before changing anything, so the baseline is not contaminated by the fix.
+
+## Are they cancelling before the second charge or after the first box?
+
+This is the split that decides everything else. Sort your first cycle cancels by when they happened relative to the three events in the cycle: purchase, delivery, renewal notice.
+
+| When the cancel lands | What it usually means | Where the fix lives |
+| --- | --- | --- |
+| Within 48 hours of ordering | They did not intend to subscribe, or the terms were not clear at checkout | Purchase options and the confirmation email |
+| A few days after the first box arrives | The delivery did not match the product page | The product page, and what is in the box |
+| Days before the second charge, no delivery trigger | Second thoughts about ongoing cost with no ongoing value | Onboarding between box one and charge two |
+| Within hours of the renewal reminder | The reminder is the first time the real price or date felt real | The reminder content and its timing |
+
+Most stores find one bucket carrying the majority. That is good news. One fix, not four.
+
+The instrumentation is simple. You have an order created timestamp, a delivered timestamp if your carrier reports it, a reminder send timestamp, and the cancellation timestamp. Subtract. If you cannot answer "how many hours after delivery did this person cancel", build that first.
+
+<PostCta />
+
+## Did the product page promise something the first delivery did not?
+
+If cancels cluster in the days after the box lands, the customer got what they ordered and did not want it. That is a promise gap, and the promise was made on the product page. The gaps are boringly consistent:
+
+- **Quantity and size.** The photo showed a shelf-sized jar. The subscription ships a smaller format. Nobody lied. The customer sized their expectation from an image.
+- **How long it lasts.** A monthly cadence promises a month's worth. If it runs out in eighteen days, the customer reads that as being oversold.
+- **What is included.** Curated boxes suffer most. If the marketing shows the best possible box and the first one is the median box, the gap is the cancellation.
+- **When it turns up.** Delivery speed is a live purchase objection. Baymard's checkout research puts slow delivery behind 20% of abandonments during checkout <Cite href="https://baymard.com/lists/cart-abandonment-rate">Baymard cart abandonment</Cite>.
+
+The fix is unglamorous. Photograph the real first delivery for the product page, contents visible, something for scale. Write "your first box contains X and ships within Y days" above the buy button, and repeat it in the confirmation email.
+
+<Callout title="The insert nobody writes" tone="warning">
+The cheapest first cycle intervention is a printed card in box one answering the two questions your support inbox gets most. Usually those are how do I use this and when does the next one come. It costs pennies, it lands at the moment the decision is made, and it cannot go to spam.
+</Callout>
+
+## Is the renewal reminder itself triggering the cancellation?
+
+Check the gap between your reminder send and the cancel. If a visible share land within hours of that email, the email is not reporting churn. It is causing it.
+
+That does not mean stop sending it. An unannounced recurring charge produces chargebacks and refund demands, which is worse. It means the reminder is a re-decision moment you schedule yourself. Schedule it well.
+
+- **Not on the day of the charge.** With no time to act, cancel is the only button that does anything.
+- **Make it specific.** What is coming, on what date, at what amount, to what address. A vague nudge to manage your subscription makes people log in to find out, and logging in is where cancelling lives.
+- **Put the alternatives in the message.** Skip this one, push it two weeks, change the size. If the only action is a link to your account area, you offered one exit.
+- **Never let it be the first mention of the real price.** If the reminder is where someone learns the discount ended, it gets blamed for what the product page did.
+
+That last point is the next section.
+
+<PostCta />
+
+## Was the first-order discount the only reason they subscribed?
+
+Symptom: cancels cluster around the second charge, product feedback is fine, and the people leaving all used the same code.
+
+Diagnose it by splitting cohorts on the code used at sign-up and comparing survival to charge two. A code that converts brilliantly and survives terribly is a first order coupon that happens to create a subscription. Check where it circulates, too. Codes get scraped onto deal aggregators, and that traffic buys the discount, not the cadence.
+
+How to size or configure a first order discount is its own subject. The first cycle question is narrower: does the customer know, at purchase, what charge two costs?
+
+<Example>
+Say the subscription is 40 a month and the first order is half price. The customer sees 20 at checkout. If the next amount they see is 40 on the reminder, the rise they experience is 100%, even though your pricing never changed. Showing "20 today, then 40 monthly" at the buy button turns the second charge into an expectation.
+</Example>
+
+Whatever the customer agreed to at checkout governs, because Shopify creates the subscription contract at that moment and later edits to a selling plan do not modify existing contracts <Cite href="https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans">Shopify selling plans</Cite>. You cannot quietly repair a badly worded offer for people who already took it.
+
+Give cycle two something cycle one did not have. A member price on the rest of your catalogue, an extra item, early access. If cycle two is a price rise with identical contents, you designed an exit point.
+
+## Did they mean to buy once and subscribe by accident?
+
+If cancels land within a day or two of purchase, before any box could have arrived, nobody is rejecting your product. They are correcting a mistake.
+
+Accidental subscriptions come from purchase options that quietly favour the recurring choice. A pre-selected subscribe and save radio. A one-time option in lighter text below it. A mobile layout where subscribe sits above the fold and the alternative does not. The conversion lift is real and also fake, since it borrows sign-ups from people who leave within 48 hours.
+
+- **Label both options with the amount charged.** Not "subscribe and save" against "one time". Show both totals in currency.
+- **Reconsider defaulting to subscribe.** If the under-48-hour bucket is your biggest, the default is doing this. Switch it off for a fortnight and compare survivors, not sign-ups.
+- **Echo the terms in the confirmation.** First amount, next charge date, next amount, how to change it. An accidental subscriber finds out here, while calm.
+- **Show the next charge date on the order status page.** People revisit it.
+
+Expect sign-ups to fall and subscriber count to rise. Judge it on the second number.
+
+<PostCta />
+
+## What changes to the first thirty days actually move this number?
+
+In order, because sequence matters more than tactics.
+
+1. **Instrument the cancel.** Cancellation timestamp, hours since order, hours since delivery, hours since the last reminder, code used at sign-up. Without these you are guessing.
+2. **Fix the confirmation email.** Contents, next charge date, next charge amount, in plain words. It is the most valuable message you send, and most stores ship the platform default.
+3. **Put the second cycle price at the buy button.** Today's amount, then the ongoing amount and interval.
+4. **Rewrite the reminder.** Contents, date, amount, and three actions: skip, delay, change size.
+5. **Add the box one insert.** Two questions, answered on card stock.
+6. **Offer an interval change everywhere cancel is offered.** Plenty of first cycle cancels are scheduling complaints.
+7. **Re-measure by cohort.** Compare sign-up weeks before and after each change.
+
+Do not run all seven at once unless your volume can read them separately. Two at a time, four weeks apart, is the only way you learn which one worked. For churn after charge two, the [full retention calendar](/blog/reduce-subscription-churn) covers the rest of the tenure.
+
+## Where does Edge Subscriptions fit in the first cycle?
+
+Edge Subscriptions handles subscribe and save purchase options, a customer portal and dunning. It is a new app with no review history yet, so weigh it on what it does rather than on social proof it has not earned.
+
+The honest framing: none of the changes above are app features. They are decisions about what you promise and when you say it. An app is where you make them, not the reason a subscriber stays. If your constraint is scale, Recharge is the established option and its review base reflects that. If cost is the constraint while you are small, Appstle has a genuinely free tier.
+
+| App | Rating | Reviews | Entry pricing |
+| --- | --- | --- | --- |
+| Recharge Subscriptions | 4.8 | 2,967 | No free plan. Starter $25/mo, no transaction fee for first 50 subscribers |
+| Appstle Subscriptions | 5.0 | 8,289 | Free up to $500/mo subscription revenue, then $10/mo |
+| Edge Subscriptions | New app | No reviews yet | Subscribe and save, customer portal, dunning |
+
+<CheckedOn date="22 August 2026" />
+
+Whatever you run it on, the diagnosis comes first. Pull the timestamps, sort the cancels into the windows, and fix the promise the biggest bucket points at. If you are still deciding how subscriptions should work on your store, start with [how Shopify subscriptions are structured](/blog/shopify-subscriptions), then come back once you have a cohort to measure.
+
+<PostCta />

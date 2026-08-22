@@ -1,0 +1,172 @@
+---
+title: "Subscription vs One-Time Purchase: Which Fits"
+slug: "subscription-vs-one-time-purchase"
+app: "edge-subscriptions"
+archetype: "alternative"
+author: "anurag"
+description: "Subscription vs one time purchase is a per-SKU decision. Measure the repurchase interval, price the discount against unit margin, then score every product."
+primaryKeyword: "subscription vs one time purchase"
+secondaryKeywords: ["recurring vs single order", "subscribe and save"]
+publishedAt: "2026-09-28"
+updatedAt: "2026-09-28"
+imageAlt: "Placeholder illustration comparing a recurring order and a single order"
+internalLinks:
+  - "shopify-subscriptions"
+  - "subscription-box-ideas"
+  - "set-up-subscription-discounts"
+tldr: "Subscription or one-time is decided per product, not per store. Measure the days between repeat orders of that SKU, work out how much margin the subscribe and save discount removes from each delivery, then calculate how many deliveries a subscriber needs before they beat a one-time buyer. Score each product against that number."
+faq:
+  - question: "Should every product in my catalogue get a subscribe option?"
+    answer: "No. The option costs you margin on every delivery, and only pays that back on products people genuinely finish and rebuy on a predictable clock. A product with no measurable repeat interval in your order history will collect a handful of subscribers who cancel after the second delivery, which is usually worse than selling it once at full price."
+  - question: "What delivery frequency should I offer?"
+    answer: "Start from the median gap between repeat orders of that SKU in your own data, then offer that gap and one option either side of it. Guessing at a monthly cadence because it is tidy is the most expensive mistake here. Ship faster than people consume and the boxes pile up, which produces a cancellation rather than a complaint."
+  - question: "If I change a plan's price later, do current subscribers move to it?"
+    answer: "They do not. Shopify's documentation states that updates to a selling plan do not modify pre-existing subscription contracts, because the contract is a separate record created at checkout. That protects you from accidentally repricing your whole book, and it also means a discount you set today follows every subscriber who joins on it until you migrate them deliberately."
+    source: "https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans"
+  - question: "Does a subscription reduce checkout friction or add to it?"
+    answer: "It can do either. Baymard's checkout research puts extra costs such as shipping and fees at 40% of abandonment reasons, so a plan that folds shipping into the recurring price removes a real objection. A plan that adds a commitment, a minimum term, or an unclear next charge date adds a new one in its place."
+    source: "https://baymard.com/lists/cart-abandonment-rate"
+  - question: "What do I do with a SKU that scores in the middle?"
+    answer: "Offer both and let the shelf decide. Keep the one-time price visible and unhidden, run it for two or three full repurchase cycles of that product, then compare annual margin per buyer across the two paths. A middling score means you do not have enough information yet, not that the answer is subtle."
+---
+
+Most stores turn subscriptions on the way you turn on a payment method. One switch, every product, one discount. Six months later some SKUs earn more per customer, and some earn less than when they sold once at full price.
+
+That is because **subscription vs one time purchase** is not a strategy you pick for a store. It is arithmetic you answer per product, from two numbers already in your order history. How long a unit lasts, and what the discount removes from each delivery.
+
+Here is the method. Measure the interval, derive what a subscriber has to be worth, then score the SKU as subscription-only, one-time-only, or both.
+
+## Is subscription vs one time purchase a store-wide decision?
+
+Per product, and it is not close. Two SKUs sitting next to each other can have opposite answers, because everything that decides it belongs to the product rather than the brand.
+
+- **The interval is a product fact.** A 500ml bottle emptied in ten weeks and a 2kg tub of the same thing are different decisions under an identical label.
+- **The margin is a product fact.** A recurring discount is a fixed cut of one unit's economics. On one SKU it takes a fifth of the margin, on the next, most of it.
+- **The shipping is a product fact.** Deliveries are the unit of cost here. A light product survives frequent delivery. A heavy one does not, and retention work will not fix it.
+- **The variant behaviour is a product fact.** Some products get reordered identically forever. Others come back in a different shade or size every time, and a locked recurring line fights the buyer.
+
+Store-wide rollouts feel efficient because they are one decision instead of forty. The cost lands quietly, on SKUs that should never have carried a discount.
+
+## How do you find a product's natural repurchase interval?
+
+You measure it. The number is already in your admin. Pull two years of orders for one SKU, keep customers who bought it twice or more, and take the gap in days between consecutive orders. The median of those gaps is the natural interval. Not the mean, which a few eighteen-month reorders drag somewhere useless.
+
+Two things matter as much:
+
+- **The spread.** If most customers land within a fortnight of the median, you have a real clock. If gaps run from three weeks to nine months with no cluster, you have a product people buy when they think of it.
+- **The repeat rate.** A tight interval among a tiny minority of buyers means few people take the option at all, which changes whether the plan is worth building.
+
+For a new SKU, derive the interval from consumption. Units in the pack divided by the dose someone actually uses per day gives a span. Check it against the few repeat orders you have. If the derived figure is much shorter, customers use less than you assume, and the plan over-ships from delivery one.
+
+<PostCta />
+
+## What does a subscriber have to be worth to justify the discount?
+
+Here is the part most stores skip. The discount is not a marketing cost. It is a permanent cut to unit margin on every delivery, bought back with volume.
+
+The break-even is one division. Take what a one-time buyer of that SKU is worth over twelve months, divide by what one subscriber delivery is worth after the discount, and you have how many deliveries a subscriber must accept to match the customer who never subscribed.
+
+<Example>
+A refill sells for £22. After cost of goods, pick and pack, and card fees, unit margin is £8.
+
+Order history says the median gap between repeat orders is 74 days, and across 100 buyers you see 46 repeat orders in a year. An average one-time buyer produces 1.46 orders, worth £11.68 of margin over twelve months.
+
+Take £3 off each delivery and £5 of margin survives.
+
+Break-even = £11.68 ÷ £5 = 2.34, so three deliveries.
+
+A subscriber who takes three and cancels earned £15 against the £11.68 that person would likely have produced anyway. Barely worth the plumbing. One who stays a year at the 74-day cadence takes five deliveries and produces £25.
+
+Now set the same plan to a tidy monthly cadence instead of the measured 74 days. You ship twelve times a year to someone who gets through five. Boxes pile up unopened. They cancel around the third delivery, exactly break-even, and the packaging and support time bought you nothing.
+</Example>
+
+Cadence is not a preference setting. It decides whether the discount is ever repaid. Ship faster than the product is consumed and the discount buys deliveries nobody wanted.
+
+## Which products lose money as a subscription?
+
+Run that arithmetic across a catalogue and the losers become obvious.
+
+- **Long intervals.** Beyond about six months, a subscriber takes one or two discounted deliveries a year. There is nothing for the discount to buy back.
+- **Thin unit margin.** When the discount removes over half the margin, break-even runs past the point where most subscribers are still around.
+- **Heavy shipping.** Subscriptions multiply delivery events, so a product whose shipping eats a serious slice of margin gets worse with every one.
+- **Variant-hopping products.** Anything chosen by mood, season, shade, or size. A recurring line item is the wrong shape for how these get bought.
+- **Unpredictable consumption.** If a unit lasts a fortnight in one household and four months in another, no cadence serves both, and the wrong half cancels.
+
+None of this judges the product. A high-margin item bought twice a year can be the best thing you sell. It just should not be discounted forever.
+
+<PostCta />
+
+## When does offering both options beat picking one?
+
+Most of the time, and not as a hedge. Offering both turns the decision into a measurement. Customers sort themselves, and after a couple of cycles you can compare annual margin per buyer down each path.
+
+- **Offer both** when the interval is measurable but the spread is wide, or the break-even sits between two and four deliveries. That is the zone where it could genuinely go either way.
+- **Go subscription-only** when the product is purely a refill for something the customer already owns, and buying it once has no standalone logic.
+- **Go one-time-only** when the interval is long or unmeasurable. Withholding the option is not a lost sale. It is a discount you did not give away.
+
+The mistake is treating both as the safe default everywhere. It costs a decision on the product page, and on a SKU that fails the arithmetic it costs margin on every subscriber.
+
+## How does the choice change what your product page has to say?
+
+Once a SKU carries two ways to buy, the page has a new job. Make the difference legible in two seconds.
+
+- **Lead with the interval, not the discount.** "Every 10 weeks" answers what the customer is actually asking, which is whether this arrives as fast as they get through it.
+- **Preselect the measured cadence.** Offer one option either side of the median and stop. A dropdown of eight frequencies hands the customer your unfinished homework.
+- **State the money, not the mechanism.** Price per delivery and the date of the next charge. Percentages make people do arithmetic at the moment you want them clicking.
+- **Keep shipping honest in both columns.** Baymard's checkout research finds extra costs cited in <Cite href="https://baymard.com/lists/cart-abandonment-rate">40% of abandonment reasons</Cite>, and a plan that quietly adds a delivery fee at checkout is a fresh version of that problem.
+
+<PostCta />
+
+## What happens to your one-time buyers after subscriptions launch?
+
+Three things at once, and they need separating before you can read the result. Buyers who already reordered switch to a plan, so you pay a discount for behaviour you had free. Buyers who would have drifted away stay for several deliveries. That second group is the whole case for the programme. The rest ignore the option.
+
+If subscriber count climbs while margin per buyer flattens, you mostly migrated the first group, and the fix is the discount or the cadence, not more promotion.
+
+One mechanic to keep in view. Shopify creates <Cite href="https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans">subscription contracts automatically at checkout</Cite>, and <Cite href="https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans">updates to a selling plan do not modify pre-existing contracts</Cite>. The discount you launch with is one you keep paying until you migrate people deliberately. The wider mechanics are in our [Shopify subscriptions guide](/blog/shopify-subscriptions).
+
+## How do you score a single SKU before you build a plan for it?
+
+Six signals, zero to two points each.
+
+| Signal | What you measure | 0 points | 2 points |
+| --- | --- | --- | --- |
+| Interval | Median days between repeat orders | Over 180 days, or no data | 21 to 90 days |
+| Consistency | Spread of that interval | Scattered, no cluster | Most within a fortnight of the median |
+| Margin headroom | Unit margin after the discount | Discount takes over half | Over half survives |
+| Delivery cost | Shipping against unit margin | Shipping is most of the margin | Shipping is a small slice |
+| Variant stability | How often buyers switch variant | Usually a different one | Almost always the same |
+| Consumption | Does a unit last a knowable time | Varies wildly by household | Predictable within days |
+
+The process behind the scores:
+
+1. Export 24 months of orders containing the SKU.
+2. Keep customers with two or more, take the median gap between consecutive orders, note the spread.
+3. Count repeat orders per 100 buyers over twelve months for annual one-time margin.
+4. Calculate unit margin after cost of goods, pick and pack, and payment fees.
+5. Subtract the candidate discount in money, not as a rate. That is margin per delivery.
+6. Divide step three by step five for break-even in deliveries.
+7. Compare that to how many deliveries the measured interval produces in a year. If break-even is more than half of them, the discount is too big or the cadence wrong.
+8. Score the six rows.
+
+Nine or above, lead with the subscription. Five to eight, offer both and measure. Below five, sell it once and keep the margin.
+
+<PostCta />
+
+## How long before the numbers actually settle the argument?
+
+Two to three full repurchase cycles of that product, which is why the interval gets measured first. It sets the clock on your experiment as well as the customer's shelf. For a ten-week product that is six to eight months. Reading it at week four tells you about sign-up appeal and nothing about repayment, because nobody has reached break-even.
+
+- **Measure annual margin per buyer**, split by path, not subscriber count.
+- **Cohort by join month**, or new sign-ups keep flattering an average older cohorts are ruining.
+- **Watch where cancellations cluster.** If that delivery number sits at or below break-even, the cadence is wrong before anything else is.
+
+## Where does Edge Subscriptions fit in the decision?
+
+It does not make the decision. Nothing does, because the inputs are your own order history. What it gives you is per-SKU control once you have scored them. Subscribe and save on products that earned it, a customer portal so a cadence change is not a support ticket, and dunning so failed cards do not read as cancellations.
+
+Edge Subscriptions is new and has no review history yet. If a long public track record matters to you before putting recurring billing on a catalogue, established options exist, including <Cite href="https://apps.shopify.com/subscription-payments">Recharge with 2,967 reviews</Cite> and <Cite href="https://apps.shopify.com/subscriptions-by-appstle">Appstle with 8,289 reviews</Cite>. That is fair to weigh. <CheckedOn date="22 August 2026" />
+
+What matters more than the app is refusing to make this one switch. Score the catalogue a SKU at a time, put the discount only where the arithmetic says it comes back, and leave the rest selling once at full margin.
+
+<PostCta />

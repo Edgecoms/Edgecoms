@@ -1,0 +1,199 @@
+---
+title: "How to Build a Subscription Dunning Flow"
+slug: "build-subscription-dunning-flow"
+app: "edge-subscriptions"
+archetype: "tutorial"
+author: "anurag"
+description: "Build a retry schedule, four subscription dunning emails with the copy written out, a one-tap card update, and the numbers that prove the flow is working."
+primaryKeyword: "subscription dunning emails"
+secondaryKeywords: ["payment retry flow", "dunning sequence ecommerce"]
+publishedAt: "2026-12-07"
+updatedAt: "2026-12-07"
+imageAlt: "Placeholder illustration of a scheduled payment retry and message sequence"
+internalLinks:
+  - "shopify-subscriptions"
+  - "failed-subscription-payments"
+  - "reduce-subscription-churn"
+tldr: "A dunning flow runs two tracks at once. Silent card retries on a widening schedule, and four messages that ask the customer to fix the card. Stay quiet until the first retry has failed. Message on days two, five, nine and fourteen. Make updating a card one tap, and hand the expensive accounts to a person."
+faq:
+  - question: "How long should the whole dunning sequence run before I give up?"
+    answer: "Fourteen days is a sensible outer edge for a monthly subscription, because the next billing date is close behind it and you do not want two sequences overlapping on one customer. For quarterly or annual plans you can stretch to twenty one days. Beyond that the messages stop being billing notices and start reading as marketing nobody asked for."
+  - question: "Should I offer a discount to recover a failed payment?"
+    answer: "Not in the first three messages. A discount teaches the small group who notice that letting a charge fail is how you get money off, and it costs you margin on every subscriber who would have fixed the card anyway. Save any concession for the final message, and prefer a paused delivery or a moved billing date over a price cut."
+  - question: "Can I just change the plan price so the charge goes through?"
+    answer: "No. Shopify documents that updates to a selling plan do not modify pre-existing subscription contracts, so editing the plan changes nothing for anyone already subscribed. The failing contract needs the payment method replaced or the contract itself amended. A plan edit only affects people who subscribe after you made it."
+    source: "https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans"
+  - question: "Is it safe to write that a subscription expires in 24 hours to push people to act?"
+    answer: "Only if it is true and you will actually enforce it. UK guidance on the DMCC Act lists falsely stating that something is available for a limited time to force an immediate decision as a banned practice. A real deadline you honour is fine and works better anyway, because the date matches what the customer sees happen."
+    source: "https://www.gov.uk/government/publications/unfair-commercial-practices-cma207/unfair-commercial-practices"
+  - question: "Should SMS be part of the sequence or is email enough?"
+    answer: "Add SMS at the second message only, and only for subscribers who consented to it. It lands where the phone already is, which matters because updating a card is a phone job. Sending SMS at every step burns goodwill fast and costs money per send on a customer who has not paid you yet."
+---
+A charge fails at three in the morning. Your app retries it three times over three days, all three fail, and the contract cancels itself on Friday. Nobody told the customer anything. That is not a dunning flow. It is a retry loop with a death sentence attached.
+
+**Subscription dunning emails** are the half most stores never build. Retries ask the bank the same question again. The messages do the real work, because a card that has stopped working will never succeed no matter how politely you ask. The only thing that fixes it is the customer tapping four times on a phone.
+
+This post is the build: the retry schedule, the four messages with copy written out, the one-tap card update, the handover point, and the numbers that prove it works.
+
+## What does a dunning flow have to accomplish?
+
+Two tracks on one clock. The retry track is silent and mechanical, the message track visible and human. They share one exit condition: the moment a charge succeeds, both stop. Between them they have four jobs.
+
+- **Recover the charge with nobody in your business touching it.** A flow that needs an agent for every failure is a queue.
+- **Keep the subscription, not just this month's money.** Point every message at the relationship continuing, not an invoice being settled.
+- **Stay quiet while the machine still has a chance.** Some failures clear on a later attempt. Emailing that group creates tickets for a problem about to solve itself.
+- **Exit cleanly.** A subscriber who lapsed on a card is the easiest person you will win back, so leave the door open.
+
+Deciding whether the failure is recoverable at all is a separate job, covered in [failed subscription payments](/blog/failed-subscription-payments).
+
+## How do you design the retry schedule?
+
+Three principles set the gaps.
+
+- **Widen the intervals.** Early attempts catch temporary problems, later ones catch a refilled balance. Clustering retries inside 48 hours re-asks a question the issuer already answered.
+- **Cross a payday.** Most balance failures are timing, not poverty. Attempts after weekly and monthly pay runs convert better than attempts before them.
+- **Cap the total.** Repeated attempts on a credential that cannot work push your authorisation failure rate up, and that rate is watched.
+
+| Retry | Day after first failure | Why this gap |
+| --- | --- | --- |
+| First | Day 2 | Long enough for a short balance problem to clear, short enough that delivery is not visibly late |
+| Second | Day 5 | Crosses a weekend for a midweek failure, lands after most weekly pay runs |
+| Third | Day 9 | Catches the refilled account, and lands after the customer has been asked twice |
+| Fourth | Day 14 | Final mechanical attempt. Sits past the monthly pay date |
+
+Two overrides. A successful card update fires the charge on the spot and cancels the remaining retries. If the decline can never succeed, leave the retry track and jump to message two.
+
+<PostCta />
+
+## How many messages should the sequence contain, and on which days?
+
+Four. Fewer leaves money behind. More reads as harassment about a payment the customer may think they already fixed.
+
+| Message | Day | Channel | Job |
+| --- | --- | --- | --- |
+| 1 | Day 2, after retry one fails | Email | Tell them plainly. One link |
+| 2 | Day 5, after retry two fails | Email, plus SMS if consented | Name the consequence and the date |
+| 3 | Day 9 | Email | Two lines. Nothing but the link |
+| 4 | Day 14 | Email | Close it, leave the door open |
+
+Four rules hold the sequence together.
+
+- **Never message before the first retry resolves.** Day zero and day one are silent, which is why a good flow generates fewer tickets than a bad one.
+- **One message per day across every channel.** An email and an SMS landing a minute apart reads as a malfunction.
+- **Suppress everything the instant a charge succeeds.** The commonest complaint about a payment retry flow is a reminder arriving after the customer paid.
+- **Send from a human name at a monitored address.** People reply to these, and a reply is a buying signal.
+
+## What should each message actually say?
+
+Short, specific, no blame, one link. Name the product, the amount and what happens next.
+
+**Message one, day two.**
+
+> Subject: Your Coffee Club payment did not go through
+>
+> Hi Sarah, your card was declined for the £34 Coffee Club renewal on 4 December. Usually that means the card was reissued or the balance was short.
+>
+> Update it and we will charge straight away: [Update card]
+>
+> Your December bag is held until then.
+
+**Message two, day five.**
+
+> Subject: Your December Coffee Club bag is on hold
+>
+> Hi Sarah, we have tried the card twice and it was declined both times. Your bag is packed but stays here until the £34 clears.
+>
+> [Update card] takes about twenty seconds.
+>
+> If you would rather pause or move the billing date, reply and we will sort it.
+
+**Message three, day nine.**
+
+> Subject: One tap and your Coffee Club is back on
+>
+> Sarah, your card still needs updating for the £34 December renewal.
+>
+> [Update card]
+
+**Message four, day fourteen.**
+
+> Subject: Last one from us about your Coffee Club subscription
+>
+> Hi Sarah, we could not take the £34 payment, so we are pausing your subscription today rather than emailing you again.
+>
+> Nothing is lost. Your grind, bag size and address are saved. [Restart whenever you like] and the next bag ships that Tuesday.
+>
+> If something was not working, I would like to know. Reply and it comes to me.
+
+<Callout title="Do not invent a deadline" tone="warning">
+Message four works because the pause is real and happens that day. UK guidance on the DMCC Act 2024 lists falsely stating something is available for a limited time to force an immediate decision as a banned practice. <Cite href="https://www.gov.uk/government/publications/unfair-commercial-practices-cma207/unfair-commercial-practices">Write only deadlines you will enforce.</Cite>
+</Callout>
+
+<PostCta />
+
+## How do you make updating a card take a single tap?
+
+This is where recovery happens, and where most flows leak. Every screen between the email and the card field loses people who meant to pay you. Build it in this order.
+
+1. **Generate a link scoped to one contract.** A signed token identifies the subscription. No account lookup, no order number.
+2. **Skip the login.** A password set eleven months ago is a subscriber you have lost. The token authenticates.
+3. **Land on the card field, not a portal home page.** The input is first on screen, focused, with a numeric keypad on mobile.
+4. **Put the context above the field.** Product, amount, date of the failed charge. This is what stops the page reading as phishing.
+5. **Offer the wallet first.** Apple Pay and Google Pay turn a card update into a fingerprint.
+6. **Charge on save.** The moment the method is stored, run the outstanding charge. Do not wait for the next retry.
+7. **Show the result on the same screen.** "Paid. Your December bag ships tomorrow." No redirect, no confirmation email needed.
+8. **Cancel remaining retries and messages atomically,** in the same transaction as the successful charge, not a nightly job.
+9. **Expire the link when the sequence ends,** and make the expired state offer a restart rather than an error.
+
+Verify before you turn it on. Put a declining card on a real contract, let the failure land, then open message one on a phone, logged out, in a private window. Confirm the page loads without a login, the wallet button appears, saving the card charges in seconds rather than at the next cron run, and that messages two, three and four never send.
+
+It has gone wrong if the link asks for an email address before showing the card field, if the page renders your full account navigation, or if a reminder still sends after you paid.
+
+## When should the flow stop and hand over to a person?
+
+Automation is right for most failures and wrong for the expensive ones. Set triggers that pull an account out of it.
+
+- **Annual value above your threshold.** If a year of a subscriber is worth more than an hour of someone's time, spend the hour.
+- **Long tenure.** Someone who has paid twelve times has earned a person, and the message should say so.
+- **A reply to any message.** Any reply exits immediately. Automated reminders sent to someone who wrote back turn a recoverable account into a complaint.
+- **Second failure within ninety days.** One failure is a card. Two is a pattern, and a pattern means the plan does not fit the customer's cash flow.
+
+Give the human the account, not the ticket: tenure, plan, previous failures and delivery history in one place, with permission to move the billing date or pause. Retention work beyond billing is covered in [reducing subscription churn](/blog/reduce-subscription-churn).
+
+<PostCta />
+
+## How do you measure whether the flow is working?
+
+Five numbers, tracked monthly against your own baseline.
+
+| Metric | How to calculate it | What it tells you |
+| --- | --- | --- |
+| Recovery rate | Failed charges eventually paid, over all failed charges | The headline |
+| Recovery by attempt | Which retry or message produced the payment | Where to add or remove a step |
+| Days to recovery | Median days from failure to cleared charge | Whether the schedule suits your billing cycle |
+| Card update rate per message | Updates attributed to each send | Which copy earns its place |
+| Tickets per hundred failures | Support contacts caused by the sequence | The cost side |
+
+<Example>
+A store has 900 subscribers at £34 a month. Forty charges fail. Before the flow, 14 recover on their own. After it, 31 do. That is 17 subscriptions and £578 a month that used to walk. Substitute your own numbers.
+</Example>
+
+Failure shows in the shape of the data, not in an error log. If every recovery is attributed to retries and none to messages, the card update link is broken or unreachable on mobile. If message one produces most updates and the rest almost none, the later copy is not being read and the sequence is too long. If tickets climb while recovery stays flat, you are messaging people who already paid.
+
+## Where does Edge Subscriptions fit in the dunning flow?
+
+Edge Subscriptions handles subscribe and save, the customer portal and dunning. It is new, and I will not quote a rating or review count because it does not have one.
+
+| App | Rating and reviews | Entry pricing | Where it wins |
+| --- | --- | --- | --- |
+| Recharge | <Cite href="https://apps.shopify.com/subscription-payments">4.8 stars, 2,967 reviews</Cite> | <Cite href="https://apps.shopify.com/subscription-payments">Starter $25/mo, no transaction fee for the first 50 subscribers</Cite> | Complex billing. Deepest tooling of the three |
+| Appstle | <Cite href="https://apps.shopify.com/subscriptions-by-appstle">5.0 stars, 8,289 reviews</Cite> | <Cite href="https://apps.shopify.com/subscriptions-by-appstle">Free to $500/mo revenue, then $10/mo</Cite> | Cheapest route to a working sequence |
+| Edge Subscriptions | No reviews yet | See listing | Portal and dunning as one product |
+
+<CheckedOn date="22 August 2026" />
+
+With thousands of contracts and unusual billing logic, Recharge is safer and I would tell a client so. Under a few hundred subscribers, Appstle is hard to argue with on price. Edge Subscriptions suits the store that wants the card update built the way step five describes.
+
+Whichever you pick, build the sequence first. The app matters less than four messages on days two, five, nine and fourteen with a link that takes one tap. If the plans are not set up yet, the [Shopify subscriptions guide](/blog/shopify-subscriptions) covers that groundwork.
+
+<PostCta />

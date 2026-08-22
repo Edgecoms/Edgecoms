@@ -1,0 +1,160 @@
+---
+title: "Loox Alternatives for Photo Reviews on Shopify"
+slug: "loox-alternatives"
+app: "edge-reviews"
+archetype: "alternative"
+author: "anurag"
+description: "Choosing a Loox alternative for a photo-first store: who hosts your images, whether the submission rate survives the move, and what the swap really costs."
+primaryKeyword: "loox alternative"
+secondaryKeywords: ["loox pricing", "loox competitors"]
+publishedAt: "2026-09-14"
+updatedAt: "2026-09-14"
+imageAlt: "A Shopify product page showing a grid of customer photo reviews"
+internalLinks:
+  - "shopify-product-reviews"
+  - "judge-me-alternatives"
+  - "get-more-product-reviews"
+tldr: "Most stores stay on Loox because they are afraid of losing the photo wall. The images are portable if you export the files, not just the URLs. The real risk is the submission rate, which depends on how hard the new app asks. Test both before you cancel."
+faq:
+  - question: "Will I lose my photos if I cancel Loox?"
+    answer: "Not if you export properly first. A CSV export usually carries image URLs pointing at the vendor's own storage, not the files themselves. Download the binaries with a script, re-upload them to your new app or your own storage, and confirm the new records render before you downgrade the plan. Never cancel and then export."
+  - question: "How much does Loox cost compared to Judge.me?"
+    answer: "Loox Convert is $49.99 a month including 300 orders, with $50 for each additional 300 orders, and Unlimited is $299.99 a month. Judge.me runs a permanent free plan with unlimited reviews including photo and video, and its Awesome plan is $15 a month with a 15-day trial. The gap widens as order volume rises."
+    source: "https://apps.shopify.com/judgeme"
+  - question: "Do photo reviews help me get star ratings in Google?"
+    answer: "Photos do not create the stars, structured data does, and Google requires the review snippets to be visible on the same page that carries the markup. Google also treats entities that control reviews about themselves as ineligible for star treatment, so site-wide brand reviews behave differently from product reviews on a product page."
+    source: "https://developers.google.com/search/docs/appearance/structured-data/review-snippet"
+  - question: "Can a free review app really match a paid one for photo collection?"
+    answer: "For accepting uploads, yes. Photo and video review support is now standard rather than premium. The variable is how insistently the app asks: request timing, whether the customer can rate inside the email, how many taps the upload takes on a phone, and whether reminders fire. Compare those flows directly, not the feature checkboxes."
+  - question: "How long should I run both apps side by side?"
+    answer: "At least one full purchase-to-request cycle plus the reminder window, which for most stores is four to six weeks. Split your request traffic, keep the incentive identical on both sides, and measure photos per hundred delivered orders. Anything shorter tells you about deliverability, not about submission rate."
+---
+
+You have three thousand reviews and maybe five hundred of them carry a customer photo. That grid is why the product page converts, and it is why you have quietly avoided looking at a Loox alternative for two years. The invoice keeps climbing. Nobody wants to be the person who broke the gallery.
+
+The fear is reasonable and mostly aimed at the wrong thing. The images are portable, as long as you export the files rather than a spreadsheet of links. The part that genuinely moves when you switch is the submission rate, and that moves for reasons you can inspect in advance.
+
+So this post covers the two questions that actually decide the migration. Can another app keep asking for photos as effectively, and what happens to the pictures you already collected once the subscription stops.
+
+## Why do stores pick Loox in the first place, and is that reason still true?
+
+Loox got bought because it treated the photo as the point rather than as an optional attachment. Visual request emails, a gallery that looked deliberate, and a review flow built around the assumption that a picture was coming. It earned 4.9 stars across 9,051 reviews doing that <Cite href="https://apps.shopify.com/loox">on the Shopify App Store</Cite>.
+
+The question is whether the original reason still separates it from everything else.
+
+- **Photo and video support stopped being a premium feature.** Judge.me's free plan is permanent and includes unlimited reviews with unlimited photo and video reviews <Cite href="https://apps.shopify.com/judgeme">per its App Store listing</Cite>. Accepting an upload is table stakes now.
+- **The differentiator narrowed to persistence.** Not whether the app can take a photo, but how many times and how insistently it asks for one, and how few taps stand between a customer on a phone and a submitted image.
+- **Your catalogue may have changed shape.** A store that sold apparel in 2023 and sells supplements now has a category where customers do not photograph the product. The reason you bought Loox may no longer describe your business.
+
+If photo-first is still genuinely what your product page runs on, that is an argument for care during migration, not an argument against migrating.
+
+## How much of your Loox review corpus is actually photos?
+
+Merchants routinely guess this number and guess high. Before you compare anything, export and count, because the answer changes which risk you are actually managing.
+
+<Example>
+Say you have 3,000 reviews and 480 of them carry an image, so 16% are photo reviews. Of those 480, 310 sit on eight products. Those eight products take 62% of your revenue. Your exposure is not "3,000 reviews", it is 310 images on eight pages. That is a problem you can supervise by hand in an afternoon.
+</Example>
+
+Run the count across four cuts, not one.
+
+- **Share of total.** Photo reviews as a percentage of all reviews tells you whether the gallery is your review programme or a garnish on it.
+- **Concentration by product.** If the images cluster on your hero SKUs, the migration is small and high value. If they are spread thin across 400 products, no single page depends on them.
+- **Recency.** Images collected in the last ninety days tell you the current submission rate. Images from three years ago tell you what a different version of your store used to achieve.
+- **Photo against video.** Count clips separately from stills. A corpus that is drifting towards video changes which candidates can actually carry it, and video files are the ones most likely to fail a bulk download.
+
+That number is the budget for everything below. If it is small, stop worrying and go on price. If it is large and recent, the rest of this post is your checklist. The general groundwork on running a review programme sits in our guide to [Shopify product reviews](/blog/shopify-product-reviews).
+
+<PostCta />
+
+## Who hosts the images, and what happens to those URLs after you cancel?
+
+Here is the mechanism nobody explains at signup. Your Shopify store does not hold those JPEGs. The customer uploaded to the review app, the app put the file on its own storage, and your product page renders an image tag pointing at a domain you do not control. The review text is yours. The pixels are on loan.
+
+Which means a CSV export can look complete and be worthless. If the image column contains links rather than files, that export is a list of addresses on someone else's building.
+
+<Callout title="Export the files, not the links" tone="warning">
+Do not cancel, downgrade, or uninstall until you are holding the actual image binaries on storage you control. Once billing stops, a link-only export can become a page full of broken images with no way back.
+</Callout>
+
+Prove portability before you commit. This takes an afternoon.
+
+1. **Export everything now, while the plan is still active.** Reviews, ratings, product handles, customer names, dates, and the image column.
+2. **Pull twenty image URLs out of the file and look at the domain.** If it is the vendor's domain or their CDN, you are holding references, not assets.
+3. **Download the full set with a script.** Fetch each URL, save it to disk, and log any that fail. Failures now are far cheaper than failures later.
+4. **Re-upload to the destination app or to your own storage** and confirm the new record renders the new URL, not a cached copy of the old one.
+5. **Load a product page in a private window with the old app's script blocked.** If the grid still fills, you are genuinely free to cancel.
+
+Ask the vendor directly how long images stay reachable after a plan ends, and keep the answer in writing. Policies differ and they change. Your own copy is the only version that cannot change.
+
+## Can an alternative match Loox's photo submission rate, or only accept uploads?
+
+This is the honest crux, and I am not going to hand you a percentage, because no verified number exists that would apply to your store anyway. Accepting an upload and extracting one are different products wearing the same feature name.
+
+What to inspect in a candidate app, in the order that matters.
+
+- **Where the rating happens.** Apps that let the customer set the star rating inside the email body and land on a pre-filled form get further than apps that send a bare link to a blank form.
+- **Tap count on a phone.** Open the request on your own phone and count. Every extra screen between the star tap and the camera roll costs you images.
+- **Reminder logic.** One request is a coin flip. Whether the app sends a second, when, and whether it can target only the non-responders, is most of the difference between review programmes.
+- **Incentive mechanics.** If the app can offer something for a photo specifically, rather than for any review, it changes what customers bother to do.
+- **Video parity.** Increasingly the customer wants to send a clip. An app that handles photos beautifully and videos badly will quietly cap your rate.
+
+Then test it rather than trusting the demo. Split your request volume for a full purchase-to-reminder cycle, keep the incentive identical on both sides, and measure photos per hundred delivered orders over four to six weeks. Two weeks gives you a deliverability report dressed up as one. The tactics that move that number are the same whichever app you land on, and they are collected in our notes on [getting more product reviews](/blog/get-more-product-reviews).
+
+<PostCta />
+
+## How do the referral and upsell extras change the price comparison?
+
+Loox bundles more than reviews, and a like-for-like price comparison that ignores that is dishonest in your favour and against your interest.
+
+| App | Entry paid tier | Higher tier | Trial | Rating |
+| --- | --- | --- | --- | --- |
+| Loox | $49.99/mo, 300 orders included, $50 per extra 300 | Unlimited $299.99/mo | 14 days | 4.9 (9,051) |
+| Judge.me | Awesome $15/mo | Free plan is permanent | 15 days | 5.0 (43,884) |
+| Yotpo | Starter $15/mo | Pro $119/mo, varies with volume | Not listed | 4.8 (4,392) |
+| Edge Reviews | Free plan | Free plan | Not applicable | No reviews yet |
+
+<CheckedOn date="22 August 2026" />
+
+Now adjust the numbers for what you actually use.
+
+- **If the referral programme is live and producing orders,** leaving means replacing it with a dedicated referral app. Add that monthly cost to the alternative before you compare.
+- **If post-purchase upsells run through the review flow,** check whether your checkout or cart app already covers it. Most stores discover the overlap only after they audit.
+- **Order-based pricing scales with your success.** A tier priced per block of orders costs more precisely in the months you have the least appetite for a migration project.
+
+## What does Loox not do that a general review app does?
+
+Photo specialisation has an opportunity cost. Broader review apps carry infrastructure a visual-first tool tends to treat as secondary.
+
+- **Structured data breadth.** Stars in search results come from markup, not from images. Google requires the review snippets to be visible on the page carrying the markup, and treats entities that control reviews about themselves as ineligible for star treatment <Cite href="https://developers.google.com/search/docs/appearance/structured-data/review-snippet">in its review snippet documentation</Cite>. Check how a candidate handles product-level versus brand-level markup.
+- **Questions and answers.** Presale questions on the product page are a different content type from reviews and often a larger conversion lever for considered purchases.
+- **Store reviews as a separate object.** Reviews about your shipping and service are not reviews of a product and should not average into a product's rating.
+- **Import and export symmetry.** An app that imports well from anywhere is usually an app that exports well to anywhere. That is the property that keeps you free next time.
+
+<PostCta />
+
+## Which Loox alternative fits your actual reason for leaving?
+
+Match the app to your actual reason for moving, not to a scoreboard.
+
+| Reason for leaving | Best fit | Why |
+| --- | --- | --- |
+| The per-order price is compounding | Judge.me | Permanent free plan with unlimited photo and video reviews |
+| You want reviews inside a wider marketing stack | Yotpo | Reviews sit alongside the rest of its suite |
+| You need the biggest install base and community | Judge.me | 43,884 reviews at 5.0 <Cite href="https://apps.shopify.com/judgeme">on its listing</Cite> |
+| You want a clean free import and a simple setup | Edge Reviews | Free plan, imports existing reviews |
+| Photo submission rate is the entire business case | Test before you move | No listing figure will predict your rate |
+
+If you cannot name your reason in one sentence, you are not ready to migrate. Stay and renegotiate instead.
+
+## Where does Edge Reviews fit for a photo-first store?
+
+Straight answer. Edge Reviews is new. It has no reviews on the App Store yet, and I am not going to pretend a rating exists. It runs a free plan and it imports your existing reviews, which covers the migration problem this post is mostly about.
+
+Where it fits: a store that has done the audit above, found the photo corpus is modest or concentrated, and wants the review programme to stop being a line item. The import path is the feature that matters, because a review app you cannot leave is a subscription with hostages.
+
+Where it does not fit yet: if your product page lives or dies on the photo wall and you need a submission engine with years of proven behaviour behind it today, install Judge.me. The free plan carries unlimited photo and video reviews, the install base is enormous, and it will not cost you anything to find out. I would rather you keep your gallery than use our app.
+
+Either way, export your images first. It is the same step wherever you land, and the only one that is irreversible if you skip it.
+
+<PostCta />

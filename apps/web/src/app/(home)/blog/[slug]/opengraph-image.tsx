@@ -107,7 +107,7 @@ export default async function BlogOpengraphImage({
 					width: "100%",
 				}}
 			>
-				edgecoms.com/blog
+				edgecoms.app/blog
 			</div>
 		</div>,
 		size

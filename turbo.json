@@ -5,6 +5,7 @@
     "SKIP_ENV_VALIDATION",
     "NODE_ENV",
     "PORT",
+    "NEXT_PUBLIC_SITE_URL",
     "DATABASE_URL",
     "DIRECT_DATABASE_URL",
     "BETTER_AUTH_SECRET",
@@ -28,6 +29,7 @@
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "env": [
+        "NEXT_PUBLIC_SITE_URL",
         "DATABASE_URL",
         "DIRECT_DATABASE_URL",
         "BETTER_AUTH_SECRET",

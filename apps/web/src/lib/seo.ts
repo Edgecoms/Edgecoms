@@ -19,7 +19,7 @@
  * point at production).
  */
 export const SITE_URL = (
-	process.env.NEXT_PUBLIC_SITE_URL ?? "https://edgecoms.com"
+	process.env.NEXT_PUBLIC_SITE_URL ?? "https://edgecoms.app"
 ).replace(/\/$/, "");
 
 export const SITE_NAME = "Edgecoms";

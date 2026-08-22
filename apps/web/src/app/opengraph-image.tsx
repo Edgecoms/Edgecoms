@@ -87,7 +87,7 @@ export default function OpengraphImage() {
 					width: "100%",
 				}}
 			>
-				edgecoms.com
+				edgecoms.app
 			</div>
 		</div>,
 		size

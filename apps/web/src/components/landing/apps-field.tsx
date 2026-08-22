@@ -19,7 +19,7 @@ export function AppsField() {
 						<div className="flex flex-col">
 							<div className="flex items-center gap-2">
 								<span className="font-medium text-[14px] text-neutral-900">
-									bundles.edgecoms.com
+									bundles.edgecoms.app
 								</span>
 								<span className="rounded bg-orange-100/80 px-2 py-0.5 font-semibold text-[10px] text-orange-700">
 									Primary App
@@ -51,7 +51,7 @@ export function AppsField() {
 						<div className="flex flex-col">
 							<div className="flex items-center gap-2">
 								<span className="font-medium text-[14px] text-neutral-900">
-									cart.edgecoms.com
+									cart.edgecoms.app
 								</span>
 							</div>
 							<span className="text-[12px] text-neutral-400">
@@ -80,7 +80,7 @@ export function AppsField() {
 							</div>
 							<div className="flex flex-col">
 								<span className="font-medium text-[14px] text-neutral-900">
-									trackproof.edgecoms.com
+									trackproof.edgecoms.app
 								</span>
 								<span className="text-[12px] text-neutral-400">
 									Server-Side Meta CAPI &amp; Multi-Touch Attribution

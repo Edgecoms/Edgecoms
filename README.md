@@ -96,8 +96,10 @@ Run all scripts from the repo root.
 | `bun run db:down` | Stop and remove the database container |
 | `bun run db:push` | Push schema changes to the database |
 | `bun run db:generate` | Generate migration files |
-| `bun run db:migrate` | Run pending migrations |
-| `bun run db:seed` | Seed the 6 Edge apps (idempotent) |
+| `bun run db:migrate` | Run pending migrations (local) |
+| `bun run db:deploy` | Apply migrations to a remote/production database |
+| `bun run db:setup:deploy` | First deploy: migrate + seed + create admin (idempotent) |
+| `bun run db:seed` | Seed the 7 Edge apps, local (idempotent) |
 | `bun run db:create-admin` | Create/promote the admin user (`ADMIN_EMAIL` / `ADMIN_PASSWORD`) |
 | `bun run db:studio` | Open Drizzle Studio |
 
@@ -198,15 +200,34 @@ Deploy **two services from this one repo** against a shared Railway Postgres:
 
 ### First-deploy steps
 
-From a machine with `DATABASE_URL` pointing at the Railway Postgres:
+Migrations are applied **deliberately, by a human** — never from a build step.
+A build that migrates a money database can fire from a preview deploy, run
+concurrently with another build, or migrate a deployment that is then rolled
+back, leaving the schema ahead of the code.
+
+From a machine with `DATABASE_URL` pointing at the **production** database:
 
 ```bash
 bun install
-bun run db:migrate     # apply migrations (or db:push for the first cut)
-bun run db:seed        # seed the 6 Edge apps
-bun run db:create-admin # ADMIN_EMAIL / ADMIN_PASSWORD must be set
+DATABASE_URL="postgresql://..." ADMIN_EMAIL="..." ADMIN_PASSWORD="..." bun run db:setup:deploy
 ```
+
+That applies migrations, seeds the 7 Edge apps, and creates the admin user.
+Every step is idempotent — migrations track applied state, the seed upserts on
+`slug`, and `create-admin` promotes an existing user — so re-running is safe.
+
+Individual steps, if you need them:
+
+```bash
+bun run db:deploy             # migrations only
+bun run db:seed:deploy        # the 7 Edge apps
+bun run db:create-admin:deploy # ADMIN_EMAIL / ADMIN_PASSWORD must be set
+```
+
+Use the `:deploy` variants for anything remote. The plain `db:migrate`,
+`db:seed` and `db:create-admin` scripts load `apps/web/.env`, so they target
+your **local** database.
 
 Replace the placeholder Partner API GIDs in the seed with your real app GIDs via
 `PARTNER_API_GID_<SLUG>` env vars (see `apps/web/.env.example`), then re-run
-`bun run db:seed`.
+`bun run db:seed:deploy`.

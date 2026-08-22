@@ -1,0 +1,148 @@
+---
+title: "How to Add Low Stock Alerts to Shopify"
+slug: "add-low-stock-alerts-shopify"
+app: "edge-timer"
+archetype: "tutorial"
+author: "anurag"
+description: "A Shopify low stock alert only works if it reads real inventory. How to set the threshold, wire it to actual stock, and check it is not quietly lying."
+primaryKeyword: "shopify low stock alert"
+secondaryKeywords: ["inventory countdown", "stock counter setup"]
+publishedAt: "2026-12-14"
+updatedAt: "2026-12-14"
+imageAlt: "Placeholder illustration of a low stock message on a Shopify product page"
+internalLinks:
+  - "shopify-countdown-timer"
+  - "urgency-marketing-examples"
+  - "countdown-timer-timezone-problems"
+tldr: "A Shopify low stock alert is a claim about your warehouse, so it has to read live inventory to be true. Set the threshold from your actual sell-through rather than a round number, show it at variant level where possible, and re-check the threshold after every restock."
+faq:
+  - question: "What threshold should a low stock alert use?"
+    answer: "Derive it from sell-through rather than picking a round number. A threshold that flags a product with roughly a week of stock left is useful. The same number applied across a catalogue with wildly different velocities will flag some products permanently and others never."
+  - question: "Should the alert show a number or just a message?"
+    answer: "A number is more persuasive and more falsifiable. Only 3 left is checkable, which is exactly why it works when true. If you are not confident the count is accurate to the unit, a vague message is the more honest option, though it will also do less."
+  - question: "Is a low stock message on every product a problem?"
+    answer: "Yes. If most of your catalogue shows one, either your threshold is wrong or the message is not reading stock. Either way it becomes wallpaper within a couple of pages and devalues the products where the shortage is genuine."
+  - question: "Does a low stock alert ever reduce sales?"
+    answer: "It can. Telling a ready-to-buy shopper that two units remain introduces a real chance of disappointment, and some will go and buy from a seller they trust has stock. It is worth being selective about which products carry it, particularly during paid campaigns."
+---
+
+A **shopify low stock alert** is a different kind of claim from a countdown. A deadline is a promise about time that you control. A stock message is a statement about a physical warehouse, and it is either accurate right now or it is false.
+
+That makes this a plumbing job before it is a marketing one. Get the wiring right and it is one of the most useful things you can tell a shopper. Get it wrong and you have published a number about your business that anyone can disprove by refreshing.
+
+## What has to be true before you start?
+
+Three prerequisites. If any fails, fix it before installing anything.
+
+- **Shopify is tracking inventory for the product.** If tracking is off, there is no number to read and any counter is invented by definition.
+- **Your stock counts are actually accurate.** A message reading a count that is out by six is a message that is out by six.
+- **The alert reads live inventory**, not a static field somebody typed once. This is the difference between the mechanic and the fabrication.
+
+That third point is where most implementations fail, and rarely deliberately. Several apps default to a display-only number that ticks down as people view the page and resets for the next visitor. Nobody chose to lie. The default did.
+
+## How do you set the threshold?
+
+Not by picking a round number, which is the usual approach and the reason most stores end up flagging either everything or nothing.
+
+The useful threshold is derived from velocity: flag a product when it has roughly a week of stock left at its current rate. That means the number is different per product, which is the point.
+
+<Example>
+A product sells about 4 units a week. A threshold of 5 flags it when there is a bit over a week left, which is useful and rare.
+
+A second product sells 60 a week. The same threshold of 5 flags it about eight hours before it sells out, which is too late to be actionable.
+
+A third sells 1 a month. A threshold of 5 flags it permanently, and after a fortnight nobody sees the message at all.
+
+Substitute your own sell-through. The shape is the lesson: one threshold across a mixed catalogue is wrong for most of it.
+</Example>
+
+If your app only supports a single global threshold, set it for your fastest-moving products and accept that slower lines will not trigger. That is the failure direction you want, because a message that appears rarely retains its meaning.
+
+<PostCta />
+
+## How do you set it up?
+
+1. **Confirm inventory tracking is on** for every product you intend to cover.
+2. **Audit your counts** against a physical check on a sample. If they are out, stop and fix that first.
+3. **Work out sell-through per product** for your top sellers, over a period long enough to smooth a promotion.
+4. **Set thresholds** from that rather than from a round number.
+5. **Enable at variant level** where the app supports it. "Only one left in medium" is far more actionable than a product-level count.
+6. **Place the message near the buy button**, in the same viewport on mobile.
+7. **Decide what happens at zero.** The message and the buy button should go together, replaced by a sold-out state and ideally a restock date.
+8. **Scope it.** Not every product, and specifically not products you reorder continuously.
+
+Step five is the most under-used option in this category. Product-level scarcity is often uninteresting because the shopper does not want any unit, they want theirs. Variant-level scarcity speaks to a specific person about a specific decision.
+
+## How do you check it is honest?
+
+Four tests, and the first one settles most cases.
+
+1. **Open the page in a private window, note the number, close it, and open a fresh private window an hour later.** If the count reset or moved without a sale, it is not reading stock.
+2. **Compare the displayed count against your admin.** They should match exactly, not approximately.
+3. **Check the one-unit case.** Some apps refuse to display "only 1 left" and round up, which is a small lie in the direction of comfort.
+4. **Check what fraction of your catalogue is showing the message.** If it is most of it, the threshold is wrong regardless of whether the underlying data is real.
+
+<Callout title="Re-run test four after every restock" tone="warning">
+A threshold that correctly flagged four products in March will be flagging forty by September if your stock levels moved and nobody revisited it. This is the most common way an honest implementation drifts into a dishonest one without anybody making a decision.
+</Callout>
+
+<PostCta />
+
+## What wording should the message use?
+
+The number does the persuading. The words decide whether it reads as information or as pressure, and the difference is mostly specificity.
+
+| Weak | Better | Why |
+| --- | --- | --- |
+| Selling fast | Only 3 left | Checkable, which is why it works when true |
+| Low stock | Only 1 left in medium | Speaks to a specific shopper about their decision |
+| Almost gone | Final run, not being restocked | Names what will actually happen |
+| Hurry, limited stock | 2 left. Back in stock 14 March | Removes the panic and keeps the information |
+
+The bottom row is worth copying. Pairing a shortage with a restock date is counter-intuitive because it seems to remove the urgency, and in practice it converts better for considered purchases. It tells the shopper the truth and lets them decide, and the ones who cannot wait still buy today.
+
+There is a tone question underneath all of this. A shortage stated as a fact reads as a store being helpful. The same shortage stated with an exclamation mark reads as a store trying to rush you, and shoppers have been trained by a decade of fake counters to treat the second as noise. Say the number and stop.
+
+## When should you not run one at all?
+
+More often than the app listings suggest.
+
+- **On continuously restocked products.** There is no shortage, so any message is invented.
+- **During a paid campaign on your hero product.** True scarcity here broadcasts a risk of disappointment to the traffic you just paid for, and some of it will go elsewhere.
+- **When your counts are unreliable.** A wrong number is worse than no number, because it is checkable.
+- **Alongside a countdown on the same product.** Two pressure mechanics on one page read as manipulation rather than information.
+- **When the honest answer is boring.** Plenty of stock and no deadline means the useful message is a delivery date, not a shortage.
+
+That last one is where most catalogues sit, and the honest alternatives usually outperform an invented shortage anyway. [The urgency mechanics worth running](/blog/urgency-marketing-examples) are mostly deadlines you already have and do not display.
+
+<PostCta />
+
+## What should you show when it does sell out?
+
+Decide this before it happens, because it happens during your busiest hours.
+
+The sold-out state should say so plainly, remove the buy button, and give the shopper somewhere to go: a restock date if you have one, a back-in-stock signup if you do not, or a comparable product. A page that simply greys out is a dead end at exactly the moment you had the most attention.
+
+A known restock date is worth more than most stores realise. It converts a lost visit into a scheduled one, and unlike a shortage message it never expires or needs a threshold. If your restocks are predictable, saying so is free.
+
+
+## How does this interact with your restocking?
+
+One consequence worth planning for: a low stock message increases the rate at which the last units sell, which pulls your stock-out forward.
+
+That is usually the intended effect, and it has a knock-on. If the product is one you reorder, the message compresses the window between "getting low" and "gone", which means your reorder trigger needs to fire earlier than it did before you switched the message on. Stores that add scarcity messaging without touching their purchasing end up out of stock more often, and read it as demand growth rather than as a mechanic doing exactly what they asked.
+
+There is a forecasting effect too. Once a product regularly sells out, its sales history stops describing demand and starts describing supply. Reorder against that history and you will keep under-buying the thing that keeps running out. Forecast from sell-through rate over the days it was actually available, not from monthly totals that include days at zero.
+
+None of this is a reason not to run the message. It is a reason to tell whoever does your purchasing that you turned it on.
+
+<PostCta />
+
+## Where does Edge Timer fit?
+
+Edge Timer is ours and it is new, with no reviews yet, which is worth weighing.
+
+Its job is the time half of this: deadlines on product pages, the cart, collections and the announcement bar, set as real dates and resolved server-side so they read correctly in every market, and removed at zero rather than frozen. If your deadline is a dispatch cutoff or a genuine sale end, that is the mechanic it handles, and [timezone handling](/blog/countdown-timer-timezone-problems) is the part of it most likely to catch out an international store.
+
+On stock specifically, the honest position is the one this whole guide rests on: a counter is only worth running if it reads your real inventory. If it cannot, the right answer is not a softer number. It is no number.
+

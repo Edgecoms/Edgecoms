@@ -1,0 +1,144 @@
+---
+title: "How to Add a Countdown Timer to a Product Page"
+slug: "add-countdown-timer-shopify"
+app: "edge-timer"
+archetype: "tutorial"
+author: "anurag"
+description: "Add a countdown timer to a Shopify product page in the right order: pick the deadline first, place the block, then verify zero-state and timezone before launch."
+primaryKeyword: "add countdown timer to shopify product page"
+secondaryKeywords: ["product page countdown timer", "timer theme app block"]
+publishedAt: "2026-11-23"
+updatedAt: "2026-11-23"
+imageAlt: "Placeholder illustration of adding a countdown timer block to a product page"
+internalLinks:
+  - "shopify-countdown-timer"
+  - "countdown-timer-vs-stock-counter"
+  - "fake-urgency-ecommerce"
+tldr: "To add a countdown timer to a Shopify product page, decide the deadline and what changes at zero before you install anything. Then place the app block near the buy button, scope it to the products the deadline applies to, and verify the zero-state and timezone before launch."
+faq:
+  - question: "Do I need to edit my theme code?"
+    answer: "No, on any Online Store 2.0 theme. Timer apps install as theme app blocks, which you add and position from the theme editor. If an app asks you to paste Liquid into a template, it predates the current extension model and will leave fragments behind when you remove it."
+  - question: "Where exactly on the product page should the timer go?"
+    answer: "Directly above or beside the buy button, close enough that the timer and the button are read as one thought. On mobile that usually means it has to be compact enough to sit in the same viewport as the button, which rules out most large banner styles."
+  - question: "Should the timer appear on every product?"
+    answer: "No. Scope it to the products the deadline actually applies to. A timer on the whole catalogue is wallpaper by the second page a shopper visits, and it devalues the ones attached to a real deadline."
+  - question: "What should the timer say when it reaches zero?"
+    answer: "Nothing. It should remove itself, or be replaced by a message saying the offer ended, and the price should genuinely revert. A clock frozen at 00:00:00 above an unchanged price tells every subsequent visitor that your deadline was decoration."
+---
+
+Most guides on how to **add countdown timer to shopify product page** start with installing an app. That is the fourth step, not the first, and starting there is why so many storefronts end up with a clock counting down to nothing in particular.
+
+The work is in the two decisions you make before you open the App Store. This covers those, then the mechanics, then the checks that catch the failures nobody finds until a customer does.
+
+## What do you need to decide first?
+
+Two things. Neither is a setting.
+
+**What is the deadline?** Name a specific moment. Not "a sale", but "the price returns to £48 at 23:59 GMT on Sunday". If you cannot name the moment, you do not have a timer, you have a decoration.
+
+**What happens at zero?** The price reverts, the bundle closes, the shipping promise moves to the next day. Something has to change, and it has to change automatically or by someone's hand at that moment.
+
+If both answers exist, continue. If they do not, the honest options are to find a real deadline you already have, or not to run a timer. Most stores have several they never display:
+
+- **The daily dispatch cutoff**, which is true, resets honestly, and repeats forever.
+- **A delivery-by date** for a named occasion, which the carrier sets rather than you.
+- **A pre-order window** closing against a production run.
+- **A discontinued line** that genuinely is not coming back.
+
+## How do you install and place it?
+
+The mechanics are straightforward on any Online Store 2.0 theme.
+
+1. **Install the app from the App Store.** This makes a block available. It does not place anything on your storefront, which is the single most common misunderstanding in this category.
+2. **Open the theme editor on your published theme.** Not a duplicate, not a preview of an unpublished copy. Check the theme name at the top.
+3. **Navigate to a product page**, using the template picker to select the product template your products actually use.
+4. **Add the app block** in the product information section, immediately above or below the buy button.
+5. **Drag it into position.** Proximity to the button matters more than anything else on this page.
+6. **Set the deadline** as a specific date and time, and confirm which timezone the app is interpreting it in.
+7. **Scope it** to the products or collection the deadline applies to. Prefer a collection over a hardcoded product list, because the list will not include anything you add next week.
+8. **Write the label.** "Order within 3h 12m for dispatch today" beats a bare clock, because the words carry the instruction and the digits only carry the pressure.
+9. **Save, then view the live product page** in a private window rather than the editor preview.
+
+<PostCta />
+
+## Which template does your product use?
+
+Worth its own step because it silently breaks step three for a lot of stores.
+
+Shopify products can be assigned alternate templates, and a block added to the default `product` template does not appear on `product.sale` or any other variant. Open a product in the admin, check the template listed in the theme section of the sidebar, and confirm you edited that one.
+
+Stores accumulate alternate templates quietly, usually during a redesign, and nobody keeps a list. If your timer shows on some products and not others and the scope rules look correct, this is the next thing to check.
+
+## What should you verify before launch?
+
+Five checks. Together they take about ten minutes and they catch nearly everything that goes wrong after a timer goes live.
+
+1. **Load the product on a real phone**, logged out, and confirm the buy button is still above the fold. A timer that pushes the button down costs more conversions than the urgency earns.
+2. **Change your device timezone and reload.** If the remaining time moved, the app is rendering from the device clock and will show a different deadline to anyone whose clock is off.
+3. **Set a test deadline five minutes out on a hidden product** and watch what happens at zero. It should disappear, not freeze.
+4. **Check a product the timer should not cover.** Confirm the scope is doing what you think.
+5. **Open it in a private window tomorrow.** If the countdown restarted, it is not counting toward anything and every returning customer will eventually notice.
+
+<Callout title="The check nobody runs" tone="warning">
+Step three is the one that separates a timer that builds trust from one that quietly destroys it. Most app listings do not say what happens at zero, and the answer is often that the clock sits at 00:00:00 above a price that has not moved. Test it on a hidden product before it happens on a real one during a sale.
+</Callout>
+
+<PostCta />
+
+## How do you handle the price actually changing?
+
+The timer displays a deadline. It does not enforce one. That gap is where most stores get caught.
+
+- **Scheduled discounts.** Shopify's automatic discounts can carry a start and end time, so the price reverts without anyone being awake. Set the end to match the timer exactly.
+- **Compare-at pricing.** If you are showing a strikethrough, make sure it comes off at the same moment. A sale price with no sale is a different problem.
+- **Check the two agree.** Set them both, then confirm on a test product that the timer hitting zero and the price reverting happen together rather than an hour apart.
+- **Put the end time in a human calendar.** If any part of this is manual, it needs a person and a reminder, not a good intention.
+
+A mismatch here is the mechanism by which honest merchants end up running [what looks exactly like fake urgency](/blog/fake-urgency-ecommerce). The deadline was real. Nobody moved the price. From the customer's side those two situations are identical.
+
+## How should you word the label?
+
+The digits carry the pressure. The words carry the meaning, and most implementations treat them as an afterthought.
+
+A bare clock is a puzzle. The shopper sees 03:14:22 and has to work out what it counts toward, what happens when it ends, and whether any of that matters to them. Most will not bother, and the ones who do have spent their attention on decoding rather than on buying.
+
+A labelled clock is an instruction:
+
+| Bare | Labelled | Why it works |
+| --- | --- | --- |
+| 03:14:22 | Order within 3h 14m for dispatch today | Names the deadline and the consequence |
+| Sale ends soon | Sale ends Sunday 23:59 GMT | A specific moment can be believed and checked |
+| Limited time | Price returns to £48 on Monday | States exactly what changes |
+| Hurry! | Last posting date for Christmas is 18 December | The carrier set this, not you |
+
+The pattern in the right-hand column: each names a moment and a consequence. That is the whole formula, and it is worth more than any design option in the app.
+
+One more wording rule for international stores. Prefer a duration over a time of day. "Order within 3h 14m" is correct for everyone, because a remaining duration is timezone-independent. "Dispatch cutoff 4pm" requires the reader to know whose four o'clock, and most of them will not.
+
+<PostCta />
+
+## What if you want scarcity instead?
+
+Different mechanic, different honesty problem, and it is worth being deliberate about which you are installing. A timer is a claim about time that you control completely. A stock counter is a claim about your warehouse that has to be accurate continuously or it is simply false. [The comparison between them](/blog/countdown-timer-vs-stock-counter) covers when each earns its place, and why running both on the same product usually reads as pressure rather than information.
+
+
+## How do you take it down cleanly?
+
+Removal gets less attention than installation and causes more lingering problems.
+
+Turning the campaign off inside the app is not the same as removing the block from the theme. An orphaned block can leave an empty gap in the layout, or worse, render a stale clock if the app's defaults change. Remove the block in the theme editor as well, on every template you added it to.
+
+If you are uninstalling the app entirely, do the block removal first. Uninstalling with blocks still placed can leave the section referencing something that no longer exists, and the symptom is a gap that nobody can trace back to a timer nobody remembers installing.
+
+Then confirm the price side is unwound too. A scheduled discount that outlives the promotion is a quieter version of the same problem: the timer is gone, the sale price is not, and your full price has quietly become a fiction.
+
+<PostCta />
+
+## Where does Edge Timer fit?
+
+Edge Timer is ours, it is new, and it has no reviews yet, which is worth weighing if this is going live on a date that matters.
+
+For this specific job it removes two of the failure modes above by design. The deadline is a real date and time resolved server-side, so a shopper's device clock cannot change what they see. And at zero the timer removes itself rather than freezing, so the worst outcome in that verification list cannot happen.
+
+It installs as a theme app block, so steps two through five above still apply exactly as written. No app can place itself next to your buy button, and that placement is the part that decides whether any of this works.
+

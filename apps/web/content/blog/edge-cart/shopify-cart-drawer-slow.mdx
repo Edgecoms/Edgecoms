@@ -1,0 +1,155 @@
+---
+title: "Shopify Cart Drawer Slow to Open? Fix the Lag"
+slug: "shopify-cart-drawer-slow"
+app: "edge-cart"
+archetype: "problem"
+author: "anurag"
+description: "Is your Shopify cart drawer slow to open? Set a millisecond budget, profile the tap in DevTools, and find out if the request, render or animation is at fault."
+primaryKeyword: "shopify cart drawer slow"
+secondaryKeywords: ["cart drawer performance", "shopify cart loading speed"]
+publishedAt: "2027-01-18"
+updatedAt: "2027-01-18"
+imageAlt: "A browser performance trace showing the delay between a cart tap and the drawer painting"
+internalLinks:
+  - "shopify-cart-abandonment"
+  - "set-up-free-shipping-threshold-shopify"
+  - "best-shopify-cart-drawer-apps"
+tldr: "A cart drawer should respond to the tap within about 100 ms and finish opening within half a second. Record the tap in your browser's performance panel and split the delay into three parts: the network request for cart data, the render of the markup, and the animation. Fix whichever part is largest."
+faq:
+  - question: "How many milliseconds is too slow for a cart drawer?"
+    answer: "Anything over about 100 ms before the first visible response feels like the tap did not register, and customers tap again. A full open finishing inside 500 ms feels instant. Past a second, people start hitting the icon repeatedly or navigating away. Measure on a mid range Android phone on a throttled connection, not on your desktop."
+  - question: "Why is my cart drawer fast on desktop and slow on mobile?"
+    answer: "Two reasons stack up. Phone CPUs parse and execute JavaScript far more slowly than a laptop, so every app embed on the page costs more main thread time. And mobile networks add real latency to the cart request. Always profile with CPU throttling and network throttling on, or you will only ever measure your own hardware."
+  - question: "Does the Shopify cart drawer need a network request at all?"
+    answer: "It does if the drawer renders server side markup or refetches the cart on open. Themes usually call a cart endpoint and then build the panel from the response. A drawer that keeps the cart in memory and updates it on every change can open with no request at all, which removes the network from your latency budget entirely."
+  - question: "Do cart drawer apps run inside the Shopify Web Pixels sandbox?"
+    answer: "No. Web Pixels are for analytics and marketing code, and Shopify gives them controlled APIs inside Lax or Strict sandboxes. A cart drawer needs to touch the page DOM, so it runs as a theme app extension or a script on the storefront. That means it competes for the same main thread as everything else you have installed."
+    source: "https://shopify.dev/docs/api/web-pixels-api"
+  - question: "Will prefetching the cart drawer fix the lag?"
+    answer: "It hides it. Prefetching on hover or on page load moves the work earlier so the tap feels fast, which is a genuine win on desktop. It does nothing for the first tap on a phone, where there is no hover to trigger it, and it adds work to a page load that may already be the real problem. Fix the cold open first."
+---
+
+A Shopify cart drawer slow to open is rarely one bug. A customer taps the cart icon, nothing visible happens, they tap again, and a moment later the panel slides in. On your desk that gap does not exist. On a mid range phone on mobile data it is the difference between a smooth add to cart and a bounce.
+
+The reason this is hard to fix by guessing is that four different problems produce the same symptom. The cart request is slow. The markup takes too long to build. Other apps are hogging the main thread. Or the animation itself is badly written and only looks slow.
+
+This post gives you a latency budget, a profiling procedure that takes about ten minutes, and a way to tell those four apart before you change a single line.
+
+## How slow is slow: what should opening a drawer cost?
+
+Start with numbers, because "feels laggy" is not something you can fix or verify. Here is the budget I hold our own work to.
+
+| Stage | Budget from the tap | What the customer sees |
+| --- | --- | --- |
+| First visible response | 100 ms | The button state changes or the overlay starts to darken |
+| Panel painted and positioned | 250 ms | The drawer is on screen with its structure visible |
+| Line items and totals correct | 400 ms | Products, quantities and prices are readable |
+| Animation settled, drawer interactive | 500 ms | Nothing is still moving, buttons respond |
+
+The first row is the one that matters most. A browser frame at 60fps is about 16 ms, so 100 ms is six frames of nothing. Past that, people assume the tap missed, and a double tap on a cart icon causes its own set of problems.
+
+The biggest slice sits between painting the panel and having the contents right. That is deliberate. Showing an empty shell instantly beats showing nothing while you wait for perfect data.
+
+- **Set the budget before you profile.** Otherwise every trace looks acceptable, because you have nothing to fail against.
+- **Measure the cold path.** The first open of a session, not the fifth, when everything is cached and warm.
+- **Use a real device.** A four year old Android handset is a better test rig than any desktop simulator.
+
+## How do you measure the open with the browser's own tools?
+
+You do not need a monitoring product for this. Chrome DevTools does the whole job. Here is the procedure.
+
+1. Open your storefront on a product page in an incognito window, so no extensions and no warm cache.
+2. In DevTools, open the Performance panel. Set CPU throttling to the 4 times slowdown option and network throttling to Fast 3G. This approximates a real phone.
+3. Add a product to the cart and reload the page, so the cart is not empty when you test.
+4. Press record. Wait one second doing nothing, tap the cart icon, wait until the drawer is fully open and still, then stop.
+5. Find the click event in the trace. That timestamp is zero. Everything after it is your budget being spent.
+6. Read across to the first paint after the click. The gap is your first visible response.
+7. Read across to the last frame of the animation. That gap is your total open.
+
+Do this three times and take the middle result. Single traces lie.
+
+- **Add your own markers.** A `performance.mark('cart-open-tap')` and a matching mark when the contents render put labelled flags directly in the timeline.
+- **Save the trace file.** DevTools exports JSON. Keeping the before trace is how you prove the fix worked rather than believing it did.
+
+<PostCta />
+
+## Is the delay in the request, the render, or the animation?
+
+Now split the number. In the same trace, the three suspects look completely different and are easy to tell apart once you know the shape.
+
+**A slow request** shows as a flat gap. The main thread is idle, nothing is painting, and in the Network panel there is a pending call to a cart endpoint that spans most of your delay. The fix is upstream: fewer round trips, or no round trip at all.
+
+**A slow render** shows as a solid block of yellow scripting followed by purple layout and rendering work. The response came back quickly, but building and inserting the markup ate the budget. Long tasks over 50 ms are the giveaway.
+
+**A slow animation** shows as a normal open followed by a long tail of frames. Painting is fine, but the transition is animating a property that forces layout on every frame, so the drawer moves in visible steps.
+
+<Callout title="The animation test that takes ten seconds" tone="warning">
+Set your drawer's transition duration to zero in DevTools and tap again. If the drawer now appears instantly, the delay was never the request or the render. It was the animation, and no amount of backend work will fix it.
+</Callout>
+
+<Example>
+Say your trace shows 900 ms from tap to settled. The network panel shows a 120 ms cart call. Scripting and layout account for 280 ms. The remaining 500 ms is a transition you set to 500 ms because it looked elegant on a desktop preview. Cutting the transition to 200 ms wins you 300 ms for free.
+</Example>
+
+Animating `transform` and `opacity` is cheap because the compositor handles it. Animating `left`, `width`, `height` or `margin` forces the browser to recalculate layout on every single frame, which is the most common cause of a drawer that looks like it is dragging itself onto the screen.
+
+## How many app embeds run before your drawer can paint?
+
+This is the cause merchants underestimate most. Your drawer might be perfectly written and still open slowly, because it is queued behind everything else on the page.
+
+Every app embed you have installed contributes JavaScript to the storefront. Reviews widgets, upsell apps, chat, loyalty, popups, and analytics all parse and execute on the same single main thread. When your customer taps the cart icon, the browser cannot run your drawer's handler until whatever is currently executing finishes.
+
+Analytics is a partial exception. Shopify's Web Pixels API runs marketing and analytics code with controlled APIs inside Lax or Strict sandboxes <Cite href="https://shopify.dev/docs/api/web-pixels-api">per Shopify's Web Pixels documentation</Cite>, which keeps some of that work away from your theme. A cart drawer cannot use it, because a drawer needs the page DOM.
+
+- **Count what is actually loading.** Open the Network panel, filter to JS, and sort by size. Most stores find at least one app they stopped using months ago.
+- **Look at the Long Tasks lane.** Any task over 50 ms blocks input. If several land near your tap, that is your problem, not your drawer.
+- **Move tracking off the browser where you can.** Server side collection takes weight off the page. Our guide to [server side tracking on Shopify](/blog/shopify-server-side-tracking) covers what can move and what cannot.
+
+<PostCta />
+
+## Are the images inside the drawer downloading at full size?
+
+The panel paints, then sits there with grey boxes where products should be. That is an image problem, and it is almost always the same mistake: the drawer requests the original upload rather than a thumbnail.
+
+A product image in a cart line item is typically rendered around 80 to 120 pixels wide. The file behind it is often 2000 pixels wide, because that is what was uploaded. The browser downloads the whole thing and then throws most of it away.
+
+- **Request the size you display.** Shopify's CDN resizes on request through width parameters. Ask for double your display width for retina screens and no more.
+- **Set explicit width and height.** Without them the browser cannot reserve space, so the drawer jumps as each image lands.
+- **Do not lazy load the first few items.** Lazy loading is for content below the fold. The top of an open cart drawer is the most above the fold thing on the page.
+- **Reuse the image already on the page.** If the customer just added a product, the browser already has a copy of that image in cache. Point at the same URL and it costs nothing.
+
+## Does prefetching the drawer solve the problem or hide it?
+
+Prefetching means doing the work before the tap. Fetch the cart on page load, or on hover over the cart icon, so the drawer has everything ready the moment it is needed.
+
+It works. It is also a way to make a slow drawer feel fast without making it fast, and that distinction matters more than it sounds.
+
+On desktop, hover intent gives you a few hundred milliseconds of free time before the click, and using it is a genuine improvement. On a phone there is no hover. The first tap is the tap. So the exact scenario where your drawer is slowest is the one prefetching does not help with.
+
+- **Prefetch is a second optimisation, not a first.** Get the cold open inside budget, then use prefetch to make the warm case better.
+- **Watch what you add to page load.** Fetching cart data on every page view moves work into a page load that may already be the bottleneck.
+- **Never prefetch on a slow connection.** The Network Information API lets you skip it when the connection is poor, which is exactly when the wasted request hurts.
+
+<PostCta />
+
+## How do you keep it fast after the next theme update?
+
+Performance work decays. Theme updates change your markup, new apps land, and six months later you are back where you started without noticing, because the slide happened a few milliseconds at a time.
+
+The habit that actually holds is simple. Every time you install an app or accept a theme update, run the same seven step trace and compare against the saved one. It takes ten minutes and it catches regressions while you still remember what changed.
+
+- **Keep a baseline trace in the repo.** A JSON export with the date in the filename is enough. No tooling required.
+- **Make the budget a rule.** If a new app pushes first visible response past 100 ms, the app has to earn that cost or come back off.
+- **Watch the abandonment side too.** A drawer people give up on is an abandonment problem, and our guide to [reducing cart abandonment on Shopify](/blog/shopify-cart-abandonment) covers what happens after the drawer opens.
+
+## Where does Edge Cart fit in a performance budget?
+
+We built Edge Cart because most of the delays above are structural, not tuning problems. The drawer keeps cart state in memory and updates it as items change, so opening does not need a round trip. The animation runs on `transform` and `opacity` only. Images are requested at the size they render.
+
+It installs as an app extension with no theme edits, so a theme update cannot silently undo it. Edge Cart has a free plan.
+
+Be clear about what an app can and cannot do here. Swapping drawers does nothing about the seven other embeds competing for the main thread on your product pages. If your trace shows the delay sitting in another app's long task, changing cart apps is the wrong fix and you should uninstall instead.
+
+Edge Cart is new and has no reviews yet, so judge it the way you should judge any of them. Install it on a duplicated theme, run the seven step trace, and compare it against your saved baseline. If the numbers do not move, the problem was somewhere else and now you know where to look.
+
+<PostCta />

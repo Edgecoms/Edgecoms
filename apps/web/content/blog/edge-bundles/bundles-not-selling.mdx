@@ -1,0 +1,156 @@
+---
+title: "Why Your Bundles Are Not Selling"
+slug: "bundles-not-selling"
+app: "edge-bundles"
+archetype: "problem"
+author: "anurag"
+description: "Your bundle is seen and ignored. Here is why bundles are not selling once shoppers look at them, and the four offer fixes that move the add rate."
+primaryKeyword: "why bundles are not selling"
+secondaryKeywords: ["bundle low conversion", "bundle offer ignored"]
+publishedAt: "2027-02-08"
+updatedAt: "2027-02-08"
+imageAlt: "Placeholder illustration of a bundle block on a product page with a flat add-to-cart line beneath it"
+internalLinks:
+  - "shopify-product-bundles"
+  - "fast-bundle-alternatives-shopify"
+  - "product-bundle-examples"
+tldr: "A bundle that is seen and ignored is failing on the offer, not the placement. Instrument impression, interaction and add separately so you know which step loses people. Then check comprehension in three seconds, an honest anchor price, the number of choices you ask for, and whether a cheaper path to the same saving already exists on your site."
+faq:
+  - question: "How many impressions do I need before the numbers mean anything?"
+    answer: "Enough that one good day cannot flip the answer. On a low traffic store that is weeks, not days. Watch the interaction rate rather than the add rate while you wait, because interaction accumulates faster and moves first. If your add count is still zero after several hundred impressions, you have your answer without any statistics."
+  - question: "Should I show the saving as a percentage or a cash amount?"
+    answer: "Show whichever is larger in the shopper's head, and show only one. On low priced items the percentage usually reads bigger. On higher priced items the cash figure does. Showing both invites the shopper to check your arithmetic, and the moment they start checking they have stopped buying. Pick one and put the bundle price next to it."
+  - question: "Could the bundle be losing people at checkout rather than on the page?"
+    answer: "It can, and the funnel will tell you. If adds are healthy but bundled checkouts are not, the cost lands later than the decision. Baymard documents extra costs during checkout as the top abandonment reason at 40%, so check whether the bundle pushes the order into paid shipping or a customs threshold it did not cross before."
+    source: "https://baymard.com/lists/cart-abandonment-rate"
+  - question: "Is a low bundle conversion rate ever acceptable?"
+    answer: "Yes, if the bundle exists to raise order value on the orders it does win rather than to win more orders. A bundle taken by a small share of buyers can still pay for itself. The test is contribution, not rate. It is only failing when it takes attention away from a simpler path that converted better."
+  - question: "Does removing the crossed out price make the offer weaker?"
+    answer: "Usually not, if the individual prices are still visible on the same page. The shopper can do the comparison themselves and they trust their own arithmetic more than yours. Remove the crossed out figure when it is doing more to signal a sales tactic than to explain value, then measure the interaction rate for a fortnight."
+---
+
+Your bundle is live. The block is on screen for most product page sessions. The add count on it is somewhere between very low and zero, and it has been that way since launch.
+
+That is a different problem from a bundle nobody found, and it needs a different fix. If shoppers are looking at the offer and moving on, the question of why bundles are not selling stops being about placement and becomes about the offer itself. Something in it is failing in the two or three seconds a shopper is willing to give it.
+
+This is a diagnosis in order. Instrument the funnel first so you know which step is actually losing people, then work down the causes from most likely to least.
+
+## How do you tell whether the bundle is seen, ignored or abandoned?
+
+Order data cannot answer this. A bundle with no sales looks identical in your reports whether it was never rendered, rendered and skipped, or nearly bought and dropped at the cart. Three different bugs, three different fixes. Separate them before you change a word of the offer.
+
+Break the path into four counted events. Shopify's Web Pixels API gives you controlled APIs inside a Lax or Strict sandbox <Cite href="https://shopify.dev/docs/api/web-pixels-api">for exactly this kind of custom event</Cite>, and most bundle apps emit their own events you can subscribe to.
+
+| Step | What you count | A drop here means |
+| --- | --- | --- |
+| Impression | The bundle block at least half in view for one second | A rendering or page depth problem, not an offer problem |
+| Interaction | Any variant change, quantity change or expand on the block | The offer did not earn a second look |
+| Add | The bundle line arriving in the cart | The arithmetic or the number of choices stopped them |
+| Checkout | A checkout started containing that bundle line | The real cost landed later than the decision |
+
+Wire it up in this order:
+
+1. **Fire the impression on visibility, not on page load.** Use an intersection observer with a half in view threshold and a one second dwell, so a fast scroll past does not count.
+2. **Fire an interaction event on the first meaningful input.** Opening a size picker counts. Hovering does not.
+3. **Fire an add event carrying the bundle identifier**, so bundle adds are distinguishable from ordinary adds of the same product.
+4. **Tag the checkout** with that same identifier, so you can see whether bundled carts complete at a different rate to normal ones.
+5. **Read the ratios, not the totals.** Interaction over impression is your comprehension signal. Add over interaction is your offer signal.
+
+<Callout title="Read the interaction rate first" tone="warning">If impressions are high and interactions are near zero, no amount of discount tuning will help. Nobody got far enough into the offer for the price to matter. That is a comprehension failure, and it is the next section.</Callout>
+
+## Is the offer understandable in three seconds?
+
+Most ignored bundles are not rejected. They are not parsed. The eye lands on the block, fails to extract what it contains and what it costs, and moves on before any evaluation happens.
+
+Run the room test. Show the block to someone who does not work on the store for three seconds, take it away, then ask what is in it and what it costs. If they cannot answer both, the block is the problem.
+
+- **Name the outcome, not the SKU list.** "Complete shave kit" tells someone what they get. "Bundle A: Razor + Brush + Stand + Post Shave" makes them do the work of assembling meaning from parts.
+- **One price, one saving, nothing else.** Individual prices, a subtotal, a crossed out total, a saving figure and a percentage in one block is five numbers. A shopper reads none of them.
+- **Show the products as products.** A grid of real photos at the size the theme uses elsewhere parses instantly. A composite image with tiny inset thumbnails does not.
+- **Use the shopper's noun.** If your customers say "starter kit", the block says starter kit, whatever your internal taxonomy calls it.
+- **Cut the qualifier.** "Save when you buy any two eligible items from the selected range" is a rule, not an offer. If the rule needs a sentence to state, simplify the rule.
+
+Our [guide to bundles on Shopify](/blog/shopify-product-bundles) covers the mechanics underneath. This section is only about whether a human can read the result.
+
+<PostCta />
+
+## Is your anchor price doing the wrong job?
+
+An anchor is supposed to make the bundle price feel small. Badly built it does the opposite, and two failures show up again and again.
+
+The first reframes your catalogue. When the block shouts about the saving, the shopper does not conclude that the bundle is cheap. They conclude that buying one item alone is a mistake, and some of them leave to think about it.
+
+The second is an anchor nobody believes. A crossed out number that has never been a real trading price reads as decoration. Shoppers have seen thousands of them.
+
+<Example>
+Three items at 30, 20 and 15 in your currency. Sold together at 55. That is a saving of 10 against 65. Presented as "was 65, now 55" the shopper checks the sum and moves on. Presented as "the full routine, 55" with the three prices visible above it, they do the subtraction themselves and trust the answer, because they did it.
+</Example>
+
+- **Let the anchor be arithmetic the shopper performs.** Trust is highest for the number they worked out themselves.
+- **Anchor against the job, not the receipt.** "Everything you need for the first month" competes with buying nothing, which is the real competitor.
+- **Never show a saving you would not honour.** If a customer asked to buy the items separately at bundle price and the answer is yes, the anchor is fiction.
+
+## Are you asking the shopper to make too many choices?
+
+This is the most common reason a shopper interacts and then leaves. They understood the offer, they liked it, and then the block asked them to configure it.
+
+Every required choice is a chance to stop. Four items with a size and a colour each is eight decisions before the add button turns valid, and each one carries a small risk of regret that the shopper resolves by doing nothing.
+
+- **Ship a filled default.** The block should be addable the moment it renders, with your best selling combination already selected. Customisation is then an option rather than a toll gate.
+- **Cap mix and match at three slots.** Beyond that the block stops being an offer and becomes a form.
+- **Never ask for a choice you can infer.** If the shopper already picked a size on the main product, the bundle carries it. Asking again reads as though the page was not paying attention.
+- **Hide empty option groups.** A colour picker with one option is pure noise.
+- **Explain a disabled add button.** Silence about what is missing produces abandonment that looks exactly like disinterest in your funnel.
+
+<PostCta />
+
+## Does the bundle read like a product, or like an advert?
+
+Shoppers filter promotional furniture without conscious effort. A block styled in colours the theme uses nowhere else, wrapped in a gradient, carrying a starburst and a countdown, is read as an ad and skipped by people who would have taken the offer.
+
+The fix is uncomfortable for anyone who spent a week designing that block. Make it plainer.
+
+- **Use the theme's own card, type scale and button style.** The bundle should look like part of the shop, not like a banner injected into it.
+- **One badge maximum, and only if it is factually true.** "Most popular" is fine when it is. It is not a decoration.
+- **Be careful with scarcity.** Under the UK's DMCC Act 2024, falsely stating that a product will only be available for a limited time to elicit an immediate decision is a banned practice <Cite href="https://www.gov.uk/government/publications/unfair-commercial-practices-cma207/unfair-commercial-practices">listed in Schedule 20</Cite>. A permanent bundle with a rolling timer is not a growth tactic, it is a legal exposure.
+- **Put it in the flow of the page.** A block that sits inside the product content, in the same column, at the same width, gets read. A floating bar does not.
+
+## Is there already a cheaper path to the same saving on your own site?
+
+This one is invisible from inside the admin and it kills bundles quietly. The shopper does the sum, sees the same discount or better without committing to your combination, and takes the easier route.
+
+Check each of these against your live store today:
+
+| Competing path | What the shopper works out | Fix |
+| --- | --- | --- |
+| Welcome popup discount | The site wide code beats the bundle saving and applies to anything | Exclude bundle lines, or set the bundle saving above the code |
+| Volume or tiered pricing | Three of one item costs less than your mixed bundle | Decide which mechanic owns the discount and retire the other |
+| Subscription discount | Subscribing gets the same percentage with no commitment to extra items | Make the bundle the entry point into the subscription instead of a rival to it |
+| Free shipping threshold | A cheaper second item crosses the threshold and saves more | Bundle price should clear the threshold on its own |
+| A live sale on one component | The component is discounted deeper than the bundle implies | Suspend the bundle or reprice it for the duration |
+
+Two of these are often true at once, which is why the shopper's arithmetic beats yours. Extra costs at checkout remain the leading documented reason for abandonment at 40% <Cite href="https://baymard.com/lists/cart-abandonment-rate">across fifty studies</Cite>, and our notes on [cart abandonment](/blog/shopify-cart-abandonment) cover where those costs surface.
+
+<PostCta />
+
+## How long is long enough before you kill it?
+
+Bundles get killed too early and kept too long, usually in the same store. Decide the rule before you look at the data.
+
+1. **Write the kill criteria on day one.** If the interaction rate sits under your floor after four weeks, the offer is unreadable and gets rewritten, not discounted.
+2. **Change one thing per cycle.** Copy, then anchor, then choice count. Changing three at once teaches you nothing you can reuse.
+3. **Give each cycle a fortnight minimum.** Shorter and you are reading weekday and weekend mix, not the offer.
+4. **Judge on contribution, not rate.** Compare the bundle against what those shoppers would otherwise have bought, not against zero.
+5. **Kill it properly.** Remove the block rather than hiding it at the bottom of the page.
+
+## Where does Edge Bundles fit in fixing a bundle nobody takes?
+
+Edge Bundles is our own app and it is new, so there is no review count to quote. Here is what it does for this specific problem.
+
+It emits impression, interaction and add events per bundle, so the funnel in the first section is something you read rather than something you build. It renders with your theme's own tokens by default, which removes the advert problem without design work. It ships preselected defaults so the block is addable on render.
+
+It will not fix a bundle whose components nobody wants, and it will not rewrite your copy. If a site wide discount code undercuts every bundle you make, that is a merchandising decision no app resolves for you.
+
+There is a free plan. If another bundle app fits your catalogue better, use it. What matters is that you stop guessing which of the four causes above is yours and go and measure it.
+
+<PostCta />

@@ -1,0 +1,147 @@
+---
+title: "Shopify Bundle Discount Not Applying? Why"
+slug: "shopify-bundle-discount-not-applying"
+app: "edge-bundles"
+archetype: "problem"
+author: "anurag"
+description: "Shopify bundle discount not applying at checkout? Work through combination rules, competing automatics, unmet conditions and market rounding, in order."
+primaryKeyword: "shopify bundle discount not applying"
+secondaryKeywords: ["bundle discount not working", "shopify discount conflict"]
+publishedAt: "2027-01-18"
+updatedAt: "2027-01-18"
+imageAlt: "Placeholder illustration of a cart summary with a missing discount line"
+internalLinks:
+  - "shopify-product-bundles"
+  - "set-up-buy-x-get-y-shopify"
+  - "bundles-vs-volume-discounts"
+tldr: "A bundle discount usually fails for one of four reasons: combination rules forbid it, another automatic discount won the slot, the cart does not actually meet the conditions you wrote, or a market and its rounding rule changed the price. Check them in that order and test in an incognito window."
+faq:
+  - question: "Why does the bundle price show on the product page but not in the cart?"
+    answer: "Because those are two different systems. The product page is showing a theme block or an app widget doing display maths. The cart total comes from Shopify's discount engine evaluating your real rules. When they disagree, the cart is right and the widget is decoration. Fix the rule, not the widget, or you will ship a price you cannot honour."
+  - question: "Can two automatic discounts apply to the same order?"
+    answer: "Only when both are set to combine and their types allow it. Product, order and shipping discounts have separate combination settings, and two automatic product discounts competing for the same line will not simply stack by default. If you need them both, each one has to explicitly permit the other, and you should test the exact cart, not a similar one."
+  - question: "Does a discount code cancel my automatic bundle discount?"
+    answer: "It can. If your automatic bundle discount is not set to combine with product discount codes, a shopper entering a code at checkout can knock it out. Support tickets that start with a customer saying the bundle price vanished after they pasted a newsletter code are almost always this. Decide which offer should win and write that rule down."
+  - question: "Why is the bundle a penny out in some currencies?"
+    answer: "Because Shopify rounds converted prices to keep them looking stable in each market, requires Shopify Payments for that conversion, and does not let you customise the rounding rules. A percentage taken off a rounded converted price will not always match the number your calculator produced from the home currency."
+    source: "https://help.shopify.com/en/manual/markets/pricing/rounding"
+  - question: "Should I test with a real order or a draft order?"
+    answer: "A real order in an incognito window, at your lowest price point. Draft orders do not evaluate automatic discounts the way a storefront checkout does, so a bundle that behaves in a draft can still fail for a customer. Place one cheap live order, refund it, and keep the order as evidence of what the engine actually did."
+---
+
+A customer emails a screenshot. Three products in the cart, the bundle badge visible on every line, and a subtotal with no discount on it. You add the same three products yourself and the discount appears fine. That gap is where most of the day goes.
+
+**Shopify bundle discount not applying** is rarely one bug. It is a short list of causes that each look identical from the cart summary, because Shopify does not tell the shopper why an offer was skipped. It just prices the order and moves on. The silence is the whole problem.
+
+Work through the causes in likelihood order rather than guessing. Combination rules first, competing automatic discounts second, unmet conditions third, then markets and rounding, then the special cases that quietly break everything. Most stores find it in the first two.
+
+## Is the discount failing to apply, or only failing to show?
+
+Before you change any settings, decide which of the two failures you have. They have completely different fixes and people burn hours conflating them.
+
+- **A display failure** means the money is correct and the label is missing. The subtotal already reflects the bundle, but the cart drawer or the checkout summary does not print a discount line, so the customer thinks they were charged full price.
+- **A pricing failure** means the total is genuinely wrong. The engine evaluated your rule and declined to apply it.
+
+Get the order total and compare it against the sum of the line prices. If the total is lower, you have a display problem and the fix lives in your theme or your app's cart template. If the total matches the undiscounted sum, the discount really did not run, and everything below applies.
+
+One more split worth making. Is it failing for **every** cart, or only for **some**? A discount that never applies is almost always misconfigured. A discount that applies for you and not for a customer is almost always a condition, a market, or a competing offer. Ask the customer for their country and whether they entered a code. Those two answers narrow it faster than any amount of clicking.
+
+## Do your discount combination rules actually permit it?
+
+This is the most common cause and the least visible. Shopify treats discounts as three separate classes: product, order and shipping. Each discount you create carries its own settings for which other classes it is allowed to combine with, and those settings are not symmetrical by default.
+
+The trap is that permission has to exist on both sides. Setting your bundle discount to combine with order discounts does nothing unless the order discount also permits product discounts. One of them silently loses.
+
+- **Check the bundle discount itself.** Open it and read the combinations section rather than trusting what you remember configuring.
+- **Check every other live discount.** Including the ones you created months ago for a campaign that ended and never paused.
+- **Check the class.** A bundle expressed as a product discount and a free shipping threshold expressed as a shipping discount are a common, harmless pair. Two product discounts fighting over the same line are not.
+
+<Callout title="The support ticket that means combination rules" tone="warning">
+If customers report the bundle price disappearing the moment they paste a code at checkout, stop looking anywhere else. Your automatic bundle discount is not set to combine with product discount codes, and the code is winning.
+</Callout>
+
+<PostCta />
+
+## Is another automatic discount winning the slot?
+
+Shopify does not stack every automatic discount it can find. When two automatic product discounts could both apply to the same line and they are not configured to combine, one applies and one does not. Which one wins depends on the rules you set, not on which one you consider more important.
+
+That produces the maddening version of this problem: the bundle works on Tuesday and fails on Wednesday because a scheduled sitewide discount woke up overnight.
+
+<Example>
+A cart holds three items at 30.00, 20.00 and 10.00. Your bundle rule takes 9.00 off, producing 51.00. A separate automatic discount takes 5.00 off orders over 50.00. If both are permitted to combine, the customer pays 46.00. If they are not, the customer pays either 51.00 or 55.00, and only one of those looks like your bundle worked. Substitute your own prices before deciding which outcome you can afford.
+</Example>
+
+Go to your discounts list, filter to active, and read it as a list of competitors rather than a list of campaigns. Anything automatic touching the same products as your bundle is a suspect. Pause them one at a time and retest.
+
+## Does the cart genuinely meet every condition you set?
+
+Conditions fail quietly and they fail on details you stopped thinking about. Run the cart against each one deliberately.
+
+| Condition | How it fails silently | What to check |
+| --- | --- | --- |
+| Minimum quantity | Counts items, not variants, or the reverse | Add one more unit and watch the total |
+| Minimum spend | Evaluated before or after another discount | Test a cart just over the threshold |
+| Specific variants | The bundle targets a product, the customer picked a variant excluded from it | Open the rule and list the exact variants |
+| Collection membership | A product was moved or a smart collection rule changed | Confirm the product is still in the collection today |
+| Customer eligibility | Limited to a segment, or to logged-in customers | Test as a logged-out guest |
+| Dates and times | Active window ended, or the timezone is not yours | Check the end date and the store timezone |
+| Usage limits | One per customer, or a total cap already reached | Check remaining uses and per-customer limits |
+
+The collection row deserves extra attention. Bundles built on collections break weeks later when someone reorganises the catalogue, and nothing in the discount tells you it stopped matching. If your **bundle discount not working** report arrived shortly after a merchandising change, start there.
+
+Customer eligibility is the other quiet one. If the discount is limited to a segment and you are testing while logged in as yourself, you will see a working bundle that no real shopper can get.
+
+<PostCta />
+
+## Is it breaking on markets, currency conversion or rounding?
+
+If the failure follows geography, you are looking at markets. A customer in one country reports the bundle failing while everyone else is fine, and the discount settings are identical, because the price the engine evaluated was not the price you configured.
+
+Shopify rounds converted prices so they stay stable in each market, that conversion requires Shopify Payments, and the rounding rules cannot be customised <Cite href="https://help.shopify.com/en/manual/markets/pricing/rounding">per Shopify's own documentation</Cite>. So a rule keyed to a minimum spend can sit a fraction below the threshold in a converted currency while clearing it comfortably at home.
+
+- **Threshold rules are the fragile ones.** A minimum spend that a converted cart misses by a rounding step will fail every time in that market and never at home.
+- **Fixed amount discounts do not travel.** An amount expressed in your home currency behaves differently once converted, so prefer percentage-based bundle rules when you sell across markets.
+- **Price overrides per market change the base.** If you set market-specific prices, the discount evaluates against those, not against the price on your main storefront.
+
+## Do subscriptions, gift cards or draft orders change the outcome?
+
+Yes, and these are the cases that survive every other check because they never occurred to anyone.
+
+- **Subscription lines.** Selling plans represent a selling method, and Shopify creates subscription contracts at checkout <Cite href="https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans">as described in its selling plans documentation</Cite>. A bundle rule written for one-time purchases may not evaluate the same way against a line carrying a selling plan, and the discount you expect can simply not appear.
+- **Gift cards in the cart.** Gift cards are frequently excluded from discounts and from minimum spend calculations. A cart that reaches your threshold only because a gift card is in it will not qualify.
+- **Draft orders.** Draft orders do not evaluate automatic discounts the way a live storefront checkout does. A bundle that prices correctly in a draft order proves very little, and a bundle that fails in a draft order is not necessarily broken.
+- **B2B and wholesale catalogues.** Separate price lists mean a different base price, so any rule tied to an amount is evaluating against numbers you did not intend.
+- **Apps that rewrite the cart.** Anything that adds, swaps or transforms lines can produce a cart that no longer matches the rule you wrote against the original products.
+
+If your store sells [subscriptions on Shopify](/blog/shopify-subscriptions), assume the subscription case applies until you have tested it explicitly.
+
+<PostCta />
+
+## How do you reproduce the failure and confirm the fix on a test order?
+
+Guessing ends here. Run this in order and write down what happens at each step.
+
+1. **Open an incognito window.** Not your normal browser. You want no session, no customer account, no cached cart.
+2. **Set the storefront to the customer's country.** If the complaint came from Germany, shop as Germany.
+3. **Build the exact cart from the screenshot.** Same products, same variants, same quantities.
+4. **Record the subtotal before checkout.** This tells you whether the failure happens in the cart or at checkout.
+5. **Proceed to checkout and record the total again.** Some discounts only evaluate at this stage.
+6. **Pause every other active discount and repeat.** If the bundle now applies, you have a **shopify discount conflict** and the answer is in your combination settings.
+7. **Reintroduce the paused discounts one at a time.** The one that breaks it is your culprit. Fix its combination rules rather than deleting it.
+8. **Place one real order at your cheapest price point.** Then refund it. The order record is the only proof of what the engine actually did.
+9. **Screenshot the working cart and the order.** Attach both to your reply to the customer.
+
+A test order costs you the payment processing fee and buys you certainty. Since extra costs at checkout are the most cited reason shoppers abandon during checkout, at 40% of cases <Cite href="https://baymard.com/lists/cart-abandonment-rate">according to Baymard's cart abandonment research</Cite>, a bundle that silently fails at the last step is expensive in exactly the place you can least afford it.
+
+## Where does Edge Bundles fit when discounts collide?
+
+Most of what you just read is Shopify behaviour, not app behaviour, and no app removes it. Combination rules, market rounding and selling plan handling belong to the platform. Every bundle app lives with them.
+
+What an app should do is make the failure visible before a customer finds it. Edge Bundles is our bundling app for Shopify, on a free plan, and it is new, so I will describe it plainly rather than dress it up. It builds bundles as real discount rules, keeps the storefront display and the priced cart reading from the same rule so the two cannot drift apart, and surfaces the conditions a cart failed rather than leaving you to reconstruct them from a screenshot.
+
+If your problem is a single misconfigured combination setting, you do not need an app at all. Fix the setting. If your problem is that you run several overlapping offers and cannot tell which one wins in a given cart, that is worth solving with tooling, whether ours or anyone else's. For a wider view of how bundles are structured before any of this becomes a discount question, start with our guide to [product bundles on Shopify](/blog/shopify-product-bundles).
+
+One habit is worth more than any of it. Keep a written note of which offer takes precedence when two apply. Every store that has this problem twice is a store where that note does not exist.
+
+<PostCta />

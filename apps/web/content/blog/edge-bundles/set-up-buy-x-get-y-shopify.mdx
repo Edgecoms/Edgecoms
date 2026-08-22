@@ -1,0 +1,144 @@
+---
+title: "How to Set Up Buy X Get Y on Shopify"
+slug: "set-up-buy-x-get-y-shopify"
+app: "edge-bundles"
+archetype: "tutorial"
+author: "anurag"
+description: "Set up Buy X Get Y Shopify offers that behave: the fields that quietly change the rules, capping repeat claims in one cart, and showing the gift early."
+primaryKeyword: "buy x get y shopify"
+secondaryKeywords: ["bogo shopify setup", "buy one get one shopify"]
+publishedAt: "2026-11-23"
+updatedAt: "2026-11-23"
+imageAlt: "Placeholder illustration of a cart with a second item priced at zero"
+internalLinks:
+  - "shopify-product-bundles"
+  - "shopify-bundle-discount-not-applying"
+  - "product-bundle-examples"
+tldr: "Create it in Shopify under Discounts as a Buy X Get Y automatic discount. Set what the shopper buys, what they get, the discount on the gift, and a maximum number of uses per order so one cart cannot claim it repeatedly. Shopify never adds the gift itself, so the shopper must add it."
+faq:
+  - question: "Does Shopify add the free item to the cart automatically?"
+    answer: "No. A Buy X Get Y discount prices items that are already in the cart. If the shopper never adds the gift, nothing happens and the offer looks broken to them. You have to put the gift in front of them, either with a theme block on the product page, a cart drawer prompt, or an app that adds the line for them. This is the single biggest cause of a BOGO that converts nothing."
+  - question: "What does maximum number of uses per order actually cap?"
+    answer: "How many times the whole offer can repeat inside one order. Leave it blank and a shopper buying four qualifying items on a buy one get one offer gets two free items, not one. Set it to one and the offer fires once regardless of cart size. Decide this deliberately, because the uncapped version is how a small giveaway turns into a wholesale order."
+  - question: "Which item does Shopify discount when several qualify?"
+    answer: "Shopify applies the reward to the eligible lines in the cart according to the gets rule you wrote, and shoppers will arrange their cart to get the best outcome. If your gift set contains items at wildly different prices, assume the expensive one gets given away. Keep the reward collection tight, or price-band it, rather than pointing it at your whole catalogue."
+  - question: "Can I run buy one get one alongside a discount code?"
+    answer: "Only if the combination settings on both discounts permit it. Product, order and shipping discounts each carry their own permissions, and they are not symmetrical. If a shopper pastes a newsletter code and the free item disappears, that is a combination rule, not a bug in your offer."
+  - question: "Is it safe to advertise the offer as ending soon?"
+    answer: "Only if it genuinely ends. UK law lists falsely stating that a product will only be available for a limited time, in order to get an immediate decision, as a banned practice. Put a real end date on the discount, and let the countdown match it. If you plan to run the offer forever, sell it on the value instead."
+    source: "https://www.gov.uk/government/publications/unfair-commercial-practices-cma207/unfair-commercial-practices"
+---
+
+You launch a buy one get one offer on Friday. By Monday the orders look normal, the discount line almost never appears, and the handful of carts that did claim it took three free items instead of one. Nothing errored. The offer just did something other than what you meant.
+
+That gap is what makes **buy x get y shopify** setups deceptively fiddly. The creation screen is five minutes of work. The behaviour comes from four or five fields that look like housekeeping and are actually the rules of the promotion. Get one wrong and the offer either never fires or fires far too generously.
+
+This is the setup, field by field, plus the test that tells you it worked and the specific symptoms that tell you it did not.
+
+## What does Buy X Get Y do that a percentage discount cannot?
+
+A percentage discount reduces what the shopper already decided to buy. Buy X Get Y changes what they decide to buy. That is the whole point, and it is why the two are not interchangeable even when the maths lands in the same place.
+
+- **It moves units, not margin points.** Ten percent off one item leaves the cart at one unit. Buy one get one leaves it at two, with a second product in the customer's hands that they might reorder at full price.
+- **It targets specific inventory.** You choose exactly which products qualify and exactly which products can be given away, so you can push a slow line without discounting the hero product that was selling fine.
+- **It reads as a gift, not a markdown.** A free item is easier to justify to your own brand than a permanent price cut, and it does not train customers to wait for a sale.
+- **It survives comparison shopping.** Your list price stays intact on Google Shopping and in the customer's memory.
+
+The trade is complexity. A percentage discount has almost no configuration surface. Buy X Get Y has enough that a careless setup gives away more than you planned.
+
+## How do you create the automatic discount, step by step?
+
+Do this in a quiet window, not during a sale. The offer goes live the moment you save with a start date in the past.
+
+1. **Open Discounts in your Shopify admin and choose Create discount.** Pick the Buy X get Y type. It is a distinct type, not a variation of amount off products.
+2. **Choose Automatic rather than a discount code.** Automatic applies as soon as the cart qualifies, which is what you want on-site. Use a code only if the offer is private or tied to a campaign.
+3. **Write a title the customer will read.** The title appears on the order and, in most themes, in the cart. "Buy 2 candles, get 1 free" beats "BOGO_NOV_v2".
+4. **Set the buys condition.** Choose minimum quantity of items or minimum purchase amount, then scope it to a collection. A collection is easier to maintain than a product list you will forget to update.
+5. **Set the gets side.** Enter the quantity the shopper receives, then scope it to the products or collection that can be given away. Keep this set deliberately narrow.
+6. **Choose the reward value.** Percentage, amount off each, or free. Free is cleanest to advertise. A percentage is safer if the reward collection has a wide price range.
+7. **Set the maximum number of uses per order.** This is the cap on repeat claims. It is covered in detail below, and leaving it blank is a decision, not a default.
+8. **Open combinations and decide what this offer is allowed to stack with.** Product, order and shipping discounts are separate switches.
+9. **Set active dates.** Give it a real start, and give it a real end if you intend to advertise it as limited.
+10. **Save, then test before you tell anyone.**
+
+The test is not optional and it is not a draft order. Open your storefront in a private window and build the qualifying cart by hand. Add exactly the minimum quantity, then add the gift product. You should see the reward line priced at zero or at the reduced amount, with the discount title next to it.
+
+Then build the cart that breaks it. Double the quantity and check whether the reward doubles. Add a non-qualifying product and check the reward survives. Finally, place one real order at your cheapest qualifying price point, confirm the total, and refund it.
+
+<Callout title="What it looks like when it has gone wrong" tone="warning">
+The gift sits in the cart at full price: your gets scope does not include that product, or the buys condition is not met yet. The reward applies twice on a four item cart: your maximum uses per order is blank. The discount vanishes when a customer pastes a code: your combination rules forbid it. The cart total is right but no discount line shows: that is a theme display problem, and the money is fine. Work through [why a bundle discount is not applying](/blog/shopify-bundle-discount-not-applying) if the total itself is wrong.
+</Callout>
+
+<PostCta />
+
+## Which fields quietly decide how the offer behaves?
+
+These are the fields people skim. Each one changes the promotion rather than describing it.
+
+| Field | What people assume | What it actually does |
+| --- | --- | --- |
+| Minimum quantity of items | Counts distinct products | Counts units across the qualifying scope, so three of one product qualifies |
+| Buys scope | The customer must buy the same product | Any mix from that collection counts toward the threshold |
+| Gets quantity | One free item per order | The reward per claim, which repeats unless you cap it |
+| Gets scope | The cheap item you had in mind | Every product in that collection is now giveable, at any price |
+| Maximum uses per order | A fraud control | The number of times the whole offer repeats in one cart |
+| Combinations | Off by default and safe | Determines whether codes and shipping offers can knock this out |
+| Active dates | A note to yourself | The legal and practical boundary of a limited time claim |
+
+The two that cause real money loss are the gets scope and the uses cap, and they compound. A wide reward collection plus an uncapped offer means the shopper picks your most expensive item and takes several of them.
+
+<Example>
+Say a buy one get one free offer scoped to a whole collection, with no cap. A shopper adds four items: two at 20 and two at 95. Uncapped, the offer fires twice and gives away both 95 items. Revenue is 40 against 230 of goods shipped. Capped at one use, it fires once, gives away one 95 item, and the order is 135. Substitute your own prices. The worst case is what someone will find.
+</Example>
+
+## How do you stop one cart claiming the free item over and over?
+
+Set the maximum number of uses per order. That field exists for exactly this, and it is the difference between a promotion and an accident.
+
+- **Set it to one for a giveaway.** One free item per order, no matter how large the cart. This is the right default for anything genuinely free and anything expensive.
+- **Leave it uncapped only for percentage rewards on cheap goods.** A repeating half price add-on can be fine. A repeating free hero product is not.
+- **Cap it low when the reward collection is broad.** The wider the gets scope, the more the cap is doing.
+- **Recheck it after any edit.** Duplicating an old discount carries the old cap, and changing the reward without rechecking it is how the accident happens twice.
+
+There is a second lever people miss. Tighten the buys threshold instead of loosening the reward. Buy three get one is harder to farm than buy one get one, and it usually lifts average order value more.
+
+<Callout title="Check the offer against your own inventory">
+An uncapped Buy X Get Y can drain stock of one variant in a morning. If you sell the gift product on its own, watch its inventory during the first day of the promotion, not at the end of the week.
+</Callout>
+
+<PostCta />
+
+## How do you make the gift obvious in the cart, not a surprise at checkout?
+
+Here is the thing that catches almost everyone. Shopify's discount engine prices what is in the cart. It does not put the free item there. If the shopper never adds the gift product themselves, the discount never fires, and from their side the offer simply does not exist.
+
+So the setup work is only half the job. The other half is making the reward visible before checkout.
+
+- **Say it on the product page.** A short line under the buy button, in the same words as the discount title. Not a banner people scroll past.
+- **Prompt in the cart drawer.** When the cart hits the threshold, show what they qualify for and give them a one tap way to add it. This is the highest leverage placement, because the intent is already there.
+- **Show the reward as a line, priced.** A zero priced line with the discount title next to it is what makes the deal feel real. A total that is quietly lower does not.
+- **Repeat it on the checkout summary.** People re-read it before paying, and an unexplained total invites a second guess.
+
+This matters because surprises at checkout are expensive. Baymard's review of documented cart abandonment puts the average abandonment rate at 70.22%, with extra costs the leading reason given during checkout at 40% <Cite href="https://baymard.com/lists/cart-abandonment-rate">Baymard cart abandonment research</Cite>. An offer the shopper cannot see is functionally the same problem in reverse. They came for a deal and the cart does not show one.
+
+If you are building the merchandising side of this properly, it is worth reading how the offer sits next to your other [Shopify product bundles](/blog/shopify-product-bundles) so the two do not fight for the same slot in the cart.
+
+## Where does Edge Bundles fit for BOGO offers?
+
+Straight answer first. If all you need is one buy one get one running on one collection, Shopify's native discount is enough and you should not install anything. Set the cap, add a theme line under the buy button, and move on.
+
+An app earns its place when the presentation layer is the problem. Edge Bundles handles the part Shopify leaves to you: showing the offer on the product page, prompting in the cart when the threshold is close, and adding the reward line so the shopper does not have to go find it. Edge Bundles is new and has no reviews yet, and I would rather say that than imply otherwise.
+
+If you want the most established option, Bundler is 4.9 stars across 2,537 reviews with a free plan that has no order or revenue limits <Cite href="https://apps.shopify.com/bundler-product-bundles">Bundler on the Shopify App Store</Cite>. Fast Bundle is 5.0 stars across 3,027 reviews, priced from $19 a month up to $1,000 of monthly bundle sales <Cite href="https://apps.shopify.com/fast-bundle-product-bundles">Fast Bundle on the Shopify App Store</Cite>.
+
+| App | Rating | Reviews | Entry price |
+| --- | --- | --- | --- |
+| Bundler | 4.9 | 2,537 | Free plan, Premium $9.99/mo |
+| Fast Bundle | 5.0 | 3,027 | $19/mo to $1,000 monthly bundle sales |
+| Edge Bundles | No reviews yet | None yet | Free plan |
+
+<CheckedOn date="22 August 2026" />
+
+Whichever you pick, the discount still lives in Shopify and the rules above decide what it does. Set the cap, narrow the reward scope, test the cart that breaks it, and place one real order before you send the email.
+
+<PostCta />

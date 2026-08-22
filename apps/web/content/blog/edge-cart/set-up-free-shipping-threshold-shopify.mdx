@@ -1,0 +1,161 @@
+---
+title: "How to Set a Free Shipping Threshold on Shopify"
+slug: "set-up-free-shipping-threshold-shopify"
+app: "edge-cart"
+archetype: "tutorial"
+author: "anurag"
+description: "A free shipping threshold Shopify will honour: read your own order values, check the margin survives it, build the price-based rate, then test it live."
+primaryKeyword: "free shipping threshold shopify"
+secondaryKeywords:
+  - "shopify free shipping setup"
+  - "minimum order free shipping"
+publishedAt: "2026-11-23"
+updatedAt: "2026-11-23"
+imageAlt: "Placeholder illustration of a Shopify shipping rate with a price condition"
+internalLinks:
+  - "shopify-cart-abandonment"
+  - "cart-drawer-vs-cart-page"
+  - "shopify-checkout-drop-off"
+tldr: "Pick the threshold from your own order value distribution, not a competitor's. Set it roughly one typical product above where most orders land, confirm the extra margin covers the shipping you give away, then build it as a price-based rate in Shopify with a mirrored maximum on the paid rate, and test both sides of the line."
+faq:
+  - question: "Is the minimum on a price-based rate inclusive?"
+    answer: "Yes. A rate with a minimum of 75 fires on a cart of exactly 75.00, not just above it. That matters for the mirrored paid rate below it, which should stop at 74.99 rather than 75. Set both, then place one test order at exactly the threshold to confirm the free rate is the only one offered."
+  - question: "Do discount codes push a cart back under the threshold?"
+    answer: "Usually, yes. Shopify evaluates the price condition against the discounted order price, so a 20 percent code on a qualifying cart can drop it under the line and remove the free rate at the payment step. Test one code before you announce anything. If it strips the reward, either raise the code value or accept the shortfall."
+  - question: "Should the threshold be above or below my average order value?"
+    answer: "Above, but reachable. The average is a mean and gets dragged upward by a few large orders, so read the median and the shape of the distribution instead. A threshold sitting more than one typical product price above where most orders land is not a target. It is just a shipping charge with extra steps."
+  - question: "How much does a free shipping threshold cost me?"
+    answer: "Count the orders that already clear the number and multiply by your real shipping cost. That is the bill you sign on day one, before any lift. The threshold only pays if the extra margin from carts that grow to reach it exceeds that figure. Extra costs are the most cited reason for abandoning during checkout, at 40 percent in Baymard's research."
+    source: "https://baymard.com/lists/cart-abandonment-rate"
+  - question: "What happens to the threshold in other currencies?"
+    answer: "Each shipping zone carries its own rates, so a threshold built for one country does not exist elsewhere until you build it there. Converted prices are kept stable by Shopify's rounding rules, which require Shopify Payments and cannot be customised, so the shopper may see an odd local number rather than the round one you chose."
+    source: "https://help.shopify.com/en/manual/markets/pricing/rounding"
+---
+
+Your shipping is 6.95. A shopper adds one 32 dollar item, reaches the last step, sees the 6.95, and closes the tab. Extra costs are the most cited reason people walk during checkout <Cite href="https://baymard.com/lists/cart-abandonment-rate">at 40 percent in Baymard's research</Cite>, so you decide to stop charging above some number and take the bigger order instead.
+
+Then the number gets picked in about nine seconds, usually by copying a competitor, and it lands on 50 because 50 is round. A free shipping threshold Shopify will actually honour has three parts: a number your order values support, a margin that survives the giveaway, and a rate checkout enforces in every market you sell to.
+
+## What number should the threshold actually be?
+
+Not your average order value. A handful of large orders drag a mean upward until it describes nobody. What you want is the shape of the distribution and the median inside it.
+
+Pull the data first. In the Shopify admin, go to Orders, filter to the last 90 days, and export to CSV. If your sales are seasonal, take 12 months and look at a normal month rather than the peak.
+
+1. **Use the subtotal column, not the total.** The rate condition reads order price, so tax and shipping do not belong in the number you study.
+2. **Bucket the orders into bands of 10.** A spreadsheet pivot on a rounded-down subtotal takes two minutes and tells you more than any dashboard.
+3. **Find the median.** Half your orders are below it. That is the shopper you are trying to move.
+4. **Find your typical add-on price.** The most common single-item price in the catalogue is the size of step a shopper takes without thinking.
+5. **Set the threshold roughly one add-on above the busiest band.** Close enough that the gap looks like one more product, not a second shopping trip.
+6. **Check what share of current orders already clear it.** Those are orders you start paying shipping on immediately, for nothing.
+
+<Example>
+A store with a busy band at 40 to 50, a median of 46, and most products priced around 28.
+
+| Order value band | Orders | Share |
+| --- | --- | --- |
+| 0 to 29 | 180 | 18% |
+| 30 to 49 | 420 | 42% |
+| 50 to 74 | 250 | 25% |
+| 75 to 99 | 100 | 10% |
+| 100+ | 50 | 5% |
+
+A threshold at 50 is pointless. The 42 percent band is already within a few dollars of it, and the 25 percent above now ship free for nothing. A threshold at 75 asks the 42 percent band for one more 28 dollar product, a real step for a real shopper, and only 15 percent of orders get the giveaway on day one.
+</Example>
+
+Substitute your own figures. The threshold belongs one product above the crowd, not one below it.
+
+## Does your margin survive the shipping you just gave away?
+
+A threshold is not free money. On day one you stop collecting shipping from everybody already above the line, and hope the carts that grow across it pay for that. Whether they do is arithmetic, not vibes.
+
+You need two numbers: your contribution margin as a percentage, and what a shipment costs you delivered, including the box, the label and the pick.
+
+<Example>
+Contribution margin 40 percent, real shipping cost 6.95.
+
+A shopper at 45 adds one product to clear a 60 threshold. Added revenue 15.00, added margin 6.00, shipping given away 6.95. Net minus 0.95. The lift loses money.
+
+Same shopper, threshold at 75. They add 30.00 instead. Added margin 12.00, shipping given away 6.95, net plus 5.05. The same behaviour now pays.
+
+Then the standing cost. If 150 orders a month already clear 75 without prompting, that is 150 times 6.95, or 1,042.50 a month you used to collect and now do not.
+</Example>
+
+- **Thin margins need a higher threshold, not a cleverer bar.** If the gap you ask a shopper to close returns less margin than the shipment costs, no drawer design fixes it.
+- **Heavy or bulky items break the model.** One product with a 22 dollar shipping cost inside a 75 dollar threshold turns every order into a loss. Those belong in their own profile, covered below.
+- **Free shipping is a price cut you are choosing not to show.** If the arithmetic only works at a threshold nobody reaches, a straight discount or a higher base price is the honest version of the same move.
+- **Recheck it when carrier rates change.** The threshold was correct against last year's rate card, not this one.
+
+<PostCta />
+
+## How do you create the price-based rate in Shopify's shipping settings?
+
+Two rates per zone do the work: a paid rate that stops at the line, and a free rate that starts at it. Most broken thresholds are a store that built the second and forgot the first.
+
+1. Go to **Settings**, then **Shipping and delivery**.
+2. Open the shipping profile the products sit in. **General shipping rates** covers everything not assigned to a custom profile.
+3. Choose the zone you are configuring. Rates live per zone, so this is per country or group of countries, never global.
+4. Click **Add rate**, then **Set up your own rates**.
+5. Name it what the shopper should read at checkout. "Free shipping" beats "Standard 2".
+6. Set the price to 0.
+7. Open **Add conditions** and choose **Based on order price**. Set the minimum to your threshold and leave the maximum empty.
+8. Now edit the existing paid rate in the same zone and give it the mirror condition: minimum 0, maximum one cent below the threshold.
+9. Leave express or expedited rates unconditional so a shopper who wants speed can still buy it.
+10. Save, then repeat steps 3 to 9 for every zone you ship to.
+
+Step 8 is the one people skip. Without a maximum on the paid rate, both options appear together above the threshold. The shopper picks the free one, but your checkout now asks a question it already knows the answer to.
+
+<Callout title="Discount codes are evaluated first" tone="warning">
+Shopify reads the price condition against the discounted order price. A 20 percent code on a 62 dollar cart leaves 49.60, and a 60 dollar threshold quietly stops applying at the payment step. Test one code before you promote either offer, and decide whether stacking a code with free shipping is something you want to allow.
+</Callout>
+
+## How do you handle other countries, currencies and oversized items?
+
+A threshold is not a store setting. It is a set of rates, and every zone needs its own.
+
+- **Build it per zone, deliberately.** A 75 dollar minimum in the United States does nothing for a Canadian shopper until a Canadian zone carries its own rate. Different landed costs usually justify a different number, not a converted one.
+- **Watch the currency the shopper sees.** Converted prices are kept stable by Shopify's rounding rules, which require Shopify Payments and cannot be customised <Cite href="https://help.shopify.com/en/manual/markets/pricing/rounding">per Shopify's docs</Cite>. That is fine for products and awkward for a round threshold, so any message about the gap should read the live cart, not a hardcoded home-currency number. The [multi-currency guide](/blog/shopify-multi-currency) covers the presentment side.
+- **Put heavy items in their own shipping profile.** Assign the products, give the profile its own rates, and leave the free rate out. A mixed cart gets combined rates, so the shopper may see a shipping charge on the heavy item while the rest of the order qualifies. Say so on the product page.
+- **Mind the gap between bands.** If your paid rate stops at 74.99 and the free rate starts at 75.01, a 75.00 cart gets "no rates available at this address" and the order dies silently. The bands must touch.
+- **Check countries with no zone at all.** A shopper in a country with no zone hits the same dead end regardless of what they spent.
+
+| Situation | Where the rate lives | What the shopper should see |
+| --- | --- | --- |
+| Home market, normal goods | General profile, home zone | Free above the threshold, paid below |
+| Second country | General profile, its own zone | Its own threshold, in its own currency |
+| Heavy or bulky item | Custom profile, all zones | A shipping charge that never goes free |
+| Express delivery | Any profile, no condition | Always available, always paid |
+
+<PostCta />
+
+## How do you check the threshold is firing on real orders?
+
+Never trust the settings screen. It shows what you typed, not what checkout does.
+
+1. Create a draft order, or a real test order, with a subtotal one cent below the threshold. You should be offered the paid rate and no free option.
+2. Repeat at exactly the threshold. The minimum is inclusive, so this cart should qualify and the paid rate should be gone.
+3. Repeat above the threshold with a discount code applied that drops the discounted subtotal back under it, and note what happens.
+4. Repeat with a gift card as the payment method. Gift cards apply at payment, not to the subtotal, so the rate should not change.
+5. Repeat in each market, in the local currency, on a phone.
+6. Add one heavy-profile item and confirm you get the combined result you expect, not a free ride.
+7. After a day of live orders, filter your order list by shipping line and look for two contradictions: an order below the threshold that shipped free, and one above it that paid.
+
+Failure has a few shapes, easy to recognise once you know them.
+
+- **Two rates side by side.** The paid rate has no maximum. Fix step 8.
+- **"No rates available at this address."** Either the bands do not touch, or the zone has no rate covering that price.
+- **Free shipping on a 4 dollar cart.** The free rate has no minimum, or the minimum was typed in the wrong field.
+- **Works at home, missing abroad.** You built one zone and assumed the rest inherited it.
+- **The rate is right but the cart message is wrong.** The drawer bar carries a hardcoded number from before you changed the threshold. That mismatch costs more trust than no bar at all.
+
+## Where does Edge Cart fit once the rate is live?
+
+Shopify enforces the threshold. It does not communicate it. A shopper sitting at 61 dollars against a 75 dollar line has no idea there is a line until they reach shipping, which is exactly the moment you were trying to avoid. That gap is the whole job of the cart.
+
+Edge Cart is our cart drawer. It reads the live cart and shows the remaining amount in the currency the shopper is browsing, so the number moves with them rather than repeating a figure typed into a theme setting six months ago. It is on a free plan and installs without theme edits. It is also new, with no reviews yet, and you should weigh that.
+
+Be clear about what a drawer cannot do. It does not create the shipping rate, and it will state whatever you configure, including a threshold that no longer matches your shipping settings. Build the rate first, verify it with the test orders above, then let something announce it.
+
+If you already run a drawer you are happy with and only want the progress message, Amp Slide Cart Upsell Drawer has a Free Forever plan and 696 reviews at 5.0 stars <Cite href="https://apps.shopify.com/slide-cart">on the Shopify App Store</Cite>. For the rest of what a drawer is for, the [cart abandonment guide](/blog/shopify-cart-abandonment) covers the causes a shipping threshold does not touch.
+
+<PostCta />

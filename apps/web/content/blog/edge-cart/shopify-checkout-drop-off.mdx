@@ -1,0 +1,156 @@
+---
+title: "Shopify Checkout Drop-Off: Where Buyers Leave"
+slug: "shopify-checkout-drop-off"
+app: "edge-cart"
+archetype: "problem"
+author: "anurag"
+description: "Shopify checkout drop off, decoded: which step your buyers leave at, what each exit point actually means, and the one fix worth making first on each."
+primaryKeyword: "shopify checkout drop off"
+secondaryKeywords:
+  - "checkout abandonment shopify"
+  - "checkout funnel leaks"
+publishedAt: "2027-01-04"
+updatedAt: "2027-01-04"
+imageAlt: "Placeholder illustration of a checkout form split into contact, shipping and payment steps"
+internalLinks:
+  - "shopify-cart-abandonment"
+  - "add-cart-drawer-shopify"
+  - "cart-drawer-vs-cart-page"
+tldr: "Shopify records a buyer leaving checkout at one of four points: contact, address, shipping or payment. Each exit has its own causes. Contact usually means friction or a forced account, shipping means cost or a vague delivery date, payment means a decline or a trust problem. Identify the step first, then fix that step."
+faq:
+  - question: "Where does Shopify show me abandoned checkouts?"
+    answer: "Orders, then Abandoned checkouts in your admin. Every row is one buyer who entered contact details and stopped before paying. That is the limit of the list. Anyone who opened checkout and left before typing an email never appears there, so the list undercounts the top of the checkout and describes the later steps well."
+  - question: "Why does the same customer appear several times in my abandoned checkouts?"
+    answer: "Almost always a payment retry loop. The buyer submitted a card, the issuer declined it, and they started again with a different card or a different browser. Each attempt creates its own checkout record. Repeats of one email address in a short window are the clearest signal you have that the problem sits at the payment step, not earlier."
+  - question: "Is checkout drop-off the same thing as cart abandonment?"
+    answer: "No. Cart abandonment covers everyone who added an item and never got to checkout, which is the larger and vaguer group. Checkout drop-off starts the moment the checkout opens. It is a smaller group, much closer to buying, and Shopify keeps a far better record of it, which is why it is the more fixable of the two."
+  - question: "Why does drop-off look worse on mobile Safari than anywhere else?"
+    answer: "Partly real friction, partly measurement. Safari deletes all script-writable storage after seven days of Safari use without interaction on your site, so returning buyers can look like new sessions and your funnel splits one person into two. Check whether the gap survives when you compare completed orders rather than sessions before you rebuild anything."
+    source: "https://webkit.org/blog/10218/full-third-party-cookie-blocking-and-more/"
+  - question: "How much of the Shopify checkout can I edit myself?"
+    answer: "The settings-level levers are open to every store: guest checkout, required fields, shipping rates and zones, payment methods, wallets, and checkout branding. Deeper changes run through the checkout editor, apps and Shopify Functions, and what is available there depends on your plan. Open the checkout editor first so you plan work around levers you actually have."
+---
+
+Your analytics say 340 people reached checkout last week and 96 bought. Nobody in that group was browsing. They typed their name into a form on your store and then stopped.
+
+That is a different problem from a cart nobody came back to, and it has better evidence attached. **Shopify checkout drop off** happens inside a flow Shopify controls, records step by step, and stores a row about. You can find out whether they quit at contact, at shipping, or with a card in their hand at payment, and each points to a different fix.
+
+Everything below assumes checkout has started. If people leave before that, the [cart abandonment guide](/blog/shopify-cart-abandonment) covers the earlier half.
+
+## Which checkout step does Shopify actually record a buyer leaving at?
+
+Shopify's checkout fires a standard event as the buyer clears each step, through the Web Pixels API, which runs your tracking code in a sandbox rather than in the checkout DOM <Cite href="https://shopify.dev/docs/api/web-pixels-api">Shopify Web Pixels API</Cite>. The sequence is the same on every Shopify store, so the last event a session fired is the step it died on.
+
+| The event Shopify fires | What the buyer just did | What an exit right after it means |
+| --- | --- | --- |
+| `checkout_started` | Opened checkout, typed nothing | Sticker shock or a load failure |
+| `checkout_contact_info_submitted` | Gave an email or phone | Past identity, stalled on the address |
+| `checkout_address_info_submitted` | Entered a shipping address | The rates that came back |
+| `checkout_shipping_info_submitted` | Chose a delivery option | Cost accepted, stopped at payment |
+| `payment_info_submitted` | Submitted card or wallet details | Almost certainly a decline or failed verification |
+| `checkout_completed` | Paid | Nothing to fix |
+
+The admin does not chart this for you. Analytics gives you sessions that reached checkout and sessions that converted, two points on a six-point line. To see the middle, send all six events, not just purchase, somewhere you can count them, usually GA4 or a warehouse, tagged with the same session.
+
+- **Watch for the invisible first step.** A gap between add-to-cart clicks and `checkout_started` is a redirect or a button failure, not a checkout problem.
+
+## What does the abandoned checkout list tell you that the report does not?
+
+Orders, then Abandoned checkouts, is the most under-read screen in the admin. The report gives you a percentage. The list gives you named rows: the email, the items, the total, the currency, the country, and the time it went cold. Enough to diagnose most drop-off with no extra tooling.
+
+A row only exists once contact details were entered, so the list is blind to everyone who opened checkout and left immediately. That is exactly the group the report does count, so read the two together.
+
+The order I work through it:
+
+1. **Sort by value, descending.** Look at the top twenty. High-value abandonments usually cluster around one shipping rate or one payment method.
+2. **Look for repeated email addresses.** Two or three checkouts from one person inside ten minutes is a decline loop. That is a payment problem, not a checkout problem.
+3. **Group by country.** A country appearing far more often than in your order list has a rate gap, a missing local payment method, or a duty surprise.
+4. **Check the contents.** If abandonments skew toward multi-item carts, check how shipping is calculated on weight or item count.
+5. **Read the timestamps.** A cluster inside one hour is an outage or a broken app update, not buyer behaviour. Check what you deployed that morning.
+
+<PostCta />
+
+## Why do buyers stop on the contact step?
+
+This is the cheapest step to fix and the one merchants inspect last. Nothing here is about your product. Something in the first screen made them reconsider or made them fail.
+
+- **A forced account.** Being made to create a password before buying is a documented reason people quit <Cite href="https://baymard.com/lists/cart-abandonment-rate">Baymard cart abandonment research</Cite>. Turn guest checkout on unless you have a hard reason not to.
+- **Asking for both email and phone.** Every extra required field is a chance to lose someone. Phone helps couriers. It does nothing for a digital download.
+- **The total is now real.** Contact is the first screen where the buyer sees a subtotal without the reassurance your product page carried. If your cart never showed a shipping estimate, the surprise lands here.
+- **Autofill mismatches.** A field that rejects a browser-saved value, or a validation error that fires before the buyer finishes typing, reads as "this store is broken". Test on a phone with autofill on, not a clean desktop profile.
+- **Marketing consent pre-ticked.** It costs you an order to gain a subscriber you were not going to keep.
+
+<Callout title="Test it as a stranger" tone="warning">
+Open checkout in a private window, on a phone, on mobile data, from a product page rather than a direct link. Your admin session and saved addresses hide most of what breaks here.
+</Callout>
+
+## Why do buyers stop on the shipping and delivery step?
+
+This step has one job: turn an address into a price and a date. Both halves fail only for some addresses, which is what makes it easy to miss.
+
+Extra costs are the most cited reason people abandon during checkout, at <Cite href="https://baymard.com/lists/cart-abandonment-rate">40%</Cite>. But cost is not the only failure here.
+
+- **A zone with no rate.** If a country or postcode falls outside every shipping profile, the buyer gets an error rather than an option. Audit your zones against the countries in your abandoned list.
+- **One option, and it is expensive.** A single premium rate makes the buyer choose between your price and nothing. A slow, cheap option gives them a way to say yes.
+- **A date range instead of a date.** "5 to 12 business days" is read as twelve. If your carrier data supports a delivery estimate, show it.
+- **Third-party rate calculators timing out.** Live carrier rates and rate apps add a request in the middle of checkout. When it is slow, the buyer sits on a spinner. Check the app's logs before blaming the price.
+- **Duties and taxes appearing late.** For cross-border orders, a duty line that shows up only here reads as a bait and switch, even when it is required.
+
+Fix in that order: close the zone gaps, add a cheaper tier, then improve the date language. The first two change whether an order is possible. The third changes how it feels.
+
+<PostCta />
+
+## Why do buyers stop on the payment step, declines included?
+
+By this point the buyer has agreed to the product, the price and the delivery. Treat an exit here as a failure of your setup, not a change of mind.
+
+Declines are the biggest and least visible cause. A declined card does not feel like a decline to the buyer: it shows as an error, they try once more, they give up. In your admin that is two or three abandoned checkouts, not a payment problem.
+
+- **Issuer declines and verification mismatches.** A billing address that does not match the card, or a postcode field filled with the shipping postcode, will fail verification. Make it obvious which address the form wants.
+- **3D Secure challenges that never finish.** The challenge window can fail inside in-app browsers and older devices. If your European or UK abandonment share is high, check this first.
+- **No wallet.** Shop Pay, Apple Pay and Google Pay skip the card form, which removes the whole class of typing and verification failures. On mobile it is the highest-leverage change on the page.
+- **Fraud rules set too tight.** Aggressive filters block real buyers. Read what last month's blocked or cancelled orders had in common.
+- **No local method.** In several markets a card is not the default way people pay. If one country abandons at payment far more than it converts, check the method list first.
+
+## What does a drop-off spike on one device, browser or country mean?
+
+Segment before you rebuild. A funnel number that looks terrible in aggregate is often one segment behaving badly.
+
+| Segment showing the spike | The usual cause | Where to look first |
+| --- | --- | --- |
+| Mobile only | Form friction, no wallet, keyboard and autofill problems | Checkout on a real phone, wallet settings |
+| One browser | Storage or redirect behaviour breaking the session | Browser console on a test checkout |
+| In-app browser from social | Wallet and redirect flows failing inside the webview | Ad landing pages, wallet availability |
+| One country | Missing rate, missing payment method, duties | Shipping zones, payment providers, currency |
+| Every segment at once | A deploy, an app update, or an outage | Your change log |
+
+Instagram and TikTok traffic opens in an in-app browser where wallets and redirects behave differently, so a paid-social push can move your checkout numbers without anything on your store changing. Safari deletes all script-writable storage after seven days of Safari use without interaction on the site <Cite href="https://webkit.org/blog/10218/full-third-party-cookie-blocking-and-more/">WebKit</Cite>, which splits one returning buyer into two sessions and makes your funnel look leakier than it is.
+
+Before you spend a week on a redesign, confirm the spike shows up in orders, not only in sessions. If it lives in sessions alone, you have a measurement problem, and [common tracking mistakes](/blog/shopify-tracking-mistakes) are a better place to start.
+
+<PostCta />
+
+## Which checkout changes are worth making first, given what you can edit?
+
+Some of checkout is a settings screen and some is a development project. Work the settings first: they are free, reversible, and where most of the loss is.
+
+| Exit step | Most likely cause | First fix | Where it lives |
+| --- | --- | --- | --- |
+| Opened, typed nothing | Total is a surprise | Show shipping cost or threshold before checkout | Cart and product pages |
+| Contact | Forced account, extra fields | Enable guest checkout, make phone optional | Settings, Checkout |
+| Address | No rate for that zone | Audit shipping zones against your abandoned list | Settings, Shipping |
+| Shipping | One expensive option | Add a slower, cheaper tier | Settings, Shipping |
+| Payment | Card friction and declines | Enable wallets, review fraud rules | Settings, Payments |
+| Payment, repeats | Verification mismatches | Clarify billing versus shipping address | Settings, Checkout |
+
+Anything beyond that list goes through the checkout editor, apps or Shopify Functions, and what you can install depends on your plan. Open the editor before you scope work around a lever you may not be able to pull.
+
+## Where does Edge Cart fit when the leak is before checkout starts?
+
+Plainly: if your buyers are dying at contact, shipping or payment, a cart app cannot help you. Checkout is Shopify's and sealed, and the fixes are the settings screens above. Any app claiming to fix checkout drop-off from outside checkout is selling you something.
+
+A cart drawer changes the screen before all of this. The most common reason someone opens checkout and leaves at once is that the total got bigger than they expected, and that expectation is set in the cart. Edge Cart shows the running total, the free shipping threshold and the progress toward it while the buyer is still shopping, so the shipping step confirms something they already knew.
+
+Edge Cart is free, installs without theme edits, and is new enough to have no reviews yet. Treat it as the fix for the first row of that table and nothing below it. The rest of your checkout drop-off is in Settings, and it is worth an afternoon.
+
+<PostCta />

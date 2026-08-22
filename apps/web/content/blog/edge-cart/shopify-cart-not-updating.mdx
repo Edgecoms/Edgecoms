@@ -1,0 +1,146 @@
+---
+title: "Shopify Cart Not Updating? 6 Things to Check"
+slug: "shopify-cart-not-updating"
+app: "edge-cart"
+archetype: "problem"
+author: "anurag"
+description: "Shopify cart not updating? Work through the six real causes, from duplicate cart scripts to stale cached HTML, and confirm every fix in the network tab."
+primaryKeyword: "shopify cart not updating"
+secondaryKeywords: ["shopify cart bug", "cart quantity not changing"]
+publishedAt: "2026-12-21"
+updatedAt: "2026-12-21"
+imageAlt: "Placeholder illustration of a cart icon showing a stale item count next to a corrected one"
+internalLinks:
+  - "shopify-cart-abandonment"
+  - "discount-code-field-cart-abandonment"
+  - "upcart-alternatives-shopify"
+tldr: "A stale Shopify cart is almost always a rendering problem, not a data problem. The cart on the server is usually right. What you see is old markup, a second script overwriting the first, a cached document, or a quantity the server quietly capped. Check the response body before you change any code."
+faq:
+  - question: "Why does my cart count only update after I refresh the page?"
+    answer: "Because the number in your header was printed by Liquid when the document was built, and nothing has repainted it since. The add request succeeded, so the server is right and the header is stale. Fix it by rendering that element from the add response, or by requesting the header section back with the add and swapping the node."
+  - question: "Why does the cart count jump by two when I add one item?"
+    answer: "Two scripts are both handling the same click. Usually a theme cart drawer plus an app that also binds to add-to-cart forms. One posts to the cart, the other posts again or increments a local counter on top of the real one. Disable the app embed, retest, and keep one owner of cart writes."
+  - question: "Is a wrong cart total a Shopify bug or my theme?"
+    answer: "Nearly always the theme. Shopify returns the authoritative totals in the cart response, so open the network tab and compare the JSON to the screen. If the JSON is right and the screen is wrong, it is your rendering. If the JSON itself looks wrong, check for a cart transform or automatic discount applying at a stage you are not showing."
+  - question: "Does a stale cart actually cost me orders?"
+    answer: "It costs you trust at the worst moment. Documented cart abandonment averages 70.22% across 50 studies, so the basket is already the leakiest step you own. A shopper who does not believe the number in front of them will not raise their spend to hit your free shipping threshold, and some will simply stop."
+    source: "https://baymard.com/lists/cart-abandonment-rate"
+  - question: "Should I fix this by reloading the whole page after every add?"
+    answer: "It works and it is honest, which is more than a broken drawer manages. But it throws away the browsing position and makes every add feel heavy. Requesting the rendered sections back with the add gives you the same correctness without the reload, and it is a small change to code you already have."
+---
+
+A shopper adds a hoodie. The bubble on your cart icon still says 2. They add it again to be sure, open the drawer, and now there are three hoodies in there. That is not a shopper who trusts your store any more.
+
+**Shopify cart not updating** is a fault that reads like a data problem and almost never is. The cart on Shopify's side is usually correct. Your add succeeded, your remove succeeded, your quantity change succeeded. What is wrong is the markup on the screen, which was printed at some earlier moment and never repainted.
+
+That distinction is the whole diagnosis. Once you stop asking "why is my cart wrong" and start asking "which layer is showing me an old copy", the six causes below fall out in order of how often they happen.
+
+## What exactly is not updating: the count, the line items or the total?
+
+Do not skip this. Merchants describe all four faults with the same sentence, and each points at a different piece of code.
+
+Add one item and note exactly what moved and what did not.
+
+| Symptom | What is still correct | Most likely layer |
+| --- | --- | --- |
+| Header bubble stale, drawer correct | The cart itself | The header count element is never repainted |
+| Drawer correct, then wrong on the next page | The cart itself | A cached or restored document |
+| Line items right, subtotal wrong | The line items | Totals rendered from a stale variable |
+| Everything right until you refresh | Nothing on screen | Optimistic UI that never reconciled |
+| Count jumps by two | Nothing | Two scripts handling one click |
+| Quantity refuses to go past a number | The screen | A server rule you are not surfacing |
+
+- **Write down the exact numbers.** Requested quantity, displayed quantity, displayed total.
+- **Test with the drawer closed and open.** A fault that only appears when the drawer was already open is a re-render problem. A fault that survives a close and reopen is a data or cache problem.
+- **Test as a returning visitor.** Open the store, add something, close the tab, come back. Plenty of stale-cart reports only reproduce on the second visit, which points straight at caching.
+
+## Is a second script fighting your theme for the same cart?
+
+This is the most common cause by a distance, and the one merchants find last, because both pieces of code work fine on their own.
+
+Modern themes ship their own cart drawer. Most cart, upsell and shipping-bar apps also bind to add-to-cart forms. Install one on top of the other and you get two listeners on one submit event, two writes to the cart, and two different ideas about what the cart contains.
+
+- **The tell is a doubled count.** One script posts the add, the other posts it again, or increments a local counter that was already updated by the first. Adding one item and getting two is close to diagnostic.
+- **The other tell is a split brain.** The drawer is right and the header is wrong, or the opposite, because each script owns one element and neither tells the other.
+- **Find it by removal, not by reading.** Turn off app embeds one at a time in the theme editor and retest after each. Reading two minified bundles to work out who binds what is slower than switching things off.
+- **Then pick one owner.** Exactly one piece of code should write to the cart and broadcast the result. Everything else listens. Most cart apps have a setting for whether they take over the theme's drawer. Use it rather than running both.
+
+Duplicated listeners cause a second problem: duplicated analytics events. If your add-to-cart or purchase numbers have also looked inflated, the same root cause is likely behind both, and [duplicate purchase events on Shopify](/blog/duplicate-purchase-events-shopify) covers how that shows up in your reporting.
+
+<PostCta />
+
+## Is the drawer re-rendering the section, or only refetching the JSON?
+
+Shopify's cart endpoints can return rendered section markup alongside the JSON. Ask for it and you get server-rendered HTML that is guaranteed to match the cart. Ignore it and you are hand-patching the DOM from a JSON object, which means every element you forgot stays stale.
+
+That is why the count so often lags while the line items are fine. Someone wrote code to update the drawer contents and never wired up the header bubble, the free shipping progress bar, the upsell block that depends on the cart, or the "you saved" line.
+
+- **Symptom to look for:** the elements that update are always the same ones, and the elements that never update are always the same ones. Nothing random about it.
+- **The fix is to swap nodes, not patch values.** Request the sections you care about with the add or change, then replace those elements with the returned markup.
+- **List every dependent element once.** Header count, drawer body, subtotal, shipping threshold bar, gift or add-on blocks, empty-cart state. If it changes when the cart changes, it belongs in that list.
+- **Do not trust an optimistic update on its own.** Painting the new quantity before the request returns is fine. Not reconciling with the response afterwards is how a rejected quantity stays on screen looking accepted.
+
+## Is a cache serving a stale cart to a returning shopper?
+
+Cart contents rendered into the page by Liquid are baked into that HTML document. If that document is cached anywhere, by a CDN, a full-page cache, or the browser's own back-forward cache, the shopper gets a cart snapshot from an earlier moment.
+
+The classic version: shopper adds two items, navigates to a product page, hits back, and the header says zero. Nothing broke. The browser restored a page from before the add and skipped the scripts that would have corrected it.
+
+- **Reproduce it deliberately.** Add an item, navigate away, then use the browser back button rather than a link. If the count reverts, you are looking at a restored document.
+- **Repaint on restore.** Listen for the page being restored from cache and refetch the cart, rather than assuming your load handler runs. Load handlers do not fire on a restore.
+- **Check any proxy or speed app in front of the store.** If something is caching HTML documents for logged-out visitors, cart markup inside them will be wrong for everyone but the first visitor.
+
+<PostCta />
+
+## Are quantity rules, inventory limits or a cart transform silently capping it?
+
+Sometimes the cart is not stale at all. The server did something different from what you asked, returned exactly that, and your interface carried on showing the request instead of the result.
+
+Quantity increments and minimums, an inventory policy that refuses to oversell, a bundle or cart transform that merges lines into one, a variant that is genuinely out of stock: all of these produce a cart that legitimately disagrees with the number the shopper typed.
+
+- **"Cart quantity not changing" is often correct behaviour.** If stock is 4 and the shopper asks for 6, the cart holds 4. That is the platform protecting you from a refund.
+- **Read the response, then render it.** The returned line quantity is the truth. If it differs from what was requested, say so in the interface. Silence here reads as a Shopify cart bug even when nothing is broken.
+- **Watch for merged lines.** A cart transform can combine or replace lines, so the line you expected may not exist under the id you were tracking. Code that updates by index breaks the moment that happens.
+- **Say why, briefly.** "Only 4 left in stock" turns a confusing failure into an ordinary limit. It is one of the few cart messages that reliably reduces support tickets.
+
+## Do discounts and gift wrap only ever appear at checkout?
+
+Automatic discounts and discount functions are evaluated by Shopify at checkout. Your cart can therefore show an honest subtotal that is higher than what the shopper eventually pays, and no front-end work will change that.
+
+Separate this from the faults above: the fix is wording, not code.
+
+- **Label the number for what it is.** A subtotal before discounts is not a broken total. Calling it a total and then charging less is what makes it feel broken.
+- **Do not fake the maths.** Recomputing a discount client-side to make the cart look clever is a money bug waiting to happen, especially with combined discounts and currency rounding.
+- **Add-ons behave like line items, not like discounts.** Gift wrap or a shipping protection product is a real line. If it fails to show in the cart after being toggled, that is a rendering fault from the earlier sections, not checkout timing.
+
+<PostCta />
+
+## How do you confirm the fix in the network tab rather than by eye?
+
+Eyeballing the drawer tells you whether it looks right this time. It does not tell you whether the cart is right. Do this instead, once before you change anything and once after.
+
+1. Open your storefront in a private window with dev tools on the Network tab, filtered to Fetch/XHR.
+2. Add one item. Do not click twice, however tempting.
+3. Count the cart requests. More than one write per click means two scripts are involved. Stop here and fix that first.
+4. Open the response body of the add request and read the returned quantity, line count and totals. This is the authoritative cart.
+5. Compare those three numbers to what is on screen. JSON right and screen wrong is a rendering fault. JSON unexpected means a server rule, so go back to the quantity and transform section.
+6. Request `/cart.js` directly in the same session and confirm it agrees with the response you just read.
+7. Navigate away and press back. Recheck the header. This is the cache test, the one people skip.
+
+None of this fixes the ordinary reasons people leave a full basket behind. Those are cost, delivery and trust, and [Shopify cart abandonment](/blog/shopify-cart-abandonment) is the better read for that. A cart that lies about its own contents adds an avoidable reason on top.
+
+## Where does Edge Cart fit in keeping cart state honest?
+
+Edge Cart is our cart drawer for Shopify. It has a free plan and installs without theme edits, which matters here for a reason: an app that does not edit your theme files is easier to remove cleanly when you are bisecting a cart fault. <Cite href="https://apps.shopify.com/edgecart">Edge Cart on the Shopify App Store</Cite>
+
+It renders the drawer, the count and the totals from the cart response rather than from local state, so the split-brain fault in section two does not come from us. It is also a new app with no review history yet, and I would rather say that plainly.
+
+- **If your theme drawer already works, keep it.** Installing another cart app to fix a stale count usually adds a second writer to the problem you are debugging. Fix the ownership first.
+- **If you need heavy upsell logic and rules,** Upcart is the more established option, at 4.7 stars across 857 reviews with paid plans starting at $29.99 a month. <Cite href="https://apps.shopify.com/upcart-cart-builder">Upcart on the Shopify App Store</Cite>
+- **If you want a free drawer with a long track record,** Amp Slide Cart has a Free Forever plan and 5.0 stars across 696 reviews. <Cite href="https://apps.shopify.com/slide-cart">Amp Slide Cart on the Shopify App Store</Cite>
+
+<CheckedOn date="22 August 2026" />
+
+Whichever you land on, the rule does not change. One owner of cart writes, every dependent element re-rendered from the server response, and no number on screen that has not been reconciled with what Shopify holds.
+
+<PostCta />

@@ -1,0 +1,158 @@
+---
+title: "How to Create a Bundle on Shopify (No Code)"
+slug: "create-product-bundle-shopify"
+app: "edge-bundles"
+archetype: "tutorial"
+author: "anurag"
+description: "How to create a bundle on Shopify with no code: the exact admin steps, a draft order QA pass, and the first-week checks that prove it actually works."
+primaryKeyword: "how to create a bundle on shopify"
+secondaryKeywords:
+  - "shopify bundle setup"
+  - "make a product bundle"
+publishedAt: "2026-11-16"
+updatedAt: "2026-11-16"
+imageAlt: "Placeholder illustration of three products being grouped into one Shopify product page"
+internalLinks:
+  - "shopify-product-bundles"
+  - "shopify-bundle-inventory-sync"
+  - "best-shopify-bundle-apps"
+tldr: "Decide the exact variants, quantities and price first. Build the set as a bundle product in Shopify's own bundles app, publish it to the Online Store channel, then place it using collections and the theme editor rather than code. Test it on a draft order before anyone sees it. Check orders, shipping cost and refunds in week one."
+faq:
+  - question: "Do I need a paid app to build a bundle on Shopify?"
+    answer: "Not for a single fixed set. Shopify's own bundles app builds a bundle product from existing variants at no extra cost, and an automatic discount on a fixed group of products is built into the admin. You need a third party app when customers pick what goes in the box, when you want the offer shown on a component's page, or when you are running many bundles at once."
+  - question: "Why does my bundle discount not show on a draft order?"
+    answer: "Automatic discounts are evaluated at checkout, and draft orders are built by you in the admin rather than by the checkout, so the automatic rule never runs. That is expected, not a fault. Test a bundle product on a draft order, because its price is set on the product itself. Test the automatic discount route with a real test checkout on the live storefront instead."
+  - question: "Should the bundle be its own product or an offer on an existing page?"
+    answer: "Its own product when the set is a thing you want to merchandise, photograph and rank for. It gets a URL, appears in collections and search, and can be linked from ads. An offer on an existing page is better when you want to catch someone already looking at one component. The native route gives you the first. The second needs an app."
+  - question: "Does bundling actually reduce abandoned carts?"
+    answer: "It can, when the bundle removes a surprise rather than adding one. Baymard puts extra costs such as shipping and fees at 40% of the reasons people abandon during checkout. A bundle that lands at a shipping threshold or includes an accessory people would otherwise pay separately for removes that surprise. A bundle that raises the total without explaining why does the opposite."
+    source: "https://baymard.com/lists/cart-abandonment-rate"
+  - question: "How long should I leave a new bundle before judging it?"
+    answer: "Long enough to see refunds, not just orders. Give it a full return window plus a normal weekly traffic cycle. Orders arrive in the first few days and look encouraging. The costs land later, in split shipments, partial returns and support messages asking whether one item can be swapped. Judge on what is left after those, not on day-three revenue."
+---
+
+You have picked the products and you know what the set should cost. Then you open Shopify admin and lose half an hour working out where a bundle lives, because it is not quite a product, not quite a discount, and there is no button labelled "bundle" where you expect it.
+
+This post is **how to create a bundle on Shopify** with no code, using Shopify's own tools, from the prep list to a draft order QA pass and the first week of live data. What to pair and what to charge is covered in the [guide to Shopify product bundles](/blog/shopify-product-bundles).
+
+## What do you need ready before you open Shopify admin?
+
+Half of a failed bundle build is a missing decision, not a missing feature. You get four screens in, hit a field you have not thought about, and stop. Collect these first.
+
+| What you need | Why it matters | You are ready when |
+| --- | --- | --- |
+| **The exact variants** | Bundles are built from variants, not products | You can name every variant and its quantity |
+| **The price of the set** | The bundle product carries its own price, with nowhere to leave it blank | One number, in your store currency |
+| **A photo of the set together** | Component photos side by side look like a search page | You have one image with everything in frame |
+| **A title and handle** | The handle becomes the URL and is awkward to change once indexed | You have written both down |
+| **Inventory tracked on components** | An untracked component cannot limit the bundle, so it never sells out | Every component has tracking on |
+| **Somewhere to put it** | A product nobody can navigate to is a product nobody buys | You know the collection and menu |
+
+A few of those deserve a sentence more.
+
+- **Write the title for a person, not a keyword.** "Starter Kit: Cleanser, Toner, Moisturiser" tells someone what they are buying. "Bundle 1" tells them nothing.
+- **Keep the component SKUs unchanged.** The bundle is a wrapper. Invent a new SKU and your warehouse has an item that does not exist on a shelf.
+- **Decide whether components stay on sale individually.** Both is usually right. Know which you chose, because it changes what the first-week numbers mean.
+
+## How do you build a fixed bundle with Shopify's native tools?
+
+Shopify gives you two native routes. The first makes the bundle a real product with its own page. The second leaves the products where they are and discounts them when they appear together.
+
+The bundle product route, start to finish.
+
+1. **Install Shopify's first-party bundles app** from the Shopify App Store.
+2. **Create a new bundle** with the title you wrote down. This creates a product, so treat the screen as a product form.
+3. **Add each component by variant.** Search the product, pick the specific variant, repeat until the set is listed.
+4. **Set the quantity of each component.** Two of one and one of another is normal. Getting it wrong is invisible until a customer opens the box.
+5. **Set the bundle price.** What the customer pays for the whole set. A price, not a percentage off.
+6. **Add images and a description.** Lead with the photo of everything together. List what is inside in plain words, using the names on the packing slip.
+7. **Fill in product type, vendor and tags.** Collection conditions and admin filters use them later. Tag it `bundle` now and thank yourself in week three.
+8. **Publish to the Online Store sales channel.** An unpublished bundle has no URL and 404s to anyone you send.
+9. **Save, then open the storefront URL.** Right title, price and images means the build is done.
+
+Labels move between admin releases. The order of the decisions does not.
+
+The other route is an automatic discount: one that applies when a set of products is in the cart, with the storefront still selling them separately. Choose on what you want the customer to see.
+
+| Question | Bundle product | Automatic discount |
+| --- | --- | --- |
+| Does it have its own page and URL? | Yes | No |
+| Can you run ads straight to it? | Yes | Only to a component page |
+| Does it appear in collections and search? | Yes | No |
+| Does the customer assemble the cart themselves? | No | Yes |
+| Can you test it on a draft order? | Yes | No |
+| Best for | A set you want to merchandise | A quiet incentive on things already selling |
+
+<Callout title="Do not build the same set both ways" tone="warning">
+If a bundle product exists and an automatic discount also matches its components, you can apply a reduction twice on the same basket. Pick one route per set, and check existing automatic discounts before you publish a bundle product.
+</Callout>
+
+<PostCta />
+
+## How do you get it onto a product page without touching theme code?
+
+A bundle product arrives with a page and no traffic. Everything below is done in the theme editor, the admin, or a rich text field. No Liquid.
+
+- **Put it in a collection.** Add it manually, or create a smart collection with the condition "product tag is bundle". Now every collection section in your theme can point at it.
+- **Add it to a menu.** Navigation, then your main menu, then a link to the collection or the product. This is the highest-value five minutes in the build.
+- **Feature it on the homepage.** Add a featured product or featured collection section in the theme editor and select what you built.
+- **Use app blocks, not code edits.** A theme app block can be added and positioned in the theme editor. If an app asks you to paste a snippet into `theme.liquid`, that is a code edit, whatever the install guide calls it.
+- **Link from the component pages.** Open the moisturiser and add a sentence to its description: "This is also in the Starter Kit, which works out cheaper." That is a rich text link in the description field. No theme involved.
+
+## How do you test the whole thing on a draft order first?
+
+A draft order lets you build a real order in the admin, put a real address on it, and take a real payment, without the bundle being visible to anyone. It is the closest thing to a staging environment Shopify gives you.
+
+1. **Go to Orders, then Drafts, then Create order.**
+2. **Add the bundle by name.** Confirm the components appear underneath it as separate lines. One opaque line with no contents is what your fulfilment team sees too.
+3. **Check the price.** It should be the price of the set, not the sum of the components.
+4. **Add a customer with a real shipping address**, ideally the furthest one you ship to.
+5. **Check that shipping rates appear and are sane.** Zero on a heavy box means the components have no weights.
+6. **Check the tax line.** Confirm it is calculated on the bundle price, not the component prices.
+7. **Send the invoice to your own email and pay it.** Use a test payment method, or pay and refund at the end.
+8. **Open the resulting order.** Confirm the line items read the way a picker needs, and that component inventory dropped by the right quantity.
+9. **Read the confirmation email.** This is the first place a customer sees your bundle described. Bad naming shows up here.
+10. **Refund and restock.** Confirm every component came back, not one bundle unit.
+
+What failure looks like, so you recognise it:
+
+- **Components missing from the order.** The bundle was built as a plain product with a description listing contents, not as a bundle. The warehouse ships one item and you get an email on Tuesday.
+- **Total equals the sum of the parts.** The price field is still at its default. Fix it on the bundle, not with a discount code.
+- **No discount appears at all.** Expected on the automatic discount route: draft orders do not run them. Test that route with a real order through the live storefront.
+- **Quantity looks wrong after payment.** Check the component tracking settings before you go live. A bundle that keeps selling after a component runs out becomes refunds.
+
+<Example>
+A kit sells at 45.00 and contains items priced 20.00, 18.00 and 12.00 individually. The draft order should show 45.00 before shipping and tax. If it shows 50.00, the bundle price never saved. One line item means the components are not attached.
+</Example>
+
+<PostCta />
+
+## What should you check in the first week after it goes live?
+
+Orders in the first three days always look encouraging. The costs arrive later. Check these at the end of week one.
+
+1. **Orders containing the bundle.** Filter product analytics by the bundle product. This is your denominator for everything else.
+2. **Views to add to cart on the bundle page.** Plenty of views and almost no adds means the page does not explain what is in the box, or the saving is not stated where the eye lands.
+3. **What happened to single sales of the components.** If component sales fell by roughly what the bundle gained, you moved revenue sideways and gave away margin.
+4. **Shipping cost per bundle order against a normal order.** Bigger boxes cost more, and a bundle that ships in two parcels can cost more than it earns. Extra costs at checkout are the biggest documented abandonment reason at 40% <Cite href="https://baymard.com/lists/cart-abandonment-rate">Baymard</Cite>, so check the bundle did not push anyone over a shipping threshold. More in the [cart abandonment guide](/blog/shopify-cart-abandonment).
+5. **Refunds and their reasons.** Read the notes. "Did not need the third item" is a composition problem. "Arrived damaged" is a packing problem. Different fixes.
+6. **Support messages mentioning the bundle.** Every "can I swap the blue one for the black one" is a signal that a fixed set is not what these customers want.
+
+## Where does Edge Bundles fit when the native route runs out?
+
+The native route is fine for one fixed set at one price on its own page. If that is what you needed, you are done, and an app adds a dependency for nothing.
+
+It runs out at a few specific points.
+
+- **The customer wants to choose.** Pick any three, pick your size, pick the scent. A fixed bundle product needs a separate product for every combination.
+- **You want the offer where the customer already is.** Native bundles live on their own page. Showing "add the case for 9 more" on the product page needs an app block.
+- **You are running more than a couple.** Maintaining ten fixed bundle products by hand is a job. Maintaining a rule that generates them is not.
+- **You want per-bundle reporting.** Native analytics report on the bundle product, not on which combinations people chose.
+
+If those are your problems, there are established options. Bundler is at 4.9 stars across 2,537 reviews with a free plan that has no order or revenue limits <Cite href="https://apps.shopify.com/bundler-product-bundles">Shopify App Store</Cite>, and Fast Bundle is at 5.0 stars across 3,027 reviews <Cite href="https://apps.shopify.com/fast-bundle-product-bundles">Shopify App Store</Cite>. Both are more proven than anything we ship. If you need a mix-and-match builder today, start there.
+
+<CheckedOn date="22 August 2026" />
+
+Edge Bundles is our own app and it is new, with no reviews yet. It has a free plan. We built it because the agency work kept hitting the same wall: merchants who wanted a bundle offer on the product page and in the cart, without a theme edit and without a settings screen that takes an afternoon. If that is your problem, try it.
+
+<PostCta />

@@ -1,0 +1,156 @@
+---
+title: "How to Add a Cart Drawer to Shopify"
+slug: "add-cart-drawer-shopify"
+app: "edge-cart"
+archetype: "tutorial"
+author: "anurag"
+description: "How to add a cart drawer to Shopify three ways: the theme setting you may already own, a Liquid and AJAX build, or an app. Plus the QA pass before launch."
+primaryKeyword: "how to add a cart drawer to shopify"
+secondaryKeywords: ["shopify slide cart setup", "add side cart shopify"]
+publishedAt: "2026-11-16"
+updatedAt: "2026-11-16"
+imageAlt: "Placeholder illustration of a slide out cart drawer opening over a Shopify collection page"
+internalLinks:
+  - "shopify-cart-abandonment"
+  - "upcart-alternatives-shopify"
+  - "shopify-cart-not-updating"
+tldr: "Most Online Store 2.0 themes already include a drawer. Open the theme editor, find Theme settings, then Cart, and switch cart type from page to drawer. If your theme has no such setting, either build one in Liquid against Shopify's cart AJAX endpoints or install an app that ships a theme app extension. Then run a QA pass before launch."
+faq:
+  - question: "Do I need an app to get a cart drawer on Shopify?"
+    answer: "Usually not. Free Shopify themes built on Online Store 2.0 ship a drawer as a cart type setting, and switching it on takes about a minute. You need an app or custom code when your theme predates that, when you bought a theme that only renders a cart page, or when you want behaviour the setting does not expose."
+  - question: "Will adding a cart drawer break my cart page?"
+    answer: "No. Shopify keeps serving the /cart route whatever your theme renders, so the page still loads if somebody types the address or follows an old link. What changes is that nothing in your storefront links there any more, so traffic to it falls away. Rebuild any report or ad audience defined by visits to that URL before you switch."
+  - question: "How do I test that the drawer is really working?"
+    answer: "Add a product, change its quantity, remove it, and add a second product without reloading. Check the header count, the subtotal, and the checkout button after each step. Then repeat on a phone, with the keyboard only, and on a sold out variant. Most drawer faults show up in the second add, not the first."
+  - question: "Does a cart drawer reduce cart abandonment?"
+    answer: "It removes one interruption, which helps, but do not expect a layout change to rescue your numbers. Baymard documents a 70.22% average abandonment rate across 50 studies, and the reasons shoppers give during checkout are led by extra costs at 40% and slow delivery at 20%. Price and delivery move the figure more than presentation does."
+    source: "https://baymard.com/lists/cart-abandonment-rate"
+  - question: "Will my analytics still see add to cart events after the switch?"
+    answer: "Events keep firing if they were built as events. Anything built on a page view of /cart goes quiet, silently, with no error to find later. Shopify's Web Pixels API gives you controlled APIs inside a Lax or Strict sandbox, which is where a custom cart event belongs once the page view disappears."
+    source: "https://shopify.dev/docs/api/web-pixels-api"
+---
+
+A shopper on your collection page taps add to cart. The browser throws them to /cart, they look at one line item on a full width page, and now getting back to where they were is their problem. Some of them solve it by leaving.
+
+That is the whole case for a slide out cart, and it is why **how to add a cart drawer to Shopify** is one of the first things merchants search after a theme change. The good news is that there are three routes, and the cheapest one is probably already sitting in your theme editor unused.
+
+This post ranks them by what you are willing to touch. A setting, then code, then an app. It ends with the QA pass, because a drawer that half works costs you more than the cart page you replaced.
+
+## Does your theme already have a cart drawer setting?
+
+Check before you buy or build anything. Themes on Online Store 2.0, including every free Shopify theme, generally expose a cart type control in theme settings. Dawn calls it Cart type and gives you three options.
+
+- **Page.** The classic behaviour. Adding an item sends the shopper to /cart.
+- **Drawer.** A panel slides in over the current page with the full cart inside it.
+- **Popup or notification.** A small confirmation appears near the button. This is not a drawer. It confirms the add and offers a link onward, nothing more.
+
+Here is how to tell which situation you are in without guessing.
+
+| What you see in the editor | What you have | Route to take |
+| --- | --- | --- |
+| Theme settings has a Cart section with a cart type option | A drawer already built and paid for | Switch the setting |
+| Cart section exists but only offers page and popup | A partial implementation | Code or an app |
+| No cart section at all in theme settings | Likely a pre 2.0 or heavily custom theme | Code or an app |
+| A third party cart app already installed | Two carts competing | Fix that first |
+
+That last row matters more than it looks. If an app is already injecting a drawer and you also switch on the theme's own, you get two panels fighting over the same click. Turn one off before you evaluate the other.
+
+<Callout title="Check your theme documentation, not a blog" tone="warning">
+Every theme names these settings differently. Some call it Cart behaviour, some Cart style, some hide it inside a Cart section rather than global theme settings. Search your theme vendor's documentation for the word cart before you conclude the setting is missing.
+</Callout>
+
+## How do you switch the cart type in the theme editor?
+
+This is the whole job on a theme that supports it. Do it on a copy, not on the theme your customers are looking at.
+
+1. Go to **Online Store**, then **Themes**, find your live theme, open the three dot menu and choose **Duplicate**. Work on the duplicate.
+2. Open **Customize** on the duplicate.
+3. In the left panel, open **Theme settings**. It is the gear icon at the bottom on most themes.
+4. Find **Cart**. Open it.
+5. Set **Cart type** to **Drawer**.
+6. While you are there, decide on the smaller options in the same panel. Whether to show vendor, whether to show a note field, and whether the drawer opens automatically on add. Auto open is the behaviour most people actually mean when they ask for a drawer.
+7. Preview the duplicate. Add a real product from a collection page, a product page, and a quick add button if your theme has one.
+8. If your header has a hardcoded link to /cart, change it to open the drawer. On many themes this is automatic. On customised ones it is not, and you will end up with a header icon that still navigates away.
+9. Publish the duplicate when it passes the QA pass further down this post.
+
+Keep the old theme in your theme library for a fortnight. Rolling back is then one click rather than an evening of work.
+
+<PostCta />
+
+## What do you do if your theme only ships a cart page?
+
+Now you are building. This is the honest version of the Liquid route, including the part where you own it forever.
+
+A cart drawer is three things: markup that renders the cart, JavaScript that intercepts the add to cart form so the browser never navigates, and a re-render of that markup after every change. Shopify gives you the endpoints for all of it.
+
+1. **Create the markup.** Add a section, for example `sections/cart-drawer.liquid`, that renders line items, quantities, the subtotal and a checkout button from the `cart` object. Render it in `theme.liquid` so it exists on every page.
+2. **Intercept the add.** Bind a submit handler to the product form. Prevent the default navigation and post to `/cart/add.js` instead.
+3. **Re-render, do not hand build.** Request your section back with the Section Rendering API and swap the returned HTML in. Rebuilding the cart in JavaScript from a JSON response is where money bugs live, because your JavaScript's idea of a discounted price drifts from Liquid's.
+4. **Wire quantity and remove.** Post to `/cart/change.js` with the line key, then re-render the same way. Never assume the server accepted your number. Read what comes back.
+5. **Update the header count** from the re-rendered response, not from a counter you increment yourself.
+6. **Make it a real dialog.** Trap focus inside the panel while it is open, close on Escape, return focus to the button that opened it, and give the panel a label. A drawer that keyboard users cannot escape is a broken cart, not a styling detail.
+7. **Handle the empty state and the error state.** Sold out mid session, quantity above stock, and a failed request all need something on screen. Silence reads as a broken site.
+
+<Callout title="The maintenance cost is the real price" tone="warning">
+Theme updates overwrite files you edited. A hand built drawer means every future theme update becomes a merge, and the person who wrote it is often not the person who has to redo it. Budget for that before you choose this route over an app.
+</Callout>
+
+## How do you add a drawer with an app instead of code?
+
+The third route buys the same result and rents the maintenance. What matters technically is how the app gets onto your storefront.
+
+- **Theme app extensions are the modern way.** The app ships an app embed or an app block you enable in the theme editor. Nothing is written into your Liquid, and uninstalling removes it cleanly.
+- **Script injection is the old way.** The app writes into your theme files or loads through the legacy script tag. It usually works, and it usually leaves debris behind when you remove it.
+- **Ask what happens on uninstall.** A good answer is that the drawer stops and your theme's own cart resumes. If nobody can tell you, install on a duplicate theme and find out yourself.
+
+The install itself is short.
+
+1. Install the app from the Shopify App Store.
+2. In **Online Store**, then **Themes**, open **Customize** on a duplicate theme.
+3. Open **App embeds** and enable the app's embed. Save.
+4. Turn off your theme's own cart drawer if it has one, so only one panel responds to a click.
+5. Configure the drawer, preview it on the duplicate, then publish.
+
+Which app to pick, and what each one costs, is a separate question this post is not going to pretend to settle in a paragraph.
+
+<PostCta />
+
+## What should you check before calling it live?
+
+Run this before you publish. Every item here is something I have seen ship broken on a real store.
+
+1. **Add, change, remove, add again.** Most faults appear on the second add, not the first, because the drawer re-binds its handlers wrong after the first re-render.
+2. **Check the subtotal against the cart page.** Open /cart directly and compare. Two different numbers means your drawer is doing its own arithmetic somewhere.
+3. **Test a sold out and a limited stock variant.** Set quantity above available stock and confirm the drawer shows what the server actually accepted.
+4. **Test discounts and selling plans.** Automatic discounts and subscription selling plans must appear in the drawer exactly as they appear at checkout.
+5. **Keyboard only.** Tab to the add button, press Enter, tab through the drawer, press Escape. Focus must not escape into the page behind.
+6. **Phone, in portrait, on real data.** Check the drawer with eight line items, not one. Check that the checkout button is reachable without fighting the address bar.
+7. **Header and z-index.** Sticky headers and cookie banners are the two things that sit on top of a drawer and should not.
+8. **Click checkout.** It must land on /checkout with the same items. This is the only step that touches money directly.
+9. **Confirm your events still fire.** Anything you built on a visit to /cart stops now. Shopify's Web Pixels API gives you controlled APIs inside a Lax or Strict sandbox <Cite href="https://shopify.dev/docs/api/web-pixels-api">for exactly this</Cite>, and rebuilding the audience before the switch is much easier than reconstructing it after.
+
+What failure looks like: the header count and the drawer disagree, the subtotal lags one action behind, the panel opens twice, or the checkout button is dead on mobile. Any of those, do not publish.
+
+<Example>
+Say a store takes 20,000 sessions a month and 6% of them add something to the cart. That is 1,200 carts. If a broken quantity control silently blocks 1 in 40 of those from reaching checkout, that is 30 lost carts a month at your average order value. Substitute your own traffic, your own add rate, and your own AOV.
+</Example>
+
+A drawer is a small improvement to one step. Costs and delivery times still decide most of it, which is worth reading up on in the [cart abandonment breakdown](/blog/shopify-cart-abandonment) before you expect too much from a panel.
+
+## Where does Edge Cart fit if you would rather not touch Liquid?
+
+Edge Cart is our own app. It installs as a theme app extension, needs no theme edits, and has a free plan <Cite href="https://apps.shopify.com/edgecart">on the App Store</Cite>. It is new, and it has no reviews yet, so you are taking my word rather than 800 other merchants'.
+
+If that matters to you, and it reasonably might, the better proven free option today is Amp Slide Cart Upsell Drawer, at 5.0 stars from 696 reviews with a Free Forever plan <Cite href="https://apps.shopify.com/slide-cart">on its listing</Cite>. Upcart sits at 4.7 stars from 857 reviews, with paid plans starting at $29.99 a month for 0 to 200 orders and a 14 day trial <Cite href="https://apps.shopify.com/upcart-cart-builder">on its listing</Cite>.
+
+| App | Rating and reviews | Entry price |
+| --- | --- | --- |
+| Amp Slide Cart | 5.0, 696 reviews | Free Forever plan |
+| Upcart | 4.7, 857 reviews | $29.99/mo, 0 to 200 orders |
+| Edge Cart | No reviews yet | Free plan |
+
+<CheckedOn date="22 August 2026" />
+
+Pick Edge Cart if you want a drawer with no theme edits and no bill while you test whether the pattern suits your store at all. Pick one of the others if track record is what you are buying. And if your theme already has the setting, use the setting. It is free, it is already tested against your theme, and no app can beat that.
+
+<PostCta />

@@ -1,0 +1,162 @@
+---
+title: "Cart Drawer vs Cart Page: Which Converts Better"
+slug: "cart-drawer-vs-cart-page"
+app: "edge-cart"
+archetype: "alternative"
+author: "anurag"
+description: "Cart drawer vs cart page, argued honestly: which stores should keep /cart, what you hand back in reports and ad audiences, and how to test the switch."
+primaryKeyword: "cart drawer vs cart page"
+secondaryKeywords: ["slide out cart vs cart page", "shopify cart ux"]
+publishedAt: "2026-09-28"
+updatedAt: "2026-09-28"
+imageAlt: "Placeholder illustration comparing a slide out cart drawer with a full cart page"
+internalLinks:
+  - "shopify-cart-abandonment"
+  - "shopify-cart-not-updating"
+  - "add-cart-drawer-shopify"
+tldr: "A cart drawer usually wins for simple, low consideration baskets, because it keeps the shopper on the page they were already on. A cart page is still the better default for large or heavily edited orders, complicated delivery rules, and stores whose reports and ad audiences depend on the /cart URL. Test it before you switch."
+faq:
+  - question: "Does a cart drawer always convert better than a cart page?"
+    answer: "No. It usually helps stores where people add one or two simple items and buy in the same session. It helps far less where the basket is large, the order gets edited a lot, or the purchase needs reading before payment. The honest answer is that it depends on your basket, and that is testable on your own store."
+  - question: "Do I lose my /cart URL if I switch to a drawer?"
+    answer: "Not automatically. Shopify still serves the route, and most themes keep a cart page rendering underneath the drawer. What you lose is traffic to it, because nothing links there any more. Anything counting visits to that URL, funnel steps, retargeting audiences, custom reports, goes quiet without producing an error anywhere."
+  - question: "Will switching to a drawer break my Meta or Google remarketing?"
+    answer: "It breaks any audience defined by a visit to a URL rather than by an event. Rebuild those on a cart event you fire yourself before you make the change, not after. Shopify's Web Pixels API gives you controlled APIs inside a Lax or Strict sandbox for exactly this kind of custom event capture."
+    source: "https://shopify.dev/docs/api/web-pixels-api"
+  - question: "How long should I run a cart drawer test?"
+    answer: "Long enough to cover at least two full weekly cycles, because weekend traffic and weekday traffic buy differently. Judge it on orders per session and checkouts started per session. Cart page views will fall to zero by design, and reading that drop as damage is the most common way merchants talk themselves out of a change that worked."
+  - question: "What share of carts get abandoned anyway?"
+    answer: "The documented average across 50 studies is 70.22%, so most shoppers who add to a cart leave regardless of how you present it. That is worth remembering before you expect a layout change to move your revenue much. Presentation is one input. Cost, delivery time and trust are bigger ones."
+    source: "https://baymard.com/lists/cart-abandonment-rate"
+---
+
+Every conversion post tells you to turn on a cart drawer. Your theme probably ships with one. So you enable it, delete the header link to /cart, and a fortnight later your retargeting audience is half the size it was and nobody can say why.
+
+The **cart drawer vs cart page** question gets treated as settled. It is not. The drawer is a sensible default for plenty of stores and a poor fit for others, and the cost of switching is almost never the drawer itself. It is everything that quietly depended on the cart being a page with an address.
+
+This post argues the unpopular half. Where the page still wins, what you hand back when you remove it, and how to test the change rather than take a blog's word for it. Including this one's.
+
+## What does each pattern really change about the path to pay?
+
+Neither pattern touches checkout. Shopify owns that. What changes is where the review step lives, and whether it is somewhere the browser knows about.
+
+A cart page moves the shopper. The URL changes and the order is reviewed in a full width layout that can hold as much as you want. A drawer keeps them where they are and slides the same information over the top. The cart data is identical. The difference is context and addressability, and the second word matters more than most comparisons admit.
+
+| | Cart page | Cart drawer |
+| --- | --- | --- |
+| Where review happens | A separate document | An overlay on the current page |
+| Has an address | Yes, /cart | No, it is UI state |
+| In browser history | Yes | Usually not |
+| Shows up in page reports | Yes, as a page view | Only if you fire an event |
+
+- **The drawer keeps browsing alive.** The collection page is still underneath, so shoppers adding several items never lose their place. That is the drawer's strongest real argument.
+- **The page interrupts on purpose.** For some baskets that is the feature. It is the moment a shopper stops adding and starts reading what they are about to buy.
+- **Only one is a destination.** You can email a cart page link or count arrivals at it. A drawer is a state your theme is in.
+
+## Which kinds of store are better off keeping a cart page?
+
+Some stores should not switch. Not because drawers are badly built, but because their basket does not fit in a panel or their order needs reading.
+
+- **High consideration purchases.** If the order is a few hundred pounds and the shopper wants to check specification, delivery window and returns before paying, a narrow overlay is the wrong place for it. A page has room to answer objections where they surface.
+- **Large or line heavy baskets.** Trade orders, refill packs, multipacks. Reviewing thirty lines by scrolling inside a panel is worse than reviewing them on a layout built for it.
+- **Orders needing per line input.** Engraving text, gift messages, per item delivery dates. Each is a form field attached to a line, and forms suffer first when you halve the available width.
+- **Complicated shipping or tax rules.** A shipping estimator, a duties note, a minimum order threshold. All of them put logic in the cart, and that logic wants a page.
+
+<Callout title="A quick sorting rule" tone="warning">
+If a typical basket runs past about five lines, or any line carries its own input field, assume the page until a test says otherwise. Overlays suit short baskets that need no editing.
+</Callout>
+
+<PostCta />
+
+## What happens to your /cart URL, its reports and its ad audiences?
+
+This is the part that gets skipped, and the part that costs money quietly.
+
+Shopify keeps serving /cart, and your theme almost certainly still renders a page there. What disappears is traffic, because nothing links to it any more. Nothing errors. No alert fires. A URL stops receiving visits, and everything counting those visits reports a collapse that looks like a business problem.
+
+- **Funnel steps go dark.** If your GA4 funnel runs home to product to /cart to checkout, the third step drops to near zero and every downstream rate becomes meaningless. If you have not defined cart events explicitly, our [GA4 setup walkthrough](/blog/set-up-ga4-shopify) covers where they belong.
+- **URL based audiences stop filling.** Anything defined as "visited /cart in the last 30 days" starts shrinking the day you flip the switch, and spend keeps going out against an audience that is emptying.
+
+The fix is not hard, it just has to happen first.
+
+1. **Fire a cart view event today**, on both the page and the drawer, so both produce the same signal. Shopify's Web Pixels API gives controlled APIs within a Lax or Strict sandbox <Cite href="https://shopify.dev/docs/api/web-pixels-api">for this kind of capture</Cite>.
+2. **Rebuild every URL based audience** on that event in every ad platform, and let them fill for a full lookback window.
+3. **Rebuild your funnel report** on events end to end, so the switch does not change what is being measured.
+4. **Record a baseline** of orders per session and checkouts started per session for two weeks.
+5. **Then turn on the drawer.**
+
+## How does each pattern handle the back button and shared links?
+
+Browsers have opinions about what a page is, and a drawer is not one.
+
+Press back from checkout with a cart page in your history and you land on the cart, where you expected to be. Press back with a drawer and you land on whatever page you were on when you opened it, usually with the drawer closed. The cart still holds everything. The shopper cannot see it without hunting for the icon. That is a moment of doubt at the worst possible time.
+
+- **Shareable carts disappear.** A shopper cannot send a friend their basket, and you cannot send them back to it. Permalink style cart URLs still work, but nothing in the interface produces one.
+- **Deep links need a plan.** Any email or ad that used to land on /cart must either keep landing on a real page or open the drawer on load. Pick one and be consistent.
+
+<PostCta />
+
+## Which one holds up better for a large or heavily edited basket?
+
+Editing is where drawers get exposed. Not in how they look, but in how many round trips a change takes.
+
+Every quantity change, removal or upsell add is a cart update. On a page the result is a fresh render of the whole order, read where the shopper was already looking. In a panel it happens inside a scrolling region, and after four or five edits it is easy to lose track of what the total became.
+
+- **Subscriptions and selling plans.** If a line carries a delivery frequency, the shopper may want to change it before paying. Shopify creates the subscription contract automatically at checkout <Cite href="https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans">from the selling plan on the line</Cite>, so the choice made in that cramped control is the one that recurs.
+- **Undo.** Removing the wrong line happens constantly. A page can afford a visible undo row. A panel usually cannot, so the shopper re-adds from scratch, or does not bother.
+
+None of that argues against drawers for a two line basket. It argues that basket shape should pick the pattern, not fashion.
+
+## Can you run both, and when is a hybrid worth maintaining?
+
+Yes, and most Shopify stores already do without noticing. The drawer is the default and the cart page still exists at its route. The question is whether you maintain that page deliberately or let it rot.
+
+Maintain it deliberately when any of these are true.
+
+- **Your catalogue is mixed.** Accessories that suit a drawer, configured or bulk products that do not. Give the drawer a "View full cart" link and let shoppers choose.
+- **You run B2B alongside retail.** Trade accounts get the page, retail gets the drawer, and neither is compromised for the other.
+- **You need a fallback.** A drawer that depends on JavaScript failing to a page that does not is a real reliability benefit.
+
+The cost is duplication. Two places that render a cart, apply discounts and calculate thresholds. They drift.
+
+<Callout title="The hybrid failure mode" tone="warning">
+A free shipping threshold updated in the drawer settings but not in the cart page template. The panel says the shopper has qualified. The page says they need another twelve pounds. Whichever they read second is the one they believe, and that is the one that loses the order. Keep the rule in one place and have both surfaces read it.
+</Callout>
+
+<PostCta />
+
+## How would you test the switch instead of guessing at it?
+
+Cart layout is easy to test badly, because the most visible metric moves for reasons unrelated to revenue.
+
+1. **Pick the metric first.** Orders per session is the one that pays you. Checkouts started per session is the useful secondary. Cart views is not a metric here, because one pattern generates them and the other does not.
+2. **Baseline for two weeks** on the pattern you have now, with event based tracking already in place.
+3. **Make it reversible.** One setting, no theme surgery you cannot undo in an afternoon.
+4. **Run at least two full weekly cycles.** Weekday and weekend traffic buy differently, and a five day read will lie to you.
+5. **Segment by device and traffic source** before concluding anything, and watch average order value alongside order count. A drawer can win on paid social and lose on branded search in the same fortnight.
+
+<Example>
+Say you run 20,000 sessions a fortnight and take 320 orders, so 1.6% of sessions convert. A drawer test returns 336 orders, or 1.68%. That is 16 orders, and at a £60 average order it is £960. It also sits inside the range ordinary week to week noise produces at this volume. Substitute your own figures. The point is knowing in advance how big a difference your traffic can detect.
+</Example>
+
+If the test comes back flat, that is useful. It means layout is not your constraint and the money is elsewhere, usually in cost, delivery time or trust. Our [cart abandonment guide](/blog/shopify-cart-abandonment) covers where to look next.
+
+## Where does Edge Cart fit if you decide the drawer wins?
+
+Edge Cart is our slide out cart for Shopify. It installs without theme edits, it has a free plan, and it is a new app with no review history yet. Worth saying plainly.
+
+It is built for the case this post has been circling. A drawer that does the ordinary cart job properly, keeps free shipping progress and totals visible while the basket changes, and leaves your cart page reachable so a hybrid stays honest.
+
+It is not right for everything. If your priority is a deep upsell engine rather than the cart itself, the established upsell drawers have more mileage behind them and you should compare them directly.
+
+| App | Rating and reviews | Entry pricing |
+| --- | --- | --- |
+| Edge Cart by Edgecoms | No reviews yet | Free plan |
+| Amp Slide Cart Upsell Drawer | 5.0 stars, 696 reviews | Free Forever, Starter $14.99/mo |
+| Upcart Cart Drawer Cart Upsell | 4.7 stars, 857 reviews | $29.99/mo for 0 to 200 orders |
+
+<CheckedOn date="22 August 2026" />
+
+And if you read this far and concluded your basket belongs on a page, that is a legitimate outcome. Keep the page, make it good, and spend the saved effort on the reasons people actually abandon.
+
+<PostCta />

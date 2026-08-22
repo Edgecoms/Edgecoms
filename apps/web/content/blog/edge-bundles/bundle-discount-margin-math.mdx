@@ -1,0 +1,182 @@
+---
+title: "Bundle Discount Margin: The Math Before You Run"
+slug: "bundle-discount-margin-math"
+app: "edge-bundles"
+archetype: "problem"
+author: "anurag"
+description: "Bundle discount margin done with arithmetic: what a discount really costs, which sales you cannibalised, and the break-even attachment rate that decides it."
+primaryKeyword: "bundle discount margin"
+secondaryKeywords: ["bundle profitability", "discount margin calculation"]
+publishedAt: "2027-01-25"
+updatedAt: "2027-01-25"
+imageAlt: "Placeholder illustration of a contribution margin calculation beside a bundle price"
+internalLinks:
+  - "shopify-product-bundles"
+  - "set-up-volume-discounts-shopify"
+  - "increase-average-order-value-shopify"
+tldr: "A bundle discount comes out of contribution margin, not price, so a small headline saving is a large share of what you keep. Split takers into incremental and cannibalised, work out the break-even incremental share, and judge the bundle on blended margin per order rather than on order value."
+faq:
+  - question: "Is gross margin percentage good enough for pricing a bundle?"
+    answer: "No, and it is the most common reason a bundle looks fine on a spreadsheet and hurts in the bank. A percentage is a ratio. The discount comes out of cash contribution, meaning price minus every cost that varies with the sale. Work in currency per unit, then convert to a percentage at the end if you want a headline figure."
+  - question: "How do I measure my baseline attachment rate?"
+    answer: "Export several months of orders containing the hero product and count how many also contain the partner item. That share is your baseline. Do it before the bundle exists, because once the offer is live you can never separate the shoppers it created from the shoppers who were always going to attach. Skip this and you have no counterfactual to measure against."
+  - question: "Does a bundle that loses margin ever make sense?"
+    answer: "Sometimes, if you can name the second effect and measure it. Clearing seasonal stock before it is written down, winning a first order from a customer with real repeat value, or introducing a product that becomes its own repeat line can all justify a thin bundle. What never justifies one is a rising order value with nothing behind it."
+  - question: "Do shipping and payment costs really change the answer?"
+    answer: "They can flip it. Extra costs at checkout are the most cited abandonment reason during checkout, at 40 percent of documented cases, so a bundle that clears your delivery threshold is earning twice. In the other direction, a heavier parcel that crosses a carrier weight step can cost more than the whole discount you were arguing about."
+    source: "https://baymard.com/lists/cart-abandonment-rate"
+  - question: "How long before the margin numbers mean anything?"
+    answer: "Give it a full purchase cycle and at least thirty days. A bundle only touches shoppers who reach one specific product, so weekly figures are traffic noise wearing the costume of a result. Hold your ad mix and your other promotions still for the window, or you will read a channel shift and call it a bundle."
+---
+
+Your bundle sold three hundred times last quarter. Revenue is up. Nobody in the business can tell you whether the store is better off, and the report that would settle it does not exist in your admin.
+
+That is the normal state of **bundle discount margin**. The offer moves the number everyone watches, and quietly moves two nobody does: what each sale contributes, and how many of those sales you already had.
+
+What follows is the arithmetic, in the order you need it. None of it takes a data team. All of it takes giving up percentages of price as the unit you think in.
+
+## What does a bundle discount actually cost you?
+
+The headline discount is a share of the price. The cost is a share of your margin, and those two figures are never close.
+
+Nothing on the cost side moves when you drop the price. The product lands at the same figure and the parcel weighs the same. Every unit you knock off comes out of contribution, whole.
+
+Contribution margin per unit is the price minus everything that varies with the sale. Most stores get it wrong by leaving rows out.
+
+| Cost | Why it belongs in the sum | How it gets missed |
+| --- | --- | --- |
+| Landed product cost | Everyone includes it, usually at the wrong figure | Freight and duty left in overhead |
+| Payment processing | It scales with the order total, so a discount shaves it in your favour | Treated as a fixed monthly bill |
+| Pick and pack | It scales with distinct SKUs, and a bundle carries more | Flat-rated per order, which flatters every bundle |
+| Delivered shipping | You pay it whether or not the shopper sees a line | Excluded because delivery is advertised as free |
+| Expected returns | A predictable share comes back, and some cannot be resold | Booked in a later month, on a different report |
+
+
+<Example>
+Two products, each priced at 30, each landing at 15. Order-level costs (payment, pick and pack, delivered shipping) come to 3.
+
+Bought separately in one order: revenue 60, variable cost 33, contribution 27.
+
+Bundled at 54: revenue 54, variable cost 33, contribution 21.
+
+The saving is 10% of the price. It is 22% of the contribution. One discount, two very different sentences, and only the second describes money you could otherwise have spent.
+</Example>
+
+That gap is set by your margin, so it differs in every catalogue. Substitute your own costs before anyone argues about the headline.
+
+## Which bundle sales were incremental and which were cannibalised?
+
+A bundle sale is not automatically new revenue. Some share of the people who take it were buying both items regardless, and for them the offer is a gift with no change in behaviour attached.
+
+Every taker arrives from one of four counterfactuals.
+
+| What they would have done | What the bundle changed | Effect on contribution |
+| --- | --- | --- |
+| Bought the hero alone | A second item joins the order | Up, by the partner's contribution less the discount |
+| Bought both separately | Only the price | Down, by the whole discount |
+| Bought nothing | The offer won the order outright | Up, by the entire bundle's contribution |
+| Bought the partner alone | The hero joins the order | Up, by the hero's contribution less the discount |
+
+Rows one and two are the whole argument. Row three is real but uncommon, because a bundle rarely converts a shopper the product page could not, and row four is rarer still.
+
+What separates them is your baseline attachment rate: the share of hero orders that already contained the partner item before any bundle existed. Measure it first, because after launch the offer has contaminated the behaviour you wanted to observe.
+
+<Example>
+A thousand orders a month contain the hero product. A hundred and twenty of them already contain the partner item, so the baseline attachment rate is 12%.
+
+Launch the bundle. Three hundred orders take it. Assume all hundred and twenty habitual attachers are among them, because nobody who wanted both declines a discount on both.
+
+That leaves 180 incremental bundles and 120 cannibalised ones. A hero-only order contributed 12. An incremental bundle contributes 21, a gain of 9. A cannibalised one drops from 27 to 21, a loss of 6.
+
+180 at 9 is 1,620 gained. 120 at 6 is 720 handed back. Net 900 a month.
+
+Spread across all thousand orders, contribution per order moved from 13.80 to 14.70.
+</Example>
+
+Assuming every baseline attacher takes the bundle is pessimistic, and close to true. A floor you can defend beats a forecast you cannot.
+
+<PostCta />
+
+## How do you set a margin floor before you pick a bundle price?
+
+The floor is the bundle price at which blended contribution per order holds flat under a pessimistic view of how many takers are new.
+
+- **Stress-test the incremental share rather than forecasting it.** Halve whatever you believe, then price so the bundle still clears.
+- **Never let a bundle contribute less than the hero sold alone.** If it does, you are paying shoppers to take more of your inventory off you.
+- **Price the parcel, not the products.** A second unit that tips the order into the next carrier weight band can cost more than the discount you spent a week debating.
+- **Reserve for returns before setting the discount.** Bundles come back as parts, and the part that comes back is often the one that never sold alone.
+- **Write the floor down.** One that lives in somebody's head gets renegotiated during a slow week, which is precisely when it should not be.
+
+The [pillar guide to product bundles](/blog/shopify-product-bundles) covers which shape to build. This is the number that decides whether you can afford it.
+
+## What is the break-even attachment rate on a bundle discount?
+
+You have both inputs already: the gain on an incremental sale and the loss on a cannibalised one. Break-even is the share of takers who must be new for those two to cancel out. Divide the loss by the sum of the loss and the gain.
+
+<Example>
+Carry the same numbers forward. A cannibalised bundle costs 6. An incremental one earns 9.
+
+Break-even incremental share = 6 / (9 + 6) = 40%.
+
+So at least 40% of takers have to be shoppers who would not have bought both. Below that it loses money at any volume, and selling more makes the hole deeper.
+
+Now widen the discount. Price the bundle at 48 instead of 54. A cannibalised sale now loses 12, an incremental one gains only 3, and break-even becomes 12 / (3 + 12), or 80%.
+
+The discount doubled. The break-even did not. It went from a bar most bundles clear to one almost none do.
+</Example>
+
+Discount depth and risk do not trade off in a straight line. A deeper discount raises the cost of every cannibalised sale while shrinking the reward on every incremental one, so both halves of the ratio move against you at once.
+
+So compute the break-even share at two or three candidate prices before committing to one. If the answer at your preferred discount sits above what your baseline leaves room for, the price is wrong, not the idea.
+
+<PostCta />
+
+## How do you measure blended margin per order without fooling yourself?
+
+Blended contribution per order is the scorecard, but only if the denominator is honest. Count every order that could have carried the bundle, not only the ones that did.
+
+1. **Fix the baseline before launch.** Record hero order count, attachment rate and contribution per order for the four weeks prior.
+2. **Compute contribution per unit from the full cost list**, including the rows most stores leave out of the table above.
+3. **Tag bundle orders at line level**, so a bundled unit is distinguishable from an ordinary one in your export.
+4. **Wait a full purchase cycle**, and at least thirty days. A bundle only touches shoppers who reach one product, so a week is noise.
+5. **Recount the residual attachment rate** on orders that did not take the bundle. If it collapsed, your cannibalisation estimate was right. If it held up, more takers were incremental than you assumed.
+6. **Divide total contribution by every eligible order**, before and after, and compare.
+7. **Check order count moved with it.** Contribution per order can rise because your cheapest orders stopped happening, which is a conversion problem, not a win.
+
+<Callout title="The denominator decides the answer" tone="warning">
+A bundle measured against bundle orders alone always looks profitable. Measure it against every order that saw the offer, including the ones that ignored it, or you are grading your own homework.
+</Callout>
+
+## What quietly breaks the arithmetic after launch?
+
+The sums above are correct on the day you do them. Several inputs move afterwards, and none announce themselves.
+
+- **A site-wide code stacks on top.** What you modelled becomes a deeper discount on the highest-volume weekend of the year, and the break-even share moves with it.
+- **A component goes on sale.** Discount one item hard and the bundle's implied saving evaporates, so shoppers take the cheaper route and you keep the cost without the benefit.
+- **The parcel gets heavier.** A supplier change to packaging can push a bundle over a weight step months after you priced it.
+- **Landed cost drifts.** Freight, duty and currency all move. A bundle priced against last year's landed cost is thinner than the sheet claims.
+- **Returns arrive late.** Month one looks profitable partly because month one's returns land in month two.
+
+Re-run the contribution sum quarterly, and again before any promotional period where discounts could combine.
+
+<PostCta />
+
+## Does the same math work for mix and match and volume tiers?
+
+The framework does. Two of the inputs change.
+
+For mix and match, contribution varies by combination, so the floor has to hold for the cheapest permissible basket rather than the average one. Shoppers find the best-value combination faster than anyone expects, and it is the only one worth pricing against.
+
+For a volume tier the counterfactual differs in kind. A cannibalised bundle sale costs you the discount once. A cannibalised quantity sale costs the discount and delays the next order, so the loss lands across two months and the second half is easy to miss. Our notes on [setting up volume discounts](/blog/set-up-volume-discounts-shopify) cover the mechanics; the arithmetic here still applies, with the reorder gap added to the loss side.
+
+The constant across all three is the counterfactual. You are never comparing the bundle against zero, but against what those shoppers would have done without it, which is the comparison no dashboard makes for you.
+
+## Where does Edge Bundles fit once the numbers are done?
+
+None of the above needs an app. It needs an order export, your real landed costs, and an hour with a spreadsheet.
+
+What an app can do is stop the arithmetic drifting after launch. Edge Bundles is our own app and it is new, so read this as a description rather than a claim about results. It draws stock down to component SKUs, so bundled and unbundled sales of the same item stay in one ledger and the export in step three is readable. It resolves which single offer applies to a line, so a stacked code cannot quietly move the break-even you calculated. There is a free plan.
+
+The judgement calls stay yours. No app knows your landed cost, and none of them can tell you what a shopper would have done instead.
+
+<PostCta />

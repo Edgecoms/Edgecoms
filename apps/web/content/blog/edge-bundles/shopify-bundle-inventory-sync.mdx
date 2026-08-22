@@ -1,0 +1,140 @@
+---
+title: "Shopify Bundle Inventory Sync Problems, Solved"
+slug: "shopify-bundle-inventory-sync"
+app: "edge-bundles"
+archetype: "problem"
+author: "anurag"
+description: "Shopify bundle inventory sync drifts for five specific reasons. Find which one is breaking your counts, and get the fix that stops the overselling."
+primaryKeyword: "shopify bundle inventory sync"
+secondaryKeywords:
+  - "bundle stock tracking"
+  - "bundle oversell shopify"
+publishedAt: "2027-01-04"
+updatedAt: "2027-01-04"
+imageAlt: "Placeholder illustration of bundle components and stock counts drifting apart"
+internalLinks:
+  - "shopify-product-bundles"
+  - "create-product-bundle-shopify"
+  - "best-shopify-bundle-apps"
+tldr: "A bundle's stock number is not a real number. It is a calculation over its components, recomputed every time anything moves. Counts drift when a component runs out, when locations commit stock separately, when a 3PL or ERP writes back late, when a return comes back partial, or when concurrent checkouts race."
+faq:
+  - question: "Should a bundle have its own inventory quantity in Shopify?"
+    answer: "No, not one you maintain by hand. The moment a component sells on its own, a hand-kept bundle number is wrong and nothing tells you. Let the bundle carry no tracked quantity of its own and derive its availability from the components at read time. One quantity per real SKU, one calculation on top. That is the only arrangement that stays true without someone watching it."
+  - question: "Why does my bundle show as available when a component is out of stock?"
+    answer: "Almost always because the availability was computed earlier and cached, and the component went to zero after that. Timer-based recomputes leave a window open, and on a busy day that window is exactly when the damage happens. Recompute when the inventory level changes rather than every fifteen minutes, and re-validate before the order is accepted."
+  - question: "How do bundles work across multiple Shopify locations?"
+    answer: "Availability is held per location, so a bundle is only genuinely shippable from a location that holds every component. Summing components across all locations produces a number nobody can pick. Either compute per location and publish the best single location, or decide deliberately that you will split a bundle across two shipments and accept the fulfilment cost."
+  - question: "What should happen to stock when a customer returns part of a bundle?"
+    answer: "Restock the components that actually came back, not one bundle unit. A bundle is not a physical object in your warehouse, it is a group, so returning it puts several separate SKUs back on the shelf in whatever condition they arrived. Inspect and restock each one individually. Bundle-only packaging is usually consumed and should be treated as its own consumable SKU."
+  - question: "Can I stop bundles overselling during a flash sale?"
+    answer: "You can make it rare. Add a small buffer to the scarcest component so the last few units are never promised twice, re-check availability at checkout rather than trusting the number the page was rendered with, and fail clearly and early when a component has gone. A blocked checkout with an honest message costs less than a refund and an apology."
+---
+
+You sold nine of a bundle over the weekend. Two of them cannot ship. The small screwdriver inside the kit ran out on Saturday afternoon and nothing stopped the sale.
+
+**Shopify bundle inventory sync** is the machinery that is supposed to prevent exactly that. It is not one setting you switch on. It is a chain. Components hold the real quantity, something computes how many complete bundles that quantity allows, and something else writes that answer somewhere the buy button can read it. Break any link and the number on the product page becomes a guess.
+
+Counts do not drift for one reason. They drift for about five, each with its own root cause and its own fix. Here they are, roughly in the order you will hit them.
+
+## What does a bundle's stock number actually represent?
+
+It represents an answer to a question, not a quantity sitting on a shelf. The question is: given what I hold right now, how many complete bundles could I ship today?
+
+<Example>
+A kit contains 1 handle, 4 blades and 2 caps. You hold 60 handles, 100 blades and 30 caps. Handles allow 60 kits. Blades allow 25. Caps allow 15. The kit's stock is 15. The moment two caps ship inside a different order, it is 14.
+</Example>
+
+The weakest component sets the number. Everything else is spare. That one fact explains most of the confusion in this whole area, because a merchant looks at the healthy component, sees hundreds of units, and cannot work out why the bundle says sold out.
+
+The second thing to be precise about is which quantity you mean. Shopify tracks several inventory states and they answer different questions.
+
+| State | What it means | Use it for bundle availability? |
+| --- | --- | --- |
+| **On hand** | Physically at the location, including units already sold | No. Using this oversells by exactly the size of your unfulfilled backlog |
+| **Committed** | Attached to orders that are placed but not yet fulfilled | Not directly, but it has to be subtracted |
+| **Available** | What is left once committed and other reserved states come off | Yes. This is the input you want |
+| **Incoming** | On a purchase order, not in the building | Only for a preorder bundle you have deliberately chosen to run |
+
+- **Available is the only safe input.** Every oversell story I have unpicked started with something reading on hand.
+- **The number is derived, never stored as truth.** If a bundle count is written into a field and left there, it starts decaying immediately.
+- **Rounding always goes down.** Two thirds of a bundle is zero bundles.
+
+If you want the wider picture on how bundle types differ before getting into the failure modes, the [Shopify product bundles guide](/blog/shopify-product-bundles) covers the mechanics.
+
+## Why does a bundle keep selling after a component ran out?
+
+This is the most common failure and there are three causes worth checking, most likely first.
+
+- **The bundle is its own tracked SKU.** Somebody created a product called "Starter Kit", set its quantity to 40, and now two numbers are moving independently. Components sell on their own, the kit number never hears about it, and the kit keeps selling for weeks after the shelf is empty. Fix: stop tracking quantity on the bundle product and derive availability from the components instead.
+- **The recompute runs on a timer, not on the event.** A job that recalculates every fifteen minutes leaves a fifteen minute window in which the site lies. On a quiet Tuesday nobody notices. During a sale, that window is where the entire problem lives. Fix: recompute when an inventory level actually changes, and treat the timer as a safety net rather than the mechanism.
+- **Two bundles share a component and are computed alone.** The gift box and the refill kit both contain the same cap. Each one independently concludes it can sell 15. Between them they promise 30 caps you do not have. Fix: compute availability across the whole set of bundles that touch a component, not one bundle at a time.
+
+<Callout title="The tell" tone="warning">
+If your oversells cluster on one specific SKU that appears in several bundles, you do not have a sync bug. You have a shared component being counted more than once.
+</Callout>
+
+<PostCta />
+
+## Why do the counts disagree across multiple locations?
+
+Because availability is held per location, and a bundle is only genuinely shippable from a location that holds every one of its components.
+
+- **Summing across locations invents stock.** Ten handles in Manchester and ten caps in Rotterdam is not ten shippable kits. It is zero, unless you are willing to ship two parcels.
+- **The minimum has to be taken per location first, then compared.** Compute how many bundles each location could build on its own, then decide what to publish. Taking the minimum across pooled totals produces a number that looks conservative and is still wrong.
+- **Pick a policy and write it down.** Either bundles fulfil from one nominated location, or you accept split shipments and price the extra parcel into the offer. Both are defensible. Drifting between them is not.
+
+## Why does your 3PL or ERP report a different number than Shopify?
+
+Usually because two systems both believe they are the author of the truth, and they take turns overwriting each other. The symptom is a count that is correct, then wrong, then correct again after the next sync window.
+
+Work through it in this order.
+
+1. **Name the writer of record for each SKU.** One system owns the number. Everything else reads it. If you cannot say which system owns a given SKU in one sentence, that is the bug.
+2. **Make the sync one directional for those SKUs.** Bidirectional sync on the same field is a race with no winner. It will look fine for months and then destroy a Friday.
+3. **Timestamp every write.** When a delta shows up you want to know which system wrote last and when, without guessing from order history.
+4. **Reconcile against a frozen snapshot, not against live numbers.** Comparing two moving counts at slightly different moments produces phantom differences that send people hunting for bugs that are not there.
+5. **Investigate deltas at component level.** A bundle delta is a summary. The actual disagreement is always on one component, and looking at the bundle hides which one.
+
+The other common source of lag is orders that exist in Shopify but have not yet reached the warehouse system. Those units are committed, not on hand. If the reconciliation ignores committed quantity it will report a difference every single day and everyone will learn to ignore it.
+
+<PostCta />
+
+## What happens to stock when a bundle comes back only partly returned?
+
+Partial returns are where carefully built counts quietly break, because the return is processed as an event on the bundle rather than on the things in the box.
+
+- **Restock components, never bundle units.** A bundle is a grouping, not an object in your warehouse. What comes back is several separate SKUs, each in its own condition.
+- **A partial return is normal, not an exception.** The customer keeps the handle and returns the unused blades. If your process only knows how to restock the whole kit, you have just lost the blades from your count.
+- **Refunding and restocking are two decisions.** You can refund a damaged item without putting it back into available stock. Systems that couple the two will happily resell something sitting in a bin marked unsellable.
+- **Bundle-only packaging is its own consumable.** The printed sleeve, the gift box, the insert card. It was consumed on the way out and it does not come back. Track it as a component or accept that your kit count will slowly overstate.
+
+## How do you stop overselling during a traffic spike?
+
+Concurrency is the failure that only appears when it is most expensive. Two hundred people are on a product page, several read the same availability at the same instant, and they all pass a check that was true when it was read and false by the time they checked out.
+
+- **Add a buffer on the scarcest component.** Holding back a small number of units on the component that caps the bundle costs you very little and prevents the last few units being promised twice.
+- **A cart is not a reservation.** Stock commits at checkout, not when someone adds to cart. Any design that assumes otherwise will oversell whenever people browse slowly and buy fast.
+- **Re-validate at the point of purchase.** Do not trust the number the page was rendered with. Check availability again before the order is accepted, and fail with an honest, specific message rather than accepting the money and apologising later.
+- **Cached counts go stale exactly when traffic peaks.** Longer cache lifetimes are the standard response to a spike, and they are also what widens the window in which the site lies.
+
+Failing clearly is worth more than it looks. Checkout errors are one of the documented reasons shoppers abandon during checkout, cited by 17% of respondents <Cite href="https://baymard.com/lists/cart-abandonment-rate">Baymard</Cite>, and a vague failure at the last step does more damage than an early out of stock badge. The wider picture on where checkouts leak is in the [cart abandonment guide](/blog/shopify-cart-abandonment).
+
+<PostCta />
+
+## How should you forecast a component that mostly sells inside bundles?
+
+Once a component sells mainly inside kits, its standalone sales history stops describing its demand, and reorder points built from that history will be short every time.
+
+- **Split demand into standalone and bundled.** For each component, units sold on their own plus units consumed inside bundles equals real demand. Forecast the sum.
+- **Forecast components, not bundles.** The bundle has no lead time of its own. Only its parts do.
+- **The weakest component sets your ceiling.** If one part has a twelve week lead time and everything else has two, the bundle has a twelve week lead time. Order that one on its own schedule.
+- **Track the ratio over time.** When the share of a component consumed by bundles climbs, its reorder point needs to move with it. That shift is gradual and easy to miss until you stock out.
+- **Express reorder points in bundle equivalents.** "Enough caps for 200 kits" is a number your buyer can act on. "30 caps" is not, when each kit eats two.
+
+## Where does Edge Bundles fit in keeping the counts honest?
+
+Edge Bundles treats the bundle as a calculation rather than a stored number. Components hold the quantity, availability is derived from them, and the derivation happens when inventory changes rather than on a schedule that leaves a window open. Shared components are computed across every bundle that uses them, so the same cap cannot be promised by three different kits. It has a free plan, and it is a young app, so I would rather tell you what it does than make claims about it.
+
+It is also worth saying what no bundle app fixes. If your 3PL and your ERP are overwriting each other, or a location is short because a cycle count was never entered, the count on your product page is a faithful report of a broken number upstream. Fix the writer of record first. Everything downstream is arithmetic, and arithmetic is the easy part.
+
+<PostCta />

@@ -1,0 +1,146 @@
+---
+title: "How to Set Up Volume Discounts on Shopify"
+slug: "set-up-volume-discounts-shopify"
+app: "edge-bundles"
+archetype: "tutorial"
+author: "anurag"
+description: "The shopify volume discounts setup that survives a real cart: where to put your breakpoints, how to build the tiers natively, and how to prove they work."
+primaryKeyword: "shopify volume discounts setup"
+secondaryKeywords: ["quantity break shopify", "tiered discount setup"]
+publishedAt: "2026-12-07"
+updatedAt: "2026-12-07"
+imageAlt: "Placeholder illustration of a three step quantity discount ladder on a product page"
+internalLinks:
+  - "shopify-product-bundles"
+  - "bundles-vs-volume-discounts"
+  - "bundle-discount-margin-math"
+tldr: "Volume discounts on Shopify are built as automatic amount off products discounts, one per quantity tier, each carrying a minimum quantity requirement. Place your first breakpoint one unit above the quantity most orders already contain, publish the tier table on the product page, then test a cart at every boundary before you launch it."
+faq:
+  - question: "Can one Shopify discount hold all three quantity tiers?"
+    answer: "No. Each automatic discount carries a single minimum quantity and a single value, so three tiers means three discounts. Name them so the ladder is obvious in the discounts list, give them the same start date, and pause them together. If you edit one tier's value later, walk the whole ladder and check the gaps still make sense."
+  - question: "Does the minimum quantity count each variant separately or the whole cart?"
+    answer: "That depends on how you scoped the discount, and it is the single most common thing people get wrong. Never assume. Build the discount, then put three carts through it: three units of one variant, three units split across two variants, and two units of a qualifying item next to one that is excluded. What the cart shows is the answer."
+  - question: "Should my first quantity break be at two units?"
+    answer: "Only if single unit orders dominate your data. If a large share of your orders already contain two units, a break at two hands a discount to people who were paying full price. Look at the actual distribution of units per order, find the quantity that appears most often, and set the first break one above it."
+  - question: "Will a volume discount reduce cart abandonment?"
+    answer: "Not by itself. Baymard puts documented average cart abandonment at 70.22 percent across fifty studies, and the top reason cited during checkout is extra costs at 40 percent. A quantity tier only helps if the extra units carry the order over your free shipping threshold. If shipping still gets added at checkout, the tier has not touched the real objection."
+    source: "https://baymard.com/lists/cart-abandonment-rate"
+  - question: "What do I do when the tier applies but the price on the product page was wrong?"
+    answer: "Fix the page, not the discount. The tier table is a promise, and a mismatch between the promise and what the cart charges generates support tickets and chargeback risk. Treat the discount configuration as the source of truth, then correct the displayed table to match it, and re-test one cart at each breakpoint afterwards."
+---
+
+Pull up your last few hundred orders for your best selling consumable and count the units per order. If most say one, a quantity ladder is the cheapest revenue you will find this quarter. If most already say two, the same ladder quietly refunds money to people who were about to pay full price.
+
+That distinction is the whole job. A **shopify volume discounts setup** is not hard to configure. The admin gives you everything you need without a line of code. The hard part is choosing where the breakpoints sit, making sure shoppers see them before they add to cart, and confirming a real mixed cart behaves the way the product page claims.
+
+Do it in this order: pick the breakpoints from your data, build the tiers, publish the table, then break your own setup on purpose before a customer does.
+
+## Where should your quantity breakpoints actually sit?
+
+Start with the distribution, not a round number. Export your orders, count units of the target product per order, and find the quantity that appears most often. Everything at or below that baseline is demand you already have at full price.
+
+- **Set the first break one unit above your modal quantity.** If most orders contain one unit, break at two. If most contain two, break at three. A break at or below the baseline is a price cut dressed as an offer.
+- **Set the second break at a number the product justifies.** A case of six, a month's supply. Shoppers accept a tier when the quantity maps onto something physical.
+- **Set the third break where the buyer changes.** Tier three is usually a different person: a gifter, a small reseller, a household stocking up. Price it for them.
+- **Stop at three.** Four rungs make the table hard to scan and add another boundary to test.
+
+Keep the steps between rungs meaningful. If tier one saves a trivial amount and tier two saves barely more, nobody moves.
+
+<Example>
+A refill sells for 20 GBP and most orders contain one unit. Your ladder is 3 units for 54 GBP, 6 units for 102 GBP, 12 units for 192 GBP. A shopper moving from 1 to 3 units pays 34 GBP more. Substitute your own price and your own modal quantity before accepting those steps.
+</Example>
+
+<Callout title="Check the ladder against your floor first" tone="warning">
+Every rung on the ladder is margin you are choosing to give away on units you might have sold anyway. Work out your floor per rung before you build anything, or you will discover the bottom tier is unprofitable after a thousand orders have used it.
+</Callout>
+
+## How do you set up quantity breaks with Shopify's native discounts?
+
+Three tiers means three discounts. An automatic discount carries one minimum quantity and one value, so the ladder is assembled rung by rung rather than in a single form. Build all three in one sitting so the settings stay consistent.
+
+1. Open your Shopify admin and go to **Discounts**, then **Create discount**.
+2. Choose **Amount off products**. This is the discount type that accepts a minimum quantity of items, which is what turns it into a quantity break.
+3. Select **Automatic discount** rather than a discount code. A code makes the shopper do work and leaks into coupon sites. The tier should apply on its own.
+4. Name it so the ladder reads clearly. `Refill tier 1 - 3 units` beats `Volume 1`, and automatic discount titles are visible at checkout, so keep them accurate.
+5. Under **Applies to**, pick the specific product, the specific variants, or a collection. Collection scope is the maintenance-friendly choice if you plan to add more products to the ladder later.
+6. Set the discount value. Percentage travels better across a price range. A fixed amount per item is easier to understand on a single product.
+7. Under **Minimum purchase requirements**, choose **Minimum quantity of items** and enter the breakpoint for this rung.
+8. Open **Combinations** and decide explicitly whether this tier may stack with product, order or shipping discounts. Leaving this on a default you did not choose is how a tier ends up stacking with a sitewide sale.
+9. Set the active dates. Give all three rungs the same start date and the same end date. Mismatched dates leave a broken ladder live.
+10. Save, then repeat for the remaining two rungs, changing only the minimum quantity and the value.
+
+| Rung | Minimum quantity | Discount value | Name in admin |
+| --- | --- | --- | --- |
+| Tier 1 | 3 | 10 percent off | Refill tier 1 - 3 units |
+| Tier 2 | 6 | 15 percent off | Refill tier 2 - 6 units |
+| Tier 3 | 12 | 20 percent off | Refill tier 3 - 12 units |
+
+All three rungs are live at once, so a cart of twelve units satisfies every minimum on the list. Which one actually lands is behaviour to confirm in your own store, not to assume.
+
+<PostCta />
+
+## How do you show the tier table on the product page without code?
+
+A tier nobody sees is a discount you gave away for nothing. The shopper needs the ladder before they choose a quantity, not as a surprise in the cart. There are three routes that need no theme editing.
+
+- **The product description.** The rich text editor accepts a table. Build the three rows and it renders wherever your theme prints the description. It works on every theme.
+- **A theme editor block.** Under **Online Store**, then **Customize**, most modern themes offer text, rich text or collapsible row blocks you can drop into the product information section and drag above the add to cart button.
+- **An app block.** A bundling or quantity app usually ships an app block you place in the same section through the theme editor. That gets you a table reflecting the configured tiers instead of one you maintain by hand.
+
+Whichever route you take, write the copy for the shopper rather than for your admin.
+
+- **Lead with the saving, not the rule.** "Buy 3, save 10 percent" reads better than "minimum quantity 3 items".
+- **Put the table above the fold on mobile.** Below the add to cart button means most of your traffic never sees it.
+- **Never promise a tier you have not built.** The displayed table and the discount configuration must agree exactly, including on mixed variants.
+
+<Callout title="Hand-typed tables go stale" tone="warning">
+A table typed into a product description does not know your discounts changed. If you edit a rung, the page keeps advertising the old one until you remember. Put a note in the discount name, or use a block that reads the live configuration.
+</Callout>
+
+## How do you handle variants, collections and mixed quantities in one cart?
+
+This is where most setups quietly break, because real carts are not the tidy ones you imagined while configuring.
+
+- **Variant scope.** A ladder on a product with three sizes needs a decision. Does three units of one size qualify, or does any three units across sizes qualify? Scope the discount to the product or the collection for the generous version, and to specific variants for the strict one.
+- **Collection scope.** Scoping to a collection is the cleanest way to run one ladder across a family of refills. The trap is that anything added to that collection later joins the ladder immediately.
+- **Mixed carts.** A cart holding two qualifying units and one excluded product is the test that matters. Know whether the excluded item counts toward the minimum, and whether it takes any discount itself.
+- **Already discounted items.** Sale-priced items inside the qualifying collection can take the tier on top of the markdown unless your combination settings say otherwise. Decide this deliberately.
+- **Subscriptions.** If the product also sells on a selling plan, keep the ladder away from it until you have tested the interaction.
+
+If your ladder is spanning several different products rather than several units of one, you are closer to a bundle than a quantity break, and [product bundles](/blog/shopify-product-bundles) are the better tool for that shape.
+
+<PostCta />
+
+## How do you check the tiers on a real cart before you launch?
+
+Do not trust the admin form. Trust a cart. Open your storefront in a private window and walk this matrix, checking the price at each step.
+
+| Test cart | What should happen | What a broken setup looks like |
+| --- | --- | --- |
+| 2 units (just below tier 1) | Full price, no discount line | Discount applies early, so your minimum is wrong |
+| 3 units (exactly tier 1) | Tier 1 applies, correct saving shown | Nothing applies, so the discount is inactive or misscoped |
+| 5 units (between rungs) | Tier 1 still applies | Price jumps to tier 2, so a minimum is set below its rung |
+| 6 units (exactly tier 2) | Tier 2 replaces tier 1 | Both stack, or the smaller tier wins |
+| 12 units (top rung) | Tier 3 applies | Tier 1 wins, so your rungs are competing |
+| 3 units across two variants | Matches what your page promised | Silent full price, and a support ticket next week |
+| 3 qualifying units plus 1 excluded item | Discount only on qualifying units | Discount spreads onto the excluded item |
+
+Then check the money, not the badge. Confirm the discount line in the cart, at checkout and on the order confirmation. A tier that shows in the cart and vanishes at checkout is worse than no tier at all.
+
+Then place one real test order at the top rung and read the order detail in your admin, so you can see which discount applied and how it was allocated across lines. Add shipping to that same order, because extra costs are the most cited reason shoppers abandon during checkout, at 40 percent, against a documented average abandonment rate of 70.22 percent <Cite href="https://baymard.com/lists/cart-abandonment-rate">Baymard cart abandonment research</Cite>. If the ladder carries an order over your free shipping threshold, that is a second win. If it does not, your [cart abandonment](/blog/shopify-cart-abandonment) problem is untouched by any of this.
+
+## Where does Edge Bundles fit for volume tiers?
+
+Be honest about whether you need an app at all. One product, three static rungs, a table in the product description: native Shopify discounts do that whole job and you should stop here. An app on top of that is cost without benefit.
+
+An app earns its place when the displayed table should read from the live configuration, when you want a quantity selector that updates the price as units change, or when hand-maintaining tables across many products stops being realistic.
+
+- **Bundler, Product Bundles App** is the one to look at first if budget is the constraint. It holds 4.9 stars across 2,537 reviews and its free plan carries no order or revenue limits, with paid plans at 9.99 USD and 19.99 USD per month <Cite href="https://apps.shopify.com/bundler-product-bundles">Shopify App Store listing</Cite>.
+- **Fast Bundle** is the deeper option, at 5.0 stars across 3,027 reviews, priced against monthly bundle sales from 19 USD per month <Cite href="https://apps.shopify.com/fast-bundle-product-bundles">Shopify App Store listing</Cite>.
+- **Edge Bundles** has a free plan <Cite href="https://apps.shopify.com/edge-bundles">Shopify App Store listing</Cite>. It is new, so there is no review history to point you at yet, and I would rather say that plainly than dress it up.
+
+<CheckedOn date="22 August 2026" />
+
+We built Edge Bundles because we run a Shopify agency and kept rebuilding the same ladder by hand for client stores, then rebuilding the product page table every time a rung changed. If that is your problem, it is worth a look. If your problem is one product and three rungs, the native setup above is all you need.
+
+<PostCta />

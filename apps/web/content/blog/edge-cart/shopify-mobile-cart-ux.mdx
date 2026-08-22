@@ -1,0 +1,154 @@
+---
+title: "Shopify Mobile Cart UX: What Breaks on Phones"
+slug: "shopify-mobile-cart-ux"
+app: "edge-cart"
+archetype: "problem"
+author: "anurag"
+description: "Shopify mobile cart UX fails in ways desktop never shows you: hidden checkout buttons, zooming inputs, scroll traps. Here is each cause and its fix."
+primaryKeyword: "shopify mobile cart ux"
+secondaryKeywords: ["mobile cart conversion", "shopify cart mobile issues"]
+publishedAt: "2027-01-25"
+updatedAt: "2027-01-25"
+imageAlt: "Placeholder illustration of a phone showing a cart drawer with its checkout button cut off"
+internalLinks:
+  - "shopify-cart-abandonment"
+  - "add-cart-upsells-shopify"
+  - "cart-upsell-ideas"
+tldr: "Most mobile cart faults are layout faults, not bugs. A checkout button hidden under the home bar, a field that zooms the page and never zooms back, a drawer that scrolls the page behind it. Fix the viewport height, the safe area, the input sizes and the scroll locking first, then test on a real phone."
+faq:
+  - question: "Why does my cart drawer's checkout button get cut off on iPhone?"
+    answer: "Almost always the viewport unit. A drawer sized at 100vh is as tall as the window would be with the browser address bar hidden, which is taller than what the shopper can see, so the footer hangs off the bottom. Switch to dvh and pad the footer with the bottom safe area inset so the home indicator does not sit on your button."
+  - question: "How big should a tap target be in a mobile cart?"
+    answer: "Apple asks for a minimum of 44 by 44 points and Android guidance is similar in density independent pixels. Size alone is not enough though. Keep the remove control away from the minus control, because at quantity one a mis-tap deletes the line, and a shopper who loses an item they chose rarely goes back for it."
+  - question: "Why does the page zoom in when someone taps the discount field?"
+    answer: "iOS Safari zooms whenever a focused input has a computed font size below 16px, and it does not zoom back out afterwards. Cart fields are usually the smallest text on the page, so they trigger it constantly. Set 16px as the floor on every input inside the cart, including quantity boxes and gift note fields."
+  - question: "Is mobile cart abandonment really worse than on desktop?"
+    answer: "Usually, though part of the gap is traffic mix rather than interface quality. The documented average across 50 studies is 70.22%, and phones carry more browsing and more paid social traffic than desktop does. Segment every cart metric by device and compare mobile to your own mobile baseline, not to desktop."
+    source: "https://baymard.com/lists/cart-abandonment-rate"
+  - question: "Can I test a mobile cart in the browser's device simulator?"
+    answer: "Use it for a first pass, then stop trusting it. A simulator gets the width right and the two things that break carts wrong: the software keyboard and the browser chrome that grows and shrinks as you scroll. It also cannot show you what your thumb can comfortably reach on a large phone."
+---
+
+Your desktop cart is fine. Your phone converts at half the rate, and you cannot see why, because on your own phone, in your own hand, on your own wifi, the cart works.
+
+**Shopify mobile cart UX** fails in ways that never surface on the machine you build on. A checkout button sitting under the iOS home bar. A discount field that zooms the page in and never zooms back out. A drawer that scrolls the collection page behind it instead of itself. None of these throw an error, and none show up in a bug report, because a shopper who cannot find the checkout button does not file one.
+
+Here is what breaks on phones, most likely first, each with the fix.
+
+## Why does the checkout button end up off the screen?
+
+This is the most expensive fault on the list, because it hides the control that takes money. Two causes produce it, and plenty of stores have both.
+
+The first is the viewport unit. `100vh` on a mobile browser means the height of the window with the address bar hidden, not the height the shopper can currently see. Safari and Chrome both shrink their own chrome as you scroll, so the number is optimistic by design. A drawer at `height: 100vh` is taller than the visible window on first paint, and the part hanging off the bottom is the footer, where the subtotal and the checkout button live.
+
+The second is the safe area. On any phone with a home indicator, the bottom strip of the screen belongs to the operating system, so a button flush with the bottom of your layout sits underneath it and loses about half its taps to a system gesture.
+
+- **Use `dvh` instead of `vh`** for the panel height, or set a custom property from JavaScript on resize. `100dvh` tracks the viewport that exists now rather than the one that might exist later.
+- **Pad the footer with `env(safe-area-inset-bottom)`.** Add it to the padding you already have rather than replacing it, so the button keeps its breathing room on phones without an indicator.
+- **Pin the footer inside the panel.** Totals and the checkout button belong in a fixed footer, with only the line items scrolling, so no basket is long enough to push the button away.
+
+## Why does the page zoom in when a shopper taps a field?
+
+iOS Safari zooms the page whenever a focused input has a computed font size below 16px. That is an accessibility behaviour rather than a bug, and it does not zoom back out afterwards. The shopper is left on a magnified page with a panel wider than the screen and horizontal scrolling they never asked for.
+
+Cart fields are the usual victims because they are small on purpose. Quantity boxes, discount fields and gift note fields all get styled down to fit a narrow panel, and 14px looks tidy until a thumb lands on it.
+
+- **Set 16px as the floor on every input in the cart.** If the design needs a smaller box, shrink the padding, not the text.
+- **Use `inputmode="numeric"` on quantity fields.** A number pad appears instead of the full keyboard, which is faster and covers less screen.
+- **Expect the keyboard to take half the screen.** A footer pinned to the layout viewport can end up behind it. Read `visualViewport` and adjust, or let the footer scroll while a field is focused.
+- **Ask whether the discount field belongs on mobile.** An empty promo box announces that a better price exists and this shopper does not have it. Going to look means leaving your tab, and not everyone comes back.
+
+<PostCta />
+
+## Why do shoppers tap the wrong control in the cart?
+
+Apple asks for a minimum of 44 by 44 points for anything tappable, and Android's guidance is similar. A drawer designed with a mouse routinely ships with 24px steppers and a 16px remove icon, both comfortable to click and hard to tap.
+
+Size is only half the problem. Placement causes the damaging taps rather than the merely annoying ones.
+
+- **Never put remove next to minus.** At quantity one those two controls do very different things, and they sit a few pixels apart in most layouts. A mis-tap deletes an item the shopper chose deliberately.
+- **Design for where the thumb reaches.** On a large phone held in one hand, the top corners are the hardest points to hit, and a close control in the top right of a full height panel is the default in most themes.
+- **Nothing important on hover.** A control that only appears on hover does not exist on a phone.
+- **Respond to every tap.** Without a pressed state, a shopper who feels nothing happen taps again, and the second tap lands on whatever moved into that spot.
+
+## Why does the page behind the drawer scroll instead of the cart?
+
+Scroll chaining. The shopper flicks through their items, reaches the last one, and the flick carries on into the collection page underneath. The panel stays still while the world moves behind it.
+
+The damage lands when they close the drawer. Their place in the collection is gone, and getting back feels like more effort than the purchase was worth.
+
+- **Set `overscroll-behavior: contain`** on the scrolling region inside the panel. One line of CSS ends it.
+- **Lock the body, but remember where it was.** Applying `position: fixed` to the body jumps the page to the top. Record the scroll position before locking and restore it after.
+- **Keep one scrolling region in the panel.** A horizontal upsell row inside a vertical list is fine. A vertical scroller inside a vertical scroller is a coin toss on every gesture.
+- **Watch pull to refresh.** A downward drag at the top of an open drawer can reload the page on Android Chrome.
+
+<Callout title="The scroll position tax" tone="warning">
+Every one of these faults ends the same way: the shopper is somewhere they did not choose to be. That is worse in a cart than anywhere else, because it happens after they decided to buy. A shopper bounced out of a collection at item 80 does not scroll back.
+</Callout>
+
+<PostCta />
+
+## What has to be visible without scrolling?
+
+Vertical space is the scarcest resource on a phone, and most drawers spend it in the wrong order. Here is the budget I hold our work to.
+
+| Element | Rough vertical cost | Above the fold on a phone? |
+| --- | --- | --- |
+| Panel header and close control | 56px | Yes |
+| Free shipping progress bar | 48px | Yes, it changes behaviour |
+| First cart line with image and stepper | 96px | Yes |
+| Second cart line | 96px | Partly, so it reads as a list |
+| Upsell row or carousel | 140px | No, below the items |
+| Discount code field | 72px | No |
+| Subtotal | 40px | Yes, pinned |
+| Checkout button | 56px | Always, pinned |
+
+The rule underneath is simple. Anything that changes what the shopper does next earns space at the top. Anything they might also buy waits.
+
+<Example>
+A common small phone gives around 667 points of height, and browser chrome takes roughly 110 of it. Header 56, shipping bar 48, two cart lines at 96 each and an upsell carousel at 140 comes to 436. Add a discount field at 72 and the subtotal and button, still needing 96, land below the bottom edge of the screen.
+
+Nothing there is wrong on its own. Together they push the only button that matters out of sight.
+</Example>
+
+Upsells are worth running in a drawer, below the line items rather than above them. Our guide to [cart upsell ideas](/blog/cart-upsell-ideas) covers which offers earn the space.
+
+## Why does mobile abandonment look worse than desktop?
+
+Partly because it is worse, and partly because you are looking at a different group of people. The interface half is everything above. The traffic half is that phones carry more idle browsing and more paid social, which sends people who were not shopping five seconds before they landed.
+
+Baymard's documented average across 50 studies is <Cite href="https://baymard.com/lists/cart-abandonment-rate">70.22%</Cite>, a floor every store lives with on every device. Among people who abandoned during checkout, extra costs were cited by <Cite href="https://baymard.com/lists/cart-abandonment-rate">40%</Cite>, more than any other reason. That gets sharper on a phone, where there is less room to show delivery cost early, so more shoppers meet the number for the first time when asked to pay it.
+
+- **Segment every cart metric by device.** A blended add to cart rate hides the problem you are looking for.
+- **Watch session recordings filtered to mobile.** Repeated taps on one control and rapid scroll reversals are the patterns to hunt for.
+- **Fix the surprises before the layout.** Delivery cost and delivery date shown early do more for a phone shopper than any amount of panel polish. Our [cart abandonment guide](/blog/shopify-cart-abandonment) covers that side in full.
+
+<PostCta />
+
+## How do you test the mobile cart before you ship it?
+
+Simulators are a decent first pass, and they misrepresent the two things that break carts: the software keyboard, and the browser chrome that grows and shrinks as you scroll.
+
+1. Pick up a real handset, ideally an older one, and use the browser it came with.
+2. Load the storefront cold, in a private window.
+3. Add three products, one with a long title and a two line variant name. Long strings expose layout faults that short ones hide.
+4. Use one hand and one thumb for everything from here.
+5. Open the cart. Before scrolling anything, note whether the subtotal and checkout button are visible.
+6. Scroll to the bottom of the item list and keep flicking. Watch whether the page behind the panel moves.
+7. Tap a quantity field. Note whether the page zoomed, then dismiss the keyboard and see whether it zoomed back.
+8. Set a line to quantity one and reduce it, then remove a different line. Count your mis-taps honestly.
+9. Rotate to landscape, repeat steps five to eight, then run the sequence again on the other operating system.
+
+Fix one thing at a time and rerun after every theme update. Layout regressions arrive quietly with new themes and app embeds, and the only check that catches them is a short one.
+
+## Where does Edge Cart fit in mobile cart UX?
+
+Most of this list is layout discipline rather than software, and you can fix all of it in a theme you already own. Edge Cart is our cart drawer for Shopify, and its job here is having the mobile defaults right.
+
+The panel is sized in dynamic viewport units, so the footer does not hang off the bottom of a phone. That footer is pinned and padded for the home indicator, so the checkout button stays reachable however long the basket gets. Inputs are large enough not to trigger the iOS zoom, scrolling is contained inside the panel, and the page position is restored when the drawer closes. It installs as an app extension with no theme edits, and there is a free plan.
+
+Be clear about the limits. A cart app cannot fix a product page that hides the delivery cost, or a checkout that asks for an account. If shoppers are meeting a shipping charge for the first time at the payment step, changing cart apps will not move anything.
+
+Edge Cart is new and has no review history yet, so judge it the way you should judge any of them. Install it on a duplicated theme, run the nine step check on a real phone, and keep the drawer that passes.
+
+<PostCta />

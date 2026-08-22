@@ -1,0 +1,182 @@
+---
+title: "Bundler App Alternatives for Shopify, Compared"
+slug: "bundler-alternatives-shopify"
+app: "edge-bundles"
+archetype: "alternative"
+author: "anurag"
+description: "Picking a Bundler app alternative? Compare how each bundle app applies its discount, what that quietly breaks at checkout, and how to migrate with no gap."
+primaryKeyword: "bundler app alternative"
+secondaryKeywords:
+  - "bundler pricing"
+  - "bundler competitors"
+publishedAt: "2026-09-07"
+updatedAt: "2026-09-07"
+imageAlt: "Placeholder illustration comparing Shopify bundle apps by discount mechanism"
+internalLinks:
+  - "shopify-product-bundles"
+  - "product-bundle-examples"
+  - "shopify-bundle-inventory-sync"
+tldr: "Most Bundler alternatives differ less in features than in how they apply the discount. Shopify Function, draft order, legacy script or a fixed-price product. That choice decides whether your bundle survives subscriptions, POS and multiple markets. Test those three against a real checkout before you switch, then migrate by running both apps in parallel."
+faq:
+  - question: "Is Bundler's free plan actually free at any volume?"
+    answer: "The listing shows a free plan with no order or revenue limits, then Premium at $9.99 a month and Executive at $19.99 a month for the extra offer types and support. That is unusual. Most bundle apps meter you on bundle revenue or order count. Read the paid tiers as a feature upgrade rather than a volume tax you eventually hit."
+    source: "https://apps.shopify.com/bundler-product-bundles"
+  - question: "Will a bundle discount carry through to subscription renewals?"
+    answer: "Not automatically. Shopify creates a subscription contract at checkout from the selling plan, and later edits to a selling plan do not modify contracts that already exist. So a discount applied outside the selling plan usually applies to the first order only. If your bundle is meant to be recurring, the discount has to live in the selling plan itself."
+    source: "https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans"
+  - question: "Do bundle discounts work in Shopify POS?"
+    answer: "It depends entirely on where the discount lives. A real product with its own price rings up anywhere, including at the till. A discount created and applied by an online storefront widget usually does not exist for POS staff, so they end up discounting by hand and your reporting stops matching. Ask the vendor before you buy, not after your first market stall."
+  - question: "Can I run two bundle apps at the same time while I migrate?"
+    answer: "Yes, and you generally should, but not on the same products. Overlapping automatic discounts on one variant is how you get a double discount or a silent conflict where neither applies. Build the new offers on a small set of products, verify with test orders, then move the rest across in batches and uninstall the old app last."
+  - question: "Do bundle prices round properly in other currencies?"
+    answer: "Shopify applies rounding rules so converted prices stay stable, which requires Shopify Payments, and the rules themselves cannot be customised. A percentage-off bundle recalculates per market and can land on odd numbers. A fixed-price bundle is converted and rounded like any other product, which is usually the more predictable of the two."
+    source: "https://help.shopify.com/en/manual/markets/pricing/rounding"
+---
+
+Your bundle looks right on the product page. Then the order lands and the discount is not on it. Or it is there, but the subscription renews at full price next month. Or your retail staff cannot ring the bundle up at the till, so they improvise and your reporting stops matching.
+
+That is almost never a bug in the offer. It is the mechanism the app uses to apply the discount, and it is the thing nobody compares when shopping for a Bundler app alternative. Listings talk about offer types and templates, not about where the price change happens.
+
+This post compares the alternatives on that one axis. How each app applies its discount, what each method breaks, and how to move a live offer across without a dark window.
+
+## What does Bundler do well, and where exactly does it stop?
+
+Bundler sits at <Cite href="https://apps.shopify.com/bundler-product-bundles">4.9 stars from 2,537 reviews</Cite>, and its free plan carries no order or revenue limits. Paid tiers are $9.99 and $19.99 a month. For a store that wants a volume or mix-and-match offer live this afternoon, that is hard to beat, and plenty of merchants never need to look further.
+
+Where it stops has less to do with the app and more to do with your stack.
+
+- **You added subscriptions.** The question changes from "can the app build this offer" to "where does the discount live". Most bundle apps were designed for one-off carts.
+- **You opened retail or wholesale.** A discount that exists only in the online cart is invisible to POS and to draft orders your sales team sends.
+- **You turned on more markets.** Percentage discounts recalculate per currency. Fixed prices do not.
+- **You already run other discounts.** Automatic discounts, codes and app discounts do not all combine, and combination rules are set per discount, not per app.
+- **You need the bundle to be one line item.** Inventory and 3PL exports behave differently when a bundle is one SKU rather than three discounted lines.
+
+None of those is a reason to leave on its own. They are the questions that decide which alternative is right, and they reduce to one thing.
+
+## How does a bundle app apply its discount, and why does that decide everything else?
+
+There are a handful of ways an app can make a bundle cheaper, and they behave very differently once the order leaves the cart.
+
+| Mechanism | What the order contains | Usually survives | Usually at risk |
+| --- | --- | --- | --- |
+| Discount Function (automatic app discount) | Separate lines, discount attached | Checkout, most themes, analytics | Stacking with your other discounts |
+| Cart Transform Function | Lines merged into one parent item | Checkout, fulfilment simplicity | Per-item reporting and returns |
+| Fixed-price bundle product | One real product with its own price | POS, markets, drafts, wholesale | Component inventory, cannibalised SKU reporting |
+| Draft order or cart redirect | Whatever the app wrote into the draft | Complex custom pricing | Accelerated checkouts, Shop Pay, some markets |
+| Legacy Shopify Scripts | Script-adjusted line prices | Nothing new. Plus only, and being retired | Everything, eventually |
+
+Two rules fall out of that table.
+
+- **Anything that redirects the buyer to a draft order or a rebuilt cart is a conversion risk.** You lose the express checkout buttons customers already trust, and you add a hop.
+- **Anything that produces a real product survives everywhere,** because Shopify never needs to know it is a bundle. That is why fixed-price bundles are still the sane answer for retail and wholesale, even though they are less flexible.
+
+For which bundle types suit which offer, the [product bundles guide](/blog/shopify-product-bundles) covers that ground.
+
+<PostCta />
+
+## Which Bundler alternatives run on Shopify Functions rather than draft orders?
+
+Honest answer: I will not tell you which mechanism each app uses from memory. Vendors migrate between them, mechanism is rarely on the listing page, and a stale claim costs you a weekend.
+
+Here is the ten-minute test that gets a certain answer for any app on your shortlist.
+
+1. Install on a development store and build one offer.
+2. Open Discounts in the admin. An app discount listed there means a Discount Function.
+3. Add the bundle to the cart and watch the URL. A `/checkouts/` URL is fine. An invoice or draft URL means draft-order based.
+4. Check whether Shop Pay and the express buttons still show on that cart.
+5. Place a test order and count the line items. One merged parent line means Cart Transform.
+6. Look at where the discount is attributed. Order-level, line-level, or nowhere.
+7. Refund one component and see what Shopify offers back.
+
+That sequence tells you more than any comparison table, including this one.
+
+| App | Rating | Free tier | Paid entry | Trial |
+| --- | --- | --- | --- | --- |
+| [Bundler](https://apps.shopify.com/bundler-product-bundles) | 4.9 stars, 2,537 reviews | Yes, no order or revenue limits | $9.99/mo | 7 days |
+| [Fast Bundle](https://apps.shopify.com/fast-bundle-product-bundles) | 5.0 stars, 3,027 reviews | Development stores only | $19/mo | 7 days |
+| [Edge Bundles](https://apps.shopify.com/edge-bundles) | No reviews yet | Yes | Free plan | n/a |
+
+<CheckedOn date="22 August 2026" />
+
+## How do the alternatives behave with subscriptions, POS and multiple markets?
+
+These are the places a bundle app fails quietly. Fine in testing, a support ticket six weeks later.
+
+- **Subscriptions.** Shopify creates the contract at checkout from the selling plan, and <Cite href="https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans">updates to a selling plan do not modify pre-existing subscription contracts</Cite>. A discount applied on top of a cart typically applies to the first charge and nothing after. If the bundle is a recurring price, that price belongs in the selling plan. Our [subscriptions post](/blog/shopify-subscriptions) covers how selling plan groups behave.
+- **POS.** Ask a blunt question: can staff sell this exact bundle at the till without typing a manual discount? If not, the offer is online-only, or the bundle needs to be a real product.
+- **Markets.** <Cite href="https://help.shopify.com/en/manual/markets/pricing/rounding">Shopify's rounding keeps converted prices stable, requires Shopify Payments, and cannot be customised</Cite>. A percentage-off bundle lands wherever the maths lands in each currency. A fixed-price bundle is rounded like any other product, so it stays tidy.
+- **Other discounts.** Decide in advance which of your discounts must combine with bundles. Combination eligibility is set per discount, so an app's own discount object may not stack with the code your email list already has.
+- **Shipping rules.** Weight and shipping profiles get strange when products are merged into one line. Worth a test order if you ship anything heavy.
+
+<PostCta />
+
+## What does switching actually cost you in setup hours and dark days?
+
+The subscription fee is the small number. The real cost is calendar time with your best offer off the site.
+
+1. **Rebuild time.** Every offer is re-entered by hand. Nobody exports bundle configurations between apps.
+2. **Theme surface.** The old app almost certainly left an app block or snippet behind. Duplicated widgets on the product page are the usual symptom of a half-finished migration.
+3. **The dark window.** The stretch where the old offer is off and the new one is not verified. The only one that costs revenue directly, and entirely avoidable.
+
+<Example>
+Both apps offer a 7-day trial. Install the new one on a Monday.
+
+Days 1 and 2, rebuild your top three offers on a development store and run the seven-step test above.
+
+Day 3, push one offer live on a few products while the old app keeps running everything else.
+
+Days 4 and 5, watch orders and compare discount attribution against what you expected.
+
+Days 6 and 7, move the rest across in batches, then uninstall.
+
+Dark window: zero, because no product is ever left without an active offer.
+</Example>
+
+## How do you migrate live bundles without leaving the offer down?
+
+The order matters more than the speed.
+
+1. **Inventory the current offers.** Screenshot each one. Record products, thresholds, discount value, and dates.
+2. **Rebuild on a development store first.** Never on the live theme.
+3. **Run the mechanism test** before you commit any real product to the new app.
+4. **Pick one low-traffic offer to go first.** Not your bestseller.
+5. **Disable the equivalent old offer at the same moment** you publish the new one. Overlapping automatic discounts are how a customer gets the bundle twice.
+6. **Place a real order through the storefront** and reconcile it in the admin.
+7. **Watch for 48 hours.** Look for support tickets, not just dashboards.
+8. **Move the rest in batches,** highest revenue last, then uninstall the old app, clear leftover theme blocks by hand and re-run the test order. Removing an app can take its discount objects with it.
+
+Step 5 is where most migrations go wrong. Two apps competing for one variant is worse than a few hours with no offer at all.
+
+<PostCta />
+
+## What should you put through a draft order before you commit to an app?
+
+A draft order is the cheapest way to find out what a bundle app really did, because it forces the pricing to exist somewhere Shopify can see it. If your team cannot build the bundle in a draft, your wholesale and phone orders cannot have it either. Run this against the finalist and keep the results.
+
+| Test | What you are looking for | Fails when |
+| --- | --- | --- |
+| Draft order with the bundle | The bundle price is reachable outside the storefront | The discount only exists in a cart widget |
+| Subscription checkout | The recurring price on contract two | Discount applied outside the selling plan |
+| Second market or currency | A sensible, stable price | Percentage discount lands on odd figures |
+| Existing discount code on top | The combination you expect | Combination rules disallow it |
+| Partial refund of one component | Shopify offers the right amount back | Bundle merged into one opaque line |
+| Express checkout button | Still present on the bundle cart | Draft order or cart redirect flow |
+| POS sale | Staff can ring it without a manual discount | Online-only discount mechanism |
+
+If an app fails two of these and neither matters to you, buy it anyway. The point is knowing which two.
+
+## Where does Edge Bundles fit among Bundler alternatives?
+
+Straight answer first. Edge Bundles is new and has no reviews yet, so you are not buying a track record. It has a free plan, we build it, and we run it on client stores.
+
+It is built around the mechanism question above. We got tired of debugging offers that worked in the cart and fell apart at the subscription renewal, so discount behaviour is the first thing the app tells you about an offer rather than the last.
+
+Where it is not the right call:
+
+- **You want the largest body of merchant evidence.** Bundler has thousands of reviews and a free plan with no order or revenue limits. "It already works" beats "it is newer" most of the time.
+- **You want bundles fused to a heavy upsell layer.** Fast Bundle is rated 5.0 stars from 3,027 reviews and is built for stores that want the bundle to be the merchandising engine.
+- **Your bundles are really one product.** Then you do not need a bundle app. Build a real product with a real price and let Shopify handle the rest.
+
+Try Edge Bundles if the offer is simple and the surrounding stack is not. Subscriptions, retail, several markets, other discounts already running. That is what we built for, and it is where the mechanism rather than the feature list decides whether the offer holds up.
+
+<PostCta />

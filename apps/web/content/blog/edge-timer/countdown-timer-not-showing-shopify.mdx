@@ -1,0 +1,152 @@
+---
+title: "Countdown Timer Not Showing on Shopify? Fix It"
+slug: "countdown-timer-not-showing-shopify"
+app: "edge-timer"
+archetype: "problem"
+author: "anurag"
+description: "Countdown timer not showing on Shopify? Work down five layers: the block, the template, the schedule, the scope, the theme. Each one has a different fix."
+primaryKeyword: "countdown timer not showing shopify"
+secondaryKeywords: ["timer not displaying", "theme app block missing"]
+publishedAt: "2027-01-11"
+updatedAt: "2027-01-11"
+imageAlt: "Placeholder illustration of a missing countdown timer on a product page"
+internalLinks:
+  - "shopify-countdown-timer"
+  - "run-flash-sale-shopify"
+  - "best-shopify-countdown-timer-apps"
+tldr: "A countdown timer not showing on Shopify has failed at one of five layers: the app block was never added, the template does not render it, the schedule has not started or already ended, the scope excludes the product, or the theme is hiding it. Check them in that order."
+faq:
+  - question: "Why does the timer show in the theme editor but not on the live store?"
+    answer: "Usually because you added the block to a template the product does not use, or you previewed an unpublished theme. Shopify lets you edit any theme, published or not, and it is easy to spend twenty minutes configuring a block on a copy nobody is being served."
+  - question: "The timer vanished on its own. What happened?"
+    answer: "Most likely the deadline passed and the app is correctly hiding it, which is the behaviour you want. Check the end date before assuming something broke. The second most common cause is a theme update that reset section settings and dropped the block."
+  - question: "Why does it show on some products and not others?"
+    answer: "Scope. Most apps let you target specific products, collections or tags, and a product added after the rule was written will not match a hardcoded list. Collection-based scoping is more durable than product lists for exactly this reason."
+  - question: "Does an ad blocker stop a countdown timer rendering?"
+    answer: "It can, if the app loads its script from a third-party domain that appears on a blocklist. It is much rarer than for tracking pixels, but it is worth testing in a browser with blocking enabled before concluding the app is broken for everyone."
+---
+
+You set the sale up an hour ago, the app dashboard says the campaign is live, and the product page shows nothing at all. Or worse, it shows on your screen and not on a customer's.
+
+A **countdown timer not showing shopify** side is not one problem. It is five, stacked, and each has a different fix. Work down them in order rather than toggling settings and hoping.
+
+## Which layer has failed?
+
+Before changing anything, narrow it down. The symptom pattern tells you which layer to open.
+
+| What you see | Most likely layer |
+| --- | --- |
+| Nothing anywhere, on any product | The block was never added |
+| Shows in theme editor, not live | Wrong theme, or wrong template |
+| Shows on some products only | Scope rules |
+| Showed yesterday, gone today | Schedule ended, or a theme update |
+| Shows for you, not for a customer | Caching, market, or blocking |
+| Shows frozen at zero | The app has no zero-state handling |
+
+That last row is not a bug to fix, it is an app to replace. A timer that persists at 00:00:00 above an unchanged price tells every visitor the deadline meant nothing.
+
+## Layer one: was the block ever added?
+
+The most common cause by a wide margin, and the least satisfying.
+
+Modern timer apps install as theme app blocks. Installing the app does not place anything. It makes a block available, and you then have to add it to a template in the theme editor. Merchants routinely install, configure a campaign in the app dashboard, and never complete the second step.
+
+- **Open the theme editor** on your published theme, not a copy.
+- **Navigate to a product template**, not the homepage.
+- **Look for the app block in the section list.** If it is not there, add it.
+- **Check the position.** A block added to the bottom of the page is technically rendering and effectively invisible.
+
+If the app instead asked you to paste code into a Liquid file, check that the snippet survived your last theme change. Pasted code does not survive a theme swap, and it frequently does not survive a theme update either.
+
+<PostCta />
+
+## Layer two: is it the right template?
+
+Shopify products can use different templates, and a block added to `product` does not appear on `product.sale` or any other alternate.
+
+1. **Open the product in the admin** and check which template it is assigned.
+2. **Open that specific template** in the theme editor.
+3. **Confirm the block is present there**, not only on the default.
+4. **Repeat for every template in use.** Stores accumulate these quietly, especially after a redesign.
+5. **Check you are editing the published theme.** The editor will happily let you configure an unpublished copy for as long as you like.
+
+Point five deserves emphasis. It is the single most common reason a timer "shows in the editor but not on the site", and there is nothing in the interface that makes the mistake obvious while you are making it.
+
+## Layer three: is the schedule actually running?
+
+A timer hiding itself is often correct behaviour.
+
+- **Has the start time passed?** A campaign scheduled to begin at 9am shows nothing at 8:55, which is intended and looks identical to a fault.
+- **Has the end time already passed?** Check against the store timezone, not yours. If the deadline was set in a different zone it may have expired before you expected.
+- **Is the timezone what you think it is?** This causes more confusion than any other single setting, and [it deserves its own diagnosis](/blog/countdown-timer-timezone-problems) when the timer is showing the wrong remaining time rather than none at all.
+- **Is the campaign enabled?** Configured and enabled are different states in most apps.
+
+<Callout title="Set a five-minute test deadline" tone="warning">
+Before debugging further, create a campaign that starts now and ends in five minutes, scoped to one product. If that appears, your install is fine and the problem is the original campaign's schedule or scope. If it does not, the fault is in layer one or two and you can stop looking at schedules.
+</Callout>
+
+<PostCta />
+
+## Layer four: does the scope include this product?
+
+Scope rules are where the "some products but not others" pattern comes from.
+
+Most apps let you target by product, collection, tag or template. Each fails differently:
+
+- **A hardcoded product list** does not include anything added after the rule was written. This is the usual cause when a new product is missing a timer everything else has.
+- **Collection targeting** is more durable, but only if the product is actually in that collection. Automated collections with condition rules can silently exclude items.
+- **Tag targeting** breaks when a bulk edit strips tags, which happens more often than anyone expects.
+- **Exclusions** are easy to forget. Check whether an exclusion rule from a previous campaign is still active.
+
+Work out which mechanism your app uses before you start adding products one at a time, because the fix for a stale hardcoded list is to switch to a collection rather than to maintain the list forever.
+
+## Layer five: why can a customer not see it?
+
+If it renders for you and not for them, the difference is environmental.
+
+- **Caching.** Shopify and any CDN in front of it cache aggressively. A recently added block may take a few minutes to reach everyone, and a hard refresh on your own machine is not a test of what a stranger sees.
+- **Markets.** If your app scopes by market or country and the customer is outside the configured set, the timer will correctly not render for them.
+- **Device or page targeting.** Some apps let you limit to desktop or mobile. Check whether an old setting is excluding half your traffic.
+- **Blocking.** Less common than for tracking scripts, but an app loading from a third-party domain can be caught by a blocklist. Test in a browser with blocking on.
+- **Customer segment rules.** A campaign scoped to first-time visitors will not show to a logged-in repeat customer, which is easy to configure and easy to forget.
+
+The reliable test is a private window on mobile data, logged out, on the exact product URL. That removes your session, your cache and your network in one step.
+
+<PostCta />
+
+## What if it disappeared without anyone touching it?
+
+A timer that worked last week and is gone this week has a shorter list of causes, and one of them is nearly always right.
+
+**The deadline passed.** Check this first every time. It is the most common answer and it means nothing is broken.
+
+**A theme update reset section settings.** Theme updates can drop app blocks, particularly when a section was restructured between versions. The app is still installed, the campaign is still configured, and the block is simply no longer in the template. Anyone who updates a theme should recheck app blocks afterwards as routine.
+
+**Somebody duplicated and republished a theme.** Duplicating a theme copies the blocks, but if the duplicate was made before the block was added, publishing it silently reverts your storefront to a version without it. This is a favourite during redesigns.
+
+**An app update changed the block name.** Rare, but it happens, and the old block becomes an orphan that renders nothing while still appearing in the section list.
+
+**The subscription lapsed.** Paid tiers stop rendering when billing fails, and the notification usually goes to an address nobody checks. Worth ruling out before spending an hour in the theme editor.
+
+The practical defence is to note the date whenever you add or move an app block. When something vanishes, the first question is what changed on the storefront that week, and a note turns that from an investigation into a lookup.
+
+## What should you check after you fix it?
+
+Do not stop at "it appears". Three more checks, because a visible timer can still be wrong.
+
+1. **Load it on a real phone** and confirm the buy button is still above the fold. A block that pushes the button down costs more than the urgency gains.
+2. **Check the remaining time is correct**, not just present.
+3. **Watch what happens at zero.** Set a short test deadline and confirm the timer removes itself rather than freezing.
+
+If you are setting a timer up as part of a promotion rather than fixing an existing one, [the flash sale walkthrough](/blog/run-flash-sale-shopify) covers the order to do things in so this class of problem does not arise.
+
+<PostCta />
+
+## Where does Edge Timer fit?
+
+Edge Timer is ours and it is new, with no review history behind it, which is worth weighing when picking anything that has to work on a specific date.
+
+Most of what is above is generic to the category, but two design choices remove failure layers rather than documenting them. Deadlines are resolved server-side against a real date and time, so a customer's device clock and location cannot change what they see. And at zero the timer removes itself, so the frozen-clock state in that first table cannot happen.
+
+It installs as a theme app block, which means layer one and layer two still apply. No app can add itself to your template for you, and that remains the most common reason a timer never appears at all.
+

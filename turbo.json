@@ -6,6 +6,7 @@
     "NODE_ENV",
     "PORT",
     "DATABASE_URL",
+    "DIRECT_DATABASE_URL",
     "BETTER_AUTH_SECRET",
     "BETTER_AUTH_URL",
     "CORS_ORIGIN",
@@ -28,9 +29,14 @@
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "env": [
         "DATABASE_URL",
+        "DIRECT_DATABASE_URL",
         "BETTER_AUTH_SECRET",
         "BETTER_AUTH_URL",
-        "CORS_ORIGIN"
+        "CORS_ORIGIN",
+        "VERCEL_ENV",
+        "ADMIN_EMAIL",
+        "ADMIN_NAME",
+        "ADMIN_PASSWORD"
       ],
       "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
     },

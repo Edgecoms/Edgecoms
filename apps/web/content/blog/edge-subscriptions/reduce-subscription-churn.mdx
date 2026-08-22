@@ -1,0 +1,159 @@
+---
+title: "How to Reduce Subscription Churn on Shopify"
+slug: "reduce-subscription-churn"
+app: "edge-subscriptions"
+archetype: "listicle"
+author: "anurag"
+description: "A tenure-by-tenure plan for how to reduce subscription churn: what to do in week one, at charge two, at month three, at long tenure and in win-back."
+primaryKeyword: "how to reduce subscription churn"
+secondaryKeywords: ["subscriber retention", "churn rate subscriptions"]
+publishedAt: "2026-11-02"
+updatedAt: "2026-11-02"
+imageAlt: "a calendar marking the points in a subscription where cancellations cluster"
+internalLinks:
+  - "shopify-subscriptions"
+  - "failed-subscription-payments"
+  - "build-subscription-dunning-flow"
+  - "shopify-product-reviews"
+tldr: "Subscription churn is not spread evenly. It clusters at week one, the second and third charge, month three when novelty ends, and at long tenure when usage quietly stops. Treat retention as a calendar with a specific job at each point, and check every save again ninety days later to see whether it held."
+faq:
+  - question: "When does subscription churn actually happen?"
+    answer: "It clusters. The first week catches people who misread the terms. The second and third charges catch cadence mismatches, where the product arrives faster than it gets used. Month three catches the end of novelty. Long tenure catches quiet non-use, where nothing is wrong and the subscriber simply stopped thinking about it. Each cluster needs a different fix."
+  - question: "If I change my selling plan, do existing subscribers get the new terms?"
+    answer: "No. Shopify treats a selling plan as a selling method, and updates to a selling plan do not modify subscription contracts that already exist. If you widen your interval options to fix cadence churn, your current subscribers keep the terms they signed up on. You have to move them individually, or prompt them to change it themselves."
+    source: "https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans"
+  - question: "Is offering a pause better than letting someone cancel?"
+    answer: "Usually, but only if the pause has an end date the subscriber picked. An open-ended pause is a cancellation with worse reporting, because it sits in your active count and never charges. A dated pause gives you a real restart moment to work with. Judge it by whether paused subscribers resume, not by how many pauses you collected."
+  - question: "Should win-back emails use a deadline to create urgency?"
+    answer: "Only if the deadline is real. Under the UK DMCC Act 2024, falsely stating that a product will only be available for a limited time in order to get an immediate decision is a banned practice. A recurring fake deadline also trains former subscribers to ignore you, which costs more than the campaign earns."
+    source: "https://www.gov.uk/government/publications/unfair-commercial-practices-cma207/unfair-commercial-practices"
+  - question: "What is the fastest churn fix for most stores?"
+    answer: "Interval choice. Plenty of subscription products get used up at a rate that does not match the interval the subscriber signed up on, and they have no easy way to say so. Give them a shorter and a longer option, put the control one click from the charge reminder, and some of what looks like product rejection turns out to be scheduling."
+---
+
+Your subscriber count looks flat. New sign-ups arrive every week, cancellations leave every week, and the net barely moves. That is a churn problem you cannot see from the dashboard, because the cancellations are not scattered randomly. They cluster.
+
+If you want to know how to reduce subscription churn, stop treating it as one number to push down and start treating it as a calendar. Someone who quits in week one is telling you something different from someone who quits at charge three, and different again from the one who quietly lapses at month eleven. Same metric, three causes, three fixes.
+
+This post is that calendar. Week one, charge two and three, month three, long tenure, and after the cancel. Plus the check at the end: whether you saved a subscriber or moved the cancellation into next quarter.
+
+## Why does churn cluster at specific points in a subscriber's life?
+
+Because a subscription is not one decision. It is a series of small re-decisions, and each one is triggered by an event.
+
+The events are predictable. A pre-charge notice lands. A box arrives. A cupboard gets full. A card expires. Between those moments most subscribers do not think about you, which is what you want. When one fires, the subscription becomes visible again and gets judged. Churn arrives in waves, and each tenure window brings a different reason to the same moment.
+
+- **Early tenure churn is about understanding.** The terms differed from what they expected.
+- **Mid tenure churn is about fit.** The product is fine. The amount, the cadence or the variety is not.
+- **Late tenure churn is about attention.** Nothing is wrong. They stopped using it, and the charge is all they notice.
+
+| Tenure window | What the subscriber is deciding | Your one job |
+| --- | --- | --- |
+| Days 0 to 7 | Did I understand what I signed up for? | Restate the terms in plain words |
+| Charge 2 and 3 | Is this arriving at the right rate? | Make changing the interval easier than cancelling |
+| Month 3 | Is this still worth thinking about? | Replace novelty with routine or visible progress |
+| Month 6 and beyond | Am I even still using this? | Detect quiet non-use before the cancel |
+| After the cancel | Was it the product or the timing? | Ask one question, offer one route back |
+
+Work against that table, not a single churn percentage.
+
+## How to reduce subscription churn in the first seven days
+
+The first cycle deserves its own diagnosis, and the [subscription setup guide](/blog/shopify-subscriptions) covers how the offer creates or prevents early cancellations. Here, week one has one narrow job: remove every reason to cancel that comes from confusion rather than from the product. Run it as a fixed sequence.
+
+1. **Confirm in plain language, immediately.** What ships, when, the next charge date and amount. Not the legal version. The version a tired person reads on a phone.
+2. **Name the gap before it worries them.** If the first delivery takes six days and the second charge lands thirty days after sign-up, say both numbers out loud. A lot of week-one tickets are someone counting days.
+3. **Teach the product once.** How much to use, how to store it, what the first week should feel like. A subscriber who uses it wrongly concludes it does not work.
+4. **Get them into the portal while nothing is wrong.** Ask them to confirm a delivery date. Someone who has logged in once looks for the skip button later instead of going straight to cancel.
+5. **Make the next charge date visible everywhere.** Order confirmation, account page, packing slip. Surprise is the most expensive emotion in this business.
+
+<PostCta />
+
+## What holds a subscriber through the second and third charges?
+
+Charge two is the first time the subscription costs money without novelty attached. The notice arrives as a real question: is this worth it?
+
+The dominant cause here is cadence. The product arrives faster than the household uses it, and the subscriber has no obvious way to say so. Cancelling is the only lever they can find.
+
+- **Give a real interval choice, not one default.** Shorter and longer, both visible. A catalogue built around a 30 day cycle turns a scheduling problem into a cancellation.
+- **Treat the pre-charge notice as retention, not compliance.** It is the one message every subscriber opens. Put skip, change date and change interval inside it.
+- **Offer a skip before they ask.** A skipped cycle keeps the contract alive.
+- **Remember that plan edits do not reach existing contracts.** Shopify creates subscription contracts at checkout, and updates to a selling plan do not modify contracts that already exist <Cite href="https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans">Shopify selling plans documentation</Cite>. Adding a 45 day option helps new sign-ups only, unless you migrate current subscribers or prompt them to switch.
+
+Failed payments also spike here, and that is a separate machine with its own logic. Do not let an involuntary decline get treated as a change of heart.
+
+## What causes churn at month three, when the novelty ends?
+
+By month three the subscriber has taken three or four deliveries. The product is no longer new, the emails are no longer interesting, and the surplus is visible on a shelf.
+
+- **Accumulation.** They receive slightly more than they use, and the excess is now impossible to ignore.
+- **No visible progress.** For anything that promises an outcome, month three is when someone asks what changed. If you gave them no way to see progress, the honest answer is nothing.
+- **Attention decay.** Your emails became wallpaper, so the charge notice is the only message read, and it arrives without context.
+
+<Example>
+A 30 day coffee subscription ships a 250g bag. The household drinks about 200g a month. Every cycle leaves 50g behind. By month five, 250g sits unopened, a whole free bag. The cancellation reads as a product decision. It is arithmetic. A 38 day interval removes the pile.
+</Example>
+
+The fixes are cadence, variety and evidence. Right-size the quantity before they notice the surplus. Let them swap a variant. Show progress in whatever unit your product earns. It is also a fair moment to ask for a review, and [collecting reviews properly](/blog/shopify-product-reviews) turns that experience into something the next buyer reads.
+
+<PostCta />
+
+## How do you stop long-tenure subscribers from quietly lapsing?
+
+Long-tenure churn is the hardest to catch because it is silent. No complaint, no ticket, no bad review. They stopped using the product months ago and the charge notice reminded them. You cannot see usage, but you can see proxies. Watch the pattern, not any single signal.
+
+- **Repeat skips.** Two consecutive skips is not supply management. It is a cancellation with a delay on it.
+- **Engagement collapse.** They used to open the pre-charge notice and log in. Now they do neither.
+- **Card staleness.** A card that expires with no update, on an otherwise quiet account, is a decision already made.
+- **Silence after a problem.** A delivery issue that was never resolved and never mentioned again is someone who gave up politely.
+
+Act on the pattern with a question, not an offer. Ask what would make the next delivery more useful and give real answers to pick from: change the interval, change the size, swap the variant, pause with a date. A dated pause is the honest version of a save. It puts a restart on the calendar instead of parking a dead subscriber in your active count.
+
+## Which win-back attempts are worth making, and when?
+
+Most win-back is sent at the wrong time to the wrong person. Timing follows the reason they left, which is why you ask at cancellation.
+
+- **Left because of surplus.** Do not email next week. They still have your product. Wait until they would have run out, then return with a longer interval.
+- **Left because of cost or circumstance.** Wait longer. Circumstances change on a scale of months. One message at a sensible distance beats five in a fortnight.
+- **Left because something broke.** Fix it first and say what you fixed. A win-back that ignores a failed delivery reads as though nobody read the complaint.
+- **Left because the product was wrong for them.** Do not win them back. A bad fit produces a second cancellation and a worse review.
+
+Keep the copy honest. If you attach a deadline it must be real, because falsely stating that a product is available for a limited time in order to force an immediate decision is a banned practice under the UK DMCC Act 2024 <Cite href="https://www.gov.uk/government/publications/unfair-commercial-practices-cma207/unfair-commercial-practices">CMA unfair commercial practices guidance</Cite>. Cap the sequence at two or three messages, then leave them alone for a season.
+
+<PostCta />
+
+## How do you tell a retention win from a delayed cancellation?
+
+This is where the numbers get flattering and wrong.
+
+A deflection is recorded the moment it happens. The subscriber clicked pause, or skip, or took a swap, and your dashboard counts a save. The only thing that proves a save is a later charge that goes through.
+
+<Callout title="The metric that lies" tone="warning">
+If you measure saves at the point of deflection, the number always goes up. Add more deflection steps and it climbs further while revenue stays flat. A save that produces no additional successful charge is not a save. It is a cancellation with a longer reporting delay.
+</Callout>
+
+Check it this way. Tag every deflected subscriber with the date and the offer they took. Ninety days later, count the extra successful charges that cohort produced against a similar cohort that cancelled outright. Repeat by offer type, because pause, skip and interval change perform nothing alike.
+
+The split follows the cause. Interval and size changes tend to hold, because they fixed a real mismatch. Pauses hold when the subscriber picked the restart date and evaporate when the system picked it for them.
+
+Aim at realised cycles per subscriber, not cancellations prevented. It moves slower, and it is the number your bank account agrees with.
+
+## Where does Edge Subscriptions fit in the retention calendar?
+
+Edge Subscriptions handles subscribe and save, the customer portal and dunning. Being straight with you: it is new, and it has no reviews on the Shopify App Store yet. If review volume is how you de-risk an app choice, that is a fair reason to pick something else today.
+
+It fits the middle of the calendar. The portal is where cadence and size changes happen, the highest-yield lever between charge two and month three, and dunning covers the involuntary side.
+
+| App | Rating and reviews | Entry pricing | Trial |
+| --- | --- | --- | --- |
+| Recharge | 4.8 stars, 2,967 reviews | No free plan. Starter $25/mo with no transaction fee for the first 50 subscribers. Starter $99/mo at 1.49% plus $0.19 per transaction <Cite href="https://apps.shopify.com/subscription-payments">App Store</Cite> | 60 days |
+| Appstle | 5.0 stars, 8,289 reviews | Free up to $500/mo subscription revenue, Starter $10/mo up to $5,000/mo <Cite href="https://apps.shopify.com/subscriptions-by-appstle">App Store</Cite> | 14 days on paid plans |
+| Edge Subscriptions | New, no reviews yet | Subscribe and save, customer portal, dunning <Cite href="https://apps.shopify.com/edge-subscription">App Store</Cite> | See listing |
+
+<CheckedOn date="22 August 2026" />
+
+Pick honestly. Running a large book with complex migration needs, Recharge is the mature choice and its review depth reflects that. If your subscription revenue is small, Appstle starts free up to a real threshold and is hard to argue with. Choose Edge Subscriptions if you want the portal and dunning basics done cleanly and you are comfortable being early.
+
+Whichever you run, the calendar does the work. The app only has to make each move cheap enough that the subscriber picks it instead of cancelling.
+
+<PostCta />

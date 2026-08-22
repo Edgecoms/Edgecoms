@@ -1,0 +1,135 @@
+---
+title: "How to Add Reviews to a Shopify Product Page"
+slug: "add-review-widget-shopify"
+app: "edge-reviews"
+archetype: "tutorial"
+author: "anurag"
+description: "How to add reviews to Shopify product page templates in the theme editor: which blocks to place, how to check it worked, and what to do with no slot."
+primaryKeyword: "how to add reviews to shopify product page"
+secondaryKeywords:
+  - "review widget shopify"
+  - "product page review block"
+publishedAt: "2026-11-23"
+updatedAt: "2026-11-23"
+imageAlt: "Placeholder illustration of a Shopify theme editor with a review block being placed on a product template"
+internalLinks:
+  - "shopify-product-reviews"
+  - "review-stars-not-showing-google"
+  - "best-shopify-review-apps"
+tldr: "Installing a review app does not put reviews on your product page. You add them in the theme editor: open Customize, pick the product template, and drag the app's star summary and review list blocks into the product info section. If your theme offers no slot, add an Apps section instead."
+faq:
+  - question: "Why can't I see my review app in the theme editor block list?"
+    answer: "Two usual causes. The theme is a vintage theme rather than an Online Store 2.0 theme, so it has no app block support at all and nothing will appear. Or the app's theme extension is switched off under Theme settings and App embeds. Check the embed toggle first, because that one takes seconds to rule out."
+  - question: "Do I need to edit Liquid to add a review widget?"
+    answer: "On a current theme, no. App blocks exist precisely so that merchants can place a widget by dragging it, and the block writes nothing into your theme files. You only reach for Liquid when a theme refuses to expose a slot in the position you want, and even then a Custom Liquid block is usually enough."
+  - question: "Where should the review block go on the product page?"
+    answer: "Split it. Put the star summary directly under the product title so a shopper sees at a glance that reviews exist, and put the full list lower down where someone who wants detail will scroll. Keeping both in one block at the bottom of the page is the arrangement that performs worst on mobile."
+  - question: "The block shows in the theme editor but not on the live site. What happened?"
+    answer: "You almost certainly edited a theme that is not published. The theme editor happily customises unpublished themes, and the save succeeds either way. Open Online Store and Themes, confirm which theme carries the Live label, and check whether your change is on that one or on a duplicate you made earlier and forgot about."
+  - question: "Will adding a review block slow the product page down?"
+    answer: "It adds a request and some rendering work, so a little. The part that actually hurts is layout shift, where the widget loads late and pushes the buy button down as someone is reaching for it. Reserve a minimum height for the block so the page geometry is settled before the reviews arrive."
+---
+
+Your review app is installed. The reviews are sitting inside it. The product page still shows nothing.
+
+That is the most common review message I get, and it is almost never the app misbehaving. Installing a review app puts reviews in a database and gives you an admin to manage them. It does not put a single pixel on your storefront. Working out how to add reviews to a Shopify product page is a separate job, done in the theme editor, and depending on your theme it takes ten minutes or it takes an argument with a template.
+
+This is the placement half of the work: the blocks you need, the click path, how to confirm it worked, and what to do when a theme refuses you a slot.
+
+## Which block do you need: the star summary, the review list, or both?
+
+Most review apps ship more than one block, and merchants tend to install the big one and stop. That is why so many stores have a wall of reviews at the bottom of the page and nothing at all near the buy button. Treat them as separate jobs with separate homes.
+
+- **The star summary.** A row of stars plus a count. It is not a review, it is a signal that reviews exist. It belongs immediately under the product title, and clicking it should jump down to the list.
+- **The review list.** The reviews themselves, with pagination or a show-more control. This is the detail view for someone who has already decided they care.
+- **The review form.** Often bundled into the list block, occasionally separate, in which case it is easy to forget and then wonder why nobody submits anything.
+
+| Block | What it does | Where it goes | Cost of skipping it |
+| --- | --- | --- | --- |
+| Star summary | Shows rating and count | Under the product title | Shopper never learns reviews exist |
+| Review list | Full reviews, filters, form | Below the description | Nothing to read once they care |
+| Write a review | Submission entry point | Inside or beside the list | Review volume stops growing |
+| Carousel or badge | Social proof elsewhere | Home and collection pages | Nothing on the product page changes |
+
+The arrangement to avoid is one combined block at the very bottom of the template. On a phone that puts every piece of proof several screens below the decision.
+
+## How do you add reviews to a Shopify product page in the theme editor?
+
+This assumes an Online Store 2.0 theme, which is what current Shopify themes are.
+
+1. **Confirm the app's theme extension is on.** In the admin, go to Online Store, then Themes, then Customize. Open Theme settings and find App embeds. Your review app should be listed with a toggle. Turn it on if it is off, then save.
+2. **Duplicate your live theme before you touch anything.** Themes, the three-dot menu, Duplicate. Thirty seconds of insurance against a placement that looks wrong on a device you do not own.
+3. **Open the theme editor on the duplicate.** Not on the live theme. You will publish the duplicate at the end.
+4. **Switch the editor to a product template.** Use the template dropdown at the top and choose Products, then Default product. Pick a preview product that has reviews, or you will be looking at an empty state and drawing the wrong conclusion.
+5. **Find the product information section in the left sidebar.** Usually called Product information or Product details. Expand it and you will see its blocks: title, price, variant picker, buy buttons, description.
+6. **Add the star summary block.** Click Add block inside that section. Your app's blocks appear under an Apps heading. Select the star or rating block, then drag it directly beneath the Title block.
+7. **Add the review list.** This one does not belong inside the product information section. Scroll to the template body, click Add section, choose Apps, and place the review list below the product area.
+8. **Set the block options.** Most apps expose reviews per page, photo display, star colour and alignment. Match the star colour to your theme's accent rather than the app's default yellow, which usually fights your palette.
+9. **Save, then preview from the Themes page.** Not the editor canvas. The editor renders app blocks under conditions that do not match a real page load.
+10. **Publish the duplicate.** Keep the old theme around for a week in case something surfaces.
+
+<Callout title="Check a product with zero reviews too" tone="warning">
+Everything looks right on your bestseller. Now open a product nobody has reviewed. Some widgets render an empty grey box, an orphan "0 reviews" line, or a heading with nothing under it. That is what most of your catalogue will show on day one.
+</Callout>
+
+### What it looks like when it has gone wrong
+
+- **The app has no blocks in the Add block list.** Either the theme is a vintage theme with no app block support, or the embed from step 1 is still off. Rule out the embed first.
+- **The block appears in the editor and not on the live site.** You edited an unpublished theme. Confirm which theme carries the Live label.
+- **A spinner that never resolves.** The block is placed but the script that fills it cannot load, usually because the embed was toggled off afterwards.
+- **Reviews render twice.** You have both an app block and a legacy auto-inject setting on. Turn off automatic placement in the app's own admin and keep the block.
+- **Stars show but the count says zero.** The widget is keyed to a product identifier that does not match the imported reviews. That is a data problem, not a placement one.
+
+<PostCta />
+
+## What do you do when the theme has no app block slot where you need it?
+
+Some themes, especially heavily customised ones and older premium purchases, will not accept an app block where you want it. Work down this list and stop at the first thing that works, because each step costs more to undo later.
+
+- **Look for a dedicated Apps section.** Add section, then Apps, gives you a container that accepts any app block and can be dragged anywhere in the template order. It will not sit inside the product information column, but it will sit directly above or below it.
+- **Check a different product template.** If you have several, one may be built from a section that does accept app blocks. Reassign the product rather than rebuilding the template you are on.
+- **Use a Custom Liquid block as a bridge.** Most sections expose one. Your app documents a snippet or a container you paste in, and the widget mounts there. This does write into your theme, so note what you pasted and where.
+- **Call a developer.** Adding an app block type to a section schema is a small job for someone who works in Liquid daily and a bad afternoon for someone who does not. This is a fair place to spend money instead of time.
+
+A section you dragged into place is reversible in one click. A snippet pasted into Custom Liquid is something you must remember when you change themes.
+
+## How do you get the star rating under the product title without editing Liquid?
+
+The title lives inside the product information section rather than at template level, so a template-level Apps section cannot reach it. The route is the block list inside that section.
+
+- **Click Add block inside product information.** Look under the Apps heading for a block whose name mentions rating, stars, or review badge. It is a different block from the review list, and the only one small enough to belong here.
+- **Drag it above the price, not below the buy button.** Sidebar order is page order. A rating below the buy button is proof arriving after the decision.
+- **Give it somewhere to go.** Most star summary blocks link down to the review list. If yours has an anchor setting, point it at the section you added, or clicking the stars does nothing and that reads as broken.
+- **Decide what happens at zero reviews.** Look for a "hide when empty" setting. Hiding is usually right, because an explicit "no reviews yet" line under the title works against the sale.
+
+If no such block is offered, use a Custom Liquid block at that same position as the anchor.
+
+<PostCta />
+
+## How should the block behave on mobile and before it has finished loading?
+
+A review widget is third-party content that arrives after your theme has painted. Handled badly, that produces the worst behaviour on a product page: the buy button moves while a thumb is travelling toward it.
+
+- **Reserve a minimum height.** If the app exposes a placeholder or skeleton setting, switch it on. If not, a min-height on the container is a one-line change in theme CSS and worth doing.
+- **Keep the list collapsed on small screens.** Three or four reviews with a show-more control beats infinite scroll, which turns your product page into a page with no end.
+- **Do not lazy load the star summary.** It is a few characters of text next to the title and belongs in the first paint. The list underneath is a fine candidate for lazy loading; the rating is not.
+- **Check the filters are reachable with a thumb.** Rating filters that collapse into a dropdown are fine. Filters that only exist in a desktop sidebar disappear on a phone.
+- **Test on a real device on a slow connection.** The gap between paint and widget is invisible on office wifi and obvious on a train.
+
+<Example>
+Take a phone 390 pixels wide and 844 tall. Say your title, price, variant picker and buy button occupy the first 520 pixels. That leaves 324 pixels of first screen. A star summary row costs about 24 of them. A single review card carrying a photo is closer to 180. Substitute your own theme's numbers, but the shape holds: the summary fits above the fold and the list does not, which is the whole argument for two blocks.
+</Example>
+
+Once the block is placed, the next question is whether Google shows stars in the search result. That depends on markup, not placement, and is diagnosed separately in [why review stars are not showing in Google](/blog/review-stars-not-showing-google).
+
+## Where does Edge Reviews fit in getting the block onto the page?
+
+Edge Reviews is our review app. It is new and has no review history on the App Store yet, so judge it on what it does. It ships as a theme app extension with separate blocks for the star summary and the review list, so the procedure above is the procedure, and it imports an existing review corpus so the blocks are not empty the day you place them. There is a free plan.
+
+Where it will not help: if your store runs a vintage theme without app block support, no review app can drag a block into a slot the theme does not expose. The fix is a theme upgrade or a developer, and switching review apps changes nothing.
+
+If you want the largest free tier and are happy to place the blocks yourself, Judge.me's free plan is permanent and includes unlimited reviews along with unlimited photo and video reviews <Cite href="https://apps.shopify.com/judgeme">per its App Store listing</Cite>, which is hard to argue against on price alone. The wider trade-offs are in our comparison of the [best Shopify review apps](/blog/best-shopify-review-apps), and the strategy underneath all of it sits in the [complete guide to Shopify product reviews](/blog/shopify-product-reviews).
+
+Placement is the part nobody talks about and the part that decides whether the rest was worth doing. Reviews in a database convert nobody.
+
+<PostCta />

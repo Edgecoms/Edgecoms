@@ -1,0 +1,179 @@
+---
+title: "Review Request Response Rate Too Low? Fix It"
+slug: "review-request-response-rate"
+app: "edge-reviews"
+archetype: "problem"
+author: "anurag"
+description: "Your review request response rate is a funnel, not a number. Learn to define the denominator, find the leaking stage, and test fixes at low volume."
+primaryKeyword: "review request response rate"
+secondaryKeywords:
+  - "review email open rate"
+  - "low review conversion"
+publishedAt: "2026-12-21"
+updatedAt: "2026-12-21"
+imageAlt: "Placeholder illustration of a four stage review request funnel narrowing from sent to submitted"
+tldr: "Your response rate is submitted reviews divided by the requests that could realistically have produced one. Measure it as a funnel: delivered, opened, clicked, submitted. One stage is usually doing the damage. Fix the denominator first, find the leaking stage second, and judge changes over months, not weeks."
+internalLinks:
+  - "shopify-product-reviews"
+  - "review-request-email-examples"
+  - "loox-alternatives"
+faq:
+  - question: "Should I count SMS and email requests in the same number?"
+    answer: "Keep them apart. They fail in completely different places. Email dies at delivery and at the open. SMS almost always gets read, so when it underperforms the problem is the landing page or the ask itself. Pooling them gives you an average that describes neither channel and hides whichever one is actually broken."
+  - question: "My open rate looks fine but almost nobody clicks. What is the usual cause?"
+    answer: "Two things account for most of it. Either the email opens with brand throat-clearing and the ask is below the fold on a phone, or there is nothing clickable that feels like the start of the task. A row of stars that submits a rating on tap moves people because the first step costs nothing. A button labelled with your app's name does not."
+  - question: "Does a review app's own dashboard number match what I should be tracking?"
+    answer: "Check its definition before you trust it. If the dashboard divides submitted reviews by requests sent, it quietly counts people who never received the email, never got the parcel, or already returned the item. That number is not wrong so much as flattering in one direction and useless in the other. Rebuild it against requests that could realistically have produced a review."
+  - question: "How long should I wait before deciding a change worked?"
+    answer: "Long enough to gather a few hundred requests on each version, which for most stores means running a single change for a month or more. If that sounds slow, it is. The alternative is reading noise as signal, shipping a change that did nothing, and then building the next three decisions on top of a conclusion that was never true."
+  - question: "Do reviews collected through a link still need to be visible on the product page?"
+    answer: "Yes, if you want stars in search results. Google requires that the review content marked up on a page is readily available to users on that same page, and it treats businesses that control reviews about themselves as ineligible for the review snippet. Collecting them off-site is fine. Hiding them off-site while marking them up is not."
+    source: "https://developers.google.com/search/docs/appearance/structured-data/review-snippet"
+---
+
+Every order gets a request. Reviews trickle in at a rate that feels like a rounding error. You rewrite the subject line, wait a fortnight, nothing changes, so you rewrite it again.
+
+That loop never ends, because a **review request response rate** is not one number you can push on. It is four things multiplied together, and usually only one is broken. Rewriting copy when the emails land in spam is wasted effort. So is fixing deliverability when the emails arrive, get opened, and then dump people onto a form demanding an account.
+
+So treat the rate as a funnel. Define the denominator, find the leaking stage, then test changes in a way that does not fool you at low volume.
+
+## What counts as your review request response rate, exactly?
+
+The numerator is easy: reviews submitted, attributed to the request that produced them, not total reviews from all sources.
+
+The denominator is where most stores quietly lie to themselves. Four defensible choices produce very different numbers from identical performance.
+
+| Denominator | What it measures | When to use it |
+| --- | --- | --- |
+| Orders placed | Reviews per order | Never. Includes people you never contacted |
+| Requests sent | Your app's default number | Comparing your own months, nothing else |
+| Requests delivered | Reached an inbox | The honest headline number |
+| Eligible requests delivered | Reached someone who could review | The one that drives decisions |
+
+Pick the fourth and write the definition down. Consistency matters more than the choice. Change denominators halfway through a quarter and every comparison after it is meaningless.
+
+<Example>
+Say 1,000 orders shipped. 60 had no marketing consent or no valid address, so 940 requests went out. 62 bounced, leaving 878 delivered. Of those, 90 were refunded or returned before the ask landed. Eligible delivered is 788. Thirty-nine reviews came back. Against orders that reads 3.9%. Against eligible delivered it reads 4.9%. Same performance, two very different conversations with yourself.
+</Example>
+
+## Is the loss happening at delivery, at the open, at the click or in the form?
+
+Four stages, four different fixes. Build the table before you touch anything.
+
+1. **Sent.** Pull the count from your review app or email platform for a fixed window, ideally a full month.
+2. **Delivered.** Sent minus hard bounces, soft bounces and blocks. Your sending platform reports this.
+3. **Opened.** Take it as directional only. Image proxies inflate it and privacy features suppress it.
+4. **Clicked.** Your most trustworthy engagement signal, because it takes a deliberate action.
+5. **Submitted.** Reviews attributed to that specific request, not to the month.
+
+Then calculate each step as a percentage of the step above it, not of the total. That is the whole diagnostic. One of those four transitions will be visibly worse than the others, and it is your project for the next month.
+
+- **Delivered over sent is low.** Stop reading. This is infrastructure, and nothing downstream matters until it is fixed.
+- **Opened over delivered is low.** Sender name, timing, and whether the recipient recognises you at all.
+- **Clicked over opened is low.** The ask itself. What you are asking for, how much work it looks like, and where it sits in the email.
+- **Submitted over clicked is low.** The destination. They already said yes and something on the page stopped them.
+
+Most stores never build this table, which is why the default fix is always a new subject line. It touches one of the four transitions, and rarely the guilty one.
+
+<PostCta />
+
+## How do you tell a deliverability problem from a copy problem?
+
+From the top they look identical. Both present as a flat number that feels like being ignored.
+
+Deliverability leaves fingerprints:
+
+- **Compare against your transactional mail.** Order confirmations from the same domain give you a baseline. If confirmations land and review requests do not, your review app is likely sending from a different domain or subdomain that was never authenticated.
+- **Check who is sending.** A shared sending domain owned by your review app inherits every other merchant's reputation on it. Authenticating your own domain is the biggest fix on this list.
+- **Look at the split by mailbox provider.** A number that is healthy at one provider and near zero at another is a reputation problem. Copy does not discriminate by mailbox.
+
+Copy problems look different. Delivery is fine, opens are unremarkable, and the click rate is on the floor. The message arrived and failed to make the task look worth starting.
+
+<Callout title="One change at a time" tone="warning">
+If you authenticate your domain and rewrite the email in the same week, you have learned nothing about either. At the volumes most stores run, you get roughly one clean read per month. Spend it on one variable.
+</Callout>
+
+One check saves more time than any rewrite. Pull your [product review setup](/blog/shopify-product-reviews) and confirm requests trigger on delivery, not on fulfilment. A request that beats the parcel gets ignored by people who would have written something four days later. That looks exactly like bad copy.
+
+## What does the gap between click and submitted review actually mean?
+
+This is the most expensive leak in the funnel and the least examined. Everyone who clicked had already agreed. Something between click and submit stopped them.
+
+Work through the destination in this order:
+
+- **Does it require an account or a login?** Asking a customer to authenticate before writing two sentences loses most of them at that screen.
+- **How many fields are mandatory?** A rating plus a text box is the floor. Every required field beyond that is a decision the customer makes while standing in a kitchen.
+- **Does it work on a phone, on cellular, first try?** Open the link on a real handset, not a desktop emulator. Slow-loading widgets on a page already abandoned in a background tab do not recover.
+- **Which product is it asking about?** A multi-item order that lands on a generic form makes the customer choose. Deep-link to the specific product and pre-select the star rating they tapped in the email.
+- **Is the link still valid?** Some review links carry identity in browser storage rather than in the URL. Safari deletes all script-writable storage after seven days of Safari use without interaction on the site, so a reminder clicked on day eight can land on a form that no longer knows who the person is. <Cite href="https://webkit.org/blog/10218/full-third-party-cookie-blocking-and-more/">WebKit on seven-day storage deletion</Cite>
+
+Fix the destination before you touch the email again. It is the only stage where you have proven intent and are throwing it away.
+
+<PostCta />
+
+## How many of your requests go to people who were never able to review?
+
+Some share of your denominator was never going to convert whatever you wrote. Strip those out and the rate describes something real.
+
+1. **Undelivered parcels.** Anyone whose order is still in transit, lost, or sitting at a depot. Trigger on delivery and this disappears.
+2. **Returns and refunds.** Filter them out of the eligible denominator and, ideally, out of the send entirely.
+3. **Gift orders.** The buyer never used the product. The person who did is not in your list.
+4. **No marketing consent.** Depending on your region and your app's settings, a meaningful slice of buyers is not contactable.
+5. **Wholesale and B2B orders.** A purchasing account does not write product reviews.
+6. **Repeat buyers already asked this month.** The second ask on the same person in a short window converts far worse and should not dilute the number.
+
+Nobody enjoys shrinking their own denominator. Do it anyway. A rate measured against people who could never respond is a rate you cannot improve.
+
+## How do you run a fair test when the weekly numbers are this small?
+
+This is where most review programmes go wrong. Weekly review counts are small enough that ordinary randomness swings them wildly, so any single week looks like evidence.
+
+Rules that hold up at low volume:
+
+- **Measure clicks, not submissions.** Clicks are the more frequent event, so they leave the noise band sooner. If a change lifts clicks and the destination is unchanged, submissions follow.
+- **Run one version at a time, for a fixed period.** Alternating by week bakes in your store's seasonality. A calendar month per version is a reasonable floor.
+- **Only test changes big enough to matter.** At these volumes you cannot detect a small effect, so do not spend a month on button colour. Test the ask, the timing, or the destination.
+- **Write down the metric and the window before you start.** Otherwise you will find a favourable cut afterwards and believe it.
+
+<Example>
+If a version gets 400 delivered requests and 24 reviews, that is 6%. Four more reviews from the same 400 reads as 7%. A one-point move on 400 sends is well inside what chance alone produces. Assume any change under a couple of points on a few hundred sends is noise until a second month agrees with the first.
+</Example>
+
+The honest version: at low volume you are not running experiments, you are removing defects. Fix the destination, fix the trigger, authenticate the domain. Those are repairs, and repairs need no statistics.
+
+<PostCta />
+
+## What rate is realistic for your category, price point and order volume?
+
+There is no benchmark here that I can source, and a made-up number is worse than none. Published figures collapse email, SMS and incentivised requests into one average, across categories that behave nothing alike.
+
+What you can reason about is direction. These factors push your rate one way or the other. Knowing which side you sit on tells you whether your number is a problem or just your category.
+
+| Factor | Pushes the rate up | Pushes it down |
+| --- | --- | --- |
+| Purchase type | Considered, researched, expensive | Cheap, habitual, commodity |
+| Time to opinion | Product proves itself in days | Takes weeks to judge |
+| Relationship | Repeat buyer, known sender | First order, unrecognised brand |
+| Order contents | Single item | Many items, one generic ask |
+| Channel | SMS to a consented number | Cold email, unauthenticated domain |
+
+Your only useful benchmark is your own trailing twelve months on a fixed definition. Everything else is someone else's catalogue.
+
+## Where does Edge Reviews fit in measuring this funnel?
+
+Start with the honest part. If you want the deepest free tier, [Judge.me](https://apps.shopify.com/judgeme) is the app to beat, with a permanent free plan that includes unlimited photo and video reviews. Loox prices by order volume, so it costs more precisely as your request volume grows. Our [Loox alternatives](/blog/loox-alternatives) breakdown covers where that bites.
+
+| App | Rating and reviews | Free plan | Paid entry |
+| --- | --- | --- | --- |
+| Judge.me | <Cite href="https://apps.shopify.com/judgeme">5.0, 43,884</Cite> | Permanent, unlimited reviews, photo and video | Awesome $15/mo |
+| Loox | <Cite href="https://apps.shopify.com/loox">4.9, 9,051</Cite> | Up to 500 orders | Convert $49.99/mo |
+| Yotpo | <Cite href="https://apps.shopify.com/yotpo-social-reviews">4.8, 4,392</Cite> | Up to 50 monthly orders | Starter $15/mo |
+| Edge Reviews | New, no reviews yet | Free, imports existing reviews | Free |
+
+<CheckedOn date="22 August 2026" />
+
+Edge Reviews is new and has no reviews of its own yet. It is built around this post: the funnel reported as four stages rather than one headline number, with the eligible denominator calculated for you so returns, undelivered orders and non-consented buyers are stripped out first. It is free, and it imports what you already have.
+
+The sequence is the same whichever app you use. Define the denominator, build the four-stage table, fix the worst transition, then give it a month.
+
+<PostCta />

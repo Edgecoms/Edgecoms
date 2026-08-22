@@ -1,0 +1,156 @@
+---
+title: "Shopify Subscription Customer Portal Problems"
+slug: "shopify-subscription-customer-portal"
+app: "edge-subscriptions"
+archetype: "problem"
+author: "anurag"
+description: "Your Shopify subscription customer portal exists and your inbox is still full. Diagnose the exact failure from the wording of the email, then fix that cause."
+primaryKeyword: "shopify subscription customer portal"
+secondaryKeywords: ["subscriber self service", "manage subscription page"]
+publishedAt: "2027-02-08"
+updatedAt: "2027-02-08"
+imageAlt: "a phone showing a subscription management screen with a broken save button"
+internalLinks:
+  - "shopify-subscriptions"
+  - "subscribers-cancelling-after-first-order"
+  - "set-up-subscriptions-shopify"
+tldr: "A subscription portal that exists can still fail. Login friction, theme mismatch, silent save failures, cutoff window collisions and mobile breakage each produce a different support email. Read the wording of the email, match it to the failure, and fix that one cause instead of rebuilding the whole thing."
+faq:
+  - question: "A subscriber says they skipped but the charge still went through. What happened?"
+    answer: "Almost always a cutoff window. Billing queues the next order some hours before the charge date, and a skip requested after that point applies to the following cycle instead. The portal accepted the click and told them it worked. Show the cutoff date on screen and disable the control once it passes, rather than accepting a change you cannot honour."
+  - question: "If I edit my selling plan, do existing subscribers see the new options?"
+    answer: "No. Shopify treats a selling plan as a selling method, and updates to a selling plan do not modify subscription contracts that already exist. So you can add a fortnightly interval, see it on the product page, and watch your existing subscribers keep only the intervals they signed up on. Test portal changes against a contract that was created before your edit."
+    source: "https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans"
+  - question: "Do subscribers need a customer account to manage a subscription?"
+    answer: "Not always, but they need a reliable way back in. Magic links and tokenised links both work. Do not rely on a stored session lasting until next month: Safari deletes all script-writable storage after seven days of Safari use without interaction on the site, so a monthly subscriber is outside that window every single cycle."
+    source: "https://webkit.org/blog/10218/full-third-party-cookie-blocking-and-more/"
+  - question: "Should the portal sit on my domain or the app's subdomain?"
+    answer: "Your domain, if the app offers it. A page on an unfamiliar subdomain with default styling and no logo reads as a phishing attempt, and cautious subscribers email you instead of using it. That email costs you more than the styling work. If a custom domain is not available, at least carry over the logo, fonts, colours and footer."
+  - question: "How often should I test my own portal?"
+    answer: "Monthly, plus after every theme update, app update or selling plan change. Buy a real subscription with a real card, use a fresh email address, and go through it on your phone from the confirmation email. A short walkthrough each month catches breakage that would otherwise reach you as support tickets you answer by hand."
+---
+
+Your subscription portal works. You built it, you linked to it, and you can move a delivery date in fifteen seconds. Your inbox is still full of people asking you to skip their next box.
+
+That gap is the whole problem. A Shopify subscription customer portal that exists is not the same as one that gets used, and when it fails it almost never fails loudly. Nobody files a bug report. They email you, you handle it by hand in the admin, and the failure stays invisible because you keep absorbing it.
+
+The good news is that those emails are diagnostic. The wording tells you which failure you have, and each one has a different fix. This post works through them in the order they show up.
+
+## What do subscribers email you about when the portal is failing?
+
+Before you change anything, read the last thirty subscription emails you received. Do not summarise them. Copy the actual sentences out, because the phrasing is the diagnosis. Five failures produce five distinct kinds of message, and they are easy to tell apart once you know to look.
+
+| What the email says | What is actually broken | Where to look first |
+| --- | --- | --- |
+| "How do I skip next month?" | They never reached the portal at all | The link in your emails, and the way in from your site |
+| "It asked me to log in and I don't have an account" | Account and session friction | Account type, magic link delivery, email match |
+| "Is this page really yours?" | Theme mismatch | Domain, logo, fonts, colours |
+| "I changed it and it charged me anyway" | Silent save failure, or a change made too late | Write confirmation, cutoff window |
+| "The button does nothing on my phone" | Mobile breakage | Tap targets, modals, the save control |
+
+Tag your helpdesk with those five categories and leave it a fortnight. Usually one cause is generating most of the volume, and it is rarely the one you assumed. A run of these emails is what sends merchants shopping for a replacement app, when the app is often fine and one entry point is missing.
+
+If the underlying setup is still in flux, the [Shopify subscriptions guide](/blog/shopify-subscriptions) covers that layer. This post assumes the contracts and controls already exist.
+
+## Why can't customers log in to manage their subscription?
+
+Start with how the subscriber gets there, because this is rarely a password problem.
+
+Most portal links live in exactly one place: the order confirmation email, sent weeks ago, sitting under a receipt. By the time someone wants to skip a box, that email is gone. They go to your site, find no obvious way in, and email you. That is a discoverability failure, and it produces more support volume than everything else on this list combined.
+
+Then there is the account itself.
+
+- **No account was ever created.** Shopify creates the subscription contract at checkout whether or not the customer set a password. Plenty of subscribers have a live contract and no credentials.
+- **A different email address.** They ordered on a work address and try to log in with a personal one. The lookup finds nothing, shows a generic error, and they conclude the store is broken.
+- **Magic links that expire or land in spam.** One-time codes travel the same deliverability path as your marketing mail. If your sending domain is shaky, your login is shaky.
+- **Sessions that quietly vanish.** Safari deletes all script-writable storage after seven days of Safari use without interaction on the site <Cite href="https://webkit.org/blog/10218/full-third-party-cookie-blocking-and-more/">per WebKit</Cite>. A monthly subscriber is outside that window on every single visit.
+
+Fix it in this order. Put a manage link in every subscription email, especially the pre-charge reminder. Add a permanent entry point on your site, in the account area and the footer. Make the emailed link land on the subscription itself rather than on a login wall.
+
+<Callout title="A tokenised link is a credential" tone="warning">
+Deep links that skip the login are the biggest usability win here, and they are also bearer credentials sitting in an inbox. Keep the expiry short, scope the token to one contract, and require a real login before a card change.
+</Callout>
+
+<PostCta />
+
+## Why does the portal look nothing like the rest of your store?
+
+Open your portal in a private window and look at it as a stranger would. Different subdomain. Default fonts. No logo. A colour palette that belongs to a company the subscriber has never heard of.
+
+Cautious people do not enter card details on a page like that. They email you instead, which is the outcome you were trying to avoid. The cost is not aesthetic, it is trust.
+
+- **Domain first.** If the app can serve the portal on your own domain, do that first. It removes the phishing question entirely.
+- **Carry the theme through.** Logo, typeface, button shape, header and footer. It only needs to be close enough that the subscriber never asks the question.
+- **Match the words and the formatting.** If your store says "delivery", the portal should not say "shipment", and dates should render the way your storefront writes them.
+
+## Why do changes appear to save but never take effect?
+
+This is the failure that damages retention fastest, because the subscriber did everything right and got charged anyway. They rarely email twice. They cancel.
+
+The usual causes:
+
+- **Optimistic confirmation.** The interface shows success as soon as the click registers, then the write to the contract fails and the error is swallowed. The subscriber has a screenshot saying it worked.
+- **An option the contract cannot accept.** The interval or variant shown in the portal is not one the underlying contract allows, so the write is rejected.
+- **A selling plan edit that never reached existing subscribers.** Shopify treats a selling plan as a selling method, and updates to a selling plan do not modify pre-existing subscription contracts <Cite href="https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans">per Shopify</Cite>. You add a new interval, see it on the product page, and assume your book has it. It does not.
+
+The fix is a rule, not a setting. Every change must be read back from the contract before it is confirmed, and every confirmed change must trigger an email. The email is proof the write landed, and it turns an invisible failure into one you hear about the same day.
+
+<PostCta />
+
+## What happens when a change lands too close to the billing date?
+
+Billing does not happen at the instant of the charge date. The next order is queued some hours ahead, and once it is queued, a skip or a date change applies to the cycle after. The subscriber clicked skip, saw a confirmation, and got charged. From their side that is indistinguishable from being ignored.
+
+Timezones make it worse. The portal shows the cutoff in store time, and a cutoff that reads as end of day to you can already have passed for the subscriber.
+
+<Example>
+Say your billing queue closes 24 hours before the charge and your pre-charge reminder goes out 3 days ahead. That leaves a 48 hour window in which a subscriber can act. Move the reminder to 1 day out and the window disappears. Substitute your own queue timing before you decide yours is safe.
+</Example>
+
+What to change:
+
+- **Show the deadline as a date, on screen.** "Changes for your 14 March delivery must be made by 13 March" beats any explanation of how queuing works.
+- **Disable, do not accept.** Once the cutoff passes, grey the control out with the reason. Accepting a click you cannot honour is worse than refusing it.
+- **Send the reminder early enough to matter.** For most subscribers the reminder is the real entry point, so its timing decides whether the portal is usable at all.
+
+Cutoff collisions cause cancellations that look like product rejection in your reporting. The tenure patterns in [reducing subscription churn](/blog/reduce-subscription-churn) will read strangely until you rule this one out.
+
+## Why is the portal unusable on a phone?
+
+Nearly every subscriber reaches the portal by tapping a link in an email on a phone. If you only ever test on a laptop, you have never seen the thing your customers use.
+
+The breakages repeat across stores:
+
+- **Modals that trap the content.** A date picker opens in a fixed-height modal, the calendar overflows, and the confirm button sits below a boundary that will not scroll.
+- **Tables that overflow.** A wide table of upcoming orders pushes the page sideways and the action column ends up off screen.
+- **Tap targets sized for a mouse.** Small text links stacked close together mean the subscriber hits cancel when they meant to skip.
+- **Card fields inside a cramped iframe.** The keyboard covers the submit button, or the field zooms and shifts the layout on focus. This is the most abandoned screen in any portal.
+- **A save button below the fold.** Subscribers change a value, see it change on screen, and leave without saving, which then reads to you as a silent save failure when it was a layout problem.
+
+Test at 375 pixels wide on a real handset, not a desktop browser at a narrow window. Real devices bring the keyboard, tap accuracy and in-app email browsers with them.
+
+<PostCta />
+
+## How do you test a Shopify subscription customer portal before customers report problems?
+
+Run this once a month, and again after any theme update, app update or selling plan change. It takes about fifteen minutes.
+
+1. **Buy a subscription from your own store** with a real card and a fresh email address you have never used there.
+2. **Start from the phone.** Open the confirmation on a handset and find the manage link the way a customer would. Time how long it takes.
+3. **Make one change of each type** and screenshot each confirmation.
+4. **Verify every change in the Shopify admin** against the subscription contract, not against the portal display.
+5. **Repeat one change inside the cutoff window** and confirm the portal refuses it clearly instead of accepting it.
+
+Alongside the walkthrough, watch for cancellations that land shortly after a portal visit. A subscriber who arrived intending to change something and left having cancelled is telling you the control they needed was missing, broken or hidden.
+
+## Where does Edge Subscriptions fit in the portal?
+
+We built Edge Subscriptions around the failures above: subscribe and save on the product page, a customer portal, and dunning for failed payments. The portal inherits your theme, changes are confirmed from the contract rather than from the click, and cutoff dates are shown as dates.
+
+Being straight with you: it is a new app, it has no reviews yet, and a portal is a thing you should judge by using rather than by a feature list. Buy a subscription from your own store on a phone and see whether the walkthrough above comes out clean.
+
+If you are running a large existing book with heavy custom portal logic already built around it, a mature platform is the safer call. Appstle Subscriptions carries 5.0 stars across 8,289 reviews <Cite href="https://apps.shopify.com/subscriptions-by-appstle">on the Shopify App Store</Cite> and Recharge carries 4.8 stars across 2,967 reviews <Cite href="https://apps.shopify.com/subscription-payments">on the Shopify App Store</Cite>, and that track record matters when a migration would touch thousands of live contracts.
+
+Whichever you use, the diagnosis holds. Read the email, match it to the failure, fix that one thing, and see whether the volume drops before you touch anything else.
+
+<PostCta />

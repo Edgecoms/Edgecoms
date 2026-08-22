@@ -1,0 +1,174 @@
+---
+title: "How to Set Up Shopify Subscription Discounts"
+slug: "set-up-subscription-discounts"
+app: "edge-subscriptions"
+archetype: "tutorial"
+author: "anurag"
+description: "A Shopify subscription discount setup walkthrough: the discount shapes a selling plan can express, variant scoping, code collisions, and safe edits later."
+primaryKeyword: "shopify subscription discount setup"
+secondaryKeywords:
+  - "subscribe and save discount"
+  - "recurring discount shopify"
+publishedAt: "2026-11-23"
+updatedAt: "2026-11-23"
+imageAlt: "Placeholder illustration of a subscription discount being configured on a product"
+internalLinks:
+  - "shopify-subscriptions"
+  - "subscription-vs-one-time-purchase"
+  - "subscribers-cancelling-after-first-order"
+tldr: "A Shopify subscription discount lives in the selling plan's pricing policy, not in a discount code. You choose a percentage, a fixed amount off, or a flat price, and whether it applies to every order or only the first. Editing the plan later changes new subscribers only, never existing contracts."
+faq:
+  - question: "Can a customer stack a discount code on top of a subscription discount?"
+    answer: "Sometimes, and you should decide rather than discover. A code is a separate object from the plan's pricing policy, and its combination settings govern whether it sits alongside other product discounts. Place a test order with your most generous code on a subscription line and read the checkout total before you publish anything."
+  - question: "If I lower the subscription discount, do current subscribers pay more?"
+    answer: "No. Shopify treats the contract created at checkout as a separate record from the plan that produced it, and updates to a selling plan do not modify pre-existing subscription contracts. Your edit reaches new subscribers only. Moving existing ones is a separate migration you have to run on purpose."
+    source: "https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans"
+  - question: "Can I offer the discount on some variants but not others?"
+    answer: "Yes. Scoping happens when the selling plan group is attached, and it can be attached at variant level. Sample sizes, bundles and clearance variants are the usual ones to leave out. If you attach the group to the whole product, every variant inherits the subscribe option whether it earns the margin or not."
+  - question: "Does a first-order-only discount need a different plan?"
+    answer: "No, it is the same plan with a different adjustment setting. The pricing policy can apply once to the first order or recur on every order. The configuration takes seconds. Whether it is a good idea is a separate question, and the answer depends on what happens to your second order."
+  - question: "Why does my product page show a saving the checkout does not apply?"
+    answer: "Usually the page is showing hardcoded theme copy rather than the plan's computed price. The text says one thing, the pricing policy says another, and the checkout is right. Fix it by rendering the price the selling plan returns instead of writing the number into a section setting or a product description."
+---
+
+You set up subscribe and save. The product page shows a saving, the customer subscribes, and then the second order bills at full price. Or the discount does apply, but it applies to a sample size variant you never meant to offer on repeat.
+
+Both come from the same place. The discount is not a discount code and it is not a store level rule in an app dashboard. It lives inside the selling plan, in a field called the pricing policy, and **shopify subscription discount setup** is the job of getting that one field right.
+
+This is a configuration guide. It assumes you already have a plan on a product and it stays out of the argument about how big the number should be.
+
+## What does Shopify subscription discount setup actually control?
+
+A selling plan group represents <Cite href="https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans">a selling method</Cite>, such as subscribe and save. Inside it, each selling plan carries four policies, and the pricing policy is the one holding the discount.
+
+That policy is deliberately narrow. It expresses a price adjustment on the line, and when that adjustment applies. Everything you want to do with a subscription discount is built out of those two dials.
+
+| Shape | What the pricing policy holds | Use it when |
+| --- | --- | --- |
+| Percentage off | A percentage reduction from the variant price | The catalogue has mixed prices and you want one rule |
+| Fixed amount off | A set amount deducted per unit | You want a predictable per unit margin cost |
+| Flat price | An absolute price the plan charges | The subscription price is a headline number in its own right |
+| No adjustment | Nothing | Convenience is the offer and the price does not move |
+
+A few things follow from that table.
+
+- **The policy sits on the plan, not the product.** Two frequencies inside the same group can carry different adjustments, so weekly and monthly do not have to match.
+- **Percentage tracks price changes, fixed amount does not.** Raise a variant price later and a percentage plan follows it. A fixed amount plan quietly gets more generous.
+- **A flat price ignores the variant price entirely.** Useful, and dangerous, because a price rise on the product does nothing to the subscription until you touch the plan.
+- **Anything that changes over time is not one policy.** A discount that deepens at cycle six is not a single adjustment. It has to be modelled as more than one plan, or handled by the app on top of the plan.
+
+## How do you configure a recurring versus a first-order-only discount?
+
+This is one setting, usually labelled "applies to every order" against "applies to the first order only". The plumbing underneath is the same plan either way. Here is the procedure, starting from a group that already exists on the product.
+
+1. **Open the plan, not the group.** The group is the wrapper. The discount belongs to a specific plan inside it, so a group with three frequencies has three pricing policies to set.
+2. **Choose the adjustment type** from the four shapes above. Pick percentage unless you have a specific reason not to.
+3. **Enter the value.** Enter it once, here. Do not repeat it anywhere in theme copy.
+4. **Set the recurrence.** Recurring means the adjustment applies on every billing cycle for the life of the contract. First order only means the adjustment applies once and cycle two returns to the variant price.
+5. **Repeat for every other plan in the group.** A half configured group is how a customer ends up picking the one frequency that has no discount at all.
+6. **Save, then reload the product page as a logged out customer.** Not in the theme editor preview.
+
+<Callout title="First-order-only is a configuration option, not a default" tone="warning">
+It takes the same thirty seconds to set, which is why it gets chosen without a decision being made. Decide it on purpose. The fallout when it goes wrong is covered in [why subscribers cancel after the first order](/blog/subscribers-cancelling-after-first-order).
+</Callout>
+
+<PostCta />
+
+## How do you apply a discount to some variants but not others?
+
+Scoping does not happen in the pricing policy. It happens when the selling plan group is attached, and the attachment can be made at variant level rather than product level.
+
+Attach the group to the product and every variant inherits the subscribe option, including the ones that should never carry a recurring discount.
+
+- **Trial and sample sizes.** A small size exists to be bought once. Putting a recurring discount on it turns your cheapest acquisition product into your thinnest margin subscription.
+- **Bundles and multipacks.** These already carry a volume discount. Adding a subscription discount on top stacks two reductions on the same unit.
+- **Clearance and end of line variants.** A recurring commitment on stock you are trying to exit is a promise you cannot keep.
+
+Decide the eligible variant list before you attach anything, then attach the group only to those variants. If different variants deserve different values, that is a second selling plan group rather than a second value inside the first.
+
+<Example>
+A shampoo has a 100ml travel size at 8.00 and a 500ml at 24.00. A fixed amount off of 3.00 attached at product level applies to both, which is a modest reduction on the 500ml and a large one on the 100ml. Attaching the group to the 500ml only removes the problem.
+</Example>
+
+## What happens when a discount code meets a subscription discount?
+
+They are different systems. The pricing policy adjusts the line because of how the item is being bought. A discount code adjusts the order because someone typed something into a box. What you get depends on the code's combination settings, which decide whether it can sit alongside other product discounts. That needs testing rather than reasoning about.
+
+There are two separate questions, and merchants usually only ask the first.
+
+- **Does the code apply at all on a subscription line?** Test with your most generous active code, not a token one.
+- **Does it apply again next cycle?** The code was entered at that checkout. Whether it carries into the contract depends on whether your app writes it there, and it usually does not.
+- **What is the stacked total?** If the result sits below your floor, the fix is the code's combination setting, not the plan.
+- **Are your welcome codes excluded?** A welcome code plus a subscription discount plus free shipping is where most of the damage happens.
+
+The safe default is to exclude subscription lines from sitewide codes and let the plan be the only reduction on that line.
+
+<PostCta />
+
+## How do you show the saving on the product page and in the cart?
+
+One source of truth. The plan holds the number and the storefront reads it rather than repeating it.
+
+- **On the product page,** render the price the plan returns for the selected variant, next to the one time price. Two prices beat a claim about a percentage.
+- **In the cart,** show the plan name on the line. "Delivered monthly" tells the customer what they agreed to. A bare line item produces support tickets after the first renewal.
+- **At checkout,** confirm the line total matches the product page. If it does not, the page is lying and the checkout is right.
+
+<Callout title="Never hardcode the number in theme copy" tone="warning">
+A section setting or a product description that spells out the saving is a copy of the truth. Change the pricing policy six months later and that copy stays behind, promising a reduction the checkout will not honour. A drifted saving claim usually started life as a helpful piece of static text.
+</Callout>
+
+## How do you change a discount without affecting existing subscribers?
+
+Shopify already answers this for you, and the answer is reassuring. Updates to a selling plan <Cite href="https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans">do not modify pre-existing subscription contracts</Cite>. The contract created at checkout is its own record.
+
+So editing a plan is safe by default. New subscribers get the new terms and everyone already on the plan keeps what they signed up for. That is a safeguard, not a bug.
+
+The reverse is also true. If you want existing subscribers moved to a better rate, editing the plan does nothing for them. That is a deliberate migration you run against the contracts.
+
+The order of operations for a change:
+
+1. **Decide whether existing subscribers should move.** Down in price is a goodwill exercise. Up in price is a churn event.
+2. **Edit the plan for everyone new.** Change the value in the pricing policy and save.
+3. **Check the storefront reflects it** on a hard refresh, then check a fresh test purchase creates a contract at the new price.
+4. **Leave existing contracts alone** unless step one said otherwise, in which case migrate them explicitly and tell those customers before the next charge lands.
+
+<PostCta />
+
+## How do you test a discount before it reaches a live cart?
+
+Configuration is cheap. Finding a broken pricing policy in a customer email is not. Run this before you announce anything.
+
+1. **Log out** and open the product page in a private window.
+2. **Select each frequency in turn** and confirm the displayed price changes with the selection.
+3. **Add a subscription line to the cart** and confirm the line shows the plan name and the discounted price.
+4. **Apply your most generous discount code** and record the total. Then remove it and record the total again.
+5. **Complete a real low value order** using a variant priced at your minimum. A draft order does not exercise the same path.
+6. **Open the subscription contract** the checkout created and confirm the recurring price matches what you expect for cycle two, not just cycle one.
+7. **Repeat on the excluded variants** and confirm no subscribe option appears there at all.
+
+What it looks like when it has gone wrong:
+
+| Symptom | Usual cause |
+| --- | --- |
+| Product page shows a saving, checkout does not | Hardcoded theme copy instead of the plan's price |
+| First order discounted, second at full price | Adjustment set to first order only |
+| One frequency discounted, another not | A plan in the group with an empty pricing policy |
+| Subscribe option on a sample size | Group attached at product level, not variant level |
+| Total below your margin floor | A code combining with the plan adjustment |
+| Subscribers all on the old price after an edit | Working as designed, contracts are separate records |
+
+## Where does Edge Subscriptions fit in discount setup?
+
+Edge Subscriptions handles subscribe and save, the customer portal and dunning. It is a new app with no reviews yet, so take that as read. What it does with discounts is what this post argues for: the plan holds the number, the storefront reads it, and nothing about the price is duplicated in theme copy.
+
+If your needs go beyond one adjustment per plan, be honest about it before installing anything.
+
+- **Appstle Subscriptions** has a free plan up to $500 per month in subscription revenue, then $10 per month up to $5,000 and $30 per month up to $15,000. Start there if you want to test an offer before you pay for one. <Cite href="https://apps.shopify.com/subscriptions-by-appstle">See the listing</Cite>.
+- **Recharge** has no free plan. Starter is $25 per month with no transaction fee for the first 50 subscribers, and the $99 per month tier charges 1.49% plus $0.19 per transaction. <Cite href="https://apps.shopify.com/subscription-payments">See the listing</Cite>. Run both shapes against your own volume before assuming either is cheaper.
+- **Edge Subscriptions** suits stores who want the standard shape done cleanly. <Cite href="https://apps.shopify.com/edge-subscription">See the listing</Cite>.
+
+<CheckedOn date="22 August 2026" />
+
+Whatever you install, the discount lives in the pricing policy and the contract outlives it. If you are still deciding whether recurring suits your catalogue at all, the comparison of [subscription against one time purchase](/blog/subscription-vs-one-time-purchase) is the better place to start.
+
+<PostCta />

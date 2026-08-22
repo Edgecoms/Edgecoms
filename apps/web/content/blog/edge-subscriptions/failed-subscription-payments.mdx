@@ -1,0 +1,158 @@
+---
+title: "Failed Subscription Payments: Recover the Revenue"
+slug: "failed-subscription-payments"
+app: "edge-subscriptions"
+archetype: "problem"
+author: "anurag"
+description: "Read the decline code, work out whether the bank or your own data killed the charge, and win the subscriber back. A guide to failed subscription payments."
+primaryKeyword: "failed subscription payments"
+secondaryKeywords: ["involuntary churn", "declined recurring card"]
+publishedAt: "2026-12-21"
+updatedAt: "2026-12-21"
+imageAlt: "Placeholder illustration of a declined recurring card charge"
+internalLinks:
+  - "shopify-subscriptions"
+  - "reduce-subscription-churn"
+  - "recharge-alternatives"
+tldr: "Failed subscription payments are cards that stopped working, not customers who chose to leave. Read the decline reason first. Soft declines like insufficient funds often clear on a later attempt. Hard declines need a new card. Some failures are your own data, and those are the cheapest ones to fix."
+faq:
+  - question: "Is a declined recurring card worth chasing after a month has passed?"
+    answer: "Yes, and more often than merchants expect. A subscriber whose card died in October did not decide anything in October. They simply stopped hearing from you. A short, specific message naming the product, the amount and a single link to update the card recovers people who still want what they signed up for and assumed you had cancelled them."
+  - question: "Should I retry a card that was declined as lost or stolen?"
+    answer: "No. That is a hard decline and the card no longer exists. Retrying it cannot succeed, and repeated attempts against a dead credential put your merchant account under scrutiny for excessive authorisation failures. Stop the retries immediately and move the subscriber to a message asking for a replacement card instead."
+  - question: "Does changing my subscription price fix charges that are failing on the old price?"
+    answer: "No. Shopify's documentation is explicit that updates to a selling plan do not modify pre-existing subscription contracts. Editing the plan changes what new subscribers get and leaves everyone already subscribed exactly where they were. A failing charge needs the contract itself amended or the payment method replaced, not a plan edit."
+    source: "https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans"
+  - question: "Should I ship the order while the payment is being retried?"
+    answer: "Only if the customer has a long history and the product is cheap to make. Shipping ahead of payment turns a recoverable billing problem into an unrecoverable inventory loss when the card never works. The safer default is to hold fulfilment, tell the customer plainly that the delivery is paused, and release it the moment the charge clears."
+  - question: "Why do the amounts differ slightly for my international subscribers?"
+    answer: "Currency conversion and rounding. Shopify rounds converted prices to keep them stable rather than showing a raw exchange result, the feature requires Shopify Payments, and the rounding rules cannot be customised. That is normal. What is not normal is a card that cannot settle in the presentment currency at all, which shows up as a decline rather than an odd number."
+    source: "https://help.shopify.com/en/manual/markets/pricing/rounding"
+---
+
+Your subscriber count dropped again and you cannot find the cancellations that explain it. Nobody emailed. Nobody clicked cancel in the portal. The number just went down.
+
+That gap is almost always **failed subscription payments**. A card expired in the eleven months since signup. An issuer refused a charge at two in the morning and nobody noticed. The subscriber did not leave you. The charge left, and they came along with it because nothing pulled them back.
+
+This is a diagnostic guide. Read what the decline said, work out whether the bank caused it or your own data did, then go and get the person back.
+
+## How much of your churn is really failed subscription payments?
+
+Churn splits into two piles. Voluntary churn is a customer who decided to stop. Involuntary churn is a payment that stopped for them. They look identical in a dashboard and they need opposite responses.
+
+Before you change anything, measure the split. Export every subscription that ended in the last ninety days and sort it into three columns: cancelled by the customer, cancelled by you, and ended after a billing failure. Most stores I look at have never done this, and the third column surprises them.
+
+<Example>
+A store has 1,200 subscribers paying £38 a month. In one month 55 charges fail, 30 recover on a later attempt on their own, and 25 quietly lapse. That is £950 of monthly recurring revenue gone, and roughly £11,400 over a year if the pattern repeats. Substitute your own numbers.
+</Example>
+
+The point is not the total. It is that the lapsed group never chose to leave, which makes them the cheapest customers you will ever win back. You already know what they want, what size they take and where they live.
+
+## What do the common decline reasons actually mean?
+
+Your gateway records a reason for every refusal, and most subscription apps surface it in the failed order or the contract's billing history. It is the most useful information you have and it is usually ignored in favour of a blanket retry. Here is what the common ones mean.
+
+| Decline reason | What it usually means | What to do |
+| --- | --- | --- |
+| Insufficient funds | The balance or credit limit was short at that moment | Soft. Worth another attempt later |
+| Card expired | The stored card passed its expiry date | Needs a new card or an updated expiry |
+| Invalid card number | The card was reissued or the account closed | Needs a new card |
+| Incorrect CVC or address mismatch | Stored details no longer match the issuer's record | Often your data. Fix the record |
+| Do not honour or generic decline | The issuer refused without stating why | Soft. Sometimes clears on its own |
+| Lost, stolen or pick up card | The issuer cancelled the credential | Hard. Stop retrying immediately |
+| Processing error or issuer unavailable | A temporary fault in the network | Soft. Almost always clears |
+| Authentication required | The issuer wants 3D Secure on an off-session charge | Your setup. Needs a customer action |
+| Suspected fraud or blocked | A risk rule stopped the charge | Hard. Do not retry |
+| Currency not supported | The card cannot settle in that presentment currency | Your setup |
+
+Two things fall out of that table. The split is not between good customers and bad ones, it is between refusals that carry information and refusals that carry none. And half of those rows are not the bank's decision at all.
+
+<Callout title="Never retry a hard decline" tone="warning">
+Lost, stolen and suspected fraud responses mean the credential is gone. Repeated attempts against it cannot succeed, and a merchant account with a high authorisation failure rate attracts attention from acquirers you would rather not have. Route hard declines straight to a request for a new card.
+</Callout>
+
+<PostCta />
+
+## Why do soft declines succeed on a later attempt?
+
+Because the issuer's answer is about a moment, not about the customer. A card is not a switch. It is a live risk decision made against a balance, a velocity limit and a set of fraud rules that all move during the month.
+
+- **Balance timing.** A charge that lands the day before payday fails and the same charge two days later clears. Nothing about the customer changed except the date.
+- **Velocity and pattern rules.** Issuers throttle unusual bursts of activity. A subscription charge that arrives in the middle of an unusual spending week can be caught in a net aimed at someone else.
+- **Travel flags.** A cardholder abroad triggers rules that decline recurring charges until the flag settles.
+- **Network faults.** Issuer unavailable means exactly that. It is not a judgement about anyone.
+
+This is why an untouched card recovers on its own so often, and why one attempt followed by an immediate cancellation is the most expensive policy you can run.
+
+How many attempts, how far apart and when to give up is a separate design problem. Settle the schedule and the message sequence in a dunning flow. Treat this page as the diagnosis that feeds it.
+
+## Which failures are your fault rather than the bank's?
+
+These cost nothing to fix and you are paying for them every month.
+
+1. **Stale address and CVC data.** Address verification compares what you stored at signup against what the issuer holds now. Someone who moved house last spring told their bank and not you. The card is fine, your copy of it is not. Let people edit the billing address, not just the shipping one.
+2. **Expired stored credentials.** A card reissued with the same number and a new expiry date will fail against your old expiry. Account updater services and network tokens exist precisely to refresh this in the background. If your gateway offers them and they are switched off, switch them on.
+3. **Currency and market mismatch.** A subscriber whose card cannot settle in your presentment currency is declined every cycle forever. Converted prices are rounded to stay stable, and <Cite href="https://help.shopify.com/en/manual/markets/pricing/rounding">that rounding needs Shopify Payments and cannot be customised</Cite>, so an odd amount is expected. A flat refusal in one country only is a configuration problem.
+4. **Descriptor mismatch.** Your statement descriptor shows a holding company the customer has never heard of. They report the charge as unrecognised, the issuer blocks you, and every future charge dies. Make the descriptor the brand on the box.
+5. **Off-session authentication.** Recurring charges are off-session by definition. If the first checkout did not set the mandate up correctly, some issuers demand authentication an unattended charge cannot provide.
+
+Work through those five before you touch retry timing. There is no point retrying a charge that fails identically every time for a reason you control.
+
+<PostCta />
+
+## How do you recover a subscriber whose card failed weeks ago?
+
+Cold recovery is a different job from dunning. The retries are finished, the emails stopped, and the person has gone a month without your product. They probably assume you cancelled them.
+
+1. **Keep the contract, do not delete it.** A paused or failed contract holds the variant, the cadence, the discount and the address. Deleting it means the customer has to rebuild the whole order from scratch, which is where most of them give up.
+2. **Send one specific message, not a marketing email.** Name the product, the amount and the date it failed. Vagueness reads as phishing.
+3. **Link to one action.** A single link that opens the payment method update and nothing else. Every extra decision loses people.
+4. **Never charge the backlog.** Billing three missed months at once to a card that just came back online is how you turn a recovered subscriber into a chargeback. Restart from the next cycle.
+5. **Restart the clock, not the price.** Honour the original discount. A subscriber who returns on worse terms than they left on has been given a reason to think twice.
+
+If someone has been gone long enough that the original offer no longer makes commercial sense, that is a retention decision, not a billing one. Make it deliberately instead of letting your app default decide.
+
+## What should happen to the delivery that was missed?
+
+A failed charge leaves one question hanging: does the box ship? Answer it deliberately, because the default in most setups is to do nothing and let the customer find out.
+
+- **Hold fulfilment by default.** Shipping unpaid goods turns a recoverable billing problem into a written-off one. The exception is a long-standing subscriber on a cheap item, where goodwill outweighs the unit cost.
+- **Choose skip or shift, and be consistent.** Skipping loses that cycle and keeps the schedule. Shifting moves the whole cadence forward and loses nothing. Consumables usually want a shift, dated or seasonal products a skip.
+- **Tell them which one happened.** The worst outcome is silence followed by a box that arrives three weeks late with no explanation.
+- **Release held inventory.** A unit reserved against a dead contract is stock you could have sold.
+
+<PostCta />
+
+## How do you stop card expiries becoming failures in the first place?
+
+Expiry is the one failure mode with a date attached. You can see it coming months out, which makes it the most avoidable line in the table above.
+
+- **Turn on network tokens or an account updater.** These refresh reissued credentials automatically at the network level. This is the single highest-value switch in this post.
+- **Warn before the expiry, not after the decline.** A reminder that lands two weeks before the card dies is a helpful message. The same message after a failure is an apology.
+- **Let people update a card without logging in.** A secure one-click link beats a password reset every time.
+- **Encourage wallets at signup.** Shop Pay and PayPal abstract the underlying card, so a reissue does not break the mandate the way a raw card number does.
+- **Ask at a good moment.** Goodwill peaks in the confirmation email after a delivery lands. That is when a "your card expires next month" line gets acted on.
+
+For how this sits inside selling plans and contracts, the [complete Shopify subscriptions guide](/blog/shopify-subscriptions) covers the framework underneath.
+
+## Where does Edge Subscriptions fit in payment recovery?
+
+Edge Subscriptions is our own app. It does subscribe and save, a customer portal and dunning. It is new and has no review history yet, and I am not going to pretend otherwise on our own blog.
+
+It is built around the argument on this page: the decline reason is data, hard and soft declines deserve different treatment, and a lapsed subscriber should still have a contract to come back to rather than a form to fill in again.
+
+If subscriptions are the largest part of your revenue and you need a deep operational stack today, the mature options are the better bet.
+
+| App | Rating and reviews | Entry pricing | Trial |
+| --- | --- | --- | --- |
+| Recharge | <Cite href="https://apps.shopify.com/subscription-payments">4.8 stars, 2,967 reviews</Cite> | <Cite href="https://apps.shopify.com/subscription-payments">Starter $25/mo, no transaction fee for the first 50 subscribers</Cite> | <Cite href="https://apps.shopify.com/subscription-payments">60-day free trial</Cite> |
+| Appstle | <Cite href="https://apps.shopify.com/subscriptions-by-appstle">5.0 stars, 8,289 reviews</Cite> | <Cite href="https://apps.shopify.com/subscriptions-by-appstle">Free up to $500/mo revenue, Starter $10/mo</Cite> | <Cite href="https://apps.shopify.com/subscriptions-by-appstle">14-day trial on paid plans</Cite> |
+| Edge Subscriptions | No reviews yet | See listing | See listing |
+
+<CheckedOn date="22 August 2026" />
+
+Recharge suits a large subscription business that needs depth and integrations, and the [Recharge alternatives comparison](/blog/recharge-alternatives) covers when it is and is not worth the price. Appstle suits anyone who wants a lot of configuration for very little money.
+
+Pick whichever fits. Then go and read your decline reasons, because that is where the money is.
+
+<PostCta />

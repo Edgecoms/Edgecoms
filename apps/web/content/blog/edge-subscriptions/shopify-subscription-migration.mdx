@@ -1,0 +1,175 @@
+---
+title: "Shopify Subscription Migration Without Losses"
+slug: "shopify-subscription-migration"
+app: "edge-subscriptions"
+archetype: "problem"
+author: "anurag"
+description: "A Shopify subscription migration quietly drops payment vaults, cycle dates and legacy pricing. Here is the inventory, an hour-by-hour runbook and a rollback."
+primaryKeyword: "shopify subscription migration"
+secondaryKeywords: ["move subscribers between apps", "subscription contract migration"]
+publishedAt: "2027-01-18"
+updatedAt: "2027-01-18"
+imageAlt: "A subscription contract list being moved between two apps"
+internalLinks:
+  - "shopify-subscriptions"
+  - "appstle-alternatives"
+  - "best-shopify-subscription-apps"
+tldr: "Moving subscribers between apps moves data, not state. Payment vaults, cycle position, legacy prices, pause and cancellation history and dunning retries do not travel unless you carry them deliberately. Inventory what you hold, freeze billing in one system at a time, reconcile counts and revenue after the move, and keep the old app installed for rollback."
+faq:
+  - question: "Do subscribers have to re-enter their card during a migration?"
+    answer: "Only when the payment credential lives in a vault the new app cannot reach. If both apps use Shopify-native subscription contracts on the same Shopify Payments account, the saved payment method belongs to the shop, not the app. If your old app charges through its own processor account, ask both processors about a vault-to-vault transfer before you announce anything to customers."
+  - question: "What happens to a subscriber's discount when their contract moves?"
+    answer: "Nothing carries automatically. A discount that was baked into the old contract is a price on that contract, not a rule the new app can rediscover. Export the actual line price each subscriber pays, in minor units, and rebuild it contract by contract. Updates to a selling plan do not rewrite contracts that already exist."
+    source: "https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans"
+  - question: "How do I stop a customer being billed twice on cutover day?"
+    answer: "Make one system authoritative at every instant. Pause or deactivate billing in the old app before you export, not after you import. Then compare next billing dates on both sides and push the new date forward if the old app already charged this cycle. A skipped charge is recoverable. A double charge becomes a chargeback."
+  - question: "How long should I keep the old subscription app installed?"
+    answer: "Through at least one full billing cycle plus the dunning window, with its billing disabled. It is your only real audit trail for disputes about what a subscriber used to pay and when they last paused. Uninstalling early throws away the evidence you will want the first time someone emails asking why their price changed."
+  - question: "Can I migrate in batches instead of all at once?"
+    answer: "Yes, and for large books you should. Split by next billing date rather than by customer ID, so each batch has a clean window with no charge due. Migrate the furthest-out cycles first. That gives you the most time to catch a mistake before anyone is charged, and it keeps the first batch small enough to check by hand."
+---
+
+Your subscriber count in the new app matches. Your revenue does not. A week after the move, support is fielding two kinds of email: people charged twice, and people whose box never came. Somewhere in the export, contracts lost their place in the cycle and others lost the price they were promised in 2024.
+
+That is where a Shopify subscription migration goes wrong. Not the export. The export is a CSV and it works. What breaks is state: the things between the rows. A payment token in a vault you do not control. A next billing date that is really an anchor plus an interval plus a timezone. A price hand-edited once that exists nowhere in your catalogue.
+
+This is a runbook for moving subscribers without losing any of that.
+
+## What actually gets lost when subscriptions move between apps?
+
+Start by writing down what you hold. The rows that go missing are rarely the ones you were watching.
+
+| What you hold | Usually in the export? | What to do about it |
+| --- | --- | --- |
+| Customer, address, SKU, quantity | Yes | Straight mapping. Verify SKUs exist. |
+| Interval and frequency | Yes | Check the unit. Weeks and days are not interchangeable. |
+| Next billing date | Sometimes | Export it explicitly. Never let the new app recalculate. |
+| Position in a prepaid cycle | Rarely | Count deliveries fulfilled. Carry the remainder. |
+| Vaulted payment method | Depends on gateway | Confirm portability before you commit to a date. |
+| Legacy or hand-edited price | No | Export the line price in minor units, per contract. |
+| Applied discount or gift line | No | Rebuild per contract, not per selling plan. |
+| Pause history and scheduled resumes | Almost never | Export separately. A missed resume is silent churn. |
+| Cancellation reasons and dates | No | Archive as a CSV, or lose your churn baseline. |
+| Dunning retry state | No | Assume it resets. Plan for a decline spike. |
+
+The pattern: anything Shopify itself knows tends to travel. Anything the old app decided on its own does not. Every row in that second group you carry by hand or consciously accept losing.
+
+## Can payment methods move, or must customers re-authorise?
+
+This decides whether your migration is a weekend or a quarter. Answer it first.
+
+- **Shopify-native to Shopify-native.** If both apps create Shopify subscription contracts against the same Shopify Payments account, the saved payment method belongs to the shop. Shopify creates the contract at checkout <Cite href="https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans">as part of the selling plan flow</Cite>.
+- **App-owned vault to a different processor.** If your current app bills through its own merchant account, the card numbers sit in that processor's vault. You cannot export them. Moving them is a formal, PCI-scoped transfer, scheduled by them, not you. Open the request with both processors before you tell subscribers anything. Lead times are the biggest reason migrations slip.
+- **Re-authorisation is the last resort.** Every customer asked to re-enter a card is given a reason to reconsider. If you must, do it in waves tied to each subscriber's renewal date.
+
+If tokens cannot move, stop and re-plan. That is not a detail to discover on cutover morning.
+
+<PostCta />
+
+## How do you preserve next-billing dates and position in the cycle?
+
+A next billing date is not one field. It is an anchor date, an interval, a count of cycles already run, and a timezone the old app assumed.
+
+Export all four and set the date explicitly on import. Let the new app derive it from a fresh anchor and a customer on day 3 of a 30-day cycle gets billed tomorrow.
+
+- **Normalise the timezone.** Store everything in UTC during the transfer and convert once at import. A few hours of drift crosses a day boundary for part of your book.
+- **Count prepaid deliveries.** A twelve-month prepaid contract with four boxes shipped is not a new one. Carry the remainder and check it against fulfilments.
+- **Preserve the anchor day, not just the interval.** Someone billed on the 1st stays on the 1st. Month-end anchors need an explicit rule for February.
+- **Sort your export by next billing date.** It doubles as your batching plan and your risk map. Anything due in the next 72 hours is the dangerous set.
+
+## What happens to legacy pricing and discounts on old contracts?
+
+Old contracts hold old prices by design. Updates to a selling plan do not modify contracts that already exist <Cite href="https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans">in Shopify's model</Cite>. So your 2024 subscribers can be paying a price that appears in no plan, no product and no discount rule in your store.
+
+That price exists only on the contract row. Export selling plans instead of contracts and it is gone.
+
+<Example>
+Say 180 subscribers hold a legacy price of 2400 minor units per month while the current plan charges 3200. Import them onto the current plan by mistake and that is 800 minor units of unannounced increase each, or 144,000 per month. Substitute your own numbers.
+</Example>
+
+<Callout title="Export prices, not plans" tone="warning">
+Pull the actual per-line price each contract charges, in minor units, as an integer. Never reconstruct it from a percentage stored somewhere else. Rounding a percentage back into currency is where a migration invents money that was never charged.
+</Callout>
+
+Build one selling plan per distinct legacy price and map each contract to the plan matching what it pays today. Ugly in the admin. Correct in the bank account.
+
+<PostCta />
+
+## How do you avoid double-charging or skipping a cycle at cutover?
+
+One rule holds this together: **exactly one system is authoritative at any instant.** Double charges come from the window where both apps think they own the same contract.
+
+1. **Disable billing in the old app first.** Before you export, not after you import.
+2. **Take the export immediately after the freeze.** A stale export is a wrong export.
+3. **Import with billing disabled in the new app too.** Load, verify, then enable charging.
+4. **Diff the dates before you enable.** Compare the last charge in the old app against the next charge in the new one. If the old app already billed this cycle, push the new date forward a full interval.
+5. **Prefer skipping.** When a contract is ambiguous, skip the cycle. You can bill a week late with an apology. You cannot un-charge without a refund and a chargeback risk.
+6. **Hold back the dangerous set.** Contracts due within 72 hours of the freeze get migrated and checked by hand.
+
+## What does the cutover week look like, hour by hour?
+
+Do it on a low-volume day, with the team awake, and never before a holiday.
+
+| When | Action | Owner |
+| --- | --- | --- |
+| T-7 days | Payment vault answer confirmed in writing | You |
+| T-5 to T-4 days | Dry run into test mode, reconcile, fix mappings, repeat | Dev |
+| T-3 days | First subscriber email sent | Marketing |
+| T-48h | Freeze plan and price edits in the old app | You |
+| T-24h | Final dry run. Rollback criteria agreed | All |
+| T-0, 06:00 | Disable billing in the old app | You |
+| T-0, 06:30 | Take the export. Checksum and archive it | Dev |
+| T-0, 08:00 | Import with billing off | Dev |
+| T-0, 11:00 | Reconciliation. Counts, revenue, histogram | You |
+| T-0, 14:00 | Manual review of the 72-hour danger set | Support |
+| T-0, 16:00 | Enable billing in the new app | You |
+| T+1 day | Watch the first charges land. Second email | Support |
+| T+7 days | Decline review against your normal rate | You |
+| T+35 days | Old app uninstalled, archives kept | You |
+
+That gap between import and enabling billing is the last cheap moment to catch a mistake.
+
+<PostCta />
+
+## How do you reconcile the two systems after the move?
+
+Reconciliation is three counts and a histogram. Run them before you enable billing and again a week later.
+
+- **Contract count.** Active in the old app on freeze day versus active in the new one. Explain every difference line by line.
+- **Recurring revenue in minor units.** Sum the per-contract charge on both sides as integers. A difference means a legacy price did not carry.
+- **Next-billing-date histogram.** Bucket contracts by date on both sides. A spike on one day means the new app re-anchored a group instead of preserving their dates.
+- **Per-customer diff for the tail.** Your largest subscribers get checked by a human against the old admin.
+
+Then watch declines. Dunning retry state does not carry, so a card that was mid-retry arrives looking healthy and fails on first attempt. Expect a bump in week one. Separate genuine failures from migration artefacts before chasing anyone. If declines have not settled by the second cycle, the problem is not dunning. It is a mapping error.
+
+## What do you tell subscribers, and when?
+
+Tell them before, in plain language, and only about what affects them.
+
+- **First email, three days out.** What is changing, the date, and what they must do. If the answer is nothing, say so.
+- **Second email, the day after.** The new portal link and how to manage a subscription. This is the one that cuts support volume.
+- **Never promise nothing will change** if the portal login, the charge descriptor or a billing date moves. Being caught understating it costs more than the change.
+- **Handle re-authorisation separately.** If some customers must re-enter a card, that is its own email to that segment, timed to their renewal. Never bury it in a general announcement.
+- **Brief support first.** Export open and a one-page script before the first email goes out.
+
+<PostCta />
+
+## What is the rollback plan if it goes wrong?
+
+Decide your abort criteria at T-24h, in writing, while you are calm: a handful of unexplained contract differences, a revenue mismatch you cannot account for, or any evidence of a duplicate charge.
+
+Keep the old app installed with billing disabled for at least a full cycle plus the dunning window. Rolling back then means re-enabling billing there and disabling it in the new app. Five minutes, because you deleted nothing.
+
+The point of no return is the first successful charge in the new system. After that, rolling back means refunding real money and re-vaulting real cards, so you forward-fix instead: correct the affected contracts, refund the affected customers, keep going. That is why reconciliation sits before the billing switch.
+
+## Where does Edge Subscriptions fit in a Shopify subscription migration?
+
+This is mostly a data problem. App features matter less than whoever does the mapping. Be sceptical of any app that pitches migration as a button.
+
+Edge Subscriptions is new. It has no review history and I will not pretend otherwise. It builds on Shopify's native subscription contracts, so the payment method stays with the shop and the easy case above stays easy. It handles subscribe and save, the customer portal, and dunning.
+
+If you are moving thousands of contracts off a processor-owned vault, what you need most is a team that has done that transfer before. Recharge is the most established option there <Cite href="https://apps.shopify.com/subscription-payments">at 4.8 stars across 2,967 reviews</Cite>, and it has no free plan. If your book is small and cost decides it, [Appstle](https://apps.shopify.com/subscriptions-by-appstle) has a free plan up to $500 per month in subscription revenue. Our [Appstle comparison](/blog/appstle-alternatives) and the [app roundup](/blog/best-shopify-subscription-apps) go deeper.
+
+Edge fits if you have outgrown a basic setup, want native contracts and a portal that does not fight your theme, and want legacy prices handled one at a time. If that is not you, use one of the others.
+
+<PostCta />

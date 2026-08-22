@@ -1,0 +1,156 @@
+---
+title: "How to Set Up Subscriptions on Shopify"
+slug: "set-up-subscriptions-shopify"
+app: "edge-subscriptions"
+archetype: "tutorial"
+author: "anurag"
+description: "How to set up subscriptions on Shopify from zero: permissions, your first selling plan, the product page widget, a real test order, and the first-week checks."
+primaryKeyword: "how to set up subscriptions on shopify"
+secondaryKeywords:
+  - "selling plans shopify"
+  - "recurring order setup"
+publishedAt: "2026-11-16"
+updatedAt: "2026-11-16"
+imageAlt: "Placeholder illustration of a Shopify product page with a subscribe option"
+internalLinks:
+  - "shopify-subscriptions"
+  - "shopify-subscription-customer-portal"
+  - "best-shopify-subscription-apps"
+tldr: "Install a subscription app, approve its permissions, build one selling plan group on one product, set the delivery and billing intervals, add the app block to your product template, then place a real test order and cancel it from the customer portal. Verify the contract exists before you launch."
+faq:
+  - question: "Do I need Shopify Payments to sell subscriptions?"
+    answer: "You need a gateway that can vault a card and charge it again later without the customer present. Shopify Payments does this and is the path of least resistance. Some third-party gateways support it and many do not, so check your gateway before you install anything. If it cannot store a payment method for future use, no subscription app can rescue it."
+  - question: "Why does my subscribe option not show on the product page?"
+    answer: "Three usual causes. The app block is not added to the product template you are actually viewing, because alternate templates need it added separately. The product or the specific variant is not attached to the selling plan group. Or the app embed is disabled in theme settings. Check them in that order and one of them is almost always it."
+  - question: "Can I test a subscription without spending real money?"
+    answer: "Partly. A test gateway will produce an order, but it will not prove that a real card can be vaulted and charged again a month later, which is the part that actually breaks. Place one live order on your own card, confirm the contract and the portal, then refund it. The refund costs you a few pence in fees and buys real certainty."
+  - question: "If I edit the plan later, do existing subscribers change too?"
+    answer: "No. Shopify's documentation states that updates to a selling plan do not modify pre-existing subscription contracts. New subscribers get the new terms and everyone already on the plan keeps the old ones. That is a safeguard, not a bug, but it means fixing a mistake means migrating existing contracts rather than editing one field."
+    source: "https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans"
+  - question: "How many products should I launch with?"
+    answer: "One, and preferably your best repeat seller. A single product means one widget to check, one plan to test, and one renewal batch to watch in week two. Rolling out to a whole catalogue on day one means that when something is wrong you find out at scale, from customers, instead of quietly from your own test order."
+---
+
+You sell something people finish and buy again. Coffee, supplements, filters, food for a dog that does not skip meals. Every month those customers either remember you or they do not, and the ones who forget are gone without ever deciding to leave.
+
+This is a clicking guide, not a strategy piece. **How to set up subscriptions on Shopify** is a sequence of about thirty minutes of admin work, and in the launches I have had to rescue the same two things went wrong: the widget never appeared on half the product templates, and nobody placed a real test order before going live. Both are cheap to avoid.
+
+What follows assumes a store with no subscriptions today. For the underlying model of selling plans and contracts, read the [full guide to Shopify subscriptions](/blog/shopify-subscriptions) first. Here we stick to the clicks.
+
+## What do you need before you set up subscriptions on Shopify?
+
+Get these four things confirmed before you install anything. Each one blocks the launch if it is missing, and finding out at test-order time wastes an afternoon.
+
+- **A gateway that can charge a stored card.** Recurring billing means charging a customer who is not there. Shopify Payments handles this. Many alternative gateways do not support subscription contracts at all, so check yours first rather than assuming.
+- **Customer accounts turned on.** Subscribers need somewhere to log in, change a date, swap a variant, or cancel. Without accounts, every one of those becomes an email to you.
+- **One product chosen.** Pick your best repeat seller and nothing else. Which products deserve a subscription at all is a separate decision, and a bigger one than this tutorial.
+- **Working transactional email.** Order confirmations, renewal reminders, and payment failure notices all ride on your notification settings. If your confirmation emails are already going to spam, subscriptions will make that worse.
+
+| Prerequisite | Where to check | What blocks you if missing |
+| --- | --- | --- |
+| Subscription-capable gateway | Settings, Payments | Checkout refuses the subscription line item |
+| Customer accounts | Settings, Customer accounts | No portal, so every change is a support ticket |
+| Product and variant chosen | Products | The plan has nothing to attach to |
+| Notification emails sending | Settings, Notifications | Silent renewals and silent failures |
+
+## How do you install a subscription app and grant the right permissions?
+
+Shopify supplies the framework. Selling plan groups represent a selling method, and the checkout turns them into subscription contracts automatically <Cite href="https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans">per Shopify's selling plan documentation</Cite>. An app is what creates those plans and runs the billing on top.
+
+1. Install your chosen subscription app from the Shopify App Store.
+2. Read the permission screen instead of clicking straight through. A subscription app legitimately needs to manage subscription contracts, read and write products, read customers, and read orders. If it asks for something unrelated to that list, stop and ask the developer why.
+3. Approve the install. The app now holds the scopes you just granted, and nothing else.
+4. Open the app and complete its setup wizard if it has one. This usually confirms your gateway and your store currency.
+5. Go to Online Store, Themes, Customize, then App embeds, and confirm the app's embed is toggled on. Some widgets render from the embed and will silently do nothing without it.
+6. Save the theme.
+
+<Callout title="One app at a time" tone="warning">
+Do not install two subscription apps to compare them on a live store. Both will try to attach selling plans to the same products and both will render a widget. Trial one, uninstall it fully, then trial the next.
+</Callout>
+
+<PostCta />
+
+## How do you create your first selling plan group?
+
+A selling plan group is the container. Inside it sit the individual options a customer picks from, and attached to it sit the products that offer those options.
+
+1. In the app, open Subscriptions or Selling plans and choose to create a new plan group.
+2. Name it. Assume the name is customer-facing until you have proof otherwise, because in most themes it is. "Subscribe and save" works. "Test group 1" appearing at checkout does not.
+3. Attach your one product. If the product has variants and only some make sense on subscription, attach only those variants rather than the whole product.
+4. Add one option inside the group. One. A customer looking at three frequencies and two prepay lengths at the moment of purchase is a customer who picks the one-time option.
+5. Set the discount field if you are offering one. Whether it hits the first order only or every order, and how it stacks with codes, is a pricing decision. For setup, put a number in and move on.
+6. Save, then open the product in Shopify admin and confirm the plan shows under the product's purchase options. If admin does not show it, the storefront will not either.
+
+## How do you set delivery frequency and billing cycle?
+
+These are two separate settings and confusing them is the most common configuration mistake. Delivery frequency is how often a box goes out. Billing cycle is how often the card is charged. When they match, you have pay-as-you-go. When billing is less frequent than delivery, you have prepaid.
+
+| Setup | Delivery | Billing | What the customer experiences |
+| --- | --- | --- | --- |
+| Pay as you go | Every 30 days | Every 30 days | Charged monthly, shipped monthly |
+| Prepaid quarterly | Every 30 days | Every 90 days | Pays once, receives three shipments |
+| Slow replenishment | Every 60 days | Every 60 days | Charged and shipped every other month |
+
+Two more fields matter here. Minimum cycles forces a commitment before cancelling; leave it empty on a first launch. Anchor dates pin every subscriber's charge to the same day of the month, which makes cash flow and fulfilment days predictable but bills some customers a partial cycle at the start.
+
+<Example>
+Say your product lasts a customer roughly five weeks and you set delivery to every 30 days. They accumulate about a week of surplus per cycle. After six cycles that is a month and a half of unopened stock sitting in a cupboard. Run the same sum with your own product's real consumption rate before you commit to an interval, because a stockpile the customer can see is a reason to cancel.
+</Example>
+
+<PostCta />
+
+## How do you put the subscribe option on your product page?
+
+The plan existing in the admin does not put anything on the storefront. That is a separate step, done per template, and it is where most launches quietly break.
+
+1. Open Online Store, Themes, then Customize.
+2. In the template dropdown at the top, select Products, then Default product.
+3. Add the subscription app block to the product information section. Position it directly above the add-to-cart button. Below the button it gets scrolled past on mobile.
+4. Save, then use the theme preview to view your chosen product and confirm the one-time and subscribe choices both appear.
+5. Switch variants in the preview. The widget must update, and it must disappear on any variant you did not attach to the plan.
+6. Repeat steps 2 to 5 for every alternate product template you use. A separate template for bundles or sale items is where I find missing widgets most often, because nobody remembers those pages exist until a customer cannot subscribe on one.
+7. Add the product to the cart and confirm the cart drawer and the cart page both display the plan name next to the line item.
+
+## How do you test a subscription end to end before going live?
+
+A test gateway proves the form submits. It does not prove a real card can be vaulted and charged again in thirty days, which is the part that actually fails. Use your own card and refund yourself.
+
+1. Place a real order on the storefront, selecting the subscribe option, using your own card and a real address.
+2. Check the order in admin. The line item should be marked as a subscription rather than a normal purchase.
+3. Find the subscription contract. Shopify creates it at checkout automatically <Cite href="https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans">as documented in the selling plans reference</Cite>, and your app should list it too. If the order exists but the contract does not, the plan is not correctly attached and every "subscriber" you win will be a one-time buyer.
+4. Open the order confirmation email and confirm it contains a link to manage the subscription.
+5. Log in as that customer and open the portal. Skip the next order, change the date, then change it back.
+6. Cancel from the portal and confirm the contract status changes in admin.
+7. If your app can force an early renewal in a test mode, run one and confirm a second order is generated against the same contract.
+8. Refund the original order.
+
+Signs it has gone wrong, and what each one means:
+
+- **Order placed, no contract created.** The variant is not attached to the selling plan group. Fix the attachment and retest.
+- **Widget visible, but checkout charges the one-time price.** The discount is configured on the wrong policy, or the selling plan is not the one selected at add-to-cart.
+- **Confirmation email has no portal link.** Customer accounts are off, or the notification template has not been updated by the app.
+- **Portal loads but shows nothing.** The contract is attached to a different customer record than the one you logged in as, which usually means the order was placed as a guest.
+
+<PostCta />
+
+## What do you check in the first week after launch?
+
+Week one tells you whether the setup holds. Check these on day one, day three, and day seven, and keep it to five minutes each time.
+
+- **Contracts versus subscription orders.** Every subscription order should have exactly one contract behind it. A gap means the widget is selling something the billing engine never received.
+- **The first renewal batch.** Nothing proves recurring billing works until a charge happens without a customer present. Diary the date of the earliest renewal and look at it that morning.
+- **Failed payments.** Some will fail. What matters in week one is whether you can see that they failed at all, not yet how you recover them.
+- **Cancellations inside 48 hours.** An immediate cancel usually means the customer thought they were buying once. That is a wording problem on the product page, and it is fixable in an afternoon.
+- **Support inbox.** Count how many people email asking how to change their delivery. Each one is a customer who could not find the portal link.
+
+## Where does Edge Subscriptions fit in the setup?
+
+Edge Subscriptions covers exactly this path: subscribe and save plans, a customer portal, and dunning for failed cards. We built it because we run a Shopify agency and kept doing this same setup by hand for clients.
+
+It is also new, with no review history, and I will not pretend otherwise. If you want the longest track record, Appstle carries 8,289 reviews and a free plan up to $500 a month in subscription revenue <Cite href="https://apps.shopify.com/subscriptions-by-appstle">on its App Store listing</Cite>. Recharge carries 2,967 reviews, has no free plan, and starts at $25 a month <Cite href="https://apps.shopify.com/subscription-payments">on its listing</Cite>, and it is the one I reach for on large or complicated programmes. Both are safe answers. The honest comparison, including where we lose, is in the [subscription app comparison](/blog/best-shopify-subscription-apps).
+
+<CheckedOn date="22 August 2026" />
+
+Edge assumes you are doing the above for the first time. The setup flow follows this order, the widget install is checked against every product template rather than the default one, and the app tells you when a plan exists but no template renders it. That last check is the one that would have saved most of the launches I have had to debug.
+
+<PostCta />

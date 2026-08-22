@@ -1,0 +1,156 @@
+---
+title: "How to Collect Photo Reviews on Shopify"
+slug: "collect-photo-reviews-shopify"
+app: "edge-reviews"
+archetype: "tutorial"
+author: "anurag"
+description: "How to collect photo reviews on Shopify end to end: the upload flow, file and moderation rules, reuse permission, and a gallery that stays fast."
+primaryKeyword: "how to collect photo reviews"
+secondaryKeywords:
+  - "ugc reviews shopify"
+  - "customer photo reviews"
+publishedAt: "2026-12-07"
+updatedAt: "2026-12-07"
+imageAlt: "Placeholder illustration of a phone uploading a customer photo into a Shopify review form"
+internalLinks:
+  - "shopify-product-reviews"
+  - "loox-alternatives"
+  - "review-request-email-examples"
+tldr: "Photo reviews arrive when the upload sits on the same screen as the star rating, needs no login, and accepts whatever a phone camera roll hands over, including HEIC. Behind that you need a file size cap, a written moderation standard, an explicit reuse permission checkbox, and a gallery that lazy loads below the fold."
+faq:
+  - question: "Why do iPhone photo uploads fail on my review form?"
+    answer: "Almost always HEIC. Recent iPhones save photos in HEIC by default, and a form that only accepts JPEG and PNG will either reject the file or accept it and store something the browser cannot render. Either convert HEIC server side on upload or widen the accept list and transcode. Test it from an actual iPhone, not from a desktop file picker."
+  - question: "Do I need permission to use a customer photo in a Facebook ad?"
+    answer: "Yes, and separately from the permission to show it on your product page. Submitting a review to your store is not consent to appear in paid media. Use a distinct, unticked checkbox with plain wording about advertising and social use, store the timestamp and the wording shown, and honour a later request to withdraw by pulling the image from live campaigns."
+  - question: "Should photo reviews be auto approved?"
+    answer: "No. Text can often be auto approved with a profanity filter. An image cannot, because the failure mode is a screenshot, a competitor's packaging, someone else's face, or something genuinely unsafe on a page you have no control over once it is live. Keep images in a queue and work it on a fixed daily slot instead."
+  - question: "How many photos should a customer be allowed to attach?"
+    answer: "Three to five is the useful range. One is often the box rather than the product. Beyond five you are collecting near duplicates that inflate your storage bill and slow the gallery without adding any information a shopper did not already have from the first two frames."
+  - question: "Will a photo gallery hurt my Core Web Vitals?"
+    answer: "It can, in two ways. Full size images loaded eagerly compete with your hero image for bandwidth, and a gallery that renders late shifts the layout under a shopper's thumb. Serve thumbnails, lazy load anything below the fold, reserve the gallery's height in CSS, and load the lightbox script only on first click."
+---
+
+A shopper is looking at a jumper on their phone. Your studio shot is lit perfectly, on a white background, on a model whose height you never published. They want to know what it looks like on a normal person in a normal room. You have fourteen written reviews saying "lovely quality" and not one photograph.
+
+Working out how to collect photo reviews is a different job from collecting reviews. Text arrives if you ask for it. A photo needs someone to find a file, hand it over on a phone, and trust you with an image of their living room. Every extra tap costs you submissions.
+
+This is the submission path end to end: the flow, the file and moderation rules, the reuse permission, and a gallery that does not wreck your page speed.
+
+## What has to be true in the upload flow before anyone sends a photo?
+
+Drop the assumption that customers do not take photos. They took the photo. It is already in the camera roll, usually within a day of the parcel arriving. They dropped out because the flow asked for something a phone could not easily give.
+
+- **No account, no login.** Route the review through a customer account sign in and you lose most of the uploads. The request link should carry its own token and open a form that already knows what they bought.
+- **The upload sits on the same screen as the stars.** Not a second step, not a later email. The moment of highest intent is the second after they tap the fifth star.
+- **It accepts whatever the camera roll hands over.** On mobile that means the native picker with the camera as an option.
+- **The ask is specific.** "Add a photo" is weak. "Show it on you" tells someone which of the four hundred images on their phone you want.
+- **Nothing is blocked behind it.** Make an image compulsory and you lose the written review too.
+
+Here is the setup, in order. It assumes a review app with media collection, which most have on some tier.
+
+1. **Turn media collection on in the app settings.** If it is a paid feature on your plan, find out now, not after you have written the email.
+2. **Write the prompt above the upload control.** One line, product specific if your app allows per product wording.
+3. **Send the request after delivery, not after fulfilment.** Fulfilment means a label was printed. Asking for a photo of something that has not arrived gets ignored.
+4. **Put the upload control below the stars and above submit.** If your form builder exposes field order, this is the one to fix.
+5. **Set the file rules.** Types, size ceiling, files per review. The next section covers the values.
+6. **Add the reuse permission checkbox as its own field.** Unticked, and not merged into a terms link.
+7. **Point the moderation queue at a real inbox.** Turn on the pending media notification and name who works it.
+8. **Submit a test review from a real phone.** Not the desktop preview.
+
+Then verify. The test review should land in the queue within a minute, image attached and the right way up. Approve it, check it renders on the live product page, then open that page on a phone on mobile data. Confirm the notification reached the inbox you nominated.
+
+<Callout title="What a broken photo flow looks like" tone="warning">
+Written reviews arriving steadily with a photo rate near zero means the upload control is invisible or sits below submit. Uploads that spin forever mean the size ceiling is rejecting phone photos. Sideways images mean EXIF orientation is dropped. Approved images that never appear mean the widget is rendering text only. None of these announce themselves.
+</Callout>
+
+## What file types, size limits and orientation handling should you set?
+
+This is where home grown flows quietly break. A modern iPhone does not produce a JPEG by default, and a phone photo is far larger than the limit people type into a form.
+
+| Setting | Sensible value | Why |
+| --- | --- | --- |
+| Accepted types | JPEG, PNG, WebP, HEIC | HEIC is the iPhone default. Reject it and you lose iPhone users |
+| Max file size | 10 MB per image | Under it, phone photos bounce. Far over it, uploads stall on mobile data |
+| Max files per review | 3 to 5 | Enough for angles, not enough for near duplicates |
+| Resize on upload | Longest edge around 2000px | Nothing on a product page needs a 4000px original |
+| Orientation | Read EXIF, bake it in, then strip | The only reason photos display sideways |
+| Location data | Strip EXIF GPS | A customer photo can carry their home coordinates |
+| Video | Separate limit, if supported | A different bandwidth problem, treat it separately |
+
+Orientation is the classic bug. Phones store the pixels one way and record a rotation flag separately, so a pipeline that strips EXIF before applying the rotation puts every portrait photo on its side.
+
+Stripping GPS is not optional. Someone photographing a lamp in their hallway is not consciously handing you their home coordinates. If your app does not confirm it strips location data, ask before you collect anything.
+
+<PostCta />
+
+## How do you moderate photos without becoming the bottleneck?
+
+Text can often run on auto approval with a profanity filter. Images cannot. An image can be a screenshot, a competitor's packaging, a stranger's child, or something you would never put in front of customers.
+
+The failure that hurts is the queue nobody works. Photos sit pending for three weeks, the customer who sent one never sees it appear, and never bothers again.
+
+- **Fix a slot, not a habit.** Ten minutes together each day beats an intention to check often.
+- **Write the standard down first.** Reject blurred, unrelated, other brands' logos, screenshots, identifiable children, anything unsafe. Approve everything else, including unflattering lighting.
+- **Never edit the review to match the photo.** Moderation decides whether an image is publishable, not whether the words are kind. A queue used to filter criticism is a fake review programme.
+- **Approve text separately from image.** A four star review with a rejected photo still publishes as a four star review.
+- **Tell the customer when it goes live.** It closes the loop and is the cheapest repeat submission trigger you have.
+
+If the queue is too big for a daily pass, the answer is not auto approval. It is a second reviewer and a tighter standard, because the standard is what makes each decision fast.
+
+## What permission do you need before a customer photo appears in an ad?
+
+Two different permissions, and merchants routinely collect one and act as though they hold both.
+
+The first is permission to show the photo alongside the review on your own store. That is what someone expects when they attach an image, and a line of text next to the upload covers it.
+
+The second is permission to reuse that image in marketing. Paid social, email, the homepage banner. Submitting a review implies none of it, and a link to your terms does not fix that.
+
+- **Make it a distinct, unticked checkbox.** Not bundled into submit, not hidden behind a terms link. Name the uses in plain language.
+- **Store the evidence, not just the flag.** Keep the timestamp and the exact wording on screen when they agreed. Wording changes, and you want to know which version they saw.
+- **Treat faces as a higher bar.** A candle on a shelf and someone's face are not the same asset. If a person is identifiable, confirm explicitly before it goes near paid media.
+- **Honour withdrawal properly.** Pulling the image off the product page is not enough. It has to come out of live ad sets, which means recording which creative used which review.
+- **Credit by first name only.** "Sarah M." is enough. Full names invite complaints you did not need.
+
+<Callout title="A checkbox is not a model release" tone="warning">
+Advertising rules vary by country, and consent gathered inside a review form is thinner than a signed release. For a product page gallery it is proportionate. Before a customer's face goes on a paid campaign, get advice for your market.
+</Callout>
+
+<PostCta />
+
+## How do you display a photo gallery without wrecking your largest paint?
+
+A gallery of customer photos is a pile of images that did not exist when your theme was built, dropped onto the page you most need to be fast.
+
+1. **Serve thumbnails, never originals.** The grid needs images a few hundred pixels wide. Load full size only when a lightbox opens.
+2. **Reserve the height in CSS.** A minimum height on the container settles the page geometry before images arrive. This is the fix for the buy button jumping.
+3. **Lazy load anything below the fold.** Native `loading="lazy"` is enough for a gallery under the description.
+4. **Cap the first render.** Six to nine images with a show more control.
+5. **Defer the lightbox script until first click.** Nobody needs a gallery library parsed on page load.
+6. **Serve modern formats through a CDN.** WebP or AVIF with a JPEG fallback, sized per breakpoint with `srcset`.
+
+One constraint before you get clever with tabs. Google requires review content marked up on a page to be visible on that page, and treats entities that control reviews about themselves as ineligible for stars <Cite href="https://developers.google.com/search/docs/appearance/structured-data/review-snippet">Google Search Central</Cite>. A gallery that injects reviews only after a click ends up with markup describing content that is not there. Lazy load the images, not the text.
+
+<Example>
+Nine photos at 900 KB each, loaded eagerly, is 8.1 MB of extra transfer. As 400px thumbnails at roughly 40 KB, the same nine cost about 360 KB, and lazy loading defers most of that until someone scrolls. Substitute your own weights from a network trace.
+</Example>
+
+## Where does Edge Reviews fit in collecting photo reviews?
+
+Edge Reviews is our own app, new, with no App Store reviews yet, so take this as description rather than recommendation. It is free, collects photos on the free plan, and imports existing reviews so a switch does not restart your history at zero <Cite href="https://apps.shopify.com/edge-reviews">listing</Cite>.
+
+| App | Rating and reviews | Free plan | Paid entry |
+| --- | --- | --- | --- |
+| Judge.me | 5.0, 43,884 reviews <Cite href="https://apps.shopify.com/judgeme">listing</Cite> | Permanent, unlimited photo and video | Awesome $15/mo |
+| Loox | 4.9, 9,051 reviews <Cite href="https://apps.shopify.com/loox">listing</Cite> | Up to 500 orders | Convert $49.99/mo, 300 orders |
+| Yotpo | 4.8, 4,392 reviews <Cite href="https://apps.shopify.com/yotpo-social-reviews">listing</Cite> | Up to 50 monthly orders | Starter $15/mo |
+| Edge Reviews | No reviews yet <Cite href="https://apps.shopify.com/edge-reviews">listing</Cite> | Free, imports existing reviews | Free |
+
+<CheckedOn date="22 August 2026" />
+
+Judge.me is where I point most stores first, because its free plan is permanent and carries unlimited photo and video reviews <Cite href="https://apps.shopify.com/judgeme">listing, checked 22 August 2026</Cite>. Loox is the other obvious answer for a photo led catalogue, and its pricing moves with order volume rather than review volume. That comparison is in the [Loox alternatives post](/blog/loox-alternatives).
+
+Edge Reviews is worth a look if you want photo collection and moderation free of a per order ceiling, and you need your existing reviews to come with you when you switch. If Judge.me is already working, there is no reason to move.
+
+The flow matters more than the badge on it. Put the upload on the same screen as the stars, accept HEIC, strip location data, work the queue daily, ask for reuse permission separately, and serve thumbnails. If you are still deciding how reviews fit the product page, start with the [guide to Shopify product reviews](/blog/shopify-product-reviews).
+
+<PostCta />

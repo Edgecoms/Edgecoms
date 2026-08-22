@@ -1,0 +1,187 @@
+---
+title: "Recharge Alternatives for Shopify Subscriptions"
+slug: "recharge-alternatives"
+app: "edge-subscriptions"
+archetype: "alternative"
+author: "anurag"
+description: "Work out what Recharge really costs you once transaction fees are added to the tier, then judge every recharge alternative on total cost and a break-even date."
+primaryKeyword: "recharge alternative"
+secondaryKeywords:
+  - "recharge pricing"
+  - "recharge competitors"
+publishedAt: "2026-09-07"
+updatedAt: "2026-09-07"
+imageAlt: "Placeholder illustration for a Recharge alternatives cost comparison"
+internalLinks:
+  - "shopify-subscriptions"
+  - "reduce-subscription-churn"
+  - "shopify-subscription-migration"
+tldr: "Recharge charges a monthly platform tier plus a percentage and a flat fee on every subscription transaction, so the bill grows with your subscriber count. Compare replacements on twelve months of total cost, including migration and staff time, and only switch when the break-even lands inside a year."
+faq:
+  - question: "How much does Recharge cost per month?"
+    answer: "There is no free plan. The entry Starter tier is $25 a month with no transaction fee for the first 50 subscribers, a $99 a month Starter tier charges 1.49% plus $0.19 per transaction, and Plus is $499 a month at 1.34% plus $0.19. There is a 60-day free trial. Your real number depends on subscription volume, not the tier."
+    source: "https://apps.shopify.com/subscription-payments"
+  - question: "Is a cheaper subscription app always cheaper overall?"
+    answer: "No. Sticker price is one line of the bill. Add migration cost, the developer or agency hours to rebuild your portal and flows, staff retraining, and anything you have to buy separately that was bundled before. A cheaper app that eats a sprint of engineering time can take most of a year to pay for itself."
+  - question: "At what subscriber count does leaving Recharge stop being worth it?"
+    answer: "There is no single threshold, because the answer is a break-even date rather than a subscriber count. Divide your one-off switching cost by your monthly saving. If the result is under twelve months and your feature needs are genuinely met by the replacement, the move pays. If it is longer, the money is better spent elsewhere."
+  - question: "Does a percentage transaction fee matter if my order value is low?"
+    answer: "Less than the flat per-transaction fee does. On a low average order value the fixed cents per transaction is the bigger slice, because it does not scale down with the basket. Run both parts separately against your own numbers rather than comparing headline percentages, which flatter low-value catalogues."
+  - question: "Can I compare apps on features instead of cost?"
+    answer: "You should do both, but in order. Establish which features you actually use first, because that shortens the candidate list honestly. Then compare the survivors on twelve-month total cost. Comparing features across every subscription app on the store is how merchants end up paying for a build-out they will never configure."
+---
+
+The bill that made you open this page probably did not match the pricing page you remember signing up from. That is normal. Recharge prices on a monthly tier plus a cut of every subscription transaction, so the number moves every month your subscriber list grows, and it moves fastest exactly when the business is going well.
+
+A **recharge alternative** is therefore a financial decision before it is a feature decision. The question is not which subscription app has the longest capability list. It is what you are paying today, in one honest number, what a replacement would cost across a full year, and how long the switch takes to pay for itself.
+
+This post is that arithmetic. No feature matrix, no rankings. Just how to build your real cost line and work out a break-even date you would defend to whoever signs it off.
+
+## Why do stores start looking for a Recharge alternative?
+
+Almost never because something broke. Recharge is mature and most stores running it are running it fine. The trigger is nearly always one of three moments.
+
+- **The bill crosses a threshold that makes someone look.** Usage-based pricing is invisible until it is not. Somewhere between a few hundred and a few thousand a month, subscriptions stop being a line item and start being a budget conversation.
+- **Growth changes the shape of the cost.** A platform fee is a fixed cost you can plan around. A percentage of transactions is a tax on scale. Doubling your subscriber base doubles the variable half of the bill without doubling anything you receive.
+- **Someone audits what is actually configured.** A store that bought a full subscription platform two years ago has often built three selling plans, one portal, and a dunning sequence. That is the whole footprint, and it is a fraction of what is being paid for.
+
+None of those are complaints about the software. They are complaints about the ratio between what leaves the bank account and what the store uses. That ratio is measurable, which makes this a decision rather than a mood.
+
+## What does Recharge actually cost once transaction fees are counted?
+
+Start with the published structure, then apply your own volume to it. Recharge has no free plan. The tiers, checked live on the Shopify App Store, look like this.
+
+| Plan | Monthly | Per transaction | Notes |
+| --- | --- | --- | --- |
+| Starter | $25 | <Cite href="https://apps.shopify.com/subscription-payments">None for the first 50 subscribers</Cite> | Entry tier |
+| Starter | $99 | <Cite href="https://apps.shopify.com/subscription-payments">1.49% plus $0.19</Cite> | Volume tier |
+| Plus | $499 | <Cite href="https://apps.shopify.com/subscription-payments">1.34% plus $0.19</Cite> | Higher tier, lower rate |
+
+<CheckedOn date="22 August 2026" />
+
+Recharge offers a <Cite href="https://apps.shopify.com/subscription-payments">60-day free trial</Cite>, which is unusually long and worth noting when you model a parallel run.
+
+Two different fees are stacked and they behave differently. The percentage scales with your average order value. The flat nineteen cents does not, so it hurts a low-value catalogue far more than a high-value one. Compare apps on the percentage alone and you will underestimate your bill.
+
+<Example>
+1,200 active subscribers, average subscription order of $42, one order each per month.
+
+Monthly subscription volume: 1,200 × $42 = $50,400.
+
+On a $99 tier at 1.49% plus $0.19 per transaction:
+
+- Percentage fee: $50,400 × 0.0149 = $750.96
+- Per-transaction fee: 1,200 × $0.19 = $228.00
+- Platform fee: $99.00
+
+Total: $1,077.96 a month, or roughly $0.90 per subscriber order.
+</Example>
+
+Now double the store and watch what happens to the shape of it.
+
+<Example>
+2,400 subscribers on the same $42 order:
+
+- Percentage fee: $1,501.92
+- Per-transaction fee: $456.00
+- Platform fee: $99.00
+
+Total: $2,056.92. The platform fee stayed still. Everything else doubled.
+</Example>
+
+That is the whole cost argument in two blocks. Your subscription app is a variable cost that behaves like a payment processor, and most merchants file it mentally as a fixed software subscription.
+
+<PostCta />
+
+## Which parts of what you pay for are you not using?
+
+Before pricing a replacement, price your own usage. This takes an afternoon and it changes the shortlist more than any comparison article will.
+
+1. **Count your selling plans.** Open the admin and list every selling plan group that has a live contract attached. Most stores find fewer than they expect, and often one or two that no customer has bought into for a year.
+2. **Count your integrations.** Which connected tools are load-bearing? A subscriptions platform that pipes into your ESP, your 3PL, and your analytics stack is doing real work. One that connects to nothing is a billing engine with a portal on top.
+3. **Count your custom work.** Bundles built on subscription mechanics, prepaid terms, gifting, quick actions in the portal, anything a developer touched. This is the expensive column to rebuild.
+4. **Count your support burden.** How many tickets a month are subscription tickets, and does the tooling reduce them or generate them?
+5. **Write down the monthly cost per used feature.** Crude, but revealing. Divide the real monthly bill by the number of things in genuine use and ask whether each is worth that.
+
+That gives you a requirements list you can price against rather than a wish list. If the honest list is short, a smaller tool is not a downgrade. If it is long, you have just found out why you are paying what you are paying.
+
+<Callout title="Do the audit before you shop" tone="warning">
+Every subscription app looks like a bargain when you compare it against a bill you have not itemised. The audit is what stops you replacing a platform you rely on with a tool that saves less each month than the fortnight of engineering it costs to install.
+</Callout>
+
+## Should a replacement be like-for-like, or deliberately smaller?
+
+This is the real fork, and most merchants take the wrong branch out of caution.
+
+Like-for-like feels safe. You match the feature list, nothing breaks, nobody complains. It is also how you end up on a similar cost structure, having spent the switching budget to buy the same thing in a new colour.
+
+Deliberately smaller means choosing a tool that covers your audited list and nothing else. It is the option that actually changes the bill, and it carries a specific risk you should name out loud: if the business grows into features you dropped, you pay the switching cost a second time.
+
+- **Choose like-for-like** when your audit produced a long list, when custom development sits on top of the current app, or when subscriptions are the majority of revenue and disruption risk outweighs the saving.
+- **Choose deliberately smaller** when the audit produced a short list, when subscriptions are a supporting revenue stream rather than the core, and when the monthly saving covers the switch inside a year.
+- **Choose to stay** when neither of the above is clearly true. Indecision costs nothing on Recharge. A half-committed migration costs plenty.
+
+Free entry tiers exist here. Appstle lists a free plan for stores under <Cite href="https://apps.shopify.com/subscriptions-by-appstle">$500 a month in subscription revenue</Cite>, with paid tiers stepping up by revenue band after that. Whether a free tier is the right destination depends on the audit, not on the word free.
+
+<PostCta />
+
+## How do you compare alternatives on total cost rather than sticker price?
+
+Build one twelve-month number for every candidate, including staying put. Six line items.
+
+1. **Platform fees for twelve months.** Use your projected subscriber count at month twelve, not today's, or you will model the wrong year.
+2. **Variable fees for twelve months.** Percentage and per-transaction, applied to projected volume. This is where flat-priced tools separate from usage-priced ones.
+3. **Migration cost.** Moving subscription contracts and payment tokens between apps is a real project with real risk, and it needs its own plan rather than a line in a spreadsheet. Budget it as a one-off number here and treat the mechanics as a separate exercise. Get a written quote before it enters the model.
+4. **Engineering and agency hours.** Rebuilding the portal, the theme integration, the flows, the reporting. Cost it at your actual blended rate.
+5. **Things that stop being bundled.** Anything the current app includes that you would have to buy separately afterwards. Analytics and retention tooling are the usual suspects.
+6. **Internal time.** Retraining support, rewriting macros, the fortnight where every subscription ticket takes twice as long.
+
+Then divide the one-off costs by the monthly saving.
+
+<Example>
+Current cost: $1,077.96 a month. Replacement at a flat $99 a month.
+
+Monthly saving: $978.96.
+
+One-off switching cost, all in: $4,000.
+
+Break-even: $4,000 ÷ $978.96 = about 4.1 months.
+</Example>
+
+Under twelve months, the move pays. Over twelve months, you are funding a project out of a saving that has not arrived yet. Growth pulls the date forward, because a usage-based bill on a growing store makes the saving larger every month.
+
+## What do you genuinely give up by leaving?
+
+Worth stating plainly, because a comparison that only lists savings is a sales pitch.
+
+- **Maturity.** Recharge holds 4.8 stars across 2,967 reviews <Cite href="https://apps.shopify.com/subscription-payments">on the App Store</Cite>. That is a long operating history and a large body of merchants who have already hit the edge cases you have not.
+- **Ecosystem depth.** Long-established apps accumulate integrations, partner agencies, and documentation. If your stack leans on a specific connector, verify the replacement has it before anything else.
+- **Institutional knowledge.** Your team knows where everything is. That is worth real money for the first quarter after a switch, and merchants always forget to cost it.
+- **A second migration if you outgrow the choice.** Downsizing is only cheap once.
+
+If subscriptions are the core of your business and Recharge is doing the job, stay and spend the attention on retention instead. The mechanics behind all of this sit in the [Shopify subscriptions guide](/blog/shopify-subscriptions).
+
+<PostCta />
+
+## When is staying on Recharge the right answer?
+
+Four situations, and none of them are failures of analysis.
+
+- **The break-even is longer than a year.** The saving is real but the switching cost swallows it. Revisit when volume grows and the variable fees make the gap wider.
+- **Your audit list is long.** You use the platform. Paying platform prices for a platform is not a leak.
+- **Subscriptions are your revenue, not a side stream.** Disruption risk on the majority of your income is priced very differently from disruption risk on a side stream.
+- **You have custom development on top.** Every hour a developer spent inside the current app is an hour someone pays again on the other side.
+
+For a lot of stores the right move is to renegotiate their own numbers instead. Raise average subscription order value so the percentage fee buys more revenue per dollar, or cut involuntary churn so you stop paying to replace subscribers you already had.
+
+## Where does Edge Subscriptions fit against Recharge?
+
+Directly, and only for one of the two branches above.
+
+Edge Subscriptions is our app. It does subscribe and save, a customer portal, and dunning. That is the audited short list, and it is deliberately the whole product rather than a starting tier. It is new, with no review history behind it, and you should weigh that against a competitor with thousands of reviews and years of edge cases already found.
+
+If your audit produced a short list and the arithmetic above gives you a break-even inside a year, we are worth pricing. If your audit produced a long list, if you run prepaid terms, complex bundling on subscription mechanics, or a deep integration stack, stay on Recharge. It is the better tool for that store and switching would cost you more than it saves.
+
+The number to trust is the one you calculated, not the one on anybody's pricing page.
+
+<PostCta />

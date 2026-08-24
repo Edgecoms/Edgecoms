@@ -1,6 +1,6 @@
 import type { Database } from "@edgecoms/db";
 import { codeRedemptionAttempts } from "@edgecoms/db/schema/attribution";
-import { and, count, eq, gte, ne } from "drizzle-orm";
+import { and, count, eq, gte, inArray } from "drizzle-orm";
 
 /**
  * Code-entry rate limiting and the attempt log.
@@ -26,14 +26,30 @@ export type AttemptOutcome =
 	| "rate_limited";
 
 /**
- * Attempts recorded for this shop inside the window.
+ * Outcomes that count toward the limit: the ENUMERATION signals.
  *
- * Counts every outcome EXCEPT `rate_limited`. Those rows are still written — the
- * abuse trail wants them — but counting them would make the block self-feeding:
- * each refused click would push the window forward, so a merchant who typo'd
- * five times and keeps clicking would never get out. Excluding them means the
- * block lifts an hour after the fifth REAL attempt, while a script hammering the
- * endpoint still leaves a complete record of having done so.
+ * The limiter exists to stop someone walking the code space for a shop, so it
+ * counts the two outcomes that mean "that guess did not land" — a bad code, and
+ * a probe at a store somebody else already owns.
+ *
+ * Deliberately NOT counted:
+ *
+ *   • `bound` and `already_bound` — the intended flow, not abuse. A merchant
+ *     taking the whole Edge suite pastes the same code into every app they
+ *     install, which is one call per app for one shop. Counting successes made
+ *     that self-limiting: with a 7-app catalog and a limit of 5, the last two
+ *     apps were refused and charged full price despite a valid discount code.
+ *     `bound` can only happen once per shop anyway (the domain is unique), and
+ *     a replay is idempotent, so neither can be inflated into anything.
+ *
+ *   • `rate_limited` — counting a refusal would make the block self-feeding:
+ *     each further click would push the window forward and the merchant would
+ *     never get out. The rows are still written; the abuse trail wants them.
+ */
+const COUNTED_OUTCOMES = ["invalid", "claimed_by_other"] as const;
+
+/**
+ * Failed attempts recorded for this shop inside the window.
  */
 export async function recentAttemptCount(
 	db: Database,
@@ -48,7 +64,7 @@ export async function recentAttemptCount(
 			and(
 				eq(codeRedemptionAttempts.shopDomain, shopDomain),
 				gte(codeRedemptionAttempts.createdAt, since),
-				ne(codeRedemptionAttempts.outcome, "rate_limited")
+				inArray(codeRedemptionAttempts.outcome, COUNTED_OUTCOMES)
 			)
 		);
 	return rows[0]?.value ?? 0;

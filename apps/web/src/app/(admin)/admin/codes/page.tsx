@@ -69,7 +69,7 @@ function describeDiscount(code: CodeRow): string {
 		case "free_cycles":
 			return `Free for ${code.discountCycles ?? 0} cycles`;
 		default:
-			return "—";
+			return "-";
 	}
 }
 
@@ -232,7 +232,7 @@ function CodesTable({
 							</span>
 							{code.partnerStatus === "approved" ? null : (
 								<span className="text-amber-700 text-caption">
-									Partner {code.partnerStatus} — the code won't bind yet
+									Partner {code.partnerStatus}, so the code won't bind yet
 								</span>
 							)}
 						</div>
@@ -254,7 +254,7 @@ function CodesTable({
 					</td>
 					<td className="text-right text-secondary-foreground tabular-nums">
 						{code.discountKind === "none"
-							? "—"
+							? "-"
 							: `${code.grantsUsed}${
 									code.discountGrantLimit === null
 										? ""
@@ -341,9 +341,9 @@ function IssueCodeDialog({
 						{/* The rate warning stays: a merchant reads ALEX30 as "30% off",
 						    and it leaks one agency's rate to another. */}
 						<span className="text-caption text-secondary-foreground">
-							4–32 letters, digits or hyphens.{" "}
-							<strong>Keep the rate out</strong> — <code>ALEX30</code> reads as
-							"30% off".
+							4 to 32 letters, digits or hyphens.{" "}
+							<strong>Keep the rate out</strong>: a merchant reads{" "}
+							<code>ALEX30</code> as "30% off".
 						</span>
 					</div>
 
@@ -610,7 +610,7 @@ export default function AdminCodesPage() {
 
 			<p className="text-caption text-secondary-foreground">
 				Disabling a code stops new redemptions. Stores already referred stay
-				with their partner — a partner loses the ability to acquire, never their
+				with their partner: a partner loses the ability to acquire, never their
 				existing book.
 			</p>
 

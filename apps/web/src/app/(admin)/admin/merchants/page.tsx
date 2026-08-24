@@ -17,7 +17,8 @@ interface MerchantRow {
 	/**
 	 * The grandfathered set already proposed for this merchant. For a code-bound
 	 * store this is what the Edge app reported it was ALREADY charging the shop
-	 * for — better data than reconstructing it here, so the boxes come pre-checked.
+	 * for. That is better data than reconstructing it here, so the boxes come
+	 * pre-checked.
 	 */
 	grandfatheredAppIds: string[];
 	id: string;
@@ -155,7 +156,7 @@ export default function AdminMerchantsPage() {
 									</div>
 								) : (
 									<span className="text-caption text-secondary-foreground">
-										—
+										-
 									</span>
 								)}
 							</td>
@@ -174,7 +175,7 @@ export default function AdminMerchantsPage() {
 			>
 				{approving ? (
 					<DialogContent
-						description="Select the apps this store was ALREADY paying for. These are grandfathered and never earn commission. This is the last point at which the set can change — approval freezes it."
+						description="Select the apps this store was ALREADY paying for. These are grandfathered and never earn commission. This is the last point at which the set can change, because approval freezes it."
 						title={`Approve ${approving.name}`}
 					>
 						<form className="flex flex-col gap-5" onSubmit={handleApprove}>
@@ -183,8 +184,8 @@ export default function AdminMerchantsPage() {
 								{approving.source === "code" ? (
 									<p className="rounded-lg bg-surface-item-hover px-3 py-2 text-caption text-secondary-foreground">
 										Pre-selected from what the app reported this store was
-										already being charged for. Uncheck anything that looks wrong
-										— whatever you submit replaces the proposal.
+										already being charged for. Uncheck anything that looks
+										wrong: whatever you submit replaces the proposal.
 									</p>
 								) : null}
 								<div className="grid grid-cols-1 gap-2 sm:grid-cols-2">

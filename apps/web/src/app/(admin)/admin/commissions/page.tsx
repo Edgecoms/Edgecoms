@@ -123,7 +123,7 @@ export default function AdminCommissionsPage() {
 									</Button>
 								) : (
 									<span className="text-caption text-secondary-foreground">
-										—
+										-
 									</span>
 								)}
 							</td>

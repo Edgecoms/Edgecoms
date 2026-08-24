@@ -9,7 +9,7 @@ import { queryClient, trpc } from "@/utils/trpc";
 
 function formatTimestamp(value: string | Date | null | undefined): string {
 	if (!value) {
-		return "—";
+		return "-";
 	}
 	return new Date(value).toLocaleString();
 }
@@ -118,7 +118,7 @@ export default function AdminDashboardPage() {
 							Cursor
 						</span>
 						<span className="truncate text-body-sm text-primary-foreground">
-							{sync?.cursor ?? "—"}
+							{sync?.cursor ?? "-"}
 						</span>
 					</div>
 					{sync?.lastError ? (

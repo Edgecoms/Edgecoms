@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { trpc } from "@/utils/trpc";
 
 /**
- * The partner's attribution code — the thing they actually hand to a merchant.
+ * The partner's attribution code: the thing they actually hand to a merchant.
  *
  * Front and centre on the dashboard because it replaced the registration form as
  * the normal way a store gets attributed: the partner sends the code, the
@@ -74,7 +74,7 @@ function CodeRow(props: CodeRowProps) {
 			// makes a second copy look like it silently failed.
 			setTimeout(() => setCopied(false), 2000);
 		} catch {
-			toast.error("Couldn't copy — select the code and copy it manually.");
+			toast.error("Couldn't copy. Select the code and copy it manually.");
 		}
 	}
 
@@ -107,8 +107,8 @@ function CodeRow(props: CodeRowProps) {
 						    it on an empty payout. Commission is a share of what Edge
 						    receives, and a free store pays nothing. */}
 						<span className="text-caption text-secondary-foreground">
-							You earn no commission from a store while its plan is free —
-							earnings begin when it starts paying.
+							You earn no commission from a store while its plan is free.
+							Earnings begin when it starts paying.
 						</span>
 					</div>
 				) : null}
@@ -142,14 +142,14 @@ export function PartnerCodeCard() {
 				</h2>
 				<p className="text-body-sm text-secondary-foreground">
 					Give this to a merchant you manage. They enter it in the Edge app and
-					the store is attributed to you — no form to fill in.
+					the store is attributed to you, with no form to fill in.
 				</p>
 			</div>
 
 			{codes.length === 0 ? (
 				<div className="rounded-xl border border-border border-dashed bg-page/50 px-5 py-6 text-body-sm text-secondary-foreground">
-					No code issued yet. We issue one when your partner account is approved
-					— reach out if you're approved and still waiting.
+					No code issued yet. We issue one when your partner account is
+					approved. Reach out if you're approved and still waiting.
 				</div>
 			) : (
 				<div className="flex flex-col gap-3">

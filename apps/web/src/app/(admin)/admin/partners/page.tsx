@@ -205,7 +205,7 @@ export default function AdminPartnersPage() {
 											<Input
 												className="w-24"
 												name={`rate_${app.id}`}
-												placeholder="—"
+												placeholder="-"
 												step="0.1"
 												type="number"
 											/>

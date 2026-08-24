@@ -80,6 +80,19 @@ interface PartnerOption {
 	status: string;
 }
 
+/**
+ * Inputs and native selects share this so they match. `Input` defaults to h-8
+ * and text-xs, which sits a notch smaller than the selects and reads as an
+ * accident once they are side by side.
+ */
+const FIELD_BASE = "h-9 rounded-lg border border-border text-body-sm";
+/** On the dialog's white surface: a grey fill so the field reads as a field. */
+const FIELD = `${FIELD_BASE} bg-bg`;
+/** Inside the grey discount panel: inverted, or it disappears into the panel. */
+const PANEL_FIELD = `${FIELD_BASE} bg-elevated`;
+const SELECT_FIELD = `${FIELD} w-full px-3 text-primary-foreground`;
+const PANEL_SELECT = `${PANEL_FIELD} w-full px-3 text-primary-foreground`;
+
 const PERCENT_PATTERN = /^(\d{1,3})(?:\.(\d{1,2}))?$/;
 
 /**
@@ -294,6 +307,7 @@ function IssueCodeDialog({
 	return (
 		<Dialog onOpenChange={onOpenChange} open={open}>
 			<DialogContent
+				className="bg-elevated"
 				description="Merchants type this into an Edge app."
 				title="Issue an attribution code"
 			>
@@ -301,7 +315,7 @@ function IssueCodeDialog({
 					<div className="flex flex-col gap-2">
 						<Label htmlFor={partnerId}>Partner</Label>
 						<select
-							className="h-10 rounded-lg border border-border bg-page px-3 text-body-sm text-primary-foreground"
+							className={SELECT_FIELD}
 							id={partnerId}
 							name="partnerId"
 							required
@@ -318,6 +332,7 @@ function IssueCodeDialog({
 						<Label htmlFor={codeId}>Code</Label>
 						<Input
 							autoComplete="off"
+							className={FIELD}
 							id={codeId}
 							name="code"
 							placeholder="ACMEPARTNER"
@@ -333,11 +348,12 @@ function IssueCodeDialog({
 					</div>
 
 					<div className="flex flex-col gap-2">
-						<Label htmlFor={labelId}>Internal label (optional)</Label>
+						<Label htmlFor={labelId}>Internal name (optional)</Label>
 						<Input
+							className={FIELD}
 							id={labelId}
 							name="label"
-							placeholder="Alex — 25%, signed Aug 2026"
+							placeholder="Alex Agency"
 						/>
 						<span className="text-caption text-secondary-foreground">
 							Never shown to the partner or merchant.
@@ -348,6 +364,7 @@ function IssueCodeDialog({
 						<div className="flex flex-col gap-2">
 							<Label htmlFor={maxId}>Max redemptions</Label>
 							<Input
+								className={FIELD}
 								id={maxId}
 								min="1"
 								name="maxRedemptions"
@@ -357,15 +374,20 @@ function IssueCodeDialog({
 						</div>
 						<div className="flex flex-col gap-2">
 							<Label htmlFor={expiresId}>Expires</Label>
-							<Input id={expiresId} name="expiresAt" type="date" />
+							<Input
+								className={FIELD}
+								id={expiresId}
+								name="expiresAt"
+								type="date"
+							/>
 						</div>
 					</div>
 
-					<div className="flex flex-col gap-4 rounded-xl border border-border bg-page p-4">
+					<div className="flex flex-col gap-4 rounded-xl border border-border bg-bg p-4">
 						<div className="flex flex-col gap-2">
 							<Label htmlFor={kindId}>Enterprise plan discount</Label>
 							<select
-								className="h-10 rounded-lg border border-border bg-bg px-3 text-body-sm text-primary-foreground"
+								className={PANEL_SELECT}
 								id={kindId}
 								name="discountKind"
 								onChange={(event) =>
@@ -386,6 +408,7 @@ function IssueCodeDialog({
 									<div className="flex flex-col gap-2">
 										<Label htmlFor={bpsId}>Percent off</Label>
 										<Input
+											className={PANEL_FIELD}
 											defaultValue="100"
 											id={bpsId}
 											max="100"
@@ -402,6 +425,7 @@ function IssueCodeDialog({
 										<div className="flex flex-col gap-2">
 											<Label htmlFor={amountId}>Amount off</Label>
 											<Input
+												className={PANEL_FIELD}
 												id={amountId}
 												name="discountAmount"
 												placeholder="5.00"
@@ -411,6 +435,7 @@ function IssueCodeDialog({
 										<div className="flex flex-col gap-2">
 											<Label htmlFor={currencyId}>Currency</Label>
 											<Input
+												className={PANEL_FIELD}
 												defaultValue="USD"
 												id={currencyId}
 												maxLength={3}
@@ -423,6 +448,7 @@ function IssueCodeDialog({
 								<div className="flex flex-col gap-2">
 									<Label htmlFor={cyclesId}>Cycles</Label>
 									<Input
+										className={PANEL_FIELD}
 										defaultValue="6"
 										id={cyclesId}
 										min="1"
@@ -435,6 +461,7 @@ function IssueCodeDialog({
 								<div className="flex flex-col gap-2">
 									<Label htmlFor={grantLimitId}>First N merchants</Label>
 									<Input
+										className={PANEL_FIELD}
 										defaultValue="10"
 										id={grantLimitId}
 										min="1"

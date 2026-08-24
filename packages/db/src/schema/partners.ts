@@ -9,7 +9,7 @@ import {
 	unique,
 	uuid,
 } from "drizzle-orm/pg-core";
-import { timestamps } from "./_shared";
+import { discountTerms, timestamps } from "./_shared";
 import { apps } from "./apps";
 import { user } from "./auth";
 import { merchants } from "./merchants";
@@ -134,6 +134,18 @@ export const partnerCodes = pgTable(
 		// allowance, in whole USD. Served to apps by /api/v1/codes/validate and
 		// applied by the app to its own metering — no money is computed here.
 		perkUsageAllowanceUsd: integer("perk_usage_allowance_usd"),
+		// PHASE 2 — the discount this code grants on the Enterprise plan.
+		...discountTerms,
+		/**
+		 * How many of the PARTNER's merchants receive the discount. Null =
+		 * unlimited, matching `maxRedemptions` and `expiresAt`.
+		 *
+		 * Deliberately NOT `maxRedemptions`. That caps one code; a partner may
+		 * hold several, and three codes must not yield three times the grants.
+		 * The counter resolves against `merchants.partnerId` — see
+		 * packages/api/src/attribution/grants.ts.
+		 */
+		discountGrantLimit: integer("discount_grant_limit"),
 		...timestamps,
 	},
 	(table) => [

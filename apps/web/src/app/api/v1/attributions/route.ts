@@ -59,6 +59,10 @@ export async function POST(request: Request): Promise<Response> {
 				merchantId: result.merchantId,
 				partner: result.partner,
 				perk: result.perk,
+				// The discount this app should apply to the Enterprise plan, or
+				// null to charge full price. Frozen at bind: the second and third
+				// apps this store installs receive the same terms as the first.
+				offer: result.offer,
 				// The merchant earns nothing until an admin approves the row. Said
 				// explicitly so an app can set the merchant's expectations honestly
 				// rather than implying the link is already earning.

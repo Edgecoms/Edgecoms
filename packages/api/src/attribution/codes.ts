@@ -30,6 +30,17 @@ export function normalizeCode(input: string): string {
 /** A validated code, with everything the bind and the response need. */
 export interface ResolvedCode {
 	code: string;
+	/**
+	 * Phase 2 discount terms, carried verbatim off the code row. Whether they are
+	 * actually GRANTED depends on the partner's remaining allocation, which is
+	 * resolved under a lock at bind time — see attribution/grants.ts.
+	 */
+	discountAmountMinor: bigint | null;
+	discountBps: number | null;
+	discountCurrency: string | null;
+	discountCycles: number | null;
+	discountGrantLimit: number | null;
+	discountKind: "none" | "percentage" | "fixed" | "free_cycles";
 	id: string;
 	partnerId: string;
 	/** Display name for the merchant-facing "you're linked to …" line. */
@@ -72,6 +83,12 @@ export async function validateCode(
 			maxRedemptions: partnerCodes.maxRedemptions,
 			expiresAt: partnerCodes.expiresAt,
 			perkUsageAllowanceUsd: partnerCodes.perkUsageAllowanceUsd,
+			discountKind: partnerCodes.discountKind,
+			discountBps: partnerCodes.discountBps,
+			discountAmountMinor: partnerCodes.discountAmountMinor,
+			discountCurrency: partnerCodes.discountCurrency,
+			discountCycles: partnerCodes.discountCycles,
+			discountGrantLimit: partnerCodes.discountGrantLimit,
 			partnerId: partners.id,
 			partnerStatus: partners.status,
 			partnerCompany: partners.companyName,
@@ -123,6 +140,12 @@ export async function validateCode(
 			partnerId: row.partnerId,
 			partnerName: row.partnerCompany?.trim() || row.partnerUserName,
 			perkUsageAllowanceUsd: row.perkUsageAllowanceUsd,
+			discountKind: row.discountKind,
+			discountBps: row.discountBps,
+			discountAmountMinor: row.discountAmountMinor,
+			discountCurrency: row.discountCurrency,
+			discountCycles: row.discountCycles,
+			discountGrantLimit: row.discountGrantLimit,
 			redemptions,
 		},
 	};

@@ -6,7 +6,7 @@ import { merchants } from "@edgecoms/db/schema/merchants";
 import { partnerCodes, partners } from "@edgecoms/db/schema/partners";
 import { payouts } from "@edgecoms/db/schema/payouts";
 import { TRPCError } from "@trpc/server";
-import { and, count, desc, eq, sql } from "drizzle-orm";
+import { and, count, desc, eq, isNotNull, ne, sql } from "drizzle-orm";
 import { z } from "zod";
 import { partnerProcedure, router } from "../index";
 
@@ -234,6 +234,14 @@ export const partnerRouter = router({
 					maxRedemptions: partnerCodes.maxRedemptions,
 					expiresAt: partnerCodes.expiresAt,
 					perkUsageAllowanceUsd: partnerCodes.perkUsageAllowanceUsd,
+					// The discount terms are the partner's own selling point, so
+					// unlike `label` they ARE theirs to see.
+					discountKind: partnerCodes.discountKind,
+					discountBps: partnerCodes.discountBps,
+					discountAmountMinor: partnerCodes.discountAmountMinor,
+					discountCurrency: partnerCodes.discountCurrency,
+					discountCycles: partnerCodes.discountCycles,
+					discountGrantLimit: partnerCodes.discountGrantLimit,
 					createdAt: partnerCodes.createdAt,
 				})
 				.from(partnerCodes)
@@ -252,9 +260,24 @@ export const partnerRouter = router({
 				redemptions.map((row) => [row.partnerCodeId, row.value])
 			);
 
+			// One allocation per partner, shared across all their codes.
+			const grantRows = await ctx.db
+				.select({ value: count() })
+				.from(merchants)
+				.where(
+					and(
+						eq(merchants.partnerId, partnerId),
+						isNotNull(merchants.discountGrantedAt),
+						ne(merchants.status, "rejected")
+					)
+				);
+			const grantsUsed = grantRows[0]?.value ?? 0;
+
 			return rows.map((row) => ({
 				...row,
+				discountAmountMinor: row.discountAmountMinor?.toString() ?? null,
 				redemptions: byCode.get(row.id) ?? 0,
+				grantsUsed,
 			}));
 		}),
 	}),

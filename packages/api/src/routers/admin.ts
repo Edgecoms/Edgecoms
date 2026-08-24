@@ -1,3 +1,4 @@
+import { decimalStringToMinorUnits } from "@edgecoms/billing/money";
 import { createPartnerApiSource } from "@edgecoms/billing/partner-api";
 import { runBillingSync } from "@edgecoms/billing/run-sync";
 import { apps } from "@edgecoms/db/schema/apps";
@@ -16,7 +17,17 @@ import { payouts } from "@edgecoms/db/schema/payouts";
 import { syncState } from "@edgecoms/db/schema/sync";
 import { env } from "@edgecoms/env/server";
 import { TRPCError } from "@trpc/server";
-import { and, count, desc, eq, inArray, notInArray, sql } from "drizzle-orm";
+import {
+	and,
+	count,
+	desc,
+	eq,
+	inArray,
+	isNotNull,
+	ne,
+	notInArray,
+	sql,
+} from "drizzle-orm";
 import { z } from "zod";
 import { normalizeCode } from "../attribution/codes";
 import { adminProcedure, router } from "../index";
@@ -36,6 +47,12 @@ const MONEY_SUM = (column: typeof commissions.commissionAmount) =>
  */
 const CODE_PATTERN = /^[A-Z0-9-]{4,32}$/;
 
+/** Billing intervals a discount may span. Ten years is well past any real promo. */
+const MAX_DISCOUNT_CYCLES = 120;
+/** 10000 bps = 100%. A discount cannot exceed the price. */
+const MAX_BPS = 10_000;
+const DECIMAL_AMOUNT = /^\d+(?:\.\d+)?$/;
+
 const codeTermsInput = {
 	label: z.string().max(120).optional(),
 	maxRedemptions: z.number().int().positive().max(100_000).nullish(),
@@ -46,7 +63,138 @@ const codeTermsInput = {
 		.nonnegative()
 		.max(10_000_000)
 		.nullish(),
+
+	/**
+	 * PHASE 2 discount terms. Integers only, per CLAUDE.md "Money correctness" —
+	 * `discountAmountMinor` crosses the wire as a decimal STRING because JSON has
+	 * no bigint, and is parsed with `BigInt()` rather than `Number()` so a large
+	 * amount cannot silently lose precision.
+	 */
+	discountKind: z
+		.enum(["none", "percentage", "fixed", "free_cycles"])
+		.optional(),
+	discountBps: z.number().int().nonnegative().max(MAX_BPS).nullish(),
+	/**
+	 * A decimal amount as typed ("5.00"), converted to integer minor units by
+	 * `decimalStringToMinorUnits` — string arithmetic, no float, and it throws
+	 * rather than truncating an amount with too many decimal places.
+	 */
+	discountAmount: z.string().regex(DECIMAL_AMOUNT).max(24).nullish(),
+	discountCurrency: z.string().length(3).nullish(),
+	discountCycles: z
+		.number()
+		.int()
+		.positive()
+		.max(MAX_DISCOUNT_CYCLES)
+		.nullish(),
+	discountGrantLimit: z.number().int().positive().max(100_000).nullish(),
 };
+
+type CodeTermsInput = z.infer<z.ZodObject<typeof codeTermsInput>>;
+
+interface DiscountShape {
+	discountAmount?: string | null;
+	discountBps?: number | null;
+	discountCurrency?: string | null;
+	discountCycles?: number | null;
+	discountKind?: "none" | "percentage" | "fixed" | "free_cycles";
+}
+
+/**
+ * A discount kind decides which fields must be present. Enforced here rather
+ * than left to the UI, because a `percentage` code with a null `bps` would reach
+ * an Edge app as a discount with no size and either crash it or, worse, be
+ * silently read as zero.
+ */
+function assertCoherentDiscount(input: DiscountShape): void {
+	const kind = input.discountKind;
+	if (!kind || kind === "none") {
+		return;
+	}
+	const fail = (message: string): never => {
+		throw new TRPCError({ code: "BAD_REQUEST", message });
+	};
+	if (kind === "percentage" && (input.discountBps ?? 0) <= 0) {
+		fail("A percentage discount needs a rate above zero (10000 = 100%).");
+	}
+	if (kind === "fixed") {
+		if (!input.discountCurrency) {
+			fail("A fixed discount needs a currency.");
+		}
+		if (!input.discountAmount) {
+			fail("A fixed discount needs an amount above zero.");
+		}
+	}
+	if (kind === "free_cycles" && !input.discountCycles) {
+		fail("A free-cycles discount needs a number of cycles.");
+	}
+}
+
+/**
+ * Decimal amount to integer minor units, or null. Currency is required to know
+ * how many minor-unit digits apply — a JPY "5" is 5, a USD "5" is 500.
+ */
+function toMinor(
+	amount: string | null | undefined,
+	currency: string | null | undefined
+): bigint | null {
+	if (!(amount && currency)) {
+		return null;
+	}
+	try {
+		return decimalStringToMinorUnits(amount, currency);
+	} catch (error) {
+		throw new TRPCError({
+			code: "BAD_REQUEST",
+			message: error instanceof Error ? error.message : "Invalid amount.",
+		});
+	}
+}
+
+/**
+ * A partial update of a code's terms.
+ *
+ * `undefined` means "leave alone" and `null` means "clear" — the distinction
+ * matters because clearing an expiry and not mentioning it are different
+ * intentions, and a naive spread would conflate them.
+ */
+function codeTermsPatch(input: CodeTermsInput) {
+	const set: Record<string, unknown> = {};
+	if (input.label !== undefined) {
+		set.label = input.label.trim() || null;
+	}
+	if (input.maxRedemptions !== undefined) {
+		set.maxRedemptions = input.maxRedemptions ?? null;
+	}
+	if (input.expiresAt !== undefined) {
+		set.expiresAt = input.expiresAt ? new Date(input.expiresAt) : null;
+	}
+	if (input.perkUsageAllowanceUsd !== undefined) {
+		set.perkUsageAllowanceUsd = input.perkUsageAllowanceUsd ?? null;
+	}
+	if (input.discountKind !== undefined) {
+		set.discountKind = input.discountKind;
+	}
+	if (input.discountBps !== undefined) {
+		set.discountBps = input.discountBps ?? null;
+	}
+	if (input.discountAmount !== undefined) {
+		set.discountAmountMinor = toMinor(
+			input.discountAmount,
+			input.discountCurrency
+		);
+	}
+	if (input.discountCurrency !== undefined) {
+		set.discountCurrency = input.discountCurrency ?? null;
+	}
+	if (input.discountCycles !== undefined) {
+		set.discountCycles = input.discountCycles ?? null;
+	}
+	if (input.discountGrantLimit !== undefined) {
+		set.discountGrantLimit = input.discountGrantLimit ?? null;
+	}
+	return set;
+}
 
 /**
  * Admin-scoped router. Every procedure asserts the admin role via
@@ -338,6 +486,12 @@ export const adminRouter = router({
 					maxRedemptions: partnerCodes.maxRedemptions,
 					expiresAt: partnerCodes.expiresAt,
 					perkUsageAllowanceUsd: partnerCodes.perkUsageAllowanceUsd,
+					discountKind: partnerCodes.discountKind,
+					discountBps: partnerCodes.discountBps,
+					discountAmountMinor: partnerCodes.discountAmountMinor,
+					discountCurrency: partnerCodes.discountCurrency,
+					discountCycles: partnerCodes.discountCycles,
+					discountGrantLimit: partnerCodes.discountGrantLimit,
 					createdAt: partnerCodes.createdAt,
 					partnerId: partners.id,
 					partnerStatus: partners.status,
@@ -363,9 +517,29 @@ export const adminRouter = router({
 				redemptions.map((row) => [row.partnerCodeId, row.value])
 			);
 
+			// Discount grants are counted per PARTNER, not per code: a partner may
+			// hold several codes and they share one allocation. Mirrors
+			// countGrantsUsed() in attribution/grants.ts — a rejected merchant
+			// releases its slot.
+			const grants = await ctx.db
+				.select({ partnerId: merchants.partnerId, value: count() })
+				.from(merchants)
+				.where(
+					and(
+						isNotNull(merchants.discountGrantedAt),
+						ne(merchants.status, "rejected")
+					)
+				)
+				.groupBy(merchants.partnerId);
+			const grantsByPartner = new Map(
+				grants.map((row) => [row.partnerId, row.value])
+			);
+
 			return rows.map((row) => ({
 				...row,
+				discountAmountMinor: row.discountAmountMinor?.toString() ?? null,
 				redemptions: byCode.get(row.id) ?? 0,
+				grantsUsed: grantsByPartner.get(row.partnerId) ?? 0,
 			}));
 		}),
 
@@ -386,6 +560,7 @@ export const adminRouter = router({
 							"Use 4–32 letters, digits or hyphens. Keep the commission rate out of the code.",
 					});
 				}
+				assertCoherentDiscount(input);
 
 				const inserted = await ctx.db
 					.insert(partnerCodes)
@@ -396,6 +571,15 @@ export const adminRouter = router({
 						maxRedemptions: input.maxRedemptions ?? null,
 						expiresAt: input.expiresAt ? new Date(input.expiresAt) : null,
 						perkUsageAllowanceUsd: input.perkUsageAllowanceUsd ?? null,
+						discountKind: input.discountKind ?? "none",
+						discountBps: input.discountBps ?? null,
+						discountAmountMinor: toMinor(
+							input.discountAmount,
+							input.discountCurrency
+						),
+						discountCurrency: input.discountCurrency ?? null,
+						discountCycles: input.discountCycles ?? null,
+						discountGrantLimit: input.discountGrantLimit ?? null,
 					})
 					.onConflictDoNothing({ target: partnerCodes.code })
 					.returning({ id: partnerCodes.id });
@@ -432,24 +616,12 @@ export const adminRouter = router({
 				})
 			)
 			.mutation(async ({ ctx, input }) => {
+				assertCoherentDiscount(input);
 				const updated = await ctx.db
 					.update(partnerCodes)
 					.set({
 						...(input.status ? { status: input.status } : {}),
-						...(input.label === undefined
-							? {}
-							: { label: input.label.trim() || null }),
-						...(input.maxRedemptions === undefined
-							? {}
-							: { maxRedemptions: input.maxRedemptions ?? null }),
-						...(input.expiresAt === undefined
-							? {}
-							: {
-									expiresAt: input.expiresAt ? new Date(input.expiresAt) : null,
-								}),
-						...(input.perkUsageAllowanceUsd === undefined
-							? {}
-							: { perkUsageAllowanceUsd: input.perkUsageAllowanceUsd ?? null }),
+						...codeTermsPatch(input),
 					})
 					.where(eq(partnerCodes.id, input.codeId))
 					.returning({ id: partnerCodes.id });

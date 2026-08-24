@@ -19,19 +19,51 @@ import { trpc } from "@/utils/trpc";
  * than offer a button.
  */
 
-function CodeRow({
-	code,
-	redemptions,
-	maxRedemptions,
-	perkUsageAllowanceUsd,
-	disabled,
-}: {
+type DiscountKind = "none" | "percentage" | "fixed" | "free_cycles";
+
+interface CodeRowProps {
 	code: string;
-	redemptions: number;
-	maxRedemptions: number | null;
-	perkUsageAllowanceUsd: number | null;
 	disabled: boolean;
-}) {
+	discountAmountMinor: string | null;
+	discountBps: number | null;
+	discountCurrency: string | null;
+	discountCycles: number | null;
+	discountGrantLimit: number | null;
+	discountKind: DiscountKind;
+	grantsUsed: number;
+	maxRedemptions: number | null;
+	redemptions: number;
+}
+
+/** What a merchant gets for using this code, in the partner's own words. */
+function describeOffer(props: CodeRowProps): string | null {
+	const cycles = props.discountCycles;
+	const span =
+		cycles === null
+			? "for as long as they stay"
+			: `for their first ${cycles} ${cycles === 1 ? "month" : "months"}`;
+	switch (props.discountKind) {
+		case "percentage":
+			return `${(props.discountBps ?? 0) / 100}% off Enterprise ${span}`;
+		case "fixed":
+			return `${props.discountAmountMinor ?? ""} ${props.discountCurrency ?? ""} off Enterprise ${span}`;
+		case "free_cycles":
+			return `Enterprise free ${span}`;
+		default:
+			return null;
+	}
+}
+
+function CodeRow(props: CodeRowProps) {
+	const {
+		code,
+		redemptions,
+		maxRedemptions,
+		discountGrantLimit,
+		grantsUsed,
+		disabled,
+	} = props;
+	const offer = describeOffer(props);
 	const [copied, setCopied] = useState(false);
 
 	async function copy() {
@@ -62,10 +94,24 @@ function CodeRow({
 				<span className="text-caption text-secondary-foreground">
 					{redemptions} {redemptions === 1 ? "store" : "stores"} registered
 					{maxRedemptions === null ? "" : ` of ${maxRedemptions} available`}
-					{perkUsageAllowanceUsd === null
-						? ""
-						: ` · referred stores pay no usage fee under $${perkUsageAllowanceUsd.toLocaleString()}/mo`}
 				</span>
+				{offer ? (
+					<div className="flex flex-col gap-1 rounded-lg bg-brand/5 px-3 py-2">
+						<span className="text-caption text-primary-foreground">
+							{offer}
+							{discountGrantLimit === null
+								? ""
+								: ` · ${grantsUsed} of ${discountGrantLimit} used`}
+						</span>
+						{/* Said plainly, because the alternative is a partner discovering
+						    it on an empty payout. Commission is a share of what Edge
+						    receives, and a free store pays nothing. */}
+						<span className="text-caption text-secondary-foreground">
+							You earn no commission from a store while its plan is free —
+							earnings begin when it starts paying.
+						</span>
+					</div>
+				) : null}
 			</div>
 			<Button
 				disabled={disabled}
@@ -111,9 +157,15 @@ export function PartnerCodeCard() {
 						<CodeRow
 							code={row.code}
 							disabled={row.status !== "active"}
+							discountAmountMinor={row.discountAmountMinor}
+							discountBps={row.discountBps}
+							discountCurrency={row.discountCurrency}
+							discountCycles={row.discountCycles}
+							discountGrantLimit={row.discountGrantLimit}
+							discountKind={row.discountKind}
+							grantsUsed={row.grantsUsed}
 							key={row.id}
 							maxRedemptions={row.maxRedemptions}
-							perkUsageAllowanceUsd={row.perkUsageAllowanceUsd}
 							redemptions={row.redemptions}
 						/>
 					))}

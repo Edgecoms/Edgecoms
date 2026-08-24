@@ -33,9 +33,19 @@ import { queryClient, trpc } from "@/utils/trpc";
  *     already referred with their partner. There is deliberately no delete.
  */
 
+type DiscountKind = "none" | "percentage" | "fixed" | "free_cycles";
+
 interface CodeRow {
 	code: string;
+	discountAmountMinor: string | null;
+	discountBps: number | null;
+	discountCurrency: string | null;
+	discountCycles: number | null;
+	discountGrantLimit: number | null;
+	discountKind: DiscountKind;
 	expiresAt: string | Date | null;
+	/** Spent allocation for this code's PARTNER, shared across all their codes. */
+	grantsUsed: number;
 	id: string;
 	label: string | null;
 	maxRedemptions: number | null;
@@ -47,11 +57,45 @@ interface CodeRow {
 	status: "active" | "disabled";
 }
 
+/** One-line summary of what a code takes off the Enterprise plan. */
+function describeDiscount(code: CodeRow): string {
+	const cycles =
+		code.discountCycles === null ? "ongoing" : `${code.discountCycles} cycles`;
+	switch (code.discountKind) {
+		case "percentage":
+			return `${(code.discountBps ?? 0) / 100}% off, ${cycles}`;
+		case "fixed":
+			return `${code.discountAmountMinor ?? "0"} ${code.discountCurrency ?? ""} off, ${cycles}`;
+		case "free_cycles":
+			return `Free for ${code.discountCycles ?? 0} cycles`;
+		default:
+			return "—";
+	}
+}
+
 interface PartnerOption {
 	companyName: string | null;
 	id: string;
 	name: string;
 	status: string;
+}
+
+const PERCENT_PATTERN = /^(\d{1,3})(?:\.(\d{1,2}))?$/;
+
+/**
+ * "12.5" -> 1250 basis points, without floating point.
+ *
+ * `whole * 100` and the two-digit fraction are both exact in float64, so the sum
+ * is exact. Multiplying 12.5 by 100 directly is not, and this is a money field.
+ */
+function percentToBps(raw: string): number | null {
+	const match = PERCENT_PATTERN.exec(raw.trim());
+	if (!match) {
+		return null;
+	}
+	const whole = Number(match[1]);
+	const fraction = Number((match[2] ?? "").padEnd(2, "0"));
+	return whole * 100 + fraction;
 }
 
 /** Empty string from an optional number field means "not set", not zero. */
@@ -62,6 +106,61 @@ function optionalInt(value: FormDataEntryValue | null): number | null {
 	}
 	const parsed = Number(raw);
 	return Number.isFinite(parsed) ? Math.trunc(parsed) : null;
+}
+
+interface DiscountPayload {
+	discountAmount: string | null;
+	discountBps: number | null;
+	discountCurrency: string | null;
+	discountCycles: number | null;
+	discountGrantLimit: number | null;
+	discountKind: DiscountKind;
+}
+
+/**
+ * Read the discount block off the form. Returns null when the percentage is
+ * unparseable, which is the only field the browser cannot validate for us.
+ *
+ * Fields belonging to another kind are sent as null rather than omitted, so
+ * switching a code from `fixed` to `percentage` clears the stale amount instead
+ * of leaving it behind for the next reader to trip over.
+ */
+function readDiscount(form: FormData): DiscountPayload | null {
+	const kind = String(form.get("discountKind") ?? "none") as DiscountKind;
+	if (kind === "none") {
+		return {
+			discountKind: kind,
+			discountBps: null,
+			discountAmount: null,
+			discountCurrency: null,
+			discountCycles: null,
+			discountGrantLimit: null,
+		};
+	}
+
+	let bps: number | null = null;
+	if (kind === "percentage") {
+		bps = percentToBps(String(form.get("discountPercent") ?? ""));
+		if (bps === null) {
+			return null;
+		}
+	}
+	const isFixed = kind === "fixed";
+
+	return {
+		discountKind: kind,
+		discountBps: bps,
+		discountAmount: isFixed
+			? String(form.get("discountAmount") ?? "").trim() || null
+			: null,
+		discountCurrency: isFixed
+			? String(form.get("discountCurrency") ?? "")
+					.trim()
+					.toUpperCase() || null
+			: null,
+		discountCycles: optionalInt(form.get("discountCycles")),
+		discountGrantLimit: optionalInt(form.get("discountGrantLimit")),
+	};
 }
 
 function formatExpiry(expiresAt: string | Date | null): string {
@@ -93,7 +192,8 @@ function CodesTable({
 					<th>Status</th>
 					<th className="text-right">Redemptions</th>
 					<th>Expires</th>
-					<th className="text-right">Perk</th>
+					<th>Enterprise discount</th>
+					<th className="text-right">Grants</th>
 					<th className="text-right">Action</th>
 				</>
 			}
@@ -136,10 +236,17 @@ function CodesTable({
 					<td className="text-secondary-foreground">
 						{formatExpiry(code.expiresAt)}
 					</td>
+					<td className="text-secondary-foreground">
+						{describeDiscount(code)}
+					</td>
 					<td className="text-right text-secondary-foreground tabular-nums">
-						{code.perkUsageAllowanceUsd === null
+						{code.discountKind === "none"
 							? "—"
-							: `$${code.perkUsageAllowanceUsd.toLocaleString()}/mo`}
+							: `${code.grantsUsed}${
+									code.discountGrantLimit === null
+										? ""
+										: ` / ${code.discountGrantLimit}`
+								}`}
 					</td>
 					<td className="text-right">
 						<Button
@@ -175,7 +282,14 @@ function IssueCodeDialog({
 	const labelId = useId();
 	const maxId = useId();
 	const expiresId = useId();
-	const perkId = useId();
+	const kindId = useId();
+	const bpsId = useId();
+	const amountId = useId();
+	const currencyId = useId();
+	const cyclesId = useId();
+	const grantLimitId = useId();
+	// Drives which term fields are shown. The rest of the form stays uncontrolled.
+	const [kind, setKind] = useState<DiscountKind>("none");
 
 	return (
 		<Dialog onOpenChange={onOpenChange} open={open}>
@@ -246,20 +360,106 @@ function IssueCodeDialog({
 						</div>
 					</div>
 
-					<div className="flex flex-col gap-2">
-						<Label htmlFor={perkId}>Fee-free allowance (USD / month)</Label>
-						<Input
-							id={perkId}
-							min="0"
-							name="perkUsageAllowanceUsd"
-							placeholder="Standard band"
-							type="number"
-						/>
-						<span className="text-caption text-secondary-foreground">
-							The instant benefit a referred store gets: monthly revenue up to
-							this figure carries no usage fee. Leave empty for the standard
-							entry band. Apps read this when a merchant enters the code.
-						</span>
+					<div className="flex flex-col gap-4 rounded-xl border border-border bg-page p-4">
+						<div className="flex flex-col gap-2">
+							<Label htmlFor={kindId}>Enterprise plan discount</Label>
+							<select
+								className="h-10 rounded-lg border border-border bg-bg px-3 text-body-sm text-primary-foreground"
+								id={kindId}
+								name="discountKind"
+								onChange={(event) =>
+									setKind(event.currentTarget.value as DiscountKind)
+								}
+								value={kind}
+							>
+								<option value="none">No discount</option>
+								<option value="percentage">Percentage off</option>
+								<option value="fixed">Fixed amount off</option>
+								<option value="free_cycles">Free for N cycles</option>
+							</select>
+							<span className="text-caption text-secondary-foreground">
+								Applies to the <strong>Enterprise plan only</strong>. Shopify
+								has no way to discount a usage-based plan, so usage charges bill
+								in full regardless.
+							</span>
+						</div>
+
+						{kind === "percentage" ? (
+							<div className="flex flex-col gap-2">
+								<Label htmlFor={bpsId}>Percent off</Label>
+								<Input
+									defaultValue="100"
+									id={bpsId}
+									max="100"
+									min="1"
+									name="discountPercent"
+									step="0.01"
+									type="number"
+								/>
+							</div>
+						) : null}
+
+						{kind === "fixed" ? (
+							<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+								<div className="flex flex-col gap-2">
+									<Label htmlFor={amountId}>Amount off</Label>
+									<Input
+										id={amountId}
+										name="discountAmount"
+										placeholder="5.00"
+										type="text"
+									/>
+								</div>
+								<div className="flex flex-col gap-2">
+									<Label htmlFor={currencyId}>Currency</Label>
+									<Input
+										defaultValue="USD"
+										id={currencyId}
+										maxLength={3}
+										name="discountCurrency"
+									/>
+								</div>
+							</div>
+						) : null}
+
+						{kind === "none" ? null : (
+							<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+								<div className="flex flex-col gap-2">
+									<Label htmlFor={cyclesId}>Billing cycles</Label>
+									<Input
+										defaultValue="6"
+										id={cyclesId}
+										min="1"
+										name="discountCycles"
+										placeholder="Ongoing"
+										type="number"
+									/>
+								</div>
+								<div className="flex flex-col gap-2">
+									<Label htmlFor={grantLimitId}>First N merchants</Label>
+									<Input
+										defaultValue="10"
+										id={grantLimitId}
+										min="1"
+										name="discountGrantLimit"
+										placeholder="Unlimited"
+										type="number"
+									/>
+								</div>
+							</div>
+						)}
+
+						{kind === "none" ? null : (
+							<span className="text-caption text-secondary-foreground">
+								The allowance is counted <strong>per partner</strong>, across
+								every code they hold — not per code.{" "}
+								<strong>
+									A discounted store earns the partner no commission while it
+									pays nothing
+								</strong>
+								, because commission is a share of what Edge actually receives.
+							</span>
+						)}
 					</div>
 
 					<div className="flex items-center justify-end gap-3">
@@ -303,6 +503,12 @@ export default function AdminCodesPage() {
 		const form = new FormData(event.currentTarget);
 		const expiresAt = String(form.get("expiresAt") ?? "").trim();
 
+		const discount = readDiscount(form);
+		if (!discount) {
+			toast.error("Enter a percentage between 0 and 100, up to 2 decimals.");
+			return;
+		}
+
 		createMutation.mutate(
 			{
 				partnerId: String(form.get("partnerId")),
@@ -313,7 +519,7 @@ export default function AdminCodesPage() {
 				expiresAt: expiresAt
 					? new Date(`${expiresAt}T23:59:59Z`).toISOString()
 					: null,
-				perkUsageAllowanceUsd: optionalInt(form.get("perkUsageAllowanceUsd")),
+				...discount,
 			},
 			{
 				onSuccess: (result) => {

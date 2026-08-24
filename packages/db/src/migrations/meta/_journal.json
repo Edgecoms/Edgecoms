@@ -15,6 +15,13 @@
       "when": 1786977124209,
       "tag": "0001_bitter_wasp",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1787576754133,
+      "tag": "0002_sturdy_baron_zemo",
+      "breakpoints": true
     }
   ]
 }

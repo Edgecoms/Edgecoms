@@ -8,6 +8,15 @@ import {
 import { eq, inArray } from "drizzle-orm";
 import { ATTEMPT_LIMIT, recentAttemptCount, recordAttempt } from "./attempts";
 import { normalizeCode, validateCode } from "./codes";
+import {
+	type GrantTerms,
+	isAppGrandfathered,
+	type OfferPayload,
+	resolveGrantForBind,
+	type Tx,
+	termsFrom,
+	toOffer,
+} from "./grants";
 
 /**
  * BINDING A STORE TO A PARTNER — the attribution write.
@@ -40,9 +49,6 @@ import { normalizeCode, validateCode } from "./codes";
  * `earning_events` — see @edgecoms/billing/commissions.
  */
 
-/** Drizzle's transaction handle — narrower than `Database`. */
-type Tx = Parameters<Parameters<Database["transaction"]>[0]>[0];
-
 const MYSHOPIFY_SUFFIX = /\.myshopify\.com$/;
 
 export interface BindInput {
@@ -67,6 +73,13 @@ export interface BindInput {
 
 export interface BindSuccess {
 	merchantId: string;
+	/**
+	 * The discount THIS app should apply, or null. Null covers three cases the
+	 * app cannot distinguish and does not need to: the code grants nothing, the
+	 * partner's allocation is spent, or this app is grandfathered for the store.
+	 * In every one of them the app charges full price.
+	 */
+	offer: OfferPayload | null;
 	ok: true;
 	partner: { id: string; name: string };
 	perk: { usageAllowanceUsd: number | null };
@@ -133,6 +146,81 @@ async function addGrandfathered(
 	}
 }
 
+/**
+ * Outcome of the transaction, shared by the fresh and replay branches.
+ *
+ * A discriminated union rather than a nullable `merchantId`, so the caller that
+ * checks the status also learns whether there is a merchant to report.
+ */
+type ClaimOutcome =
+	| {
+			grant: GrantTerms | null;
+			merchantId: string;
+			status: "bound" | "already_bound";
+	  }
+	| { grant: null; merchantId: null; status: "claimed_by_other" };
+
+/**
+ * The domain was already claimed. Decide whether this is a harmless replay by
+ * the same partner or a store somebody else already owns.
+ *
+ * A replay reads the FROZEN grant off the merchant rather than re-resolving it,
+ * so the second and third Edge apps a store installs receive the same terms the
+ * first one did, and no second allocation slot is consumed.
+ */
+async function resolveExistingClaim(
+	tx: Tx,
+	params: {
+		appIds: string[];
+		appSlug: string;
+		partnerId: string;
+		shopDomain: string;
+		shopifyGid?: string | null;
+	}
+): Promise<ClaimOutcome> {
+	const existingRows = await tx
+		.select({
+			id: merchants.id,
+			partnerId: merchants.partnerId,
+			status: merchants.status,
+			shopifyGid: merchants.shopifyGid,
+			discountKind: merchants.discountKind,
+			discountBps: merchants.discountBps,
+			discountAmountMinor: merchants.discountAmountMinor,
+			discountCurrency: merchants.discountCurrency,
+			discountCycles: merchants.discountCycles,
+		})
+		.from(merchants)
+		.where(eq(merchants.shopDomain, params.shopDomain))
+		.limit(1);
+	const existing = existingRows[0];
+
+	if (!existing || existing.partnerId !== params.partnerId) {
+		return { status: "claimed_by_other", merchantId: null, grant: null };
+	}
+
+	// Backfill the GID if the first call didn't carry one — pure enrichment.
+	const gid = params.shopifyGid?.trim();
+	if (!existing.shopifyGid && gid) {
+		await tx
+			.update(merchants)
+			.set({ shopifyGid: gid })
+			.where(eq(merchants.id, existing.id));
+	}
+	// Still pending, so the grandfathered set is not yet frozen and a re-report
+	// may legitimately add an app the first call missed.
+	if (existing.status === "pending") {
+		await addGrandfathered(tx, existing.id, params.appIds);
+	}
+
+	const blocked = await isAppGrandfathered(tx, existing.id, params.appSlug);
+	return {
+		status: "already_bound",
+		merchantId: existing.id,
+		grant: blocked ? null : termsFrom(existing),
+	};
+}
+
 export async function bindAttribution(
 	db: Database,
 	input: BindInput,
@@ -185,6 +273,11 @@ export async function bindAttribution(
 	const result = await db.transaction(async (tx) => {
 		const appIds = await resolveAppIds(tx, input.paidAppSlugs ?? []);
 
+		// Resolved BEFORE the insert so the partner row is locked first and the
+		// count cannot include the row we are about to write. If the insert then
+		// conflicts, nothing was granted — a lock was taken and released, no more.
+		const grant = await resolveGrantForBind(tx, resolved.partnerId, resolved);
+
 		const inserted = await tx
 			.insert(merchants)
 			.values({
@@ -197,6 +290,13 @@ export async function bindAttribution(
 				partnerCodeId: resolved.id,
 				sourceCode: resolved.code,
 				shopifyGid: input.shopifyGid?.trim() || null,
+				// Frozen here and never read from the code again.
+				discountKind: grant?.kind ?? "none",
+				discountBps: grant?.bps ?? null,
+				discountAmountMinor: grant?.amountMinor ?? null,
+				discountCurrency: grant?.currency ?? null,
+				discountCycles: grant?.cycles ?? null,
+				discountGrantedAt: grant ? now : null,
 			})
 			.onConflictDoNothing({ target: merchants.shopDomain })
 			.returning({ id: merchants.id });
@@ -204,41 +304,28 @@ export async function bindAttribution(
 		const fresh = inserted[0];
 		if (fresh) {
 			await addGrandfathered(tx, fresh.id, appIds);
-			return { status: "bound" as const, merchantId: fresh.id };
+			// The grant is merchant-level; whether THIS app may use it is not.
+			// A store already paying for this app is not new business here, but
+			// the grant still stands for the apps that are.
+			//
+			// Known cost: a store grandfathered on every app consumes a slot and
+			// discounts nothing. The platform does not model plans, so it cannot
+			// tell in advance — see docs/partner-plan-discounts.md.
+			const blocked = await isAppGrandfathered(tx, fresh.id, input.appSlug);
+			return {
+				status: "bound" as const,
+				merchantId: fresh.id,
+				grant: blocked ? null : grant,
+			};
 		}
 
-		// The domain was already claimed. Read who by — that decides whether this
-		// is a harmless replay or a store another partner already owns.
-		const existingRows = await tx
-			.select({
-				id: merchants.id,
-				partnerId: merchants.partnerId,
-				status: merchants.status,
-				shopifyGid: merchants.shopifyGid,
-			})
-			.from(merchants)
-			.where(eq(merchants.shopDomain, shopDomain))
-			.limit(1);
-		const existing = existingRows[0];
-
-		if (!existing || existing.partnerId !== resolved.partnerId) {
-			return { status: "claimed_by_other" as const, merchantId: null };
-		}
-
-		// Same partner: idempotent replay. Backfill the GID if the first call
-		// didn't carry one — pure enrichment, and Phase 2 credits need it.
-		if (!existing.shopifyGid && input.shopifyGid?.trim()) {
-			await tx
-				.update(merchants)
-				.set({ shopifyGid: input.shopifyGid.trim() })
-				.where(eq(merchants.id, existing.id));
-		}
-		// Still pending, so the grandfathered set is not yet frozen and a
-		// re-report may legitimately add an app the first call missed.
-		if (existing.status === "pending") {
-			await addGrandfathered(tx, existing.id, appIds);
-		}
-		return { status: "already_bound" as const, merchantId: existing.id };
+		return await resolveExistingClaim(tx, {
+			appIds,
+			appSlug: input.appSlug,
+			partnerId: resolved.partnerId,
+			shopDomain,
+			shopifyGid: input.shopifyGid,
+		});
 	});
 
 	if (result.status === "claimed_by_other") {
@@ -274,5 +361,6 @@ export async function bindAttribution(
 		merchantId: result.merchantId,
 		partner: { id: resolved.partnerId, name: resolved.partnerName },
 		perk: { usageAllowanceUsd: resolved.perkUsageAllowanceUsd },
+		offer: toOffer(result.grant),
 	};
 }

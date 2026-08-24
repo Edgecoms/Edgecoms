@@ -10,6 +10,7 @@ import {
 	SITE_URL,
 	websiteSchema,
 } from "@/lib/seo";
+import { Analytics } from "@vercel/analytics/next";
 import "../index.css";
 
 const interVariable = localFont({
@@ -107,6 +108,7 @@ export default function RootLayout({
 				suppressHydrationWarning
 			>
 				<Providers>{children}</Providers>
+				<Analytics />
 			</body>
 		</html>
 	);

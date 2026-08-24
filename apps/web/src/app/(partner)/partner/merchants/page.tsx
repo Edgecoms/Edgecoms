@@ -1,9 +1,7 @@
 "use client";
 
-import { ButtonLink } from "@edgecoms/ui/components/button";
 import { Skeleton } from "@edgecoms/ui/components/skeleton";
 import { useQuery } from "@tanstack/react-query";
-import type { Route } from "next";
 import {
 	EmptyState,
 	PortalHeader,
@@ -21,16 +19,7 @@ export default function PartnerMerchantsPage() {
 	return (
 		<div className="flex flex-col gap-8">
 			<PortalHeader
-				action={
-					<ButtonLink
-						href={"/partner/merchants/register" as Route}
-						size="lg"
-						variant="primary"
-					>
-						Register merchant
-					</ButtonLink>
-				}
-				description="Every store you've registered, with the commission it has generated."
+				description="Every store bound to your code, with the commission it has generated."
 				title="Merchants"
 			/>
 
@@ -38,16 +27,7 @@ export default function PartnerMerchantsPage() {
 
 			{!isLoading && data?.length === 0 && (
 				<EmptyState
-					action={
-						<ButtonLink
-							href={"/partner/merchants/register" as Route}
-							size="lg"
-							variant="primary"
-						>
-							Register your first merchant
-						</ButtonLink>
-					}
-					description="Register the Shopify stores you manage to start earning commission."
+					description="Give your code to a merchant you manage. When they enter it in an Edge app, their store appears here for approval."
 					title="No merchants yet"
 				/>
 			)}

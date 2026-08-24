@@ -1,37 +1,15 @@
 import { toPeriodMonth } from "@edgecoms/billing/commissions";
-import { normalizeShopDomain } from "@edgecoms/billing/partner-api";
 import { apps } from "@edgecoms/db/schema/apps";
 import { commissions } from "@edgecoms/db/schema/earnings";
 import { merchants } from "@edgecoms/db/schema/merchants";
 import { partnerCodes, partners } from "@edgecoms/db/schema/partners";
 import { payouts } from "@edgecoms/db/schema/payouts";
-import { TRPCError } from "@trpc/server";
 import { and, count, desc, eq, isNotNull, ne, sql } from "drizzle-orm";
 import { z } from "zod";
 import { partnerProcedure, router } from "../index";
 
 const MONEY_SUM = (column: typeof commissions.commissionAmount) =>
 	sql<string>`coalesce(sum(${column}), 0)`;
-
-/** Folds the optional installed-apps selection into the merchant notes. */
-function composeNotes(appsInstalled?: string[], notes?: string): string | null {
-	const parts: string[] = [];
-	if (appsInstalled?.length) {
-		parts.push(`Apps installed: ${appsInstalled.join(", ")}`);
-	}
-	if (notes?.trim()) {
-		parts.push(notes.trim());
-	}
-	return parts.length > 0 ? parts.join("\n") : null;
-}
-
-const registerInput = z.object({
-	name: z.string().min(1, "Merchant name is required"),
-	storeUrl: z.string().min(1, "Store URL is required"),
-	email: z.string().email().optional().or(z.literal("")),
-	appsInstalled: z.array(z.string()).optional(),
-	notes: z.string().optional(),
-});
 
 const profileInput = z.object({
 	companyName: z.string().max(200).optional(),
@@ -176,44 +154,6 @@ export const partnerRouter = router({
 		}),
 
 		/** Registers a merchant the partner manages. New rows are `pending`. */
-		register: partnerProcedure
-			.input(registerInput)
-			.mutation(async ({ ctx, input }) => {
-				let shopDomain: string;
-				try {
-					shopDomain = normalizeShopDomain(input.storeUrl);
-				} catch {
-					throw new TRPCError({
-						code: "BAD_REQUEST",
-						message: "Enter a valid Shopify store URL",
-					});
-				}
-
-				const inserted = await ctx.db
-					.insert(merchants)
-					.values({
-						partnerId: ctx.partner.id,
-						shopDomain,
-						name: input.name,
-						email: input.email ? input.email : null,
-						notes: composeNotes(input.appsInstalled, input.notes),
-						status: "pending",
-					})
-					.onConflictDoNothing({ target: merchants.shopDomain })
-					.returning({ id: merchants.id });
-
-				const row = inserted[0];
-				if (!row) {
-					// The global unique on shop_domain is the dedup rule: this store is
-					// already claimed (possibly by another partner).
-					throw new TRPCError({
-						code: "CONFLICT",
-						message: "This store is already registered.",
-					});
-				}
-
-				return { id: row.id, shopDomain };
-			}),
 	}),
 
 	/**

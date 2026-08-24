@@ -40,7 +40,7 @@ export default function PartnerEarningsPage() {
 					hint="Current period"
 					label="This month"
 					loading={isLoading}
-					value={data ? formatPeriod(data.currentPeriod) : "—"}
+					value={data ? formatPeriod(data.currentPeriod) : "-"}
 				/>
 			</div>
 

@@ -1,8 +1,6 @@
 "use client";
 
-import { ButtonLink } from "@edgecoms/ui/components/button";
 import { useQuery } from "@tanstack/react-query";
-import type { Route } from "next";
 import { PartnerCodeCard } from "@/components/portal/partner-code-card";
 import {
 	EmptyState,
@@ -21,24 +19,15 @@ export default function PartnerDashboardPage() {
 	return (
 		<div className="flex flex-col gap-8">
 			<PortalHeader
-				action={
-					<ButtonLink
-						href={"/partner/merchants/register" as Route}
-						size="lg"
-						variant="primary"
-					>
-						Register merchant
-					</ButtonLink>
-				}
 				description="Your merchants, recurring revenue, and commission at a glance."
 				title="Dashboard"
 			/>
 
 			{data?.status && data.status !== "approved" ? (
 				<div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-800 text-body-sm">
-					Your partner account is <strong>{data.status}</strong>. You can
-					register merchants now. Commission begins once you and your merchants
-					are approved.
+					Your partner account is <strong>{data.status}</strong>. Your code
+					starts binding stores once you are approved, and commission begins
+					once a merchant is approved too.
 				</div>
 			) : null}
 

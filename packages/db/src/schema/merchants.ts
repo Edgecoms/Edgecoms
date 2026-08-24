@@ -8,7 +8,7 @@ import {
 	unique,
 	uuid,
 } from "drizzle-orm/pg-core";
-import { timestamps } from "./_shared";
+import { discountTerms, timestamps } from "./_shared";
 import { apps } from "./apps";
 import { user } from "./auth";
 import { partnerCodes, partners } from "./partners";
@@ -69,6 +69,21 @@ export const merchants = pgTable(
 		// The Shopify shop GID reported by the app at bind time. Captured now
 		// because `appCreditCreate` needs it, and it is free to collect here.
 		shopifyGid: text("shopify_gid"),
+		/**
+		 * PHASE 2 — the discount grant, FROZEN at bind from the code's terms and
+		 * never read live again.
+		 *
+		 * Frozen for the same reason the commission rate and the grandfathered set
+		 * are frozen: editing a code must never rewrite what an already-bound store
+		 * was promised. A live read would let an admin change a merchant's bill
+		 * retroactively — the same class of bug as rewriting unpaid history.
+		 *
+		 * `discountGrantedAt` null means no grant. It is also the counter key: a
+		 * partner's used allocation is the count of their non-rejected merchants
+		 * with a non-null value here.
+		 */
+		...discountTerms,
+		discountGrantedAt: timestamp("discount_granted_at"),
 		approvedAt: timestamp("approved_at"),
 		approvedBy: text("approved_by").references(() => user.id, {
 			onDelete: "set null",
@@ -79,6 +94,12 @@ export const merchants = pgTable(
 		index("merchants_partner_idx").on(table.partnerId),
 		index("merchants_status_idx").on(table.status),
 		index("merchants_partner_code_idx").on(table.partnerCodeId),
+		// Serves the grant counter, which reads (partner, granted, status) on
+		// every bind that could award a discount.
+		index("merchants_partner_grant_idx").on(
+			table.partnerId,
+			table.discountGrantedAt
+		),
 	]
 );
 

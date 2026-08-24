@@ -82,6 +82,12 @@
 	--text-primary: #000000;
 	--text-secondary: var(--gray-11);
 
+	/* An OPAQUE surface for things that float above the page — dialogs,
+	   popovers. `--page` is a translucent white and picks up the grey beneath
+	   it, which is right for a panel sitting IN the page and wrong for one
+	   sitting over a backdrop. */
+	--elevated: #ffffff;
+
 	--secondary: var(--white-a12);
 	--secondary-hover: var(--white-a7);
 
@@ -121,6 +127,9 @@
 .dark {
 	--bg: oklch(0 0 0);
 	--page: var(--white-a1);
+
+	/* Lifted off pure black so an elevated surface still reads as elevated. */
+	--elevated: var(--gray-2);
 
 	/* Inverted: the dark scale's 12 is near-white, 11 is mid-grey. */
 	--text-primary: var(--gray-12);
@@ -201,6 +210,7 @@
 
 	--color-bg: var(--bg);
 	--color-page: var(--page);
+	--color-elevated: var(--elevated);
 
 	--color-surface: var(--bg);
 	--color-surface-item-hover: var(--surface-item-hover);

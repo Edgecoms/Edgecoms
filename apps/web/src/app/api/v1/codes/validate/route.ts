@@ -54,9 +54,10 @@ export async function POST(request: Request): Promise<Response> {
 		{
 			valid: true,
 			partner: preview.partner,
-			// Phase 1 codes carry no discount terms. Credit issuance (Phase 2) is
-			// what will populate this; until then a code must not imply a price cut
-			// nothing can honour. See docs/partner-attribution-codes.md.
+			// What this app WOULD apply to the Enterprise plan. An estimate, not a
+			// reservation — the partner's allocation is only claimed under a lock at
+			// bind, so a slot shown here can be taken by another store first. Null
+			// means full price. See docs/partner-plan-discounts.md.
 			offer: preview.offer,
 			perk: preview.perk,
 		},

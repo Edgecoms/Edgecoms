@@ -33,9 +33,19 @@ import { queryClient, trpc } from "@/utils/trpc";
  *     already referred with their partner. There is deliberately no delete.
  */
 
+type DiscountKind = "none" | "percentage" | "fixed" | "free_cycles";
+
 interface CodeRow {
 	code: string;
+	discountAmountMinor: string | null;
+	discountBps: number | null;
+	discountCurrency: string | null;
+	discountCycles: number | null;
+	discountGrantLimit: number | null;
+	discountKind: DiscountKind;
 	expiresAt: string | Date | null;
+	/** Spent allocation for this code's PARTNER, shared across all their codes. */
+	grantsUsed: number;
 	id: string;
 	label: string | null;
 	maxRedemptions: number | null;
@@ -47,11 +57,58 @@ interface CodeRow {
 	status: "active" | "disabled";
 }
 
+/** One-line summary of what a code takes off the Enterprise plan. */
+function describeDiscount(code: CodeRow): string {
+	const cycles =
+		code.discountCycles === null ? "ongoing" : `${code.discountCycles} cycles`;
+	switch (code.discountKind) {
+		case "percentage":
+			return `${(code.discountBps ?? 0) / 100}% off, ${cycles}`;
+		case "fixed":
+			return `${code.discountAmountMinor ?? "0"} ${code.discountCurrency ?? ""} off, ${cycles}`;
+		case "free_cycles":
+			return `Free for ${code.discountCycles ?? 0} cycles`;
+		default:
+			return "-";
+	}
+}
+
 interface PartnerOption {
 	companyName: string | null;
 	id: string;
 	name: string;
 	status: string;
+}
+
+/**
+ * Inputs and native selects share this so they match. `Input` defaults to h-8
+ * and text-xs, which sits a notch smaller than the selects and reads as an
+ * accident once they are side by side.
+ */
+const FIELD_BASE = "h-9 rounded-lg border border-border text-body-sm";
+/** On the dialog's white surface: a grey fill so the field reads as a field. */
+const FIELD = `${FIELD_BASE} bg-bg`;
+/** Inside the grey discount panel: inverted, or it disappears into the panel. */
+const PANEL_FIELD = `${FIELD_BASE} bg-elevated`;
+const SELECT_FIELD = `${FIELD} w-full px-3 text-primary-foreground`;
+const PANEL_SELECT = `${PANEL_FIELD} w-full px-3 text-primary-foreground`;
+
+const PERCENT_PATTERN = /^(\d{1,3})(?:\.(\d{1,2}))?$/;
+
+/**
+ * "12.5" -> 1250 basis points, without floating point.
+ *
+ * `whole * 100` and the two-digit fraction are both exact in float64, so the sum
+ * is exact. Multiplying 12.5 by 100 directly is not, and this is a money field.
+ */
+function percentToBps(raw: string): number | null {
+	const match = PERCENT_PATTERN.exec(raw.trim());
+	if (!match) {
+		return null;
+	}
+	const whole = Number(match[1]);
+	const fraction = Number((match[2] ?? "").padEnd(2, "0"));
+	return whole * 100 + fraction;
 }
 
 /** Empty string from an optional number field means "not set", not zero. */
@@ -62,6 +119,61 @@ function optionalInt(value: FormDataEntryValue | null): number | null {
 	}
 	const parsed = Number(raw);
 	return Number.isFinite(parsed) ? Math.trunc(parsed) : null;
+}
+
+interface DiscountPayload {
+	discountAmount: string | null;
+	discountBps: number | null;
+	discountCurrency: string | null;
+	discountCycles: number | null;
+	discountGrantLimit: number | null;
+	discountKind: DiscountKind;
+}
+
+/**
+ * Read the discount block off the form. Returns null when the percentage is
+ * unparseable, which is the only field the browser cannot validate for us.
+ *
+ * Fields belonging to another kind are sent as null rather than omitted, so
+ * switching a code from `fixed` to `percentage` clears the stale amount instead
+ * of leaving it behind for the next reader to trip over.
+ */
+function readDiscount(form: FormData): DiscountPayload | null {
+	const kind = String(form.get("discountKind") ?? "none") as DiscountKind;
+	if (kind === "none") {
+		return {
+			discountKind: kind,
+			discountBps: null,
+			discountAmount: null,
+			discountCurrency: null,
+			discountCycles: null,
+			discountGrantLimit: null,
+		};
+	}
+
+	let bps: number | null = null;
+	if (kind === "percentage") {
+		bps = percentToBps(String(form.get("discountPercent") ?? ""));
+		if (bps === null) {
+			return null;
+		}
+	}
+	const isFixed = kind === "fixed";
+
+	return {
+		discountKind: kind,
+		discountBps: bps,
+		discountAmount: isFixed
+			? String(form.get("discountAmount") ?? "").trim() || null
+			: null,
+		discountCurrency: isFixed
+			? String(form.get("discountCurrency") ?? "")
+					.trim()
+					.toUpperCase() || null
+			: null,
+		discountCycles: optionalInt(form.get("discountCycles")),
+		discountGrantLimit: optionalInt(form.get("discountGrantLimit")),
+	};
 }
 
 function formatExpiry(expiresAt: string | Date | null): string {
@@ -93,7 +205,8 @@ function CodesTable({
 					<th>Status</th>
 					<th className="text-right">Redemptions</th>
 					<th>Expires</th>
-					<th className="text-right">Perk</th>
+					<th>Enterprise discount</th>
+					<th className="text-right">Grants</th>
 					<th className="text-right">Action</th>
 				</>
 			}
@@ -119,7 +232,7 @@ function CodesTable({
 							</span>
 							{code.partnerStatus === "approved" ? null : (
 								<span className="text-amber-700 text-caption">
-									Partner {code.partnerStatus} — the code won't bind yet
+									Partner {code.partnerStatus}, so the code won't bind yet
 								</span>
 							)}
 						</div>
@@ -136,10 +249,17 @@ function CodesTable({
 					<td className="text-secondary-foreground">
 						{formatExpiry(code.expiresAt)}
 					</td>
+					<td className="text-secondary-foreground">
+						{describeDiscount(code)}
+					</td>
 					<td className="text-right text-secondary-foreground tabular-nums">
-						{code.perkUsageAllowanceUsd === null
-							? "—"
-							: `$${code.perkUsageAllowanceUsd.toLocaleString()}/mo`}
+						{code.discountKind === "none"
+							? "-"
+							: `${code.grantsUsed}${
+									code.discountGrantLimit === null
+										? ""
+										: ` / ${code.discountGrantLimit}`
+								}`}
 					</td>
 					<td className="text-right">
 						<Button
@@ -175,19 +295,27 @@ function IssueCodeDialog({
 	const labelId = useId();
 	const maxId = useId();
 	const expiresId = useId();
-	const perkId = useId();
+	const kindId = useId();
+	const bpsId = useId();
+	const amountId = useId();
+	const currencyId = useId();
+	const cyclesId = useId();
+	const grantLimitId = useId();
+	// Drives which term fields are shown. The rest of the form stays uncontrolled.
+	const [kind, setKind] = useState<DiscountKind>("none");
 
 	return (
 		<Dialog onOpenChange={onOpenChange} open={open}>
 			<DialogContent
-				description="The code is what a merchant types into an Edge app. Keep it rate-free."
+				className="bg-elevated"
+				description="Merchants type this into an Edge app."
 				title="Issue an attribution code"
 			>
 				<form className="flex flex-col gap-5" onSubmit={onSubmit}>
 					<div className="flex flex-col gap-2">
 						<Label htmlFor={partnerId}>Partner</Label>
 						<select
-							className="h-10 rounded-lg border border-border bg-page px-3 text-body-sm text-primary-foreground"
+							className={SELECT_FIELD}
 							id={partnerId}
 							name="partnerId"
 							required
@@ -204,28 +332,31 @@ function IssueCodeDialog({
 						<Label htmlFor={codeId}>Code</Label>
 						<Input
 							autoComplete="off"
+							className={FIELD}
 							id={codeId}
 							name="code"
 							placeholder="ACMEPARTNER"
 							required
 						/>
+						{/* The rate warning stays: a merchant reads ALEX30 as "30% off",
+						    and it leaks one agency's rate to another. */}
 						<span className="text-caption text-secondary-foreground">
-							4–32 letters, digits or hyphens. Stored upper-case.{" "}
-							<strong>Never put the commission rate in the code</strong> —
-							merchants read <code>ALEX30</code> as "30% off", and it leaks one
-							agency's rate to another. Use the internal label for that.
+							4 to 32 letters, digits or hyphens.{" "}
+							<strong>Keep the rate out</strong>: a merchant reads{" "}
+							<code>ALEX30</code> as "30% off".
 						</span>
 					</div>
 
 					<div className="flex flex-col gap-2">
-						<Label htmlFor={labelId}>Internal label (optional)</Label>
+						<Label htmlFor={labelId}>Internal name (optional)</Label>
 						<Input
+							className={FIELD}
 							id={labelId}
 							name="label"
-							placeholder="Alex — 25%, signed Aug 2026"
+							placeholder="Alex Agency"
 						/>
 						<span className="text-caption text-secondary-foreground">
-							Admin-only. Never shown to the partner or the merchant.
+							Never shown to the partner or merchant.
 						</span>
 					</div>
 
@@ -233,6 +364,7 @@ function IssueCodeDialog({
 						<div className="flex flex-col gap-2">
 							<Label htmlFor={maxId}>Max redemptions</Label>
 							<Input
+								className={FIELD}
 								id={maxId}
 								min="1"
 								name="maxRedemptions"
@@ -242,24 +374,114 @@ function IssueCodeDialog({
 						</div>
 						<div className="flex flex-col gap-2">
 							<Label htmlFor={expiresId}>Expires</Label>
-							<Input id={expiresId} name="expiresAt" type="date" />
+							<Input
+								className={FIELD}
+								id={expiresId}
+								name="expiresAt"
+								type="date"
+							/>
 						</div>
 					</div>
 
-					<div className="flex flex-col gap-2">
-						<Label htmlFor={perkId}>Fee-free allowance (USD / month)</Label>
-						<Input
-							id={perkId}
-							min="0"
-							name="perkUsageAllowanceUsd"
-							placeholder="Standard band"
-							type="number"
-						/>
-						<span className="text-caption text-secondary-foreground">
-							The instant benefit a referred store gets: monthly revenue up to
-							this figure carries no usage fee. Leave empty for the standard
-							entry band. Apps read this when a merchant enters the code.
-						</span>
+					<div className="flex flex-col gap-4 rounded-xl border border-border bg-bg p-4">
+						<div className="flex flex-col gap-2">
+							<Label htmlFor={kindId}>Enterprise plan discount</Label>
+							<select
+								className={PANEL_SELECT}
+								id={kindId}
+								name="discountKind"
+								onChange={(event) =>
+									setKind(event.currentTarget.value as DiscountKind)
+								}
+								value={kind}
+							>
+								<option value="none">No discount</option>
+								<option value="percentage">Percentage off</option>
+								<option value="fixed">Fixed amount off</option>
+								<option value="free_cycles">Free for N cycles</option>
+							</select>
+						</div>
+
+						{kind === "none" ? null : (
+							<div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+								{kind === "percentage" ? (
+									<div className="flex flex-col gap-2">
+										<Label htmlFor={bpsId}>Percent off</Label>
+										<Input
+											className={PANEL_FIELD}
+											defaultValue="100"
+											id={bpsId}
+											max="100"
+											min="1"
+											name="discountPercent"
+											step="0.01"
+											type="number"
+										/>
+									</div>
+								) : null}
+
+								{kind === "fixed" ? (
+									<>
+										<div className="flex flex-col gap-2">
+											<Label htmlFor={amountId}>Amount off</Label>
+											<Input
+												className={PANEL_FIELD}
+												id={amountId}
+												name="discountAmount"
+												placeholder="5.00"
+												type="text"
+											/>
+										</div>
+										<div className="flex flex-col gap-2">
+											<Label htmlFor={currencyId}>Currency</Label>
+											<Input
+												className={PANEL_FIELD}
+												defaultValue="USD"
+												id={currencyId}
+												maxLength={3}
+												name="discountCurrency"
+											/>
+										</div>
+									</>
+								) : null}
+
+								<div className="flex flex-col gap-2">
+									<Label htmlFor={cyclesId}>Cycles</Label>
+									<Input
+										className={PANEL_FIELD}
+										defaultValue="6"
+										id={cyclesId}
+										min="1"
+										name="discountCycles"
+										placeholder="Ongoing"
+										type="number"
+									/>
+								</div>
+
+								<div className="flex flex-col gap-2">
+									<Label htmlFor={grantLimitId}>First N merchants</Label>
+									<Input
+										className={PANEL_FIELD}
+										defaultValue="10"
+										id={grantLimitId}
+										min="1"
+										name="discountGrantLimit"
+										placeholder="Unlimited"
+										type="number"
+									/>
+								</div>
+							</div>
+						)}
+
+						{/* Two things an admin can get wrong from the fields alone: that
+						    the allowance is shared across a partner's codes, and that a
+						    free store pays the partner nothing. */}
+						{kind === "none" ? null : (
+							<span className="text-caption text-secondary-foreground">
+								Shared across the partner's codes. Usage plans bill in full, and
+								a free store earns the partner no commission.
+							</span>
+						)}
 					</div>
 
 					<div className="flex items-center justify-end gap-3">
@@ -303,6 +525,12 @@ export default function AdminCodesPage() {
 		const form = new FormData(event.currentTarget);
 		const expiresAt = String(form.get("expiresAt") ?? "").trim();
 
+		const discount = readDiscount(form);
+		if (!discount) {
+			toast.error("Enter a percentage between 0 and 100, up to 2 decimals.");
+			return;
+		}
+
 		createMutation.mutate(
 			{
 				partnerId: String(form.get("partnerId")),
@@ -313,7 +541,7 @@ export default function AdminCodesPage() {
 				expiresAt: expiresAt
 					? new Date(`${expiresAt}T23:59:59Z`).toISOString()
 					: null,
-				perkUsageAllowanceUsd: optionalInt(form.get("perkUsageAllowanceUsd")),
+				...discount,
 			},
 			{
 				onSuccess: (result) => {
@@ -382,7 +610,7 @@ export default function AdminCodesPage() {
 
 			<p className="text-caption text-secondary-foreground">
 				Disabling a code stops new redemptions. Stores already referred stay
-				with their partner — a partner loses the ability to acquire, never their
+				with their partner: a partner loses the ability to acquire, never their
 				existing book.
 			</p>
 

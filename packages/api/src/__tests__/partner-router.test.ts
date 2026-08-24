@@ -5,7 +5,6 @@ import { user } from "@edgecoms/db/schema/auth";
 import { commissions, earningEvents } from "@edgecoms/db/schema/earnings";
 import { merchants } from "@edgecoms/db/schema/merchants";
 import { partners } from "@edgecoms/db/schema/partners";
-import { eq } from "drizzle-orm";
 import type { Context } from "../context";
 import { createCallerFactory } from "../index";
 import { appRouter } from "../routers/index";
@@ -19,7 +18,6 @@ const PARTNER_B = "b0000000-0000-0000-0000-000000000002";
 const MERCHANT_A = "a0000000-0000-0000-0000-0000000000a1";
 const MERCHANT_B = "b0000000-0000-0000-0000-0000000000b1";
 const CURRENT = toPeriodMonth(new Date());
-const ALREADY_REGISTERED = /already registered/i;
 
 let harness: TestDb;
 
@@ -137,30 +135,6 @@ describe("partner.merchants — tenant isolation", () => {
 		const b = await callerFor("uB").partner.merchants.list();
 		expect(b).toHaveLength(1);
 		expect(b[0]?.name).toBe("Beta");
-	});
-
-	test("registering a merchant creates a pending record owned by the caller", async () => {
-		const result = await callerFor("uA").partner.merchants.register({
-			name: "Gamma",
-			storeUrl: "https://Gamma.myshopify.com/admin",
-		});
-		expect(result.shopDomain).toBe("gamma.myshopify.com");
-
-		const row = await harness.db.query.merchants.findFirst({
-			where: eq(merchants.id, result.id),
-		});
-		expect(row?.status).toBe("pending");
-		expect(row?.partnerId).toBe(PARTNER_A);
-	});
-
-	test("a globally-claimed store cannot be registered by another partner", async () => {
-		// Partner B already owns beta.myshopify.com; partner A cannot claim it.
-		await expect(
-			callerFor("uA").partner.merchants.register({
-				name: "Steal",
-				storeUrl: "beta.myshopify.com",
-			})
-		).rejects.toThrow(ALREADY_REGISTERED);
 	});
 });
 

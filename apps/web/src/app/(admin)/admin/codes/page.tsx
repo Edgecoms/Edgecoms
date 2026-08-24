@@ -294,7 +294,7 @@ function IssueCodeDialog({
 	return (
 		<Dialog onOpenChange={onOpenChange} open={open}>
 			<DialogContent
-				description="The code is what a merchant types into an Edge app. Keep it rate-free."
+				description="Merchants type this into an Edge app."
 				title="Issue an attribution code"
 			>
 				<form className="flex flex-col gap-5" onSubmit={onSubmit}>
@@ -323,11 +323,12 @@ function IssueCodeDialog({
 							placeholder="ACMEPARTNER"
 							required
 						/>
+						{/* The rate warning stays: a merchant reads ALEX30 as "30% off",
+						    and it leaks one agency's rate to another. */}
 						<span className="text-caption text-secondary-foreground">
-							4–32 letters, digits or hyphens. Stored upper-case.{" "}
-							<strong>Never put the commission rate in the code</strong> —
-							merchants read <code>ALEX30</code> as "30% off", and it leaks one
-							agency's rate to another. Use the internal label for that.
+							4–32 letters, digits or hyphens.{" "}
+							<strong>Keep the rate out</strong> — <code>ALEX30</code> reads as
+							"30% off".
 						</span>
 					</div>
 
@@ -339,7 +340,7 @@ function IssueCodeDialog({
 							placeholder="Alex — 25%, signed Aug 2026"
 						/>
 						<span className="text-caption text-secondary-foreground">
-							Admin-only. Never shown to the partner or the merchant.
+							Never shown to the partner or merchant.
 						</span>
 					</div>
 
@@ -377,55 +378,50 @@ function IssueCodeDialog({
 								<option value="fixed">Fixed amount off</option>
 								<option value="free_cycles">Free for N cycles</option>
 							</select>
-							<span className="text-caption text-secondary-foreground">
-								Applies to the <strong>Enterprise plan only</strong>. Shopify
-								has no way to discount a usage-based plan, so usage charges bill
-								in full regardless.
-							</span>
 						</div>
 
-						{kind === "percentage" ? (
-							<div className="flex flex-col gap-2">
-								<Label htmlFor={bpsId}>Percent off</Label>
-								<Input
-									defaultValue="100"
-									id={bpsId}
-									max="100"
-									min="1"
-									name="discountPercent"
-									step="0.01"
-									type="number"
-								/>
-							</div>
-						) : null}
-
-						{kind === "fixed" ? (
-							<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-								<div className="flex flex-col gap-2">
-									<Label htmlFor={amountId}>Amount off</Label>
-									<Input
-										id={amountId}
-										name="discountAmount"
-										placeholder="5.00"
-										type="text"
-									/>
-								</div>
-								<div className="flex flex-col gap-2">
-									<Label htmlFor={currencyId}>Currency</Label>
-									<Input
-										defaultValue="USD"
-										id={currencyId}
-										maxLength={3}
-										name="discountCurrency"
-									/>
-								</div>
-							</div>
-						) : null}
-
 						{kind === "none" ? null : (
-							<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+							<div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+								{kind === "percentage" ? (
+									<div className="flex flex-col gap-2">
+										<Label htmlFor={bpsId}>Percent off</Label>
+										<Input
+											defaultValue="100"
+											id={bpsId}
+											max="100"
+											min="1"
+											name="discountPercent"
+											step="0.01"
+											type="number"
+										/>
+									</div>
+								) : null}
+
+								{kind === "fixed" ? (
+									<>
+										<div className="flex flex-col gap-2">
+											<Label htmlFor={amountId}>Amount off</Label>
+											<Input
+												id={amountId}
+												name="discountAmount"
+												placeholder="5.00"
+												type="text"
+											/>
+										</div>
+										<div className="flex flex-col gap-2">
+											<Label htmlFor={currencyId}>Currency</Label>
+											<Input
+												defaultValue="USD"
+												id={currencyId}
+												maxLength={3}
+												name="discountCurrency"
+											/>
+										</div>
+									</>
+								) : null}
+
 								<div className="flex flex-col gap-2">
-									<Label htmlFor={cyclesId}>Billing cycles</Label>
+									<Label htmlFor={cyclesId}>Cycles</Label>
 									<Input
 										defaultValue="6"
 										id={cyclesId}
@@ -435,6 +431,7 @@ function IssueCodeDialog({
 										type="number"
 									/>
 								</div>
+
 								<div className="flex flex-col gap-2">
 									<Label htmlFor={grantLimitId}>First N merchants</Label>
 									<Input
@@ -449,15 +446,13 @@ function IssueCodeDialog({
 							</div>
 						)}
 
+						{/* Two things an admin can get wrong from the fields alone: that
+						    the allowance is shared across a partner's codes, and that a
+						    free store pays the partner nothing. */}
 						{kind === "none" ? null : (
 							<span className="text-caption text-secondary-foreground">
-								The allowance is counted <strong>per partner</strong>, across
-								every code they hold — not per code.{" "}
-								<strong>
-									A discounted store earns the partner no commission while it
-									pays nothing
-								</strong>
-								, because commission is a share of what Edge actually receives.
+								Shared across the partner's codes. Usage plans bill in full, and
+								a free store earns the partner no commission.
 							</span>
 						)}
 					</div>

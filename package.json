@@ -47,7 +47,9 @@
     "db:down": "turbo -F @edgecoms/db db:down",
     "audit:content": "bun run scripts/audit-content.ts",
     "check": "ultracite check",
-    "fix": "ultracite fix"
+    "fix": "ultracite fix",
+    "dev:course": "turbo -F course dev",
+    "start:course": "bun --cwd=apps/course run start -- --port 3005"
   },
   "dependencies": {
     "@edgecoms/env": "workspace:*",

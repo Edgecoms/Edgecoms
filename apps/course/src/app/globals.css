@@ -1,0 +1,179 @@
+@import "tailwindcss";
+
+/**
+ * THE COURSE SITE'S OWN DESIGN SYSTEM.
+ *
+ * Deliberately standalone. This site ships to its own domain and shares no
+ * tokens with `apps/web` — importing Edge's `globals.css` would mean a tweak to
+ * the app suite's palette silently restyling a sales page somewhere else.
+ *
+ * The page is dark by default and says so absolutely (`--color-ink`,
+ * `--color-paper`) rather than through light/dark semantic pairs. There is no
+ * dark mode here because there is no light mode: the design has one appearance
+ * and a themed variant of it does not exist.
+ */
+@theme {
+	/* ── Accent ──────────────────────────────────────────────────────────────
+	   ONE LINE TO REBRAND. Every mint surface on the site — buttons, rules,
+	   ticks, the wash behind the light sections, the focus ring — derives from
+	   this single value through color-mix, so switching to Edge's orange
+	   (#ff5e1f) or anything else is a one-token edit and nothing else moves.
+
+	   Black text on this mint is ~14:1, so the primary button clears AA
+	   comfortably. If you swap in a darker accent, re-check the button's text
+	   colour — a dark accent needs white text, not black. */
+	--color-accent: #8aebd9;
+	--color-accent-ink: #000000;
+	--color-accent-dim: color-mix(in oklab, var(--color-accent) 88%, black);
+	/* The pale wash behind the light-on-dark break sections. */
+	--color-accent-wash: color-mix(in srgb, var(--color-accent) 9%, white);
+
+	/* ── Surfaces ────────────────────────────────────────────────────────────
+	   Not pure #000. A hair off black keeps the hairline borders below visible
+	   and stops OLED screens from smearing the section joins into one void. */
+	--color-ink: #050505;
+	--color-ink-raised: #0e0e0e;
+	--color-ink-border: rgba(255, 255, 255, 0.1);
+	--color-paper: #ffffff;
+
+	/* Focus ring. Mint measures 14.5:1 on ink but only 1.40:1 on white and
+	   1.36:1 on the wash — invisible on exactly the light sections where the
+	   FAQ's text-only buttons need it most. So the ring is a token, and the
+	   light Section tones override it to ink (20.4:1 on paper). */
+	--color-focus: var(--color-accent);
+
+	/* Body copy on dark. Pure white for headings, a muted grey for supporting
+	   text — tone carries the hierarchy alongside size and weight.
+	   Both values are pinned by contrast, not by taste: on #050505 they measure
+	   7.9:1 and 4.8:1, so each clears WCAG AA for normal text. `muted-dark` was
+	   originally #52525b, which looked right and measured 2.6:1 — it failed even
+	   the large-text threshold, and it is the colour used for the struck-through
+	   price and every line of fine print on the site. Do not darken either of
+	   these without re-measuring. */
+	--color-muted: #a1a1a1;
+	--color-muted-dark: #7a7a85;
+
+	--font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+	/* ── Display scale ───────────────────────────────────────────────────────
+	   Bigger and tighter than a typical marketing scale: this is a long sales
+	   page read at a scroll, and the headings are the only thing carrying its
+	   structure. Line-height stays near 1 because at this weight and size
+	   anything looser reads as two separate lines rather than one statement.
+
+	   Sized with clamp() rather than a breakpoint. Tailwind v4 hoists @theme to
+	   :root, so an @theme nested inside a media query does NOT stay inside it —
+	   the desktop value leaks down and a 320px phone renders the hero at its
+	   full desktop size. Fluid type sidesteps that entirely and also fixes the
+	   awkward jump either side of a single breakpoint. */
+	--text-hero: clamp(2.5rem, 8.5vw, 4.25rem);
+	--text-hero--line-height: 1.04;
+	--text-hero--letter-spacing: -0.035em;
+
+	--text-section: clamp(1.75rem, 5.5vw, 2.75rem);
+	--text-section--line-height: 1.08;
+	--text-section--letter-spacing: -0.03em;
+
+	--text-sub: clamp(1.25rem, 3vw, 1.5rem);
+	--text-sub--line-height: 1.2;
+	--text-sub--letter-spacing: -0.02em;
+
+	--ease-out-strong: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html {
+	scroll-behavior: smooth;
+	/* The enrol bar is fixed to the BOTTOM, so the space to reserve is at the
+	   bottom — `scroll-padding-top` reserved space nothing occupies, and left
+	   focused controls near the foot of the viewport sitting under the bar
+	   (WCAG 2.2 SC 2.4.11). Top padding is deliberately NOT set here: the
+	   anchored sections already carry `scroll-mt-24`, and setting both stacked
+	   the two offsets and overshot every anchor jump. */
+	scroll-padding-bottom: 6rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+}
+
+body {
+	-webkit-font-smoothing: antialiased;
+	color: var(--color-paper);
+	background-color: var(--color-ink);
+}
+
+/* One focus treatment for the whole site, drawn in whichever colour the
+   surrounding section set. No `border-radius` here: this rule is unlayered, so
+   it outranked every `rounded-*` utility and squared off pill buttons the
+   moment they took focus. An outline follows the element's own radius anyway. */
+:focus-visible {
+	outline: 2px solid var(--color-focus);
+	outline-offset: 2px;
+}
+
+/*
+ * SCROLL REVEAL AND HERO ENTRANCE.
+ *
+ * Both are pure CSS, and both hide content ONLY when `scripting: enabled`
+ * matches — a Media Queries Level 5 feature that asks the browser directly
+ * whether scripts can run. That replaces the usual trick of having an inline
+ * script add a `.js` class: mutating `<html class>` before hydration is exactly
+ * the kind of pre-React DOM change that React then reports as a hydration
+ * mismatch, and it needs a blocking script in <head> to avoid a flash.
+ *
+ * A browser too old to understand `scripting` simply does not match the query,
+ * so it takes the same path as a browser with JS switched off: everything
+ * visible, nothing animated. That is the correct way to fail.
+ *
+ *   - No JavaScript      → nothing is hidden and the full page renders.
+ *                          Previously every section was server-rendered at
+ *                          opacity:0 by Motion's `initial` prop, so a failed or
+ *                          blocked bundle left a blank black screen.
+ *   - Reduced motion     → the media query below never matches, so again
+ *                          nothing is hidden. This also removes a hydration
+ *                          mismatch: the markup no longer depends on a
+ *                          JS-evaluated media query that is unknowable on the
+ *                          server, which used to leave reduced-motion visitors
+ *                          looking at a permanently invisible page.
+ *   - Everything else    → sections fade up as they scroll into view.
+ */
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+	[data-reveal] {
+		opacity: 0;
+		filter: blur(8px);
+		transform: translateY(24px);
+		transition:
+			opacity 0.8s var(--ease-out-strong),
+			transform 0.8s var(--ease-out-strong),
+			filter 0.8s var(--ease-out-strong);
+	}
+
+	[data-reveal="in"] {
+		opacity: 1;
+		filter: none;
+		transform: none;
+	}
+
+	/* The hero is above the fold, so it plays on load rather than on scroll.
+	   `both` holds the from-state before the delay elapses, which is what makes
+	   the stagger read as one movement rather than four. */
+	.hero-item {
+		animation: hero-in 0.85s var(--ease-out-strong) both;
+		animation-delay: var(--hero-delay, 0ms);
+	}
+}
+
+@keyframes hero-in {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+		filter: blur(10px);
+	}
+	to {
+		opacity: 1;
+		transform: none;
+		filter: none;
+	}
+}

@@ -15,6 +15,13 @@
       "when": 1786977124209,
       "tag": "0001_bitter_wasp",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1787655178657,
+      "tag": "0002_giant_blob",
+      "breakpoints": true
     }
   ]
 }

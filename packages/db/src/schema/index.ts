@@ -4,6 +4,7 @@
 export * from "./apps";
 export * from "./attribution";
 export * from "./auth";
+export * from "./course-leads";
 export * from "./earnings";
 export * from "./merchants";
 export * from "./partners";

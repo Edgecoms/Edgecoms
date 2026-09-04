@@ -43,6 +43,32 @@ export const env = createEnv({
 		// Set temporarily to route events to Events Manager → Test Events instead
 		// of the live dataset. Verifying the wiring should never cost real data.
 		META_CAPI_TEST_EVENT_CODE: z.string().optional(),
+		// Resend — the transactional sender behind the Edge Cart playbook form.
+		// Optional so the site boots without it, and a soft failure like the Meta
+		// token above rather than a hard one like EDGE_PARTNERS_SECRET: this sends
+		// a marketing PDF, it does not guard a write to the money system. Unset
+		// means the endpoint accepts the lead, logs it, and sends nothing, which
+		// is the behaviour a preview deploy wants.
+		RESEND_API_KEY: z.string().min(1).optional(),
+		// The From address on the playbook email, e.g. `Anurag
+		// <anurag@edgecoms.app>`. The domain must be the site's own sending
+		// domain (edgecoms.app) AND verified in Resend, which refuses to send
+		// from a domain it has no DKIM/SPF records for. Separate from the key so
+		// the sending identity can change without rotating credentials.
+		//
+		// A display name is allowed here because this is the `From:` HEADER. The
+		// SMTP envelope may not carry one; see `envelopeAddress` in dev-smtp.ts.
+		EDGE_CART_FROM_EMAIL: z.string().min(1).optional(),
+		// Local mail catcher (MailHog, Mailpit) as `smtp://localhost:1025`. When
+		// set, the playbook email goes here instead of to Resend, so the real
+		// message can be inspected without sending anything to a real inbox.
+		// A DEVELOPMENT TOOL: `sendViaSmtp` refuses to run when NODE_ENV is
+		// production, so setting this on a deployed instance cannot silently
+		// divert merchant email into a socket nobody reads.
+		EDGE_CART_SMTP_URL: z
+			.string()
+			.regex(/^smtp:\/\//, "Expected an smtp:// URL")
+			.optional(),
 	},
 	runtimeEnv: process.env,
 	skipValidation: !!process.env.SKIP_ENV_VALIDATION,

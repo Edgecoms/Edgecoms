@@ -12,10 +12,9 @@
  * 2. **Every feature ends in the metric it moves.** A merchant does not buy a
  *    capability, they buy a movement in a number they already check.
  *
- * PRICING: only Edge Timer and Trackproof are live on the App Store, and only
- * their tiers are confirmed (`confirmed: true`). Everything else is a proposal
- * — publishing it commits you to it, so reconcile against the real listings
- * before launch.
+ * PRICING: Edge Timer, Trackproof and Edge Cart carry confirmed tiers
+ * (`confirmed: true`). Everything else is a proposal — publishing it commits
+ * you to it, so reconcile against the real listings before launch.
  */
 
 /** Which side of `RPV = CVR × AOV` an app pulls on. Drives the suite grouping. */
@@ -363,52 +362,88 @@ export const EDGE_PRODUCTS: readonly EdgeProduct[] = [
 		],
 		pricing: [
 			{
-				confirmed: false,
+				confirmed: true,
 				name: "Free",
-				price: "Free",
-				includes: "Up to 200 cart sessions a month, full slide cart.",
+				price: "$0.00",
+				priceNote: "/mo",
+				includes: "Up to 10 orders each month, every cart feature.",
 			},
 			{
-				confirmed: false,
+				confirmed: true,
 				name: "Growth",
 				price: "$14.99",
 				priceNote: "/mo",
 				includes:
-					"Unlimited sessions, rule-based upsells, per-offer reporting.",
+					"First 100 orders included each cycle, then an order volume based usage fee.",
 			},
 			{
-				confirmed: false,
-				name: "Scale",
-				price: "$39.99",
+				confirmed: true,
+				name: "Enterprise",
+				price: "$299.00",
 				priceNote: "/mo",
-				includes: "A/B testing, advanced targeting, priority support.",
+				includes: "Unlimited orders at a fixed price, no usage fees.",
 			},
 		],
 		faq: [
 			{
 				question: "Does it replace my current cart?",
 				answer:
-					"Yes, and you can revert to your theme cart in one click. Nothing about the change is one-way.",
+					"It replaces the cart drawer and the cart page with its own drawer. Your theme, product pages and checkout are untouched.",
 			},
 			{
 				question: "Do express checkout buttons still work?",
 				answer:
-					"Yes. Shop Pay, PayPal, and Apple Pay all carry through the drawer, so an upsell never costs you a one-tap checkout.",
+					"Yes. Shop Pay and the other accelerated checkout buttons render inside the drawer and go straight to checkout.",
 			},
 			{
-				question: "What acceptance rate should I expect?",
+				question: "Will it slow my store down?",
 				answer:
-					"Strong offers run in the single digits, and that is normal. If an offer is sitting near zero, the offer is wrong rather than the placement. Swap the product before you change the rules.",
+					"It runs as a Shopify theme app extension and loads asynchronously. The drawer opens without a page load, which removes a full navigation from the path to checkout.",
 			},
 			{
-				question: "Can I run different offers per country?",
+				question: "Does it work with my theme?",
 				answer:
-					"Yes, targeting includes country, so you are not offering express shipping where you cannot deliver it.",
+					"It works with Online Store 2.0 themes. Position, width, animation and nine separate colour values are yours to set, so it can be made to match almost any theme.",
 			},
 			{
-				question: "Is it fast on mobile?",
+				question: "Do the reward tiers actually discount at checkout?",
 				answer:
-					"It is built mobile-first, which is where the large majority of Shopify checkouts happen. The drawer opens without a network round-trip.",
+					"Yes. Each tier creates a real Shopify automatic discount. The reward the shopper sees in the drawer is the reward they get at checkout.",
+			},
+			{
+				question: "How are upsell recommendations chosen?",
+				answer:
+					"By rules you write. Trigger on every product, on named products, on a collection, or on a cart value. When two rules match, the priority you set decides.",
+			},
+			{
+				question: "Can I test a change before shoppers see it?",
+				answer:
+					"Yes. Every edit saves to a draft. Nothing is live until you publish. You can also duplicate a drawer and build a variant beside the one that is running.",
+			},
+			{
+				question: "Are there usage fees?",
+				answer:
+					"On the Growth plan, yes. It is a $14.99 base fee with the first 100 orders included each cycle, and above that a usage fee that steps up with your order volume. The full table is on the pricing section of this page. The Enterprise plan is a fixed $299 a month with no usage fee, and the free plan has none.",
+			},
+			{
+				question: "What is the free plan?",
+				answer:
+					"Up to 10 orders a month with every cart feature included, on a live store. Not a development store trial, which is what the free plan on most cart apps turns out to be.",
+			},
+			{
+				question: "Can I really control it from an AI assistant?",
+				answer:
+					"Yes. Edge Cart ships an MCP server. Connect it and you can read settings, write upsell rules and pull reporting in plain English. Writes go to your draft, so nothing reaches shoppers without you publishing it.",
+			},
+			{
+				question: "What happens if I uninstall?",
+				answer:
+					"Your theme reverts to its native cart. Edge Cart does not leave code behind in your theme.",
+			},
+			{
+				question: "Do I have to set it up alone?",
+				answer:
+					"No. Send us your store and we will do the setup with you on a call, on any plan.",
 			},
 		],
 		ctaHeading: "Make the cart earn its place in the funnel.",

@@ -8,7 +8,12 @@ import type { PricingTier } from "@/lib/products";
  * tiers nothing is emphasised — there is no decision to nudge.
  */
 function isFeatured(tiers: readonly PricingTier[], index: number): boolean {
-	return tiers.length === 3 && index === 1;
+	if (tiers.length === 3) {
+		return index === 1;
+	}
+	/* With four, the emphasis moves to the third: a free plan sits at the front
+	   of that list, so the tier a paying merchant lands on is one further along. */
+	return tiers.length === 4 && index === 2;
 }
 
 /**
@@ -18,8 +23,21 @@ function isFeatured(tiers: readonly PricingTier[], index: number): boolean {
  * at best.
  */
 export function hasFreeTier(tiers: readonly PricingTier[]): boolean {
-	return tiers.some((tier) => tier.price.toLowerCase().startsWith("free"));
+	return tiers.some((tier) => {
+		const price = tier.price.toLowerCase().trim();
+		/* Two spellings in the catalog: the word, and the figure. Edge Cart
+		   renders its free plan as "$0" so the price column reads as a column of
+		   numbers, and matching on the word alone missed it. */
+		return price.startsWith("free") || price === "$0";
+	});
 }
+
+const GRID_COLS = {
+	1: "sm:grid-cols-1",
+	2: "sm:grid-cols-2",
+	3: "sm:grid-cols-3",
+	4: "sm:grid-cols-2 lg:grid-cols-4",
+} as const;
 
 export function PricingTiers({
 	tiers,
@@ -28,7 +46,10 @@ export function PricingTiers({
 	tiers: readonly PricingTier[];
 	title: string;
 }) {
-	const gridCols = tiers.length === 1 ? "sm:grid-cols-1" : "sm:grid-cols-3";
+	/* Four tiers wrap to a 2x2 before they go to a row, because four columns of
+	   body copy at tablet width are unreadable. */
+	const gridCols =
+		GRID_COLS[tiers.length as keyof typeof GRID_COLS] ?? "sm:grid-cols-3";
 
 	return (
 		<section aria-labelledby="pricing-heading" className="w-full pb-16">

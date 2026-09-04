@@ -187,6 +187,12 @@ export function LandingFooter() {
 				<div className="mt-16 flex flex-col gap-3 border-neutral-200 border-t pt-8 text-[13px] text-neutral-500 sm:flex-row sm:items-center sm:justify-between">
 					<span>Built for Shopify · Billed on your Shopify invoice</span>
 					<div className="flex items-center gap-4">
+						<Link
+							className="transition-colors hover:text-neutral-900"
+							href={"/privacy" as Route}
+						>
+							Privacy
+						</Link>
 						<ConsentSettingsLink />
 						<span>© 2026 Edgecoms</span>
 					</div>

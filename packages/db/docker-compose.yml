@@ -9,7 +9,10 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     ports:
-      - "5432:5432"
+      # Published on 5435, not the default 5432, to match DATABASE_URL and to
+      # stay clear of any other Postgres already listening on this machine.
+      # Change both sides together or the app connects to the wrong database.
+      - "5435:5432"
     volumes:
       - edgecoms_postgres_data:/var/lib/postgresql
     healthcheck:
@@ -17,6 +20,17 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
+
+  # Local mail catcher for the marketing emails. Nothing here ever reaches a
+  # real inbox: point EDGE_CART_SMTP_URL at smtp://localhost:1025 and read the
+  # captured messages at http://localhost:8025.
+  mailhog:
+    image: mailhog/mailhog
+    container_name: edgecoms-mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
     restart: unless-stopped
 
 volumes:

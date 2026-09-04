@@ -20,6 +20,12 @@ function DialogClose(props: ComponentProps<typeof DialogPrimitive.Close>) {
    visually — the mobile nav sheet, which is full-bleed and has no title row.
    They get Base UI's focus trap, Escape handling and scroll lock without
    `DialogContent` growing a flag for every one-off shape. */
+export function DialogBackdrop(
+	props: ComponentProps<typeof DialogPrimitive.Backdrop>
+) {
+	return <DialogPrimitive.Backdrop {...props} />;
+}
+
 export function DialogPortal(
 	props: ComponentProps<typeof DialogPrimitive.Portal>
 ) {

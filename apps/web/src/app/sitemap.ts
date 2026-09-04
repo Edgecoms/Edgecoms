@@ -65,6 +65,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
 				changeFrequency: "monthly",
 				priority: 0.6,
 			},
+			{
+				url: absoluteUrl("/privacy"),
+				changeFrequency: "yearly",
+				priority: 0.3,
+			},
 		] satisfies MetadataRoute.Sitemap
 	).map((page) => ({ ...page, lastModified }));
 

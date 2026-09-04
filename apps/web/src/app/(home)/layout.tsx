@@ -15,7 +15,14 @@ import { ScrollableContainer } from "@/components/layout/scrollable-container";
  */
 export default function HomeLayout({ children }: { children: ReactNode }) {
 	return (
-		<ScrollableContainer className="isolate" smooth>
+		/* `scroll-smooth` is what makes an in-page anchor glide rather than
+		   jump; `motion-reduce:scroll-auto` hands that decision back to the
+		   OS setting. Lenis (`smooth`) drives wheel and trackpad scrolling and
+		   leaves fragment navigation alone, so the two do not overlap. */
+		<ScrollableContainer
+			className="isolate scroll-smooth motion-reduce:scroll-auto"
+			smooth
+		>
 			<div className="bg-white">
 				<LandingNav />
 				{children}

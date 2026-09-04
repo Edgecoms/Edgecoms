@@ -1,0 +1,18 @@
+{
+  "node": {
+    "6089bf9b8494714563529782763ce40ef904374b23": {
+      "workers": {
+        "app/page": {
+          "moduleId": 64077,
+          "async": true,
+          "exportedName": "submitLead",
+          "filename": "apps/course/src/app/actions.ts"
+        }
+      },
+      "filename": "apps/course/src/app/actions.ts",
+      "exportedName": "submitLead"
+    }
+  },
+  "edge": {},
+  "encryptionKey": "YpWUUvXPz49PcKomRK//+GqSt1rB7+uRVgrxibrxhVI="
+}

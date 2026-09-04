@@ -1,20 +1,25 @@
 /**
  * IP rate limiting for the playbook endpoint.
  *
- * In memory, deliberately. The repo's only other limiter
- * (`@edgecoms/api/attribution/attempts`) is table-backed because it guards the
- * money system and its rows are the abuse trail somebody will later have to
- * read. This one guards a marketing form: nobody is going to audit it, and a
- * database round-trip per submission is a worse trade than the one thing this
- * approach costs.
+ * ⚠️ ON VERCEL THIS IS BEST-EFFORT ONLY, NOT A REAL LIMIT.
  *
- * What it costs: the counter lives in the process. Two instances mean two
- * counters, and a restart forgets. The real ceiling on abuse here is Resend's
- * own sending quota, and this is the cheap first gate in front of it. If the
- * site ever runs more than one instance and this matters, move the window to
- * the database or to a shared store, not to a bigger number here.
+ * The counter lives in the process. On a long-lived server that is one counter
+ * and the limit means what it says. This app deploys to Vercel, where the route
+ * is a serverless function: instances are created and destroyed per traffic,
+ * several run concurrently, and each gets its own empty map. The effective
+ * limit is "5 per instance per hour", which under load is not a limit at all,
+ * and a cold start resets it to zero.
+ *
+ * So this stops a person leaning on the button and a single-threaded script. It
+ * does NOT stop a determined sender from burning the Resend quota, and it must
+ * not be relied on as though it does.
+ *
+ * To make it real, the window has to live somewhere shared. The repo's own
+ * precedent is `@edgecoms/api/attribution/attempts`, which is table-backed for
+ * exactly this reason. That needs a decision first: a new table or a column on
+ * `marketing_leads`, whether the IP is hashed (it is personal data), and how
+ * long rows are kept. Until then Resend's own sending quota is the real ceiling.
  */
-
 /** Requests allowed per IP per window. */
 export const REQUEST_LIMIT = 5;
 

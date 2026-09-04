@@ -1,5 +1,6 @@
 import type { Route } from "next";
 import Link from "next/link";
+import { ConsentSettingsLink } from "@/components/analytics/consent-settings-link";
 import Logo from "../ui/logo";
 
 const navLinks = [
@@ -36,7 +37,10 @@ export default function Footer() {
 
 				<div className="flex flex-col gap-2 pt-6 text-caption text-secondary-foreground sm:flex-row sm:justify-between">
 					<span>Designed &amp; Built in India.</span>
-					<span>© 2026 Edgecoms</span>
+					<div className="flex items-center gap-4">
+						<ConsentSettingsLink />
+						<span>© 2026 Edgecoms</span>
+					</div>
 				</div>
 			</div>
 		</footer>

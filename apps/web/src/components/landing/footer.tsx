@@ -1,6 +1,7 @@
 import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { ConsentSettingsLink } from "@/components/analytics/consent-settings-link";
 import Logo from "@/components/ui/logo";
 import { getBlogApps, POSTS } from "@/lib/blog";
 import { EDGE_PRODUCTS } from "@/lib/products";
@@ -185,7 +186,10 @@ export function LandingFooter() {
 
 				<div className="mt-16 flex flex-col gap-3 border-neutral-200 border-t pt-8 text-[13px] text-neutral-500 sm:flex-row sm:items-center sm:justify-between">
 					<span>Built for Shopify · Billed on your Shopify invoice</span>
-					<span>© 2026 Edgecoms</span>
+					<div className="flex items-center gap-4">
+						<ConsentSettingsLink />
+						<span>© 2026 Edgecoms</span>
+					</div>
 				</div>
 			</div>
 		</footer>

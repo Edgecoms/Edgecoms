@@ -6,7 +6,8 @@
     "dev": "next dev --port 3001",
     "build": "bash ../../scripts/deploy-migrate.sh && next build",
     "check-types": "tsc --noEmit",
-    "start": "next start -H 0.0.0.0"
+    "start": "next start -H 0.0.0.0",
+    "test": "SKIP_ENV_VALIDATION=1 NEXT_PUBLIC_META_PIXEL_ID=000000000000001 bun test"
   },
   "dependencies": {
     "@edgecoms/api": "workspace:*",
@@ -46,6 +47,7 @@
     "@edgecoms/config": "workspace:*",
     "@tailwindcss/postcss": "^4.1.18",
     "@tanstack/react-query-devtools": "^5.91.1",
+    "@types/bun": "^1.4.0",
     "@types/github-slugger": "^2.0.0",
     "@types/mdx": "^2.0.14",
     "@types/node": "^20",

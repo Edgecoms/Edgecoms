@@ -1,5 +1,6 @@
 import type { Route } from "next";
 import Link from "next/link";
+import { ConsentSettingsLink } from "@/components/analytics/consent-settings-link";
 import { GridMarkers } from "@/components/home/grid-markers";
 import { AppIcon } from "@/components/ui/app-icon";
 import Logo from "@/components/ui/logo";
@@ -122,7 +123,10 @@ export default function Footer() {
 						<Logo height={16} width="auto" />
 						<span className="font-medium text-body-sm">Edgecoms</span>
 					</Link>
-					<span>© 2026 Edgecoms</span>
+					<div className="flex items-center gap-4">
+						<ConsentSettingsLink />
+						<span>© 2026 Edgecoms</span>
+					</div>
 				</div>
 			</div>
 		</footer>

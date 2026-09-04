@@ -1,0 +1,17 @@
+{
+  "node": {
+    "60c5921e899291b4198cb29bbf22227cf76b2b0523": {
+      "workers": {
+        "app/page": {
+          "moduleId": "[project]/apps/course/.next-internal/server/app/page/actions.js { ACTIONS_MODULE0 => \"[project]/apps/course/src/app/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "submitLead",
+          "filename": "apps/course/src/app/actions.ts"
+        }
+      },
+      "exportedName": "submitLead",
+      "filename": "apps/course/src/app/actions.ts"
+    }
+  },
+  "edge": {}
+}

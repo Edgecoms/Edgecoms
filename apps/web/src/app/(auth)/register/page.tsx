@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { type FormEvent, useId, useState } from "react";
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
+import { trackStandard } from "@/lib/meta-pixel";
 
 export default function RegisterPage() {
 	const router = useRouter();
@@ -31,6 +32,16 @@ export default function RegisterPage() {
 			setLoading(false);
 			return;
 		}
+
+		/**
+		 * Fired on success only, and before the redirect -- the pixel is blind to
+		 * `/partner`, so reporting it after the push would report nothing. No
+		 * name or email goes with it: Meta gets the fact of a signup, not who.
+		 */
+		trackStandard("CompleteRegistration", {
+			content_name: "Partner application",
+			status: "pending",
+		});
 
 		toast.success("Account created. Your application is pending review.");
 		router.push("/partner" as Route);

@@ -70,10 +70,21 @@ export function secondaryMoney(entries: readonly MoneyEntry[]): string | null {
 	if (entries.length < 2) {
 		return null;
 	}
-	return entries
+	/**
+	 * "plus", spelled out.
+	 *
+	 * With exactly two currencies this used to return a bare formatted amount
+	 * with no separator and no word, sitting directly under the headline figure
+	 * in the slot that otherwise reads "All-time commission". A smaller second
+	 * number under a larger one reads as the same money converted, which is the
+	 * one thing it is not: there is no exchange rate here, and these are two
+	 * separate sums that will arrive as two separate payouts.
+	 */
+	const rest = entries
 		.slice(1)
 		.map((entry) => formatMoney(entry.amountMinor, entry.currency))
-		.join(" + ");
+		.join(" and ");
+	return `plus ${rest}`;
 }
 
 /** Every currency in one line, for a table cell. */
@@ -84,7 +95,9 @@ export function allMoney(
 	if (entries.length === 0) {
 		return formatMoney("0", zeroCurrency);
 	}
+	/* " + " reads as arithmetic between currencies, which is exactly the
+	   inference to avoid. */
 	return entries
 		.map((entry) => formatMoney(entry.amountMinor, entry.currency))
-		.join(" + ");
+		.join(" and ");
 }

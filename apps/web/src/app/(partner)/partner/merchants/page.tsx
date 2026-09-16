@@ -19,7 +19,7 @@ export default function PartnerMerchantsPage() {
 	return (
 		<div className="flex flex-col gap-8">
 			<PortalHeader
-				description="Every store bound to your code, with the commission it has generated."
+				description="Every store bound to your code. Net revenue is what Edge receives after Shopify's share, which is the figure your commission is a percentage of, so it is lower than the store's Shopify bill."
 				title="Merchants"
 			/>
 
@@ -38,7 +38,7 @@ export default function PartnerMerchantsPage() {
 						<>
 							<th>Store</th>
 							<th>Status</th>
-							<th className="text-right">Revenue generated</th>
+							<th className="text-right">Net revenue to Edge</th>
 							<th className="text-right">Commission earned</th>
 						</>
 					}

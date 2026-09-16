@@ -3,6 +3,7 @@ import { partnerInvites, partners } from "@edgecoms/db/schema/partners";
 import { TRPCError } from "@trpc/server";
 import { and, eq, gt, sql } from "drizzle-orm";
 import { z } from "zod";
+import { renderInviteClaimedEmail } from "../email/partner-emails";
 import { protectedProcedure, publicProcedure, router } from "../index";
 
 /**
@@ -24,8 +25,14 @@ import { protectedProcedure, publicProcedure, router } from "../index";
  * remains the money gate."
  */
 
-/** How long a signup link stays usable. */
-export const INVITE_TTL_DAYS = 14;
+/**
+ * How long a signup link stays usable.
+ *
+ * Seven rather than fourteen: the token is the only secret protecting an
+ * invite, it travels in a URL that can be forwarded, and a shorter window is
+ * the one mitigation available without verifying the address itself.
+ */
+export const INVITE_TTL_DAYS = 7;
 
 /** Bytes of entropy in a raw invite token. */
 const INVITE_TOKEN_BYTES = 32;
@@ -96,7 +103,7 @@ export const invitesRouter = router({
 				});
 			}
 
-			return await ctx.db.transaction(async (tx) => {
+			const outcome = await ctx.db.transaction(async (tx) => {
 				const invite = await tx.query.partnerInvites.findFirst({
 					where: and(
 						eq(partnerInvites.tokenHash, tokenHash),
@@ -150,7 +157,34 @@ export const invitesRouter = router({
 						);
 				}
 
-				return { claimed: true };
+				return {
+					claimed: true,
+					company: invite.companyName,
+					notify: invite.email,
+				};
 			});
+
+			/**
+			 * Tell the invited address that its invitation was used.
+			 *
+			 * After the commit, and it can never fail the claim: the account
+			 * exists either way, and a lost notification is recoverable where a
+			 * rolled-back signup is just broken. See `renderInviteClaimedEmail`
+			 * for why this exists at all.
+			 */
+			if (outcome.claimed && outcome.notify && ctx.sendEmail) {
+				try {
+					await ctx.sendEmail(
+						renderInviteClaimedEmail({
+							companyName: outcome.company ?? null,
+							to: outcome.notify,
+						})
+					);
+				} catch {
+					/* Swallowed on purpose. */
+				}
+			}
+
+			return { claimed: outcome.claimed };
 		}),
 });

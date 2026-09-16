@@ -20,6 +20,39 @@ import { queryClient, trpc } from "@/utils/trpc";
  */
 
 /**
+ * A tRPC validation failure, turned back into something a person can act on.
+ *
+ * A failed zod input arrives with its issue array serialised into
+ * `error.message`, so the toast showed a JSON blob with "code", "message" and
+ * "path" keys on the last form between a partner and being paid. The
+ * validator's own messages are already written for a human ("An IFSC is 11
+ * characters, e.g. HDFC0001234"); this pulls them out and keeps the field they
+ * belong to, so each one can be shown where the mistake is.
+ */
+function fieldErrors(message: string): Record<string, string> {
+	try {
+		const issues = JSON.parse(message) as {
+			message?: string;
+			path?: (string | number)[];
+		}[];
+		if (!Array.isArray(issues)) {
+			return {};
+		}
+		const byField: Record<string, string> = {};
+		for (const issue of issues) {
+			const field = issue.path?.[0];
+			if (typeof field === "string" && issue.message) {
+				byField[field] = issue.message;
+			}
+		}
+		return byField;
+	} catch {
+		/* Not a zod payload: a real server error, shown as itself. */
+		return {};
+	}
+}
+
+/**
  * A short list of countries, with the rest reachable by typing a code.
  *
  * India first because that is where most partners and the business itself are.
@@ -40,6 +73,7 @@ const COMMON_COUNTRIES = [
 function PayoutDetailsForm({
 	country,
 	data,
+	errors,
 	onCountry,
 	onSubmit,
 	pending,
@@ -52,6 +86,8 @@ function PayoutDetailsForm({
 		payoutCountry: string | null;
 		payoutIfsc: string | null;
 	};
+	/** Per-field validation messages, keyed by field name. */
+	errors: Record<string, string>;
 	onCountry: (value: string) => void;
 	onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 	pending: boolean;
@@ -122,11 +158,18 @@ function PayoutDetailsForm({
 			<div className="flex flex-col gap-2">
 				<Label htmlFor={nameId}>Account holder name</Label>
 				<Input
+					aria-describedby={errors.accountName ? `${nameId}-error` : undefined}
+					aria-invalid={Boolean(errors.accountName)}
 					defaultValue={data.payoutAccountName ?? ""}
 					id={nameId}
 					name="accountName"
 					placeholder="As it appears on the account"
 				/>
+				{errors.accountName ? (
+					<span className="text-caption text-red-700" id={`${nameId}-error`}>
+						{errors.accountName}
+					</span>
+				) : null}
 			</div>
 
 			<div className="flex flex-col gap-2">
@@ -134,25 +177,42 @@ function PayoutDetailsForm({
 					{domestic ? "Account number" : "IBAN or account number"}
 				</Label>
 				<Input
+					aria-describedby={
+						errors.accountNumber ? `${accountId}-error` : undefined
+					}
+					aria-invalid={Boolean(errors.accountNumber)}
 					defaultValue={data.payoutAccountNumber ?? ""}
 					id={accountId}
 					name="accountNumber"
 					placeholder={domestic ? "9 to 18 digits" : "IBAN"}
 				/>
+				{errors.accountNumber ? (
+					<span className="text-caption text-red-700" id={`${accountId}-error`}>
+						{errors.accountNumber}
+					</span>
+				) : null}
 			</div>
 
 			{domestic ? (
 				<div className="flex flex-col gap-2">
 					<Label htmlFor={ifscId}>IFSC</Label>
 					<Input
+						aria-describedby={errors.ifsc ? `${ifscId}-error` : undefined}
+						aria-invalid={Boolean(errors.ifsc)}
 						defaultValue={data.payoutIfsc ?? ""}
 						id={ifscId}
 						name="ifsc"
 						placeholder="HDFC0001234"
 					/>
-					<span className="text-caption text-secondary-foreground">
-						Eleven characters. The fifth is always a zero.
-					</span>
+					{errors.ifsc ? (
+						<span className="text-caption text-red-700" id={`${ifscId}-error`}>
+							{errors.ifsc}
+						</span>
+					) : (
+						<span className="text-caption text-secondary-foreground">
+							Eleven characters. The fifth is always a zero.
+						</span>
+					)}
 				</div>
 			) : (
 				<span className="text-caption text-secondary-foreground">
@@ -190,6 +250,7 @@ export default function PartnerSettingsPage() {
 	 * remittance route they should not have to know about.
 	 */
 	const [chosenCountry, setChosenCountry] = useState<string | null>(null);
+	const [payoutErrors, setPayoutErrors] = useState<Record<string, string>>({});
 	const country = chosenCountry ?? data?.payoutCountry ?? "IN";
 
 	function refresh() {
@@ -232,8 +293,17 @@ export default function PartnerSettingsPage() {
 				ifsc: String(form.get("ifsc") ?? "").trim() || undefined,
 			},
 			{
-				onError: (error) => toast.error(error.message),
+				onError: (error) => {
+					const byField = fieldErrors(error.message);
+					setPayoutErrors(byField);
+					/* A validation failure is shown on the fields. Anything else is
+					   a real error and belongs in a toast. */
+					if (Object.keys(byField).length === 0) {
+						toast.error(error.message);
+					}
+				},
 				onSuccess: () => {
+					setPayoutErrors({});
 					toast.success("Payout details saved.");
 					refresh();
 				},
@@ -302,9 +372,15 @@ export default function PartnerSettingsPage() {
 						</div>
 					</form>
 
+					<p className="text-caption text-secondary-foreground">
+						Something wrong, or a question about a payment? Reply to any email
+						from Edge and it reaches us.
+					</p>
+
 					<PayoutDetailsForm
 						country={country}
 						data={data}
+						errors={payoutErrors}
 						onCountry={setChosenCountry}
 						onSubmit={handlePayout}
 						pending={payoutMutation.isPending}

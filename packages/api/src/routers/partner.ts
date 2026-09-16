@@ -7,7 +7,11 @@ import {
 	merchantGrandfatheredApps,
 	merchants,
 } from "@edgecoms/db/schema/merchants";
-import { partnerCodes, partners } from "@edgecoms/db/schema/partners";
+import {
+	partnerAppRates,
+	partnerCodes,
+	partners,
+} from "@edgecoms/db/schema/partners";
 import { partnerBonuses, payouts } from "@edgecoms/db/schema/payouts";
 import { and, count, desc, eq, inArray, isNotNull, ne, sql } from "drizzle-orm";
 import { z } from "zod";
@@ -279,14 +283,32 @@ export const partnerRouter = router({
 	apps: partnerProcedure.query(async ({ ctx }) => {
 		const partnerId = ctx.partner.id;
 
+		/**
+		 * The catalogue with THIS partner's effective rate on each app.
+		 *
+		 * `partner_app_rates` silently beats the default at generation time
+		 * (commissions.ts), and nothing partner-facing read that table: three
+		 * screens quoted the default as the rate for every app, so a partner
+		 * with a 5% override on Edge Reviews was told 20% and then paid 5%.
+		 * Resolved the same way the engine resolves it, so the number a partner
+		 * reads is the number they will be paid.
+		 */
 		const catalog = await ctx.db
 			.select({
 				id: apps.id,
 				slug: apps.slug,
 				name: apps.name,
 				setupVideoUrl: apps.setupVideoUrl,
+				overrideRateBps: partnerAppRates.rateBps,
 			})
 			.from(apps)
+			.leftJoin(
+				partnerAppRates,
+				and(
+					eq(partnerAppRates.appId, apps.id),
+					eq(partnerAppRates.partnerId, partnerId)
+				)
+			)
 			.orderBy(apps.name);
 
 		const myMerchants = await ctx.db
@@ -304,11 +326,12 @@ export const partnerRouter = router({
 		   which Postgres accepts but which reads as a bug waiting to happen. */
 		if (myMerchants.length === 0) {
 			return {
-				apps: catalog.map((app) => ({
+				apps: catalog.map(({ overrideRateBps, ...app }) => ({
 					...app,
 					earningStores: 0,
 					grandfatheredStores: 0,
 					liveStores: 0,
+					rateBps: overrideRateBps ?? ctx.partner.defaultRateBps,
 				})),
 				catalogSize: catalog.length,
 				stores: [],
@@ -399,7 +422,7 @@ export const partnerRouter = router({
 		}
 
 		return {
-			apps: catalog.map((app) => {
+			apps: catalog.map(({ overrideRateBps, ...app }) => {
 				let liveStores = 0;
 				let earningStores = 0;
 				let grandfatheredStores = 0;
@@ -423,6 +446,7 @@ export const partnerRouter = router({
 					earningStores,
 					grandfatheredStores,
 					liveStores,
+					rateBps: overrideRateBps ?? ctx.partner.defaultRateBps,
 				};
 			}),
 			catalogSize: catalog.length,
@@ -767,6 +791,11 @@ export const partnerRouter = router({
 		return {
 			zeroCurrency: ZERO_CURRENCY,
 			currentPeriod: period,
+			/* Why nothing can be paid yet, if anything. This is the screen a
+			   partner opens precisely when wondering where their money is, and it
+			   used to show a growing "upcoming" figure while saying nothing about
+			   the missing account details holding all of it. */
+			payoutBlocker: payoutBlocker(ctx.partner),
 			lifetime: toMoneyList(lifetimeRows),
 			upcomingPayout: toMoneyList(upcomingRows),
 			/* One row per (month, currency): a month a partner earned in two

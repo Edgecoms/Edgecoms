@@ -2,6 +2,8 @@
 
 import { Skeleton } from "@edgecoms/ui/components/skeleton";
 import { useQuery } from "@tanstack/react-query";
+import type { Route } from "next";
+import Link from "next/link";
 import {
 	EmptyState,
 	PortalHeader,
@@ -26,6 +28,24 @@ export default function PartnerEarningsPage() {
 				description="Your commission by month, what is owed, and every payout. Where tax was withheld at source, you see what you earned and what reached you."
 				title="Earnings"
 			/>
+
+			{data?.payoutBlocker ? (
+				<div className="flex flex-col gap-2 rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 text-amber-800">
+					<span className="font-medium text-body-sm">
+						We cannot pay you yet
+					</span>
+					<p className="text-body-sm">
+						{data.payoutBlocker}. Nothing is lost: what you have earned stays
+						owed to you and goes out with the next payout once this is fixed.
+					</p>
+					<Link
+						className="w-fit text-body-sm underline"
+						href={"/partner/settings" as Route}
+					>
+						Add your payout details
+					</Link>
+				</div>
+			) : null}
 
 			<div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
 				<StatCard

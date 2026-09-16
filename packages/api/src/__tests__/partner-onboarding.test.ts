@@ -566,3 +566,39 @@ describe("the rendered emails", () => {
 		expect(hostile.html).toContain("&lt;script&gt;");
 	});
 });
+
+describe("claiming an invite tells the invited address", () => {
+	test("the real recipient is notified, so a misused link is visible", async () => {
+		await adminCaller().admin.partners.invite({
+			companyName: "Acme Agency",
+			emails: ["alex@acme.com"],
+		});
+		const token = tokenFromOutbox();
+		outbox.length = 0;
+
+		await signUp("uR", "alex@acme.com");
+		await partnerCaller("uR", "alex@acme.com").invites.accept({ token });
+
+		/* The invite is bound to the address server-side, so somebody signing up
+		   with their own email cannot claim it. What nothing proves is that the
+		   signup controls THIS inbox: the token travels in a URL. So the real
+		   recipient hears about it while the account is still pending and has
+		   earned nothing. */
+		expect(outbox).toHaveLength(1);
+		expect(outbox[0]?.to).toBe("alex@acme.com");
+		expect(outbox[0]?.subject).toContain("invitation was just used");
+		expect(outbox[0]?.text).toContain("If it was NOT you");
+	});
+
+	test("a refused claim notifies nobody", async () => {
+		await adminCaller().admin.partners.invite({ emails: ["alex@acme.com"] });
+		const token = tokenFromOutbox();
+		outbox.length = 0;
+
+		await expect(
+			partnerCaller("uQ", "q@x.com").invites.accept({ token })
+		).rejects.toThrow(DIFFERENT_EMAIL);
+
+		expect(outbox).toHaveLength(0);
+	});
+});

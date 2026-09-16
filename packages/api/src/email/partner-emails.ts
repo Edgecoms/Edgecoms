@@ -189,3 +189,41 @@ export function renderPartnerApprovedEmail(input: {
 		to: input.to,
 	};
 }
+
+/**
+ * SENT TO THE INVITED ADDRESS THE MOMENT THE INVITE IS CLAIMED.
+ *
+ * The invite is bound to this address server-side, so somebody who signs up
+ * with their own email cannot claim it. What nothing can prove is that the
+ * person who signed up WITH this address actually controls this inbox: the
+ * token travels in a URL, and a forwarded or leaked URL plus a guessable
+ * address is enough.
+ *
+ * So the real recipient is told immediately. If it was not them, they can say
+ * so while the account is still `pending` and has earned nothing, because
+ * approval is a separate human decision. That does not make the link secret
+ * again; it makes a misuse of one visible to the one person certain to care.
+ */
+export function renderInviteClaimedEmail(input: {
+	companyName: string | null;
+	to: string;
+}): OutboundEmail {
+	const heading = "Your Edge Partners invitation was just used";
+	const blocks: Block[] = [
+		{
+			text: `An account has just been created from the invitation we sent to ${input.to}${input.companyName ? ` for ${input.companyName}` : ""}.`,
+		},
+		{
+			text: "If that was you, nothing further is needed. We review the application, set your commission rate, and email you your code.",
+		},
+		{
+			text: "If it was NOT you, reply to this email straight away. The account cannot earn anything until we approve it, so telling us now costs you nothing.",
+		},
+	];
+	return {
+		html: renderHtml(heading, blocks),
+		subject: heading,
+		text: renderText(heading, blocks),
+		to: input.to,
+	};
+}

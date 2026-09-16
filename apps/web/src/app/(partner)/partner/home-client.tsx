@@ -119,6 +119,8 @@ interface AppRow {
 	id: string;
 	liveStores: number;
 	name: string;
+	/** The rate THIS app pays: a per-app override, or the partner's default. */
+	rateBps: number;
 	setupVideoUrl: string | null;
 	slug: string;
 }
@@ -137,6 +139,8 @@ interface StoreRow {
 	monthsEarning: number;
 	name: string;
 	shopDomain: string;
+	/** Dropped on the client before, so a rejected store looked like a live one. */
+	status: string;
 }
 
 /**
@@ -172,6 +176,28 @@ function rungDetail(rung: Rung, currency: string | undefined): string {
 		return `${formatMoney(rung.currentMinor, currency ?? "USD")} of ${formatMoney(rung.targetMinor, currency ?? "USD")}`;
 	}
 	return `${rung.current ?? 0} of ${rung.target ?? 0}`;
+}
+
+/**
+ * What the partner's standing actually means for them.
+ *
+ * Every non-approved status used to read "Your application is with us. Nothing
+ * is needed from you yet." A partner of eight months with four earning stores
+ * who had just been SUSPENDED read that, while their code had silently stopped
+ * working. Suspension is not an application, and a screen that hides it is
+ * worse than one that says nothing.
+ */
+function describeStanding(
+	status: string | undefined,
+	rate: string | null
+): string {
+	if (status === "approved" && rate) {
+		return `You keep ${rate}% of the net revenue of every store you bring to Edge, every month it stays.`;
+	}
+	if (status === "suspended") {
+		return "Your account is suspended. Your existing stores keep earning; your code has stopped taking new ones.";
+	}
+	return "Your application is with us. Nothing is needed from you yet.";
 }
 
 /** Circumference of the coverage ring, for the dash offset. */
@@ -268,6 +294,51 @@ function RungRow({
 	);
 }
 
+/**
+ * What this store is doing for the partner, in one line.
+ *
+ * A store's status was dropped on the way to the client, so a PENDING store
+ * waiting on us and a REJECTED one that will never earn both rendered exactly
+ * like a live store, under the promise "Earns from the first charge Shopify
+ * records". A partner could watch a rejected store sit on their home screen for
+ * months believing it was about to pay.
+ */
+function describeStoreEarning(store: StoreRow) {
+	if (store.status === "rejected") {
+		return (
+			<span className="text-caption text-secondary-foreground">
+				We did not approve this store, so it will not earn. Ask us why.
+			</span>
+		);
+	}
+	if (store.status === "suspended") {
+		return (
+			<span className="text-caption text-secondary-foreground">
+				Suspended, so it is not earning at the moment.
+			</span>
+		);
+	}
+	if (store.status === "pending") {
+		return (
+			<span className="text-caption text-secondary-foreground">
+				Waiting on us to approve it. Nothing earns until then.
+			</span>
+		);
+	}
+	if (store.monthsEarning > 0) {
+		return (
+			<span className="text-body-sm text-primary-foreground tabular-nums">
+				Month {store.monthsEarning} · {allMoney(store.lifetime)} to date
+			</span>
+		);
+	}
+	return (
+		<span className="text-caption text-secondary-foreground">
+			Approved. Earns from the first charge Shopify records.
+		</span>
+	);
+}
+
 /** The quest board: one ring per store, and the cheapest next move on it. */
 function StoreCoverage({
 	catalogSize,
@@ -298,22 +369,16 @@ function StoreCoverage({
 					>
 						<CoverageRing earning={store.earningApps} total={catalogSize} />
 						<div className="flex flex-col gap-1">
-							<span className="font-medium text-body-sm text-primary-foreground">
+							<span className="flex items-center gap-2 font-medium text-body-sm text-primary-foreground">
 								{store.name}
+								{store.status === "approved" ? null : (
+									<StatusBadge status={store.status} />
+								)}
 							</span>
 							<span className="text-caption text-secondary-foreground">
 								{store.shopDomain}
 							</span>
-							{store.monthsEarning > 0 ? (
-								<span className="text-body-sm text-primary-foreground tabular-nums">
-									Month {store.monthsEarning} · {allMoney(store.lifetime)} to
-									date
-								</span>
-							) : (
-								<span className="text-caption text-secondary-foreground">
-									Earns from the first charge Shopify records
-								</span>
-							)}
+							{describeStoreEarning(store)}
 							{store.grandfatheredApps > 0 ? (
 								<span className="text-caption text-secondary-foreground">
 									{store.grandfatheredApps} grandfathered, never earns
@@ -344,12 +409,10 @@ function StoreCoverage({
 function SuiteGrid({
 	copyBySlug,
 	loading,
-	rate,
 	rows,
 }: {
 	copyBySlug: Map<string, CatalogEntry>;
 	loading: boolean;
-	rate: string | null;
 	rows: readonly AppRow[];
 }) {
 	return (
@@ -359,9 +422,8 @@ function SuiteGrid({
 					The suite, on your stores
 				</h2>
 				<p className="text-body-sm text-secondary-foreground">
-					Every Edge app a store you manage can install. Each one it starts
-					paying for earns you {rate ?? "your"}
-					{rate ? "%" : " share"}.
+					Every Edge app a store you manage can install. Each card shows the
+					rate that app pays you, which can differ from your default.
 				</p>
 			</div>
 
@@ -831,24 +893,40 @@ export function PartnerHome({
 	return (
 		<div className="flex flex-col gap-10">
 			<PortalHeader
-				description={
-					approved && rate
-						? `You keep ${rate}% of the net revenue of every store you bring to Edge, every month it stays.`
-						: "Your application is with us. Nothing is needed from you yet."
-				}
+				description={describeStanding(data?.status, rate)}
 				title={firstName ? `Welcome, ${firstName}` : "Welcome"}
 			/>
 
 			{data && !approved ? (
-				<div className="flex flex-col gap-2 rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 text-amber-800">
+				<div
+					className={`flex flex-col gap-2 rounded-xl border px-5 py-4 ${
+						data.status === "suspended"
+							? "border-red-200 bg-red-50 text-red-800"
+							: "border-amber-200 bg-amber-50 text-amber-800"
+					}`}
+				>
 					<div className="flex items-center gap-2 text-body-sm">
-						<span className="font-medium">Your application is</span>
+						<span className="font-medium">
+							{data.status === "suspended"
+								? "Your account is"
+								: "Your application is"}
+						</span>
 						<StatusBadge status={data.status} />
 					</div>
-					<p className="text-body-sm">
-						We review by hand, set your rate, and email you your code. Usually
-						the same day.
-					</p>
+					{data.status === "suspended" ? (
+						<p className="text-body-sm">
+							Your code has stopped binding new stores, so a merchant entering
+							it now will be turned away. The stores you already brought stay
+							yours and keep earning, and nothing already owed to you is
+							affected. Reply to your last email from us and we will tell you
+							what happened.
+						</p>
+					) : (
+						<p className="text-body-sm">
+							We review by hand, set your rate, and email you your code. Usually
+							the same day.
+						</p>
+					)}
 				</div>
 			) : null}
 
@@ -884,7 +962,6 @@ export function PartnerHome({
 			<SuiteGrid
 				copyBySlug={copyBySlug}
 				loading={appsQuery.isLoading}
-				rate={rate}
 				rows={rows}
 			/>
 

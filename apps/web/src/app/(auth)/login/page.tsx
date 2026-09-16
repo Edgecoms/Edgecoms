@@ -79,6 +79,11 @@ export default function LoginPage() {
 				</Button>
 			</form>
 
+			<p className="text-caption text-secondary-foreground">
+				Forgotten your password? Reply to any email from Edge and we will reset
+				it for you. Self-serve reset is coming.
+			</p>
+
 			<p className="text-body-sm text-secondary-foreground">
 				New partner?{" "}
 				<Link

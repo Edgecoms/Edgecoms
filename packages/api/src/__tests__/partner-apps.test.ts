@@ -7,7 +7,7 @@ import {
 	merchantGrandfatheredApps,
 	merchants,
 } from "@edgecoms/db/schema/merchants";
-import { partners } from "@edgecoms/db/schema/partners";
+import { partnerAppRates, partners } from "@edgecoms/db/schema/partners";
 import type { Context } from "../context";
 import { createCallerFactory } from "../index";
 import { appRouter } from "../routers/index";
@@ -653,5 +653,29 @@ describe("compounding, per store", () => {
 			expect(store.lifetime).toEqual([]);
 			expect(store.monthsEarning).toBe(0);
 		}
+	});
+});
+
+describe("the rate a partner is shown is the rate they are paid", () => {
+	test("a per-app override is reported on that app, not the default", async () => {
+		await giveStores();
+		await harness.db
+			.insert(partnerAppRates)
+			.values({ appId: REVIEWS, partnerId: PARTNER, rateBps: 500 });
+
+		const result = await partnerCaller().partner.apps();
+		const bySlug = new Map(result.apps.map((row) => [row.slug, row]));
+
+		/* The engine resolves override ?? default at generation time, and nothing
+		   partner-facing read that table: three screens quoted the default as the
+		   rate for every app, so a partner on 20% with a 5% override was told 20%
+		   and then paid 5%. */
+		expect(bySlug.get("edge-reviews")?.rateBps).toBe(500);
+		expect(bySlug.get("edge-cart")?.rateBps).toBe(2000);
+	});
+
+	test("with no override every app reports the partner's default", async () => {
+		const result = await partnerCaller().partner.apps();
+		expect(result.apps.every((row) => row.rateBps === 2000)).toBe(true);
 	});
 });

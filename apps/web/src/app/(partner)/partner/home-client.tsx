@@ -538,6 +538,122 @@ function NextSteps({
 	);
 }
 
+/** The four first-run steps, as returned by `partner.onboarding`. */
+interface OnboardingSteps {
+	codeIssued: boolean;
+	firstCommission: boolean;
+	firstStore: boolean;
+	payoutReady: boolean;
+}
+
+/**
+ * How far through setup, and what is left.
+ *
+ * Outside the component because it is a pure reduction of one object and the
+ * screen already has plenty of branches of its own. The code step has no entry
+ * in `todo`: it is not something a partner can act on, so listing it under
+ * "Next" would be telling them to go and wait.
+ */
+function deriveProgress(steps: OnboardingSteps | undefined): {
+	done: number;
+	todo: { href: Route; label: string; title: string }[];
+} {
+	if (!steps) {
+		return { done: 0, todo: [] };
+	}
+
+	const done = [
+		steps.codeIssued,
+		steps.payoutReady,
+		steps.firstStore,
+		steps.firstCommission,
+	].filter(Boolean).length;
+
+	const todo = [
+		{
+			done: steps.payoutReady,
+			href: "/partner/settings" as Route,
+			label: "Add payout details",
+			title: "Payout details",
+		},
+		{
+			done: steps.firstStore,
+			href: "/partner/merchants" as Route,
+			label: "See your merchants",
+			title: "First store on your code",
+		},
+		{
+			done: steps.firstCommission,
+			href: "/partner/earnings" as Route,
+			label: "See your earnings",
+			title: "First commission",
+		},
+	]
+		.filter((step) => !step.done)
+		.map(({ href, label, title }) => ({ href, label, title }));
+
+	return { done, todo };
+}
+
+/** One awarded bonus per row, with the reason it was given. */
+function Bonuses({
+	awaiting,
+	rows,
+}: {
+	awaiting: readonly { currency: string; totalMinor: string }[];
+	rows: readonly {
+		amountMinor: string;
+		currency: string;
+		id: string;
+		periodMonth: string;
+		reason: string;
+		status: string;
+	}[];
+}) {
+	if (rows.length === 0) {
+		return null;
+	}
+	return (
+		<section className="flex flex-col gap-4">
+			<div className="flex flex-col gap-1">
+				<h2 className="font-medium text-h3 text-primary-foreground">Bonuses</h2>
+				<p className="text-body-sm text-secondary-foreground">
+					{awaiting.length > 0
+						? `${awaiting
+								.map((row) => formatMoney(row.totalMinor, row.currency))
+								.join(" and ")} joining your next payout.`
+						: "Awarded by Edge on top of your commission."}
+				</p>
+			</div>
+			<TableShell
+				head={
+					<>
+						<th>Reason</th>
+						<th>Period</th>
+						<th>Status</th>
+						<th className="text-right">Amount</th>
+					</>
+				}
+			>
+				{rows.map((row) => (
+					<tr key={row.id}>
+						<td className="text-primary-foreground">{row.reason}</td>
+						<td className="text-secondary-foreground">
+							{formatPeriod(row.periodMonth)}
+						</td>
+						<td>
+							<StatusBadge status={row.status} />
+						</td>
+						<td className="text-right text-primary-foreground tabular-nums">
+							{formatMoney(row.amountMinor, row.currency)}
+						</td>
+					</tr>
+				))}
+			</TableShell>
+		</section>
+	);
+}
+
 export function PartnerHome({
 	catalog,
 	firstName,
@@ -549,20 +665,13 @@ export function PartnerHome({
 	const dashboard = useQuery(trpc.partner.dashboard.queryOptions());
 	const appsQuery = useQuery(trpc.partner.apps.queryOptions());
 	const milestonesQuery = useQuery(trpc.partner.milestones.queryOptions());
+	const bonusesQuery = useQuery(trpc.partner.bonuses.queryOptions());
 
 	const data = onboarding.data;
 	const approved = data?.status === "approved";
 	const rate = data ? (data.defaultRateBps / 100).toFixed(1) : null;
 
-	const steps = data?.steps;
-	const done = steps
-		? [
-				steps.codeIssued,
-				steps.payoutReady,
-				steps.firstStore,
-				steps.firstCommission,
-			].filter(Boolean).length
-		: 0;
+	const { done, todo } = deriveProgress(data?.steps);
 
 	const copyBySlug = new Map(catalog.map((entry) => [entry.slug, entry]));
 	const rows = appsQuery.data?.apps ?? [];
@@ -575,29 +684,6 @@ export function PartnerHome({
 	/* Only the first unreached rung is highlighted, so the ladder reads as one
 	   next action rather than a wall of things not done. */
 	const firstUnreached = rungs.findIndex((rung) => !rung.reached);
-
-	const todo = steps
-		? [
-				{
-					done: steps.payoutReady,
-					href: "/partner/settings" as Route,
-					label: "Add payout details",
-					title: "Payout details",
-				},
-				{
-					done: steps.firstStore,
-					href: "/partner/merchants" as Route,
-					label: "See your merchants",
-					title: "First store on your code",
-				},
-				{
-					done: steps.firstCommission,
-					href: "/partner/earnings" as Route,
-					label: "See your earnings",
-					title: "First commission",
-				},
-			].filter((step) => !step.done)
-		: [];
 
 	return (
 		<div className="flex flex-col gap-10">
@@ -688,6 +774,11 @@ export function PartnerHome({
 					</ul>
 				</section>
 			) : null}
+
+			<Bonuses
+				awaiting={bonusesQuery.data?.awaitingPayout ?? []}
+				rows={bonusesQuery.data?.bonuses ?? []}
+			/>
 
 			<RecentActivity
 				loading={dashboard.isLoading}

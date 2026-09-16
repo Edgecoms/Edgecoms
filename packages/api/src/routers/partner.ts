@@ -7,7 +7,7 @@ import {
 	merchants,
 } from "@edgecoms/db/schema/merchants";
 import { partnerCodes, partners } from "@edgecoms/db/schema/partners";
-import { payouts } from "@edgecoms/db/schema/payouts";
+import { partnerBonuses, payouts } from "@edgecoms/db/schema/payouts";
 import { and, count, desc, eq, inArray, isNotNull, ne, sql } from "drizzle-orm";
 import { z } from "zod";
 import { partnerProcedure, router } from "../index";
@@ -545,6 +545,68 @@ export const partnerRouter = router({
 					target: catalogSize,
 				},
 			],
+		};
+	}),
+
+	/**
+	 * THE PARTNER'S OWN BONUSES.
+	 *
+	 * Visible because a payment a partner cannot see or explain is worse than
+	 * no payment: it turns up in a payout total they cannot reconcile, and the
+	 * reason is the whole point of it.
+	 *
+	 * Only what has actually been AWARDED. Nothing here forecasts a bonus or
+	 * advertises one, because a bonus is discretionary -- an admin issues each
+	 * one -- and a screen promising bonuses to come would make it a commitment
+	 * to everybody who read it.
+	 *
+	 * Revoked bonuses are not returned. A partner who was never told about one
+	 * should not learn of it by watching it disappear.
+	 */
+	bonuses: partnerProcedure.query(async ({ ctx }) => {
+		const rows = await ctx.db
+			.select({
+				id: partnerBonuses.id,
+				amount: partnerBonuses.amount,
+				currency: partnerBonuses.currency,
+				reason: partnerBonuses.reason,
+				periodMonth: partnerBonuses.periodMonth,
+				status: partnerBonuses.status,
+				paidAt: partnerBonuses.paidAt,
+				createdAt: partnerBonuses.createdAt,
+			})
+			.from(partnerBonuses)
+			.where(
+				and(
+					eq(partnerBonuses.partnerId, ctx.partner.id),
+					ne(partnerBonuses.status, "revoked")
+				)
+			)
+			.orderBy(desc(partnerBonuses.createdAt));
+
+		/* Grouped by currency, never summed across them. */
+		const awaiting = new Map<string, bigint>();
+		for (const row of rows) {
+			if (row.status === "pending") {
+				awaiting.set(
+					row.currency,
+					(awaiting.get(row.currency) ?? 0n) + row.amount
+				);
+			}
+		}
+
+		return {
+			awaitingPayout: [...awaiting.entries()].map(([currency, total]) => ({
+				currency,
+				totalMinor: total.toString(),
+			})),
+			/* `amount` is destructured OUT, not spread through. A bigint cannot be
+			   JSON-serialized, so leaving it on the response breaks the whole
+			   query over HTTP -- which an in-process router test never sees. */
+			bonuses: rows.map(({ amount, ...row }) => ({
+				...row,
+				amountMinor: amount.toString(),
+			})),
 		};
 	}),
 

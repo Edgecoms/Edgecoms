@@ -78,15 +78,22 @@ export default function AdminPartnersPage() {
 	const revokeMutation = useMutation(
 		trpc.admin.partners.revokeInvite.mutationOptions()
 	);
+	const bonusMutation = useMutation(
+		trpc.admin.partners.issueBonus.mutationOptions()
+	);
 
 	const rateId = useId();
 	const codeId = useId();
 	const emailsId = useId();
 	const companyId = useId();
 	const proposedRateId = useId();
+	const bonusAmountId = useId();
+	const bonusReasonId = useId();
+	const bonusPeriodId = useId();
 
 	const [approving, setApproving] = useState<PartnerRow | null>(null);
 	const [inviting, setInviting] = useState(false);
+	const [bonusFor, setBonusFor] = useState<PartnerRow | null>(null);
 
 	function refresh() {
 		queryClient.invalidateQueries({
@@ -183,6 +190,31 @@ export default function AdminPartnersPage() {
 		);
 	}
 
+	function handleBonus(event: FormEvent<HTMLFormElement>) {
+		event.preventDefault();
+		if (!bonusFor) {
+			return;
+		}
+		const form = new FormData(event.currentTarget);
+		bonusMutation.mutate(
+			{
+				amount: String(form.get("amount") ?? "").trim(),
+				currency: String(form.get("currency") ?? "USD").trim(),
+				partnerId: bonusFor.id,
+				periodMonth: String(form.get("periodMonth") ?? "").trim(),
+				reason: String(form.get("reason") ?? "").trim(),
+			},
+			{
+				onError: (error) => toast.error(error.message),
+				onSuccess: () => {
+					toast.success("Bonus issued. It joins that month's payout.");
+					setBonusFor(null);
+					refresh();
+				},
+			}
+		);
+	}
+
 	function setStatus(partnerId: string, status: "approved" | "suspended") {
 		statusMutation.mutate(
 			{ partnerId, status },
@@ -271,13 +303,22 @@ export default function AdminPartnersPage() {
 										{partner.status === "suspended" ? "Re-approve" : "Approve"}
 									</Button>
 								) : (
-									<Button
-										onClick={() => setStatus(partner.id, "suspended")}
-										size="md"
-										variant="secondary"
-									>
-										Suspend
-									</Button>
+									<div className="flex items-center justify-end gap-2">
+										<Button
+											onClick={() => setBonusFor(partner)}
+											size="md"
+											variant="secondary"
+										>
+											Bonus
+										</Button>
+										<Button
+											onClick={() => setStatus(partner.id, "suspended")}
+											size="md"
+											variant="secondary"
+										>
+											Suspend
+										</Button>
+									</div>
 								)}
 							</td>
 						</tr>
@@ -404,6 +445,90 @@ export default function AdminPartnersPage() {
 						</div>
 					</form>
 				</DialogContent>
+			</Dialog>
+
+			<Dialog
+				onOpenChange={(open) => {
+					if (!open) {
+						setBonusFor(null);
+					}
+				}}
+				open={bonusFor !== null}
+			>
+				{bonusFor ? (
+					<DialogContent
+						description="Money on top of commission, with no earning event behind it. It joins that month's payout, and the partner sees the reason you give."
+						title={`Bonus for ${bonusFor.companyName ?? bonusFor.name}`}
+					>
+						<form className="flex flex-col gap-5" onSubmit={handleBonus}>
+							<div className="flex gap-3">
+								<div className="flex flex-1 flex-col gap-2">
+									<Label htmlFor={bonusAmountId}>Amount</Label>
+									<Input
+										id={bonusAmountId}
+										inputMode="decimal"
+										name="amount"
+										placeholder="250.00"
+									/>
+								</div>
+								<div className="flex w-28 flex-col gap-2">
+									<Label htmlFor="bonus-currency">Currency</Label>
+									<Input
+										defaultValue="USD"
+										id="bonus-currency"
+										maxLength={3}
+										name="currency"
+									/>
+								</div>
+							</div>
+
+							<div className="flex flex-col gap-2">
+								<Label htmlFor={bonusPeriodId}>Payout period</Label>
+								<Input
+									id={bonusPeriodId}
+									name="periodMonth"
+									placeholder="2026-03"
+								/>
+								<span className="text-caption text-secondary-foreground">
+									As YYYY-MM. The bonus rides that month's payout, so a period
+									already paid forms a follow-up payout rather than changing a
+									settled one.
+								</span>
+							</div>
+
+							<div className="flex flex-col gap-2">
+								<Label htmlFor={bonusReasonId}>Reason</Label>
+								<Input
+									id={bonusReasonId}
+									name="reason"
+									placeholder="Brought three stores in a month"
+								/>
+								<span className="text-caption text-secondary-foreground">
+									Shown to the partner. A payment they cannot explain is worse
+									than no payment.
+								</span>
+							</div>
+
+							<div className="flex items-center justify-end gap-3">
+								<DialogClose
+									render={
+										<Button size="lg" type="button" variant="secondary">
+											Cancel
+										</Button>
+									}
+								/>
+								<Button
+									disabled={bonusMutation.isPending}
+									size="lg"
+									type="submit"
+									variant="primary"
+								>
+									{bonusMutation.isPending ? "Issuing…" : "Issue bonus"}
+								</Button>
+							</div>
+						</form>
+					</DialogContent>
+				) : null}
 			</Dialog>
 
 			<Dialog

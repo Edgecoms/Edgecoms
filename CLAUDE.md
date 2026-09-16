@@ -43,6 +43,35 @@ subscribed.
 - **Exactly one commission per earning event** (unique FK, conflict-do-nothing).
   Generation can run any number of times and never double-pays.
 
+## Bonuses
+
+- A **bonus** is money for a partner with no earning event behind it. It lives in
+  `partner_bonuses` and **never** as a commission row:
+  `commissions.earning_event_id` is NOT NULL and there is exactly one commission
+  per event, so a bonus would break both, and the append-only ledger that
+  mirrors the Partner API must keep mirroring only that.
+- **Issued by a person, always.** Nothing mints a bonus. Nothing is owed to a
+  partner who has not been given one, which is what keeps a bonus discretionary
+  rather than a published promise owed to everybody who reaches the same number.
+  A partner sees only bonuses actually AWARDED — the portal never forecasts one,
+  because a forecast is the promise.
+- Only an `approved` partner may be issued one. An unapproved partner has no
+  agreed rate and no payout details; paying one is a decision to take after
+  approving them.
+- Integers in minor units with a currency, like every other amount here. The
+  admin form takes a decimal string and converts it with the same integer
+  conversion the rest of the money system uses.
+- A bonus **rides the monthly payout.** `payouts.pay` sums bonuses alongside
+  commissions for the same (partner, period, currency), so the partner gets one
+  payment and the payout total is the whole of what they were paid. A bonus in
+  another currency waits for that currency's payout; nothing is converted.
+  `payouts.groupable` lists bonus-only groups too, or a bonus with no commission
+  beside it could never be paid.
+- **Immutable once issued.** There is no update path. A bonus given in error is
+  `revoked` while still `pending`; a paid bonus is history. A revoked bonus is
+  never shown to the partner — learning of one by watching it disappear is worse
+  than never knowing.
+
 ## Eligibility (the program rules)
 
 - A partner earns on an earning event only if (a) the merchant is `approved`,

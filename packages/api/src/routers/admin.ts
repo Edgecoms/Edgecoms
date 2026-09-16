@@ -15,7 +15,7 @@ import {
 	partnerInvites,
 	partners,
 } from "@edgecoms/db/schema/partners";
-import { payouts } from "@edgecoms/db/schema/payouts";
+import { partnerBonuses, payouts } from "@edgecoms/db/schema/payouts";
 import { syncState } from "@edgecoms/db/schema/sync";
 import { env } from "@edgecoms/env/server";
 import { TRPCError } from "@trpc/server";
@@ -30,6 +30,7 @@ import {
 	notInArray,
 	sql,
 } from "drizzle-orm";
+import type { AnyPgColumn } from "drizzle-orm/pg-core";
 import { z } from "zod";
 import { normalizeCode } from "../attribution/codes";
 import type { EmailDelivery, EmailSender } from "../context";
@@ -41,7 +42,15 @@ import {
 import { adminProcedure, router } from "../index";
 import { createInviteToken, INVITE_TTL_DAYS } from "./invites";
 
-const MONEY_SUM = (column: typeof commissions.commissionAmount) =>
+/**
+ * Sum a money column to a string, never null.
+ *
+ * Takes any money column rather than only `commissions.commissionAmount`:
+ * payouts now total commissions AND bonuses, and both are bigint minor units.
+ * The `string` return is deliberate -- a bigint sum must not round-trip through
+ * a JS number on its way out of the driver.
+ */
+const MONEY_SUM = (column: AnyPgColumn) =>
 	sql<string>`coalesce(sum(${column}), 0)`;
 
 /**
@@ -55,6 +64,8 @@ const MONEY_SUM = (column: typeof commissions.commissionAmount) =>
  * the admin UI and the rate is only ever read from the partner row.
  */
 const CODE_PATTERN = /^[A-Z0-9-]{4,32}$/;
+/** A payout period, as `YYYY-MM`. */
+const PERIOD_MONTH = /^\d{4}-\d{2}$/;
 
 /** Upper bound on one invite batch, so a paste cannot mail thousands. */
 const MAX_INVITES_PER_BATCH = 50;
@@ -666,6 +677,134 @@ export const adminRouter = router({
 				return { ok: true };
 			}),
 
+		/**
+		 * ISSUE A BONUS -- money with no earning event behind it.
+		 *
+		 * Discretionary by design: nothing mints these, so nothing is owed to a
+		 * partner who has not been given one. That is what keeps a bonus from
+		 * becoming a published promise the business owes everybody who reaches
+		 * the same number.
+		 *
+		 * The amount arrives as a DECIMAL STRING and is converted with the same
+		 * integer conversion the rest of the money system uses. A float never
+		 * touches it (CLAUDE.md "Money correctness").
+		 *
+		 * `periodMonth` decides which payout it rides, so a bonus issued for a
+		 * period already paid forms part of the next payout for that period
+		 * rather than mutating a settled one -- the same rule as a late
+		 * commission.
+		 */
+		issueBonus: adminProcedure
+			.input(
+				z.object({
+					partnerId: z.string(),
+					amount: z.string().regex(DECIMAL_AMOUNT, "Use a decimal amount"),
+					currency: z.string().length(3),
+					reason: z.string().min(3).max(300),
+					periodMonth: z.string().regex(PERIOD_MONTH, "Use YYYY-MM"),
+				})
+			)
+			.mutation(async ({ ctx, input }) => {
+				const currency = input.currency.toUpperCase();
+				const amountMinor = decimalStringToMinorUnits(input.amount, currency);
+				if (amountMinor <= 0n) {
+					throw new TRPCError({
+						code: "BAD_REQUEST",
+						message: "A bonus must be more than zero.",
+					});
+				}
+
+				const partner = await ctx.db.query.partners.findFirst({
+					where: eq(partners.id, input.partnerId),
+					columns: { id: true, status: true },
+				});
+				if (!partner) {
+					throw new TRPCError({
+						code: "NOT_FOUND",
+						message: "No such partner.",
+					});
+				}
+				if (partner.status !== "approved") {
+					/* An unapproved partner has no agreed rate and no payout details;
+					   paying one is a decision to make after approving them. */
+					throw new TRPCError({
+						code: "PRECONDITION_FAILED",
+						message: "Approve the partner before issuing a bonus.",
+					});
+				}
+
+				const inserted = await ctx.db
+					.insert(partnerBonuses)
+					.values({
+						amount: amountMinor,
+						currency,
+						issuedBy: ctx.session.user.id,
+						partnerId: input.partnerId,
+						periodMonth: input.periodMonth,
+						reason: input.reason.trim(),
+					})
+					.returning({ id: partnerBonuses.id });
+
+				return { id: inserted[0]?.id ?? null, ok: true };
+			}),
+
+		/** Withdraw a bonus that has not been paid. Paid bonuses are history. */
+		revokeBonus: adminProcedure
+			.input(z.object({ bonusId: z.string() }))
+			.mutation(async ({ ctx, input }) => {
+				const updated = await ctx.db
+					.update(partnerBonuses)
+					.set({ status: "revoked" })
+					.where(
+						and(
+							eq(partnerBonuses.id, input.bonusId),
+							eq(partnerBonuses.status, "pending")
+						)
+					)
+					.returning({ id: partnerBonuses.id });
+
+				if (!updated[0]) {
+					throw new TRPCError({
+						code: "PRECONDITION_FAILED",
+						message: "That bonus is already paid or revoked.",
+					});
+				}
+				return { ok: true };
+			}),
+
+		/** Every bonus, newest first, for the admin ledger. */
+		bonuses: adminProcedure.query(
+			async ({ ctx }) =>
+				await ctx.db
+					.select({
+						id: partnerBonuses.id,
+						amount: partnerBonuses.amount,
+						currency: partnerBonuses.currency,
+						reason: partnerBonuses.reason,
+						periodMonth: partnerBonuses.periodMonth,
+						status: partnerBonuses.status,
+						paidAt: partnerBonuses.paidAt,
+						createdAt: partnerBonuses.createdAt,
+						partnerCompany: partners.companyName,
+						partnerName: user.name,
+					})
+					.from(partnerBonuses)
+					.innerJoin(partners, eq(partners.id, partnerBonuses.partnerId))
+					.innerJoin(user, eq(user.id, partners.userId))
+					.orderBy(desc(partnerBonuses.createdAt))
+					.then((rows) =>
+						/* `amount` destructured OUT, not spread through: a bigint
+						   cannot be JSON-serialized, so leaving it on the response
+						   breaks the query over HTTP -- which an in-process router
+						   test never exercises. */
+						rows.map(({ amount, ...row }) => ({
+							...row,
+							amountMinor: amount.toString(),
+							partner: row.partnerCompany ?? row.partnerName,
+						}))
+					)
+		),
+
 		setStatus: adminProcedure
 			.input(
 				z.object({
@@ -1058,14 +1197,100 @@ export const adminRouter = router({
 				)
 				.orderBy(desc(commissions.periodMonth));
 
-			return rows.map((row) => ({
-				partnerId: row.partnerId,
-				periodMonth: row.periodMonth,
-				currency: row.currency,
-				totalMinor: row.total,
-				items: row.items,
-				partner: row.partnerCompany ?? row.partnerName,
-			}));
+			/**
+			 * Bonuses form payable groups too, and a bonus-only group has no
+			 * commission rows to be found by the query above -- so without this
+			 * it would be invisible here and therefore impossible to pay.
+			 */
+			const bonusRows = await ctx.db
+				.select({
+					partnerId: partnerBonuses.partnerId,
+					periodMonth: partnerBonuses.periodMonth,
+					currency: partnerBonuses.currency,
+					total: MONEY_SUM(partnerBonuses.amount),
+					items: count(),
+					partnerCompany: partners.companyName,
+					partnerName: user.name,
+				})
+				.from(partnerBonuses)
+				.innerJoin(partners, eq(partners.id, partnerBonuses.partnerId))
+				.innerJoin(user, eq(user.id, partners.userId))
+				.where(eq(partnerBonuses.status, "pending"))
+				.groupBy(
+					partnerBonuses.partnerId,
+					partnerBonuses.periodMonth,
+					partnerBonuses.currency,
+					partners.companyName,
+					user.name
+				);
+
+			const groups = new Map<
+				string,
+				{
+					bonusCount: number;
+					bonusesMinor: bigint;
+					commissionsMinor: bigint;
+					currency: string;
+					items: number;
+					partner: string;
+					partnerId: string;
+					periodMonth: string;
+				}
+			>();
+
+			const keyOf = (row: {
+				currency: string;
+				partnerId: string;
+				periodMonth: string;
+			}) => `${row.partnerId}:${row.periodMonth}:${row.currency}`;
+
+			for (const row of rows) {
+				groups.set(keyOf(row), {
+					bonusCount: 0,
+					bonusesMinor: 0n,
+					commissionsMinor: BigInt(row.total),
+					currency: row.currency,
+					items: row.items,
+					partner: row.partnerCompany ?? row.partnerName,
+					partnerId: row.partnerId,
+					periodMonth: row.periodMonth,
+				});
+			}
+
+			for (const row of bonusRows) {
+				const key = keyOf(row);
+				const existing = groups.get(key);
+				if (existing) {
+					existing.bonusesMinor = BigInt(row.total);
+					existing.bonusCount = row.items;
+				} else {
+					groups.set(key, {
+						bonusCount: row.items,
+						bonusesMinor: BigInt(row.total),
+						commissionsMinor: 0n,
+						currency: row.currency,
+						items: 0,
+						partner: row.partnerCompany ?? row.partnerName,
+						partnerId: row.partnerId,
+						periodMonth: row.periodMonth,
+					});
+				}
+			}
+
+			return [...groups.values()]
+				.map((group) => ({
+					bonusCount: group.bonusCount,
+					bonusesMinor: group.bonusesMinor.toString(),
+					commissionsMinor: group.commissionsMinor.toString(),
+					currency: group.currency,
+					items: group.items,
+					partner: group.partner,
+					partnerId: group.partnerId,
+					periodMonth: group.periodMonth,
+					/* What the payout will actually be. */
+					totalMinor: (group.commissionsMinor + group.bonusesMinor).toString(),
+				}))
+				.sort((a, b) => b.periodMonth.localeCompare(a.periodMonth));
 		}),
 
 		list: adminProcedure.query(async ({ ctx }) => {
@@ -1127,12 +1352,38 @@ export const adminRouter = router({
 							.from(commissions)
 							.where(groupWhere);
 
-						const total = totals[0]?.total ?? "0";
-						const items = totals[0]?.items ?? 0;
-						if (items === 0) {
+						/**
+						 * Bonuses ride the same payout, keyed identically. Scoped
+						 * to the SAME currency, so a EUR bonus waits for the EUR
+						 * payout instead of being converted into this one.
+						 */
+						const bonusWhere = and(
+							eq(partnerBonuses.partnerId, input.partnerId),
+							eq(partnerBonuses.periodMonth, input.periodMonth),
+							eq(partnerBonuses.currency, input.currency),
+							eq(partnerBonuses.status, "pending")
+						);
+
+						const bonusTotals = await tx
+							.select({
+								total: MONEY_SUM(partnerBonuses.amount),
+								items: count(),
+							})
+							.from(partnerBonuses)
+							.where(bonusWhere);
+
+						const commissionTotal = BigInt(totals[0]?.total ?? "0");
+						const commissionItems = totals[0]?.items ?? 0;
+						const bonusTotal = BigInt(bonusTotals[0]?.total ?? "0");
+						const bonusItems = bonusTotals[0]?.items ?? 0;
+
+						/* Integers, added as integers. */
+						const total = commissionTotal + bonusTotal;
+
+						if (commissionItems + bonusItems === 0) {
 							throw new TRPCError({
 								code: "PRECONDITION_FAILED",
-								message: "No payable commissions for this group.",
+								message: "Nothing payable for this group.",
 							});
 						}
 
@@ -1141,7 +1392,7 @@ export const adminRouter = router({
 							.values({
 								partnerId: input.partnerId,
 								periodMonth: input.periodMonth,
-								totalAmount: BigInt(total),
+								totalAmount: total,
 								currency: input.currency,
 								status: "paid",
 								paidAt: new Date(),
@@ -1156,12 +1407,31 @@ export const adminRouter = router({
 							});
 						}
 
-						await tx
-							.update(commissions)
-							.set({ status: "paid", paidAt: new Date(), payoutId })
-							.where(groupWhere);
+						const paidAt = new Date();
+						if (commissionItems > 0) {
+							await tx
+								.update(commissions)
+								.set({ status: "paid", paidAt, payoutId })
+								.where(groupWhere);
+						}
+						if (bonusItems > 0) {
+							/* Same predicate as the sum, inside the same transaction, so
+							   a bonus issued mid-payout is either counted and paid or
+							   left entirely for the next one. */
+							await tx
+								.update(partnerBonuses)
+								.set({ status: "paid", paidAt, payoutId })
+								.where(bonusWhere);
+						}
 
-						return { payoutId, totalMinor: total, items };
+						return {
+							bonusCount: bonusItems,
+							bonusesMinor: bonusTotal.toString(),
+							commissionsMinor: commissionTotal.toString(),
+							items: commissionItems,
+							payoutId,
+							totalMinor: total.toString(),
+						};
 					})
 			),
 	}),

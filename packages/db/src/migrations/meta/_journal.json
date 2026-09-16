@@ -50,6 +50,13 @@
       "when": 1789545084823,
       "tag": "0006_heavy_phil_sheldon",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1789545524398,
+      "tag": "0007_last_wolfsbane",
+      "breakpoints": true
     }
   ]
 }

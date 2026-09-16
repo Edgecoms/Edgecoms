@@ -8,6 +8,7 @@ import {
 	uuid,
 } from "drizzle-orm/pg-core";
 import { currencyCode, moneyMinor, timestamps } from "./_shared";
+import { user } from "./auth";
 import { commissions } from "./earnings";
 import { partners } from "./partners";
 
@@ -44,10 +45,98 @@ export const payouts = pgTable(
 	]
 );
 
+export const partnerBonusStatus = pgEnum("partner_bonus_status", [
+	"pending",
+	"paid",
+	"revoked",
+]);
+
+/**
+ * A DISCRETIONARY BONUS -- money for a partner with no earning event behind it.
+ *
+ * Every other payment in this system traces to a Shopify charge: an earning
+ * event, one commission, a frozen rate. A bonus has none of that, which is
+ * exactly why it is a separate table rather than a commission row with the
+ * lineage nulled out. `commissions.earning_event_id` is NOT NULL and there is
+ * one commission per event; a bonus would break both, and the append-only
+ * ledger that mirrors the Partner API must keep mirroring only that.
+ *
+ * ISSUED BY A PERSON, ALWAYS. There is no rule that mints these. Nothing is
+ * owed to a partner who has not been given one, which is what keeps a bonus
+ * discretionary instead of a published promise the business has to honour for
+ * everybody who hits the same number.
+ *
+ * It RIDES THE MONTHLY PAYOUT. `periodMonth` says which one, and `payouts.pay`
+ * sums bonuses alongside commissions for the same (partner, period, currency),
+ * so a partner gets one payment and the payout total is the whole of what they
+ * were paid. A bonus in another currency waits for that currency's payout
+ * rather than being converted.
+ *
+ * `reason` is shown to the partner. A payment nobody can explain is worse than
+ * no payment, so it is not nullable.
+ *
+ * Amounts are immutable once issued: there is no update path. A bonus given in
+ * error is `revoked` while still pending, and a paid bonus is history.
+ */
+export const partnerBonuses = pgTable(
+	"partner_bonuses",
+	{
+		id: uuid("id").primaryKey().defaultRandom(),
+		// restrict, like every other money row: a partner with payment history
+		// cannot be deleted out from under it.
+		partnerId: uuid("partner_id")
+			.notNull()
+			.references(() => partners.id, { onDelete: "restrict" }),
+		amount: moneyMinor("amount"),
+		currency: currencyCode(),
+		/** Why, in words the partner will read on their own screen. */
+		reason: text("reason").notNull(),
+		/** Which monthly payout this rides. */
+		periodMonth: text("period_month").notNull(),
+		status: partnerBonusStatus("status").default("pending").notNull(),
+		payoutId: uuid("payout_id").references(() => payouts.id, {
+			onDelete: "set null",
+		}),
+		paidAt: timestamp("paid_at"),
+		// restrict: who authorised money leaving the business is audit history.
+		issuedBy: text("issued_by")
+			.notNull()
+			.references(() => user.id, { onDelete: "restrict" }),
+		...timestamps,
+	},
+	(table) => [
+		index("partner_bonuses_partner_idx").on(table.partnerId),
+		// Serves the payout grouping, which reads
+		// (partner, period, currency, status) on every run.
+		index("partner_bonuses_payable_idx").on(
+			table.partnerId,
+			table.periodMonth,
+			table.currency,
+			table.status
+		),
+	]
+);
+
+export const partnerBonusesRelations = relations(partnerBonuses, ({ one }) => ({
+	partner: one(partners, {
+		fields: [partnerBonuses.partnerId],
+		references: [partners.id],
+	}),
+	payout: one(payouts, {
+		fields: [partnerBonuses.payoutId],
+		references: [payouts.id],
+	}),
+	issuer: one(user, {
+		fields: [partnerBonuses.issuedBy],
+		references: [user.id],
+	}),
+}));
+
 export const payoutsRelations = relations(payouts, ({ one, many }) => ({
 	partner: one(partners, {
 		fields: [payouts.partnerId],
 		references: [partners.id],
 	}),
 	commissions: many(commissions),
+	bonuses: many(partnerBonuses),
 }));

@@ -5,6 +5,7 @@ import {
 	pgTable,
 	text,
 	timestamp,
+	uniqueIndex,
 	uuid,
 } from "drizzle-orm/pg-core";
 import { currencyCode, moneyMinor, timestamps } from "./_shared";
@@ -98,10 +99,24 @@ export const partnerBonuses = pgTable(
 			onDelete: "set null",
 		}),
 		paidAt: timestamp("paid_at"),
-		// restrict: who authorised money leaving the business is audit history.
-		issuedBy: text("issued_by")
-			.notNull()
-			.references(() => user.id, { onDelete: "restrict" }),
+		/**
+		 * Which rung of the milestone ladder this pays for, or null for a
+		 * discretionary bonus an admin chose to give.
+		 *
+		 * The unique index below is what makes a milestone pay ONCE per partner,
+		 * ever. It is a database guarantee rather than a query the awarder runs
+		 * first, so two concurrent sweeps cannot both decide a rung is unpaid.
+		 */
+		milestoneKey: text("milestone_key"),
+		/**
+		 * Who authorised money leaving the business. NULL for a milestone award:
+		 * the programme owed it, nobody chose it. Paired with `milestoneKey`
+		 * being non-null, so the two cases are never ambiguous.
+		 */
+		// restrict: an issuer is audit history and cannot be deleted away.
+		issuedBy: text("issued_by").references(() => user.id, {
+			onDelete: "restrict",
+		}),
 		...timestamps,
 	},
 	(table) => [
@@ -113,6 +128,19 @@ export const partnerBonuses = pgTable(
 			table.periodMonth,
 			table.currency,
 			table.status
+		),
+		// One award per rung per partner, forever.
+		//
+		// NOT partial. Postgres treats NULLs as distinct in a unique index, so
+		// discretionary bonuses (milestone_key null) never conflict with each
+		// other and an admin may give as many as they like -- the same behaviour
+		// a `WHERE milestone_key is not null` predicate would buy, without the
+		// cost: ON CONFLICT cannot infer a conflict target from a partial index
+		// unless the statement repeats the predicate, and getting that wrong
+		// fails at runtime with 42P10 rather than at compile time.
+		uniqueIndex("partner_bonuses_milestone_uq").on(
+			table.partnerId,
+			table.milestoneKey
 		),
 	]
 );

@@ -1,4 +1,5 @@
 import type { AutoApproveSummary } from "./auto-approve";
+import type { AwardMilestonesSummary } from "./award-milestones";
 /**
  * The normalized earning — the ONLY shape the rest of the system sees. All
  * Shopify-specific shapes are confined to partner-api.ts and converted into
@@ -60,6 +61,8 @@ export interface SyncSummary {
 	commissions: CommissionSummary;
 	error?: string;
 	finishedAt: Date;
+	/** Milestone bonuses awarded by this pass. */
+	milestones: AwardMilestonesSummary;
 	reconcile: ReconcileSummary;
 	startedAt: Date;
 }

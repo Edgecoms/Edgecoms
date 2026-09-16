@@ -1,4 +1,5 @@
 import { toPeriodMonth } from "@edgecoms/billing/commissions";
+import { evaluatePartnerMilestones } from "@edgecoms/billing/milestones";
 import { apps } from "@edgecoms/db/schema/apps";
 import { merchantEvents } from "@edgecoms/db/schema/attribution";
 import { commissions } from "@edgecoms/db/schema/earnings";
@@ -417,136 +418,17 @@ export const partnerRouter = router({
 	}),
 
 	/**
-	 * MILESTONES -- the ladder, measured against rows that exist.
+	 * MILESTONES -- the ladder, and what each rung pays.
 	 *
-	 * Every rung is a count or a sum the partner can verify on another screen,
-	 * so nothing here can congratulate somebody for something that did not
-	 * happen. A milestone is `reached` or it is not; there is no partial credit
-	 * and no projection.
-	 *
-	 * The money rung is compared as a BIGINT in minor units on the server, and
-	 * the client is handed the integer plus its currency to format. Deciding
-	 * "have they earned a hundred" by parsing a formatted string is exactly the
-	 * float-touches-money path CLAUDE.md forbids.
-	 *
-	 * Multi-currency is handled by picking the partner's largest single-currency
-	 * lifetime total and measuring that, rather than adding currencies together.
-	 * A partner earning in USD and EUR gets a truthful USD rung instead of a
-	 * meaningless sum labelled USD.
+	 * Delegates to `evaluatePartnerMilestones` in @edgecoms/billing rather than
+	 * computing the rungs here. The awarder that actually pays for a rung reads
+	 * the same function, and a screen telling a partner a rung is reached while
+	 * nothing was paid for it is a dispute, so there is exactly one definition
+	 * of "reached" in the system.
 	 */
-	milestones: partnerProcedure.query(async ({ ctx }) => {
-		const partnerId = ctx.partner.id;
-
-		const storeRows = await ctx.db
-			.select({ value: count() })
-			.from(merchants)
-			.where(eq(merchants.partnerId, partnerId));
-		const storeCount = storeRows[0]?.value ?? 0;
-
-		const commissionRows = await ctx.db
-			.select({ value: count() })
-			.from(commissions)
-			.where(eq(commissions.partnerId, partnerId));
-		const commissionCount = commissionRows[0]?.value ?? 0;
-
-		/* Grouped, never summed across currencies. */
-		const byCurrency = await ctx.db
-			.select({
-				currency: commissions.currency,
-				total: MONEY_SUM(commissions.commissionAmount),
-			})
-			.from(commissions)
-			.where(eq(commissions.partnerId, partnerId))
-			.groupBy(commissions.currency);
-
-		let bestCurrency = "USD";
-		let bestTotal = 0n;
-		for (const row of byCurrency) {
-			const total = BigInt(row.total);
-			if (total > bestTotal) {
-				bestTotal = total;
-				bestCurrency = row.currency;
-			}
-		}
-
-		const earningPairs = await ctx.db
-			.selectDistinct({
-				appId: commissions.appId,
-				merchantId: commissions.merchantId,
-			})
-			.from(commissions)
-			.where(eq(commissions.partnerId, partnerId));
-
-		const appsPerStore = new Map<string, Set<string>>();
-		const appsAnywhere = new Set<string>();
-		for (const pair of earningPairs) {
-			appsAnywhere.add(pair.appId);
-			const forStore = appsPerStore.get(pair.merchantId) ?? new Set<string>();
-			forStore.add(pair.appId);
-			appsPerStore.set(pair.merchantId, forStore);
-		}
-		const deepestStore = Math.max(
-			0,
-			...[...appsPerStore.values()].map((set) => set.size)
-		);
-
-		const catalogRows = await ctx.db.select({ value: count() }).from(apps);
-		const catalogSize = catalogRows[0]?.value ?? 0;
-
-		/** 10,000 minor units: $100.00, and rendered in its own currency. */
-		const MONEY_TARGET = 10_000n;
-
-		return {
-			currency: bestCurrency,
-			milestones: [
-				{
-					current: storeCount,
-					key: "first_store",
-					label: "First store on your code",
-					reached: storeCount >= 1,
-					target: 1,
-				},
-				{
-					current: commissionCount,
-					key: "first_commission",
-					label: "First commission earned",
-					reached: commissionCount >= 1,
-					target: 1,
-				},
-				{
-					currentMinor: bestTotal.toString(),
-					key: "money",
-					/* A fallback only: the client composes this label from
-					   `targetMinor` and the currency, because the same integer
-					   means different money in different currencies. */
-					label: "Your first hundred earned",
-					reached: bestTotal >= MONEY_TARGET,
-					targetMinor: MONEY_TARGET.toString(),
-				},
-				{
-					current: deepestStore,
-					key: "three_apps",
-					label: "Three Edge apps earning on one store",
-					reached: deepestStore >= 3,
-					target: 3,
-				},
-				{
-					current: storeCount,
-					key: "five_stores",
-					label: "Five stores on your code",
-					reached: storeCount >= 5,
-					target: 5,
-				},
-				{
-					current: appsAnywhere.size,
-					key: "whole_suite",
-					label: "Every Edge app earning somewhere",
-					reached: catalogSize > 0 && appsAnywhere.size >= catalogSize,
-					target: catalogSize,
-				},
-			],
-		};
-	}),
+	milestones: partnerProcedure.query(
+		async ({ ctx }) => await evaluatePartnerMilestones(ctx.db, ctx.partner.id)
+	),
 
 	/**
 	 * THE PARTNER'S OWN BONUSES.

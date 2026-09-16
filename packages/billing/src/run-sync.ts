@@ -1,5 +1,6 @@
 import type { Database } from "@edgecoms/db";
 import { autoApproveSettledMerchants } from "./auto-approve";
+import { awardMilestoneBonuses } from "./award-milestones";
 import { generateCommissions } from "./commissions";
 import { reconcile } from "./reconcile";
 import type { EarningSource, SyncSummary } from "./types";
@@ -44,10 +45,16 @@ export async function runBillingSync(
 
 	const commissionSummary = await generateCommissions(deps.db, { now });
 
+	/* AFTER generation: four of the six rungs are functions of the commission
+	   ledger, so awarding first would pay on yesterday's ledger and make a
+	   partner wait a cycle for a rung they had already cleared. */
+	const milestones = await awardMilestoneBonuses(deps.db, { now });
+
 	return {
 		startedAt,
 		finishedAt: now(),
 		autoApproval,
+		milestones,
 		reconcile: reconcileSummary,
 		commissions: commissionSummary,
 	};

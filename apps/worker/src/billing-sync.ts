@@ -47,6 +47,7 @@ async function main(): Promise<void> {
 		earningsInserted: summary.reconcile.earningsInserted,
 		merchantsAutoApproved: summary.autoApproval.approved.length,
 		merchantsHeldForReview: summary.autoApproval.held.length,
+		milestoneBonusesAwarded: summary.milestones.awarded.length,
 		commissionsCreated: summary.commissions.commissionsCreated,
 		commissionsSkipped: summary.commissions.commissionsSkipped,
 		cursor: summary.reconcile.cursor,

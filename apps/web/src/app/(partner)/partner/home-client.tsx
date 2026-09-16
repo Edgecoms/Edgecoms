@@ -132,45 +132,39 @@ interface StoreRow {
 	shopDomain: string;
 }
 
-/** One milestone as returned by the server: a count rung or a money rung. */
-type Rung =
-	| {
-			current: number;
-			key: string;
-			label: string;
-			reached: boolean;
-			target: number;
-	  }
-	| {
-			currentMinor: string;
-			key: string;
-			label: string;
-			reached: boolean;
-			targetMinor: string;
-	  };
-
 /**
- * The right-hand figure on a rung.
+ * One rung, as `partner.milestones` returns it.
  *
- * The money rung arrives as two integers in minor units plus a currency, and
- * is formatted here rather than compared here -- the server already decided
- * whether it was reached. `formatMoney` output is display only.
+ * Count rungs carry `current`/`target`; the money rung carries
+ * `currentMinor`/`targetMinor`. Both carry `bonusMinor`, which is what
+ * reaching the rung pays.
  */
+interface Rung {
+	bonusMinor: string;
+	current?: number;
+	currentMinor?: string;
+	key: string;
+	label: string;
+	reached: boolean;
+	target?: number;
+	targetMinor?: string;
+}
+
 function rungLabel(rung: Rung, currency: string | undefined): string {
 	/* The money rung's target is an integer whose meaning depends on its
 	   currency, so the label is composed here rather than hardcoded server-side
 	   as "$100" -- which would be wrong the first time a partner earns in yen. */
-	if ("targetMinor" in rung) {
+	if (rung.targetMinor) {
 		return `Your first ${formatMoney(rung.targetMinor, currency ?? "USD")} earned`;
 	}
 	return rung.label;
 }
 
 function rungDetail(rung: Rung, currency: string | undefined): string {
-	if ("currentMinor" in rung) {
+	if (rung.currentMinor !== undefined && rung.targetMinor !== undefined) {
 		return `${formatMoney(rung.currentMinor, currency ?? "USD")} of ${formatMoney(rung.targetMinor, currency ?? "USD")}`;
 	}
-	return `${rung.current} of ${rung.target}`;
+	return `${rung.current ?? 0} of ${rung.target ?? 0}`;
 }
 
 /** Circumference of the coverage ring, for the dash offset. */
@@ -222,12 +216,14 @@ function CoverageRing({ earning, total }: { earning: number; total: number }) {
 }
 
 /** One rung. Reached rungs are quiet; the next one is the only one shouting. */
-function Rung({
+function RungRow({
+	bonus,
 	detail,
 	label,
 	next,
 	reached,
 }: {
+	bonus: string;
 	detail: string;
 	label: string;
 	next: boolean;
@@ -255,6 +251,11 @@ function Rung({
 			</span>
 			<span className="text-caption text-secondary-foreground tabular-nums">
 				{detail}
+			</span>
+			<span
+				className={`w-16 shrink-0 text-right font-medium text-caption tabular-nums ${reached ? "text-emerald-700" : "text-primary-foreground"}`}
+			>
+				{bonus}
 			</span>
 		</li>
 	);
@@ -758,12 +759,20 @@ export function PartnerHome({
 							Milestones
 						</h2>
 						<span className="text-caption text-secondary-foreground tabular-nums">
-							{reachedCount} of {rungs.length}
+							{reachedCount} of {rungs.length} ·{" "}
+							{formatMoney(
+								rungs
+									.reduce((total, rung) => total + BigInt(rung.bonusMinor), 0n)
+									.toString(),
+								"USD"
+							)}{" "}
+							in bonuses
 						</span>
 					</div>
 					<ul className="flex flex-col gap-px overflow-hidden rounded-xl border border-border-strong bg-border shadow-sm">
 						{rungs.map((rung, index) => (
-							<Rung
+							<RungRow
+								bonus={`+${formatMoney(rung.bonusMinor, "USD")}`}
 								detail={rungDetail(rung, milestonesQuery.data?.currency)}
 								key={rung.key}
 								label={rungLabel(rung, milestonesQuery.data?.currency)}

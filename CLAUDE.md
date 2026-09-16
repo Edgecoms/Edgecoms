@@ -50,14 +50,38 @@ subscribed.
   `commissions.earning_event_id` is NOT NULL and there is exactly one commission
   per event, so a bonus would break both, and the append-only ledger that
   mirrors the Partner API must keep mirroring only that.
-- **Issued by a person, always.** Nothing mints a bonus. Nothing is owed to a
-  partner who has not been given one, which is what keeps a bonus discretionary
-  rather than a published promise owed to everybody who reaches the same number.
-  A partner sees only bonuses actually AWARDED — the portal never forecasts one,
-  because a forecast is the promise.
-- Only an `approved` partner may be issued one. An unapproved partner has no
-  agreed rate and no payout details; paying one is a decision to take after
-  approving them.
+- There are **two kinds**, and the difference is whether anything is owed.
+- **Discretionary** (`milestone_key` null): an admin issues each one with an
+  amount and a reason. Nothing mints these and nothing is owed to a partner who
+  has not been given one.
+- **Milestone** (`milestone_key` set): a **published promise**. Every partner
+  who reaches the rung is owed it whether or not anybody is watching, so the
+  amounts are shown on the partner's ladder — a rung that pays but does not say
+  so is worse than one that says nothing. The ladder and the awarder read the
+  SAME function (`evaluatePartnerMilestones` in `@edgecoms/billing`): a screen
+  saying "reached" while nothing was paid is a dispute, so there is one
+  definition of reached in the system.
+- **Milestone amounts, in minor units of `MILESTONE_BONUS_CURRENCY` (USD).** The
+  full ladder is $245: first store $5, first commission $10, first $100 earned
+  $100, three apps on one store $10, five stores $50, every app earning $70.
+  Changing an amount changes what FUTURE partners are owed and never rewrites
+  what has been paid. Removing a rung stops future awards and leaves past ones.
+- **A milestone pays once per partner, ever**, enforced by the unique index on
+  (`partner_id`, `milestone_key`) with `onConflictDoNothing` — a database
+  guarantee, not the awarder remembering. Check-then-insert has a window where
+  two runs both decide a rung is unpaid; the index has none, which is what makes
+  a six-hourly cron safe to re-run.
+- The money rung is **measured** in the partner's largest single currency and
+  **paid** in USD. It reads commissions only, so a bonus can never advance the
+  rung that awarded it.
+- Milestone awards run AFTER commission generation in the billing pass: four of
+  the six rungs are functions of the commission ledger.
+- A partner sees only bonuses actually AWARDED, plus the milestone amounts on
+  offer. The portal never forecasts a discretionary bonus, because a forecast of
+  a discretionary payment is a promise nobody made.
+- Only an `approved` partner may be issued or accrue one. An unapproved partner
+  has no agreed rate and no payout details; paying one is a decision to take
+  after approving them. This holds for both kinds.
 - Integers in minor units with a currency, like every other amount here. The
   admin form takes a decimal string and converts it with the same integer
   conversion the rest of the money system uses.

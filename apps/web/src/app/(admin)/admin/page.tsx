@@ -96,7 +96,7 @@ export default function AdminDashboardPage() {
 				<h2 className="font-medium text-h3 text-primary-foreground">
 					Billing sync
 				</h2>
-				<div className="grid grid-cols-1 gap-4 rounded-xl border border-border bg-page p-5 sm:grid-cols-3">
+				<div className="grid grid-cols-1 gap-4 rounded-xl border border-border-strong bg-surface p-5 shadow-sm sm:grid-cols-3">
 					<div className="flex flex-col gap-1">
 						<span className="font-medium font-mono text-[11px] text-secondary-foreground uppercase tracking-[0.08em]">
 							Last success

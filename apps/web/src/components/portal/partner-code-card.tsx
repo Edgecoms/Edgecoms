@@ -85,7 +85,7 @@ function CodeRow(props: CodeRowProps) {
 	}
 
 	return (
-		<div className="flex flex-col gap-4 rounded-xl border border-border bg-page p-5 sm:flex-row sm:items-center sm:justify-between">
+		<div className="flex flex-col gap-4 rounded-xl border border-border-strong bg-surface p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
 			<div className="flex flex-col gap-2">
 				<div className="flex items-center gap-3">
 					<span className="font-medium font-mono text-h3 text-primary-foreground tracking-tight">

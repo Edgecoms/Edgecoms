@@ -54,7 +54,7 @@ function Figure({
 }) {
 	return (
 		<Link
-			className="group flex flex-col gap-1 rounded-xl border border-border bg-surface px-5 py-4 transition-colors hover:border-primary-foreground/30"
+			className="group flex flex-col gap-1 rounded-xl border border-border-strong bg-surface px-5 py-4 shadow-sm transition-colors hover:border-primary-foreground/30"
 			href={href}
 		>
 			<span className="text-caption text-secondary-foreground uppercase tracking-wide">
@@ -285,7 +285,7 @@ function StoreCoverage({
 			<ul className="grid gap-4 sm:grid-cols-2">
 				{stores.map((store) => (
 					<li
-						className="flex items-start gap-4 rounded-xl border border-border bg-surface px-5 py-4"
+						className="flex items-start gap-4 rounded-xl border border-border-strong bg-surface px-5 py-4 shadow-sm"
 						key={store.id}
 					>
 						<CoverageRing earning={store.earningApps} total={catalogSize} />
@@ -366,7 +366,7 @@ function SuiteGrid({
 						const state = appState(app);
 						return (
 							<li
-								className="flex flex-col gap-3 rounded-xl border border-border bg-surface px-5 py-4"
+								className="flex flex-col gap-3 rounded-xl border border-border-strong bg-surface px-5 py-4 shadow-sm"
 								key={app.id}
 							>
 								<div className="flex items-start gap-3">
@@ -516,7 +516,7 @@ function NextSteps({
 					style={{ width: `${(done / 4) * 100}%` }}
 				/>
 			</div>
-			<ul className="flex flex-col gap-px overflow-hidden rounded-xl border border-border bg-border">
+			<ul className="flex flex-col gap-px overflow-hidden rounded-xl border border-border-strong bg-border shadow-sm">
 				{steps.map((step) => (
 					<li
 						className="flex items-center justify-between gap-4 bg-surface px-5 py-3.5"
@@ -675,7 +675,7 @@ export function PartnerHome({
 							{reachedCount} of {rungs.length}
 						</span>
 					</div>
-					<ul className="flex flex-col gap-px overflow-hidden rounded-xl border border-border bg-border">
+					<ul className="flex flex-col gap-px overflow-hidden rounded-xl border border-border-strong bg-border shadow-sm">
 						{rungs.map((rung, index) => (
 							<Rung
 								detail={rungDetail(rung, milestonesQuery.data?.currency)}
@@ -701,7 +701,7 @@ export function PartnerHome({
 				rows={rows}
 			/>
 
-			<details className="rounded-xl border border-border bg-surface px-5 py-4">
+			<details className="rounded-xl border border-border-strong bg-surface px-5 py-4 shadow-sm">
 				<summary className="cursor-pointer font-medium text-body-sm text-primary-foreground">
 					How the money works
 				</summary>

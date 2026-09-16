@@ -56,7 +56,7 @@ export default function PartnerSettingsPage() {
 				<Skeleton className="h-72 w-full rounded-xl" />
 			) : (
 				<>
-					<div className="flex flex-wrap items-center gap-6 rounded-xl border border-border bg-page p-5">
+					<div className="flex flex-wrap items-center gap-6 rounded-xl border border-border-strong bg-surface p-5 shadow-sm">
 						<div className="flex flex-col gap-1">
 							<span className="font-medium font-mono text-[11px] text-secondary-foreground uppercase tracking-[0.08em]">
 								Account status

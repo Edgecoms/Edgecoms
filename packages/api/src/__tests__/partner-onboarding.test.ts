@@ -453,9 +453,11 @@ describe("partner.onboarding", () => {
 			defaultRateBps: 2000,
 			partnerId: PARTNER,
 		});
-		await partnerCaller().partner.settings.update({
-			payoutMethod: "PayPal",
-			payoutReference: "alex@acme.com",
+		await partnerCaller().partner.settings.setPayoutDetails({
+			accountName: "Acme Agency",
+			accountNumber: "123456789012",
+			destination: "bank_in",
+			ifsc: "HDFC0001234",
 		});
 		await harness.db.insert(merchants).values({
 			name: "Store",

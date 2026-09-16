@@ -67,10 +67,17 @@ async function seed() {
 		{ id: "uP", name: "Partner", email: "p@x.com", role: "partner" },
 	]);
 	await db.insert(partners).values({
-		id: PARTNER,
-		userId: "uP",
-		status: "pending",
 		defaultRateBps: 0,
+		id: PARTNER,
+		// `payouts.pay` refuses a partner it could not send money to, so a
+		// fixture without a destination is not a partner anybody could pay.
+		payoutAccountName: "Acme Agency",
+		payoutAccountNumber: "123456789012",
+		payoutCountry: "IN",
+		payoutDestination: "bank_in",
+		payoutIfsc: "HDFC0001234",
+		status: "pending",
+		userId: "uP",
 	});
 	await db.insert(apps).values([
 		{ id: APP_X, slug: "edge-x", name: "Edge X", partnerApiGid: "gid://x" },
@@ -199,9 +206,12 @@ describe("admin.payouts.pay — grouping", () => {
 
 		// Period 2026-06 groups two commissions (ex = 500, ey2 = 1000) → 1500.
 		const result = await adminCaller().admin.payouts.pay({
+			currency: "USD",
+			// $15 is under the payout minimum. This test is about grouping, so
+			// it forces rather than restating the threshold's own test.
+			force: true,
 			partnerId: PARTNER,
 			periodMonth: "2026-06",
-			currency: "USD",
 		});
 		expect(result.items).toBe(2);
 		expect(result.totalMinor).toBe("1500");
@@ -217,6 +227,7 @@ describe("admin.payouts.pay — grouping", () => {
 		// Re-paying the same group now has nothing to pay.
 		await expect(
 			adminCaller().admin.payouts.pay({
+				force: true,
 				partnerId: PARTNER,
 				periodMonth: "2026-06",
 				currency: "USD",

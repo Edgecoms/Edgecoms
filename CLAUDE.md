@@ -130,6 +130,36 @@ subscribed.
 - **Per-app rates:** a partner has a default rate (basis points); an optional
   `partner_app_rates` row overrides it per app.
 
+## Paying a partner
+
+- **Where the money goes is structured and validated**, not free text: an
+  account holder name, an account number, and — for a domestic Indian transfer —
+  an IFSC (11 characters, fifth always `0`). `payoutDestination` says which
+  route applies (`bank_in` or `bank_intl`) and therefore which fields carry
+  meaning. `payoutMethod`/`payoutReference` are SUPERSEDED and read by nothing;
+  confirm they are empty in production, then drop them.
+- **`payoutBlocker` is the single definition of payable.** The partner's
+  settings screen, the onboarding checklist and `payouts.pay` all call it, so a
+  screen can never say ready while a run would refuse. It re-reads the STORED
+  row rather than trusting a form, because rows predate validators.
+- **A payout records gross, withheld and net.** India withholds at source —
+  commission to a resident under 194H, to a non-resident under 195 — so the
+  amount transferred is not the amount earned. Without all three the ledger
+  claims a partner was paid in full while their bank shows less.
+  `withholdingNote` carries the section, rate and certificate number.
+- **There is no FX RATE column, on purpose.** A rate is a ratio, and storing one
+  either invites a float into the money path or forces a precision decision
+  nobody will remember. `(netAmount, settledAmount + settledCurrency)` says the
+  same thing in integers — "we owed $328, we sent ₹27,400" — and the rate is
+  derivable whenever anybody wants it.
+- **`method` is recorded, not inferred.** Six months on, a payout row should say
+  whether it was a domestic transfer, an outward remittance, or an invoice link
+  somebody paid by hand, because those reconcile against different evidence.
+- **Minimum payout $50** (`MINIMUM_PAYOUT_MINOR`). Below it a transfer fee is a
+  meaningful share of the payment, so the group is held and the commissions stay
+  `pending` to join next month — the same mechanism a late charge already uses.
+  `force` overrides it, for settling a final balance.
+
 ## Multi-tenant authorization
 
 - Tenant isolation is enforced at the **data layer**, not the UI. A `partner`

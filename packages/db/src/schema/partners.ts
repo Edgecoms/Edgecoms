@@ -9,11 +9,26 @@ import {
 	unique,
 	uniqueIndex,
 	uuid,
+	varchar,
 } from "drizzle-orm/pg-core";
 import { discountTerms, timestamps } from "./_shared";
 import { apps } from "./apps";
 import { user } from "./auth";
 import { merchants } from "./merchants";
+
+/**
+ * Which remittance route a partner is paid by, and therefore which of their
+ * payout columns carry meaning.
+ *
+ * `bank_in` is a domestic Indian transfer (IMPS/NEFT/RTGS) and is the cheap,
+ * simple case. `bank_intl` is an outward remittance, which carries a bank's
+ * purpose code and its own tax filing, so it is worth distinguishing in data
+ * rather than inferring from whether an IFSC happens to be null.
+ */
+export const payoutDestinationKind = pgEnum("payout_destination_kind", [
+	"bank_in",
+	"bank_intl",
+]);
 
 export const partnerStatus = pgEnum("partner_status", [
 	"pending",
@@ -45,9 +60,34 @@ export const partners = pgTable(
 		status: partnerStatus("status").default("pending").notNull(),
 		// Commission rate in basis points (1% = 100 bps). 0 until approved.
 		defaultRateBps: integer("default_rate_bps").default(0).notNull(),
-		// Free-form payout instructions captured in settings (e.g. PayPal email).
+		/**
+		 * SUPERSEDED by the structured columns below, and kept only because this
+		 * is a money system and a column that might hold a real instruction is
+		 * not something to drop on an assumption. Nothing reads these any more.
+		 * Confirm they are empty in production, then drop them.
+		 */
 		payoutMethod: text("payout_method"),
 		payoutReference: text("payout_reference"),
+		/**
+		 * WHERE A PAYOUT ACTUALLY GOES.
+		 *
+		 * Free text could not be paid from: a batch file needs an account number
+		 * and an IFSC in their own fields, validated before anybody presses send,
+		 * because a transfer to a malformed account either bounces days later or
+		 * reaches the wrong person.
+		 *
+		 * `payoutDestination` decides which of the rest are meaningful:
+		 * `bank_in` reads name + account + IFSC, `bank_intl` reads name +
+		 * account + country and leaves IFSC null.
+		 */
+		payoutDestination: payoutDestinationKind("payout_destination"),
+		/** As it appears on the account, not as the partner styles their brand. */
+		payoutAccountName: text("payout_account_name"),
+		payoutAccountNumber: text("payout_account_number"),
+		/** Indian accounts only. 11 characters, and the fifth is always a zero. */
+		payoutIfsc: text("payout_ifsc"),
+		/** ISO-3166 alpha-2. Drives which remittance route a payout takes. */
+		payoutCountry: varchar("payout_country", { length: 2 }),
 		approvedAt: timestamp("approved_at"),
 		approvedBy: text("approved_by").references(() => user.id, {
 			onDelete: "set null",

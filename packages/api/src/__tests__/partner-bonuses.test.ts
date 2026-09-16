@@ -91,7 +91,20 @@ beforeEach(async () => {
 		{ id: "uR", name: "Waiting", email: "r@x.com", role: "partner" },
 	]);
 	await harness.db.insert(partners).values([
-		{ id: PARTNER, userId: "uP", status: "approved", defaultRateBps: 2000 },
+		{
+			defaultRateBps: 2000,
+			id: PARTNER,
+			/* Payable: `payouts.pay` now refuses a partner it could not send
+			   money to, so a fixture without a destination is not a partner
+			   anybody could pay. */
+			payoutAccountName: "Acme Agency",
+			payoutAccountNumber: "123456789012",
+			payoutCountry: "IN",
+			payoutDestination: "bank_in",
+			payoutIfsc: "HDFC0001234",
+			status: "approved",
+			userId: "uP",
+		},
 		{ id: OTHER, userId: "uQ", status: "approved", defaultRateBps: 1000 },
 		{
 			defaultRateBps: 0,
@@ -216,6 +229,7 @@ describe("the payout carries it", () => {
 
 		const result = await admin().admin.payouts.pay({
 			currency: "USD",
+			force: true,
 			partnerId: PARTNER,
 			periodMonth: PERIOD,
 		});
@@ -246,6 +260,7 @@ describe("the payout carries it", () => {
 
 		const result = await admin().admin.payouts.pay({
 			currency: "USD",
+			force: true,
 			partnerId: PARTNER,
 			periodMonth: PERIOD,
 		});
@@ -279,6 +294,7 @@ describe("the payout carries it", () => {
 		});
 		await admin().admin.payouts.pay({
 			currency: "USD",
+			force: true,
 			partnerId: PARTNER,
 			periodMonth: PERIOD,
 		});
@@ -326,6 +342,7 @@ describe("the payout carries it", () => {
 
 		const usd = await admin().admin.payouts.pay({
 			currency: "USD",
+			force: true,
 			partnerId: PARTNER,
 			periodMonth: PERIOD,
 		});
@@ -339,6 +356,7 @@ describe("the payout carries it", () => {
 
 		const eur = await admin().admin.payouts.pay({
 			currency: "EUR",
+			force: true,
 			partnerId: PARTNER,
 			periodMonth: PERIOD,
 		});
@@ -487,6 +505,7 @@ describe("what the partner sees", () => {
 		});
 		await admin().admin.payouts.pay({
 			currency: "USD",
+			force: true,
 			partnerId: PARTNER,
 			periodMonth: PERIOD,
 		});

@@ -71,6 +71,20 @@
       "when": 1789547175321,
       "tag": "0009_wandering_lady_ursula",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1789548044855,
+      "tag": "0010_bored_gideon",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1789548314028,
+      "tag": "0011_milky_sandman",
+      "breakpoints": true
     }
   ]
 }

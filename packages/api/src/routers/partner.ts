@@ -12,6 +12,11 @@ import { partnerBonuses, payouts } from "@edgecoms/db/schema/payouts";
 import { and, count, desc, eq, inArray, isNotNull, ne, sql } from "drizzle-orm";
 import { z } from "zod";
 import { partnerProcedure, router } from "../index";
+import {
+	payoutBlocker,
+	payoutDetailsInput,
+	payoutDetailsPatch,
+} from "../payout-details";
 
 const MONEY_SUM = (column: typeof commissions.commissionAmount) =>
 	sql<string>`coalesce(sum(${column}), 0)`;
@@ -19,8 +24,6 @@ const MONEY_SUM = (column: typeof commissions.commissionAmount) =>
 const profileInput = z.object({
 	companyName: z.string().max(200).optional(),
 	website: z.string().max(300).optional(),
-	payoutMethod: z.string().max(100).optional(),
-	payoutReference: z.string().max(200).optional(),
 });
 
 /**
@@ -155,9 +158,9 @@ export const partnerRouter = router({
 			.where(eq(commissions.partnerId, partnerId));
 
 		const code = codeRows[0]?.code ?? null;
-		const payoutReady = Boolean(
-			ctx.partner.payoutMethod?.trim() && ctx.partner.payoutReference?.trim()
-		);
+		/* The same check the payout run makes, so the checklist cannot say ready
+		   while a run would refuse them. */
+		const payoutReady = payoutBlocker(ctx.partner) === null;
 
 		return {
 			code,
@@ -672,8 +675,13 @@ export const partnerRouter = router({
 		get: partnerProcedure.query(({ ctx }) => ({
 			companyName: ctx.partner.companyName,
 			website: ctx.partner.website,
-			payoutMethod: ctx.partner.payoutMethod,
-			payoutReference: ctx.partner.payoutReference,
+			payoutAccountName: ctx.partner.payoutAccountName,
+			payoutAccountNumber: ctx.partner.payoutAccountNumber,
+			payoutCountry: ctx.partner.payoutCountry,
+			payoutDestination: ctx.partner.payoutDestination,
+			payoutIfsc: ctx.partner.payoutIfsc,
+			/* Whatever stops them being paid today, in their own words. */
+			payoutBlocker: payoutBlocker(ctx.partner),
 			status: ctx.partner.status,
 			defaultRateBps: ctx.partner.defaultRateBps,
 		})),
@@ -686,9 +694,27 @@ export const partnerRouter = router({
 					.set({
 						companyName: input.companyName ?? null,
 						website: input.website ?? null,
-						payoutMethod: input.payoutMethod ?? null,
-						payoutReference: input.payoutReference ?? null,
 					})
+					.where(eq(partners.id, ctx.partner.id));
+				return { ok: true };
+			}),
+
+		/**
+		 * Set where payouts go.
+		 *
+		 * Separate from the profile update because it is a different kind of
+		 * change: getting a company name wrong is cosmetic, getting an account
+		 * number wrong sends money to a stranger. It is also why this writes a
+		 * validated patch rather than coercing absent fields to null the way the
+		 * profile update does -- a partial submission must never half-erase a
+		 * destination and leave something unpayable but not obviously so.
+		 */
+		setPayoutDetails: partnerProcedure
+			.input(payoutDetailsInput)
+			.mutation(async ({ ctx, input }) => {
+				await ctx.db
+					.update(partners)
+					.set(payoutDetailsPatch(input))
 					.where(eq(partners.id, ctx.partner.id));
 				return { ok: true };
 			}),

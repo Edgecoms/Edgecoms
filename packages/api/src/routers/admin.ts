@@ -40,6 +40,7 @@ import {
 	renderPartnerInviteEmail,
 } from "../email/partner-emails";
 import { adminProcedure, router } from "../index";
+import { payoutBlocker } from "../payout-details";
 import { createInviteToken, INVITE_TTL_DAYS } from "./invites";
 
 /**
@@ -64,6 +65,14 @@ const MONEY_SUM = (column: AnyPgColumn) =>
  * the admin UI and the rate is only ever read from the partner row.
  */
 const CODE_PATTERN = /^[A-Z0-9-]{4,32}$/;
+/**
+ * Smallest payout worth making, in minor units. $50.
+ *
+ * Below this a transfer fee is a meaningful share of the payment, and holding
+ * costs the partner nothing: their commissions stay `pending` and join the next
+ * month's group, the same way a late charge already does.
+ */
+const MINIMUM_PAYOUT_MINOR = 5000n;
 /** A payout period, as `YYYY-MM`. */
 const PERIOD_MONTH = /^\d{4}-\d{2}$/;
 
@@ -321,6 +330,55 @@ async function issueCodeInTx(
  * tenant-scoped. This is where the engine's inputs are set: partner rates,
  * merchant approvals, and the grandfathered sets.
  */
+/**
+ * Refuse to pay a partner we could not actually send money to.
+ *
+ * Reads the STORED destination rather than trusting the caller: this is the
+ * last point before money moves, and a row may predate the validator that now
+ * guards the form.
+ */
+async function assertPayable(tx: Tx, partnerId: string): Promise<void> {
+	const rows = await tx
+		.select({
+			payoutAccountName: partners.payoutAccountName,
+			payoutAccountNumber: partners.payoutAccountNumber,
+			payoutCountry: partners.payoutCountry,
+			payoutDestination: partners.payoutDestination,
+			payoutIfsc: partners.payoutIfsc,
+		})
+		.from(partners)
+		.where(eq(partners.id, partnerId))
+		.limit(1);
+
+	const row = rows[0];
+	if (!row) {
+		throw new TRPCError({ code: "NOT_FOUND", message: "No such partner." });
+	}
+	const blocker = payoutBlocker(row);
+	if (blocker) {
+		throw new TRPCError({
+			code: "PRECONDITION_FAILED",
+			message: `Cannot pay this partner: ${blocker}.`,
+		});
+	}
+}
+
+/** Withholding as integer minor units, refused if it exceeds what was earned. */
+function resolveWithholding(
+	amount: string,
+	currency: string,
+	total: bigint
+): bigint {
+	const withheld = decimalStringToMinorUnits(amount, currency);
+	if (withheld < 0n || withheld > total) {
+		throw new TRPCError({
+			code: "BAD_REQUEST",
+			message: "Withholding cannot exceed the amount earned.",
+		});
+	}
+	return withheld;
+}
+
 export const adminRouter = router({
 	dashboard: adminProcedure.query(async ({ ctx }) => {
 		const period = currentPeriod();
@@ -1332,6 +1390,22 @@ export const adminRouter = router({
 					partnerId: z.string(),
 					periodMonth: z.string(),
 					currency: z.string().length(3),
+					/** How the money moved. Recorded, not inferred. */
+					method: z
+						.enum(["bank_transfer", "upi", "wire", "payment_link", "other"])
+						.default("bank_transfer"),
+					/** Tax withheld at source, as a decimal string. "0" if none. */
+					withheld: z.string().regex(DECIMAL_AMOUNT).default("0"),
+					/** Section, rate, certificate number -- whatever explains it. */
+					withholdingNote: z.string().max(300).optional(),
+					/** UTR, wire reference, or the id of a link that was paid. */
+					reference: z.string().max(200).optional(),
+					/**
+					 * Pay a group below the minimum anyway. Small payouts are held
+					 * so a transfer fee does not eat them, but sometimes you are
+					 * settling a partner's final balance and want it gone.
+					 */
+					force: z.boolean().default(false),
 				})
 			)
 			.mutation(
@@ -1372,6 +1446,8 @@ export const adminRouter = router({
 							.from(partnerBonuses)
 							.where(bonusWhere);
 
+						await assertPayable(tx, input.partnerId);
+
 						const commissionTotal = BigInt(totals[0]?.total ?? "0");
 						const commissionItems = totals[0]?.items ?? 0;
 						const bonusTotal = BigInt(bonusTotals[0]?.total ?? "0");
@@ -1387,13 +1463,39 @@ export const adminRouter = router({
 							});
 						}
 
+						/**
+						 * A MINIMUM, so a transfer fee cannot eat the payout.
+						 *
+						 * Nothing is lost by holding: the commissions stay
+						 * `pending` and join next month's group, which is the same
+						 * mechanism a late charge already uses.
+						 */
+						if (!input.force && total < MINIMUM_PAYOUT_MINOR) {
+							throw new TRPCError({
+								code: "PRECONDITION_FAILED",
+								message: `Below the ${MINIMUM_PAYOUT_MINOR / 100n} minimum; it rolls into next month. Use force to pay it anyway.`,
+							});
+						}
+
+						const withheld = resolveWithholding(
+							input.withheld,
+							input.currency,
+							total
+						);
+						const net = total - withheld;
+
 						const inserted = await tx
 							.insert(payouts)
 							.values({
 								partnerId: input.partnerId,
 								periodMonth: input.periodMonth,
 								totalAmount: total,
+								withheldAmount: withheld,
+								netAmount: net,
 								currency: input.currency,
+								method: input.method,
+								reference: input.reference?.trim() || null,
+								withholdingNote: input.withholdingNote?.trim() || null,
 								status: "paid",
 								paidAt: new Date(),
 							})
@@ -1429,8 +1531,10 @@ export const adminRouter = router({
 							bonusesMinor: bonusTotal.toString(),
 							commissionsMinor: commissionTotal.toString(),
 							items: commissionItems,
+							netMinor: net.toString(),
 							payoutId,
 							totalMinor: total.toString(),
+							withheldMinor: withheld.toString(),
 						};
 					})
 			),

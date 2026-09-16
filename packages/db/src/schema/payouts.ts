@@ -1,5 +1,6 @@
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
+	bigint,
 	index,
 	pgEnum,
 	pgTable,
@@ -7,6 +8,7 @@ import {
 	timestamp,
 	uniqueIndex,
 	uuid,
+	varchar,
 } from "drizzle-orm/pg-core";
 import { currencyCode, moneyMinor, timestamps } from "./_shared";
 import { user } from "./auth";
@@ -15,6 +17,22 @@ import { merchants } from "./merchants";
 import { partners } from "./partners";
 
 export const payoutStatus = pgEnum("payout_status", ["pending", "paid"]);
+
+/**
+ * How the money actually moved.
+ *
+ * Worth recording rather than inferring: six months later a payout row should
+ * say whether it was a domestic transfer, an outward remittance, or an invoice
+ * link somebody paid by hand, because those reconcile against completely
+ * different evidence.
+ */
+export const payoutMethod = pgEnum("payout_method", [
+	"bank_transfer",
+	"upi",
+	"wire",
+	"payment_link",
+	"other",
+]);
 
 /**
  * A payout groups a partner's payable commissions for a period into one paid
@@ -32,10 +50,43 @@ export const payouts = pgTable(
 			.notNull()
 			.references(() => partners.id, { onDelete: "restrict" }),
 		periodMonth: text("period_month").notNull(),
+		/** GROSS: the whole of what the partner earned for this group. */
 		totalAmount: moneyMinor("total_amount"),
 		currency: currencyCode(),
+		/**
+		 * Tax withheld at source, in the same currency as `totalAmount`.
+		 *
+		 * India requires it — commission to a resident under 194H, to a
+		 * non-resident under 195 — which means the amount transferred is not the
+		 * amount earned. Without this column the ledger claims a partner was
+		 * paid in full while their bank shows less, and that gap is the dispute
+		 * CLAUDE.md opens by warning about. Zero when nothing is withheld.
+		 */
+		// `sql` rather than `0n`: drizzle-kit serializes the default into its
+		// snapshot as JSON, and JSON has no bigint.
+		withheldAmount: bigint("withheld_amount", { mode: "bigint" })
+			.default(sql`0`)
+			.notNull(),
+		/** What was actually sent: `totalAmount - withheldAmount`. */
+		netAmount: moneyMinor("net_amount"),
 		status: payoutStatus("status").default("pending").notNull(),
+		method: payoutMethod("method"),
+		/**
+		 * WHAT LANDED, when the partner is paid in a different currency from the
+		 * one they earned in.
+		 *
+		 * No FX RATE column on purpose. A rate is a ratio, and storing one either
+		 * invites a float into the money path or forces a precision decision
+		 * nobody will remember. The pair (netAmount, settledAmount) says exactly
+		 * the same thing — "we owed $328, we sent ₹27,400" — in integers, and the
+		 * rate is derivable from it whenever anybody actually wants it.
+		 */
+		settledAmount: bigint("settled_amount", { mode: "bigint" }),
+		settledCurrency: varchar("settled_currency", { length: 3 }),
+		/** The bank UTR, wire reference, or the id of a link that was paid. */
 		reference: text("reference"),
+		/** Free text for the withholding: section, rate, certificate number. */
+		withholdingNote: text("withholding_note"),
 		notes: text("notes"),
 		paidAt: timestamp("paid_at"),
 		...timestamps,

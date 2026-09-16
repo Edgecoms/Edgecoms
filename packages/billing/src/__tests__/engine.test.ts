@@ -22,6 +22,8 @@ const APP1_GID = "gid://partners/App/1";
 const APP2_GID = "gid://partners/App/2";
 const SHOP_DOMAIN = "acme.myshopify.com";
 const DEFAULT_RATE_BPS = 1000; // 10%
+/** Well before any seeded charge, so the time bound is not what is under test. */
+const CLAIM_START = new Date("2020-01-01T00:00:00Z");
 
 let harness: TestDb;
 let txnCounter = 0;
@@ -65,10 +67,15 @@ async function seedBase(): Promise<void> {
 		},
 	]);
 	await db.insert(merchants).values({
+		/* The claim starts before every charge these tests seed. Without it the
+		   column's `now()` default would put the claim after them all, and the
+		   engine would correctly refuse to pay a partner for revenue that
+		   predates their arrival. */
+		earningsFromAt: CLAIM_START,
 		id: MERCHANT_ID,
+		name: "Acme",
 		partnerId: PARTNER_ID,
 		shopDomain: SHOP_DOMAIN,
-		name: "Acme",
 		status: "approved",
 	});
 }
@@ -284,5 +291,89 @@ describe("generateCommissions — eligibility & money", () => {
 		const feb = await commissionForTxn("m2");
 		expect(jan?.periodMonth).toBe("2026-01");
 		expect(feb?.periodMonth).toBe("2026-02");
+	});
+});
+
+describe("generateCommissions — the claim start date", () => {
+	/**
+	 * A partner earns from the day their code was used, never before.
+	 *
+	 * There was no lower bound, so approving a store paid its partner a share of
+	 * every charge it had ever made. With codes shared publicly that is a way to
+	 * harvest existing customers: a store already paying Edge directly enters a
+	 * code it saw posted, and the partner collects on the whole history.
+	 */
+	test("a charge from before the claim started earns nothing", async () => {
+		await seedBase();
+		await harness.db
+			.update(merchants)
+			.set({ earningsFromAt: new Date("2026-06-01T00:00:00Z") })
+			.where(eq(merchants.id, MERCHANT_ID));
+
+		await reconcile(harness.db, {
+			source: singlePageSource([
+				earning({
+					appPartnerApiGid: APP1_GID,
+					netAmountMinor: 10_000n,
+					occurredAt: new Date("2026-05-20T00:00:00Z"),
+				}),
+			]),
+		});
+		await generateCommissions(harness.db);
+
+		const rows = await harness.db.select().from(commissions);
+		expect(rows).toHaveLength(0);
+	});
+
+	test("a charge on or after the claim started earns", async () => {
+		await seedBase();
+		await harness.db
+			.update(merchants)
+			.set({ earningsFromAt: new Date("2026-06-01T00:00:00Z") })
+			.where(eq(merchants.id, MERCHANT_ID));
+
+		await reconcile(harness.db, {
+			source: singlePageSource([
+				earning({
+					appPartnerApiGid: APP1_GID,
+					netAmountMinor: 10_000n,
+					occurredAt: new Date("2026-06-01T00:00:00Z"),
+				}),
+			]),
+		});
+		await generateCommissions(harness.db);
+
+		const rows = await harness.db.select().from(commissions);
+		expect(rows).toHaveLength(1);
+		expect(rows[0]?.commissionAmount).toBe(1000n);
+	});
+
+	test("history before the claim is skipped while later charges still pay", async () => {
+		await seedBase();
+		await harness.db
+			.update(merchants)
+			.set({ earningsFromAt: new Date("2026-06-01T00:00:00Z") })
+			.where(eq(merchants.id, MERCHANT_ID));
+
+		await reconcile(harness.db, {
+			source: singlePageSource([
+				earning({
+					appPartnerApiGid: APP1_GID,
+					netAmountMinor: 50_000n,
+					occurredAt: new Date("2026-01-15T00:00:00Z"),
+				}),
+				earning({
+					appPartnerApiGid: APP1_GID,
+					netAmountMinor: 10_000n,
+					occurredAt: new Date("2026-07-15T00:00:00Z"),
+				}),
+			]),
+		});
+		await generateCommissions(harness.db);
+
+		const rows = await harness.db.select().from(commissions);
+		/* Only the July charge. The January one is Edge's alone, and stays so. */
+		expect(rows).toHaveLength(1);
+		expect(rows[0]?.commissionAmount).toBe(1000n);
 	});
 });

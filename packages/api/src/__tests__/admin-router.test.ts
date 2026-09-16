@@ -84,10 +84,16 @@ async function seed() {
 		{ id: APP_Y, slug: "edge-y", name: "Edge Y", partnerApiGid: "gid://y" },
 	]);
 	await db.insert(merchants).values({
+		/* Before every charge seeded below. The column defaults to now(), which
+		   would place the partner's claim after all of them, and generation
+		   would correctly refuse to pay for revenue that predates their
+		   arrival. The claim-start rule has its own tests in
+		   packages/billing/src/__tests__/engine.test.ts. */
+		earningsFromAt: new Date("2020-01-01T00:00:00Z"),
 		id: MERCHANT,
+		name: "Store",
 		partnerId: PARTNER,
 		shopDomain: SHOP,
-		name: "Store",
 		status: "pending",
 	});
 	// Grandfathered app X earning + two app Y earnings (different months).

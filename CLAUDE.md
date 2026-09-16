@@ -125,6 +125,20 @@ subscribed.
   app reported would stop the second app a store installs from ever adding
   itself, and a shop already paying for that app would earn the partner
   commission on revenue that predates them.
+- **A partner earns from the day their code was used, never before.**
+  `merchants.earningsFromAt` is set when the store is bound, and commission
+  generation refuses any charge that occurred before it. Without this bound,
+  approving a store paid its partner a share of every charge it had EVER made,
+  which with publicly shared codes is a way to harvest existing customers: a
+  store already paying Edge directly enters a code it saw posted, and the
+  partner collects on the whole history having brought nobody.
+  It is its own column rather than `createdAt` because `createdAt` is a generic
+  audit timestamp a backfill could reasonably rewrite, and this one decides
+  money.
+  COMPLEMENTARY to grandfathering, not a replacement: this blocks the PAST for
+  every app, grandfathering blocks the FUTURE for apps the store already paid
+  for. An app the store used and cancelled last year is caught by this and not
+  by that.
 - Commission is **lifetime** while the merchant stays subscribed. There is no
   expiry logic; no earning event simply means no commission.
 - **Per-app rates:** a partner has a default rate (basis points); an optional
@@ -201,9 +215,17 @@ See `docs/partner-attribution-codes.md` for the full design.
 - **Disabling a code stops new redemptions only.** It never unbinds stores
   already referred — a partner loses the ability to acquire, not their book.
   Enforced by `restrict` FKs, so a code with redemptions cannot be deleted.
-- Every rejection (unknown, disabled, expired, exhausted, partner not approved)
-  returns **one generic reason**, so codes cannot be enumerated. The real reason
-  goes to `code_redemption_attempts.reason`, never over the wire.
+- **Codes are meant to be spread.** A partner posting theirs publicly is the
+  distribution model working, not a leak: whoever enters it, that store is
+  theirs. So discovering that a code exists is not a threat, and nothing here
+  should add friction to sharing one.
+  Rejections still return **one generic reason** — not to stop enumeration, but
+  because a caller has no business learning WHY a code failed (disabled vs
+  expired vs partner-not-approved is our internal state). The real reason goes
+  to `code_redemption_attempts.reason`, never over the wire.
+  What public codes DO require is the claim-start rule below: if anybody can
+  bind a store by typing a code they saw posted, the partner must not thereby
+  earn on that store's past.
 - `merchant_events` is **append-only** and idempotent on the app's
   `idempotency_key`. An `uninstalled` event does **not** unbind; commission stops
   simply because no earning events arrive.

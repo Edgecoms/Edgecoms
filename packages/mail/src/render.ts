@@ -10,6 +10,14 @@
  * heavy template lands in Promotions more often than it impresses anybody.
  */
 
+import { PARTNER_CONTACT_EMAIL } from "./contact";
+
+/**
+ * The last line of every email: who to write to. Replies to the sending
+ * address go nowhere, so the email says so and names an inbox that works.
+ */
+const CONTACT_LINE = `Questions? Email ${PARTNER_CONTACT_EMAIL}. Replies to this email are not received.`;
+
 const ESCAPES: Record<string, string> = {
 	"&": "&amp;",
 	"<": "&lt;",
@@ -110,6 +118,7 @@ export function renderHtml(heading: string, blocks: readonly Block[]): string {
       <p style="margin:0 0 20px;font-size:13px;letter-spacing:0.08em;text-transform:uppercase;color:#8b95a4">Edge Partners</p>
       <h1 style="margin:0 0 18px;font-size:21px;line-height:1.25;color:#151a22;font-weight:600">${escapeHtml(heading)}</h1>
       ${body}
+      <p style="margin:22px 0 0;padding-top:16px;border-top:1px solid #eef0f4;font-size:13px;line-height:1.5;color:#8b95a4">Questions? Email <a href="mailto:${PARTNER_CONTACT_EMAIL}" style="color:#5a6472">${PARTNER_CONTACT_EMAIL}</a>. Replies to this email are not received.</p>
     </div>
   </body>
 </html>`;
@@ -117,5 +126,7 @@ export function renderHtml(heading: string, blocks: readonly Block[]): string {
 
 export function renderText(heading: string, blocks: readonly Block[]): string {
 	/* One blank line between every part, the heading included. */
-	return [heading, ...blocks.map(renderBlockText)].join("\n\n").trim();
+	return [heading, ...blocks.map(renderBlockText), CONTACT_LINE]
+		.join("\n\n")
+		.trim();
 }

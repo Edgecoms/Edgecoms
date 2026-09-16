@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { PARTNER_CONTACT_EMAIL } from "../contact";
 import { renderHtml, renderText } from "../render";
 
 const EM_DASH = "—";
@@ -21,7 +22,12 @@ describe("a button block", () => {
 
 	test("is the label and the address in plain text", () => {
 		expect(renderText("Heading", blocks)).toBe(
-			"Heading\n\nBefore the button.\n\nConfirm my email: https://edge.test/verify?token=a&b=c"
+			[
+				"Heading",
+				"Before the button.",
+				"Confirm my email: https://edge.test/verify?token=a&b=c",
+				`Questions? Email ${PARTNER_CONTACT_EMAIL}. Replies to this email are not received.`,
+			].join("\n\n")
 		);
 	});
 
@@ -29,8 +35,10 @@ describe("a button block", () => {
 		const html = renderHtml("Heading", [
 			{ label: "Open", url: "javascript:alert(1)" },
 		]);
-		expect(html).not.toContain("<a ");
-		expect(html).not.toContain("href=");
+		expect(html).not.toContain('href="javascript');
+		/* The only link left is the contact line's mailto. */
+		expect(html.match(/<a /g)).toHaveLength(1);
+		expect(html).toContain('<a href="mailto:');
 		expect(html).toContain("Open: javascript:alert(1)");
 	});
 
@@ -41,5 +49,20 @@ describe("a button block", () => {
 		expect(html).not.toContain("<script>");
 		expect(html).not.toContain("<b>");
 		expect(html).toContain("&quot;&gt;&lt;script&gt;");
+	});
+});
+
+describe("every email", () => {
+	test("ends with the address a person can write to", () => {
+		const html = renderHtml("Heading", [{ text: "Body." }]);
+		const text = renderText("Heading", [{ text: "Body." }]);
+		expect(PARTNER_CONTACT_EMAIL).toBe("anurag@edgecoms.com");
+		expect(html).toContain(`<a href="mailto:${PARTNER_CONTACT_EMAIL}"`);
+		expect(html).toContain("Replies to this email are not received.");
+		expect(
+			text.endsWith(
+				`Questions? Email ${PARTNER_CONTACT_EMAIL}. Replies to this email are not received.`
+			)
+		).toBe(true);
 	});
 });

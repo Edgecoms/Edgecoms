@@ -46,10 +46,10 @@ function resolveTransport():
 /**
  * The message as Resend receives it.
  *
- * `replyTo` exists because the sending domain accepts no mail: without it, a
- * partner who answers "was this you?" with "no" gets a bounce, and the one
- * reply that matters most goes nowhere. Exported so that rule is tested
- * without a network.
+ * `replyTo` is optional and unset in production. The sending domain accepts no
+ * mail, so rather than rely on a header, every email names the contact
+ * address in its text (see ./contact) and says replies are not received.
+ * Exported so the header rule is tested without a network.
  */
 export function resendMessage(
 	email: OutboundEmail,

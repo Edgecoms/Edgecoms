@@ -76,10 +76,10 @@ export const env = createEnv({
 		// agency what commission rate they are on. Unset means partner email is
 		// skipped and the admin is told so, and approval itself still succeeds.
 		PARTNER_FROM_EMAIL: z.string().min(1).optional(),
-		// Where replies to partner email go, e.g. `anurag@edgecoms.com`. The
-		// sending domain receives no mail, so without this a reply bounces, and
-		// the "invitation was just used" email asks for one. Unset means replies
-		// go to PARTNER_FROM_EMAIL.
+		// Optional Reply-To for partner email. Unset in production: every email
+		// names the contact address in its text instead (packages/mail/src/
+		// contact.ts). Unset means replies go to PARTNER_FROM_EMAIL, which
+		// receives no mail.
 		PARTNER_REPLY_TO: z.string().min(1).optional(),
 		// Local mail catcher for partner email, as `smtp://localhost:1025`. When
 		// set it WINS over Resend, so a developer cannot accidentally mail a real

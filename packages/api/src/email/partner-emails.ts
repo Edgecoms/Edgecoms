@@ -38,6 +38,7 @@ import {
 	MILESTONE_BONUS_CURRENCY,
 	MILESTONE_BONUS_MINOR,
 } from "@edgecoms/billing/milestones";
+import { PARTNER_CONTACT_EMAIL } from "@edgecoms/mail/contact";
 import {
 	type Block,
 	formatRate,
@@ -193,7 +194,7 @@ export function renderInviteClaimedEmail(input: {
 			text: "If that was you, nothing further is needed. We review the application, set your commission rate, and email you your code.",
 		},
 		{
-			text: "If it was NOT you, reply to this email straight away. The account cannot earn anything until we approve it, so telling us now costs you nothing.",
+			text: `If it was NOT you, email ${PARTNER_CONTACT_EMAIL} straight away. The account cannot earn anything until we approve it, so telling us now costs you nothing.`,
 		},
 	];
 	return {

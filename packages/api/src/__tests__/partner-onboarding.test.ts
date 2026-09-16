@@ -10,11 +10,13 @@ import {
 	partnerInvites,
 	partners,
 } from "@edgecoms/db/schema/partners";
+import { PARTNER_CONTACT_EMAIL } from "@edgecoms/mail/contact";
 import type { OutboundEmail } from "@edgecoms/mail/types";
 import { eq } from "drizzle-orm";
 import type { Context, EmailDelivery } from "../context";
 import {
 	formatBonus,
+	renderInviteClaimedEmail,
 	renderPartnerApprovedEmail,
 	renderPartnerInviteEmail,
 } from "../email/partner-emails";
@@ -658,6 +660,25 @@ describe("the rendered emails", () => {
 			expect(email.text).not.toContain("once we approve that store");
 		}
 		expect(approved.text).toContain("approved automatically within a day");
+	});
+
+	test("no email asks for a reply, and each names who to write to", () => {
+		/* The sending domain receives no mail. A "reply to this email" would
+		   bounce, so the address a reader can see is the one that must work. */
+		const claimed = renderInviteClaimedEmail({
+			companyName: "Acme Agency",
+			to: "alex@acme.com",
+		});
+		expect(claimed.text).toContain(
+			`If it was NOT you, email ${PARTNER_CONTACT_EMAIL} straight away.`
+		);
+		for (const email of [invite, approved, claimed]) {
+			expect(email.text.toLowerCase()).not.toContain("reply to this email");
+			expect(email.text).toContain(
+				`Questions? Email ${PARTNER_CONTACT_EMAIL}.`
+			);
+			expect(email.html).toContain(`mailto:${PARTNER_CONTACT_EMAIL}`);
+		}
 	});
 
 	test("bonus amounts are written as a person writes money", () => {

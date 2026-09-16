@@ -41,6 +41,7 @@ import {
 	renderPartnerInviteEmail,
 } from "../email/partner-emails";
 import { adminProcedure, router } from "../index";
+import { readPartnerDetail } from "../partner-detail";
 import { payoutBlocker } from "../payout-details";
 import { createInviteToken, INVITE_TTL_DAYS } from "./invites";
 
@@ -501,6 +502,16 @@ export const adminRouter = router({
 				proposedRateBps: proposedByPartner.get(row.id) ?? null,
 			}));
 		}),
+
+		/**
+		 * One partner's codes, stores, commission, bonuses and payouts, read by
+		 * id. The partner page matched rows by display name before this, so two
+		 * partners with the same name saw each other's book. See
+		 * ../partner-detail.ts.
+		 */
+		detail: adminProcedure
+			.input(z.object({ partnerId: z.guid() }))
+			.query(({ ctx, input }) => readPartnerDetail(ctx.db, input.partnerId)),
 
 		/**
 		 * APPROVE a partner: status, default rate, optional per-app rates, and,

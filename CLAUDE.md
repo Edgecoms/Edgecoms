@@ -266,6 +266,12 @@ See `docs/partner-attribution-codes.md` for the full design.
 - All outbound email goes through `@edgecoms/mail` (`send.ts` never throws;
   it skips with a warning when `PARTNER_FROM_EMAIL` or a transport is unset).
   Send only after the transaction commits.
+- The sending domain receives no mail, so `PARTNER_REPLY_TO` must name a real
+  inbox. Several emails ask the reader to reply, and without it that reply
+  bounces.
+- A figure in an email is read from the constant that governs it, never
+  typed: the invite's expiry comes from `INVITE_TTL_DAYS`, and the bonus
+  amounts from the milestone constants.
 
 ## Tech & process
 

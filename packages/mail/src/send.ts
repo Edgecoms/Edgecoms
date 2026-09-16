@@ -1,7 +1,7 @@
 import { env } from "@edgecoms/env/server";
 import { Resend } from "resend";
 import { sendViaSmtp } from "./smtp";
-import type { EmailDelivery, EmailSender } from "./types";
+import type { EmailDelivery, EmailSender, OutboundEmail } from "./types";
 
 /**
  * DELIVERY for every transactional email the platform sends: partner lifecycle
@@ -43,8 +43,32 @@ function resolveTransport():
 	return { kind: "none" };
 }
 
+/**
+ * The message as Resend receives it.
+ *
+ * `replyTo` exists because the sending domain accepts no mail: without it, a
+ * partner who answers "was this you?" with "no" gets a bounce, and the one
+ * reply that matters most goes nowhere. Exported so that rule is tested
+ * without a network.
+ */
+export function resendMessage(
+	email: OutboundEmail,
+	from: string,
+	replyTo: string | undefined
+) {
+	return {
+		from,
+		html: email.html,
+		subject: email.subject,
+		text: email.text,
+		to: email.to,
+		...(replyTo ? { replyTo } : {}),
+	};
+}
+
 export const sendEmail: EmailSender = async (email): Promise<EmailDelivery> => {
 	const from = env.PARTNER_FROM_EMAIL;
+	const replyTo = env.PARTNER_REPLY_TO;
 	if (!from) {
 		console.warn("mail: PARTNER_FROM_EMAIL is unset; not sending.");
 		return "skipped";
@@ -61,6 +85,7 @@ export const sendEmail: EmailSender = async (email): Promise<EmailDelivery> => {
 			await sendViaSmtp(transport.url, {
 				from,
 				html: email.html,
+				replyTo,
 				subject: email.subject,
 				text: email.text,
 				to: email.to,
@@ -73,13 +98,9 @@ export const sendEmail: EmailSender = async (email): Promise<EmailDelivery> => {
 	}
 
 	try {
-		const { error } = await new Resend(transport.apiKey).emails.send({
-			from,
-			html: email.html,
-			subject: email.subject,
-			text: email.text,
-			to: email.to,
-		});
+		const { error } = await new Resend(transport.apiKey).emails.send(
+			resendMessage(email, from, replyTo)
+		);
 
 		if (error) {
 			/* Resend answers 200 with an error body for the usual production

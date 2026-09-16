@@ -706,6 +706,7 @@ export const adminRouter = router({
 						renderPartnerInviteEmail({
 							acceptUrl: `${siteOrigin()}/register?invite=${encodeURIComponent(token)}`,
 							companyName: input.companyName?.trim() || null,
+							expiresInDays: INVITE_TTL_DAYS,
 							inviterName: ctx.session.user.name ?? null,
 							to: email,
 						})

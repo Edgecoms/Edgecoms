@@ -55,6 +55,8 @@ export interface SmtpMessage {
 	html: string;
 	/** Optional. Without it the message is a plain multipart/alternative. */
 	inlineImage?: InlineImage;
+	/** Optional. Where a reply goes when it should not go to `from`. */
+	replyTo?: string;
 	subject: string;
 	text: string;
 	to: string;
@@ -106,6 +108,7 @@ export function buildMimeMessage(
 
 	const headers = [
 		`From: ${message.from}`,
+		...(message.replyTo ? [`Reply-To: ${message.replyTo}`] : []),
 		`To: ${message.to}`,
 		`Subject: ${message.subject}`,
 		`Date: ${date.toUTCString()}`,

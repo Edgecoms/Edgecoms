@@ -76,6 +76,11 @@ export const env = createEnv({
 		// agency what commission rate they are on. Unset means partner email is
 		// skipped and the admin is told so, and approval itself still succeeds.
 		PARTNER_FROM_EMAIL: z.string().min(1).optional(),
+		// Where replies to partner email go, e.g. `anurag@edgecoms.com`. The
+		// sending domain receives no mail, so without this a reply bounces, and
+		// the "invitation was just used" email asks for one. Unset means replies
+		// go to PARTNER_FROM_EMAIL.
+		PARTNER_REPLY_TO: z.string().min(1).optional(),
 		// Local mail catcher for partner email, as `smtp://localhost:1025`. When
 		// set it WINS over Resend, so a developer cannot accidentally mail a real
 		// agency while testing an approval. `sendViaSmtp` refuses to run when

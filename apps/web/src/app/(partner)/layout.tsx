@@ -16,6 +16,7 @@ export const metadata: Metadata = {
 };
 
 const PARTNER_NAV = [
+	{ href: "/partner/welcome", label: "Start here" },
 	{ href: "/partner", label: "Dashboard" },
 	{ href: "/partner/merchants", label: "Merchants" },
 	{ href: "/partner/earnings", label: "Earnings" },

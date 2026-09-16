@@ -1,6 +1,8 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import type { Route } from "next";
+import Link from "next/link";
 import { PartnerCodeCard } from "@/components/portal/partner-code-card";
 import {
 	EmptyState,
@@ -24,10 +26,15 @@ export default function PartnerDashboardPage() {
 			/>
 
 			{data?.status && data.status !== "approved" ? (
-				<div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-800 text-body-sm">
-					Your partner account is <strong>{data.status}</strong>. Your code
-					starts binding stores once you are approved, and commission begins
-					once a merchant is approved too.
+				<div className="flex flex-col gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-800 text-body-sm">
+					<span>
+						Your partner account is <strong>{data.status}</strong>. Your code
+						starts binding stores once you are approved, and commission begins
+						once a merchant is approved too.
+					</span>
+					<Link className="w-fit underline" href={"/partner/welcome" as Route}>
+						What happens next
+					</Link>
 				</div>
 			) : null}
 

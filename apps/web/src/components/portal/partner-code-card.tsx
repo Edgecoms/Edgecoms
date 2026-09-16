@@ -5,6 +5,7 @@ import { Skeleton } from "@edgecoms/ui/components/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
+import { formatMoney } from "@/lib/money";
 import { trpc } from "@/utils/trpc";
 
 /**
@@ -46,7 +47,12 @@ function describeOffer(props: CodeRowProps): string | null {
 		case "percentage":
 			return `${(props.discountBps ?? 0) / 100}% off Enterprise ${span}`;
 		case "fixed":
-			return `${props.discountAmountMinor ?? ""} ${props.discountCurrency ?? ""} off Enterprise ${span}`;
+			/* formatMoney, not the raw column: `discountAmountMinor` is an
+			   integer in MINOR units, so interpolating it directly told the
+			   partner their code was worth "5000 USD" when it was worth $50. */
+			return props.discountAmountMinor
+				? `${formatMoney(props.discountAmountMinor, props.discountCurrency ?? "USD")} off Enterprise ${span}`
+				: null;
 		case "free_cycles":
 			return `Enterprise free ${span}`;
 		default:

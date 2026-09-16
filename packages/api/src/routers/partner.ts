@@ -115,6 +115,58 @@ export const partnerRouter = router({
 		};
 	}),
 
+	/**
+	 * FIRST-RUN STATE for the welcome screen.
+	 *
+	 * Four facts, in the order a partner actually reaches them, each answerable
+	 * by one count. The screen uses them to show what is done and what is next;
+	 * it is deliberately not stored as a "progress" column, because every step
+	 * is already recorded somewhere truer: a code row, a payout field, a
+	 * merchant row, a commission row. A stored flag could disagree with them.
+	 */
+	onboarding: partnerProcedure.query(async ({ ctx }) => {
+		const partnerId = ctx.partner.id;
+
+		const codeRows = await ctx.db
+			.select({ code: partnerCodes.code })
+			.from(partnerCodes)
+			.where(
+				and(
+					eq(partnerCodes.partnerId, partnerId),
+					eq(partnerCodes.status, "active")
+				)
+			)
+			.orderBy(desc(partnerCodes.createdAt))
+			.limit(1);
+
+		const merchantRows = await ctx.db
+			.select({ value: count() })
+			.from(merchants)
+			.where(eq(merchants.partnerId, partnerId));
+
+		const commissionRows = await ctx.db
+			.select({ value: count() })
+			.from(commissions)
+			.where(eq(commissions.partnerId, partnerId));
+
+		const code = codeRows[0]?.code ?? null;
+		const payoutReady = Boolean(
+			ctx.partner.payoutMethod?.trim() && ctx.partner.payoutReference?.trim()
+		);
+
+		return {
+			code,
+			defaultRateBps: ctx.partner.defaultRateBps,
+			status: ctx.partner.status,
+			steps: {
+				codeIssued: code !== null,
+				firstCommission: (commissionRows[0]?.value ?? 0) > 0,
+				firstStore: (merchantRows[0]?.value ?? 0) > 0,
+				payoutReady,
+			},
+		};
+	}),
+
 	merchants: router({
 		/** The caller's merchants with per-merchant commission/revenue totals. */
 		list: partnerProcedure.query(async ({ ctx }) => {

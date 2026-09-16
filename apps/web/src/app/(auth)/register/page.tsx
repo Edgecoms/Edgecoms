@@ -3,13 +3,15 @@
 import { Button } from "@edgecoms/ui/components/button";
 import { Input } from "@edgecoms/ui/components/input";
 import { Label } from "@edgecoms/ui/components/label";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import type { Route } from "next";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { type FormEvent, useId, useState } from "react";
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 import { trackStandard } from "@/lib/meta-pixel";
+import { trpc } from "@/utils/trpc";
 
 export default function RegisterPage() {
 	const router = useRouter();
@@ -17,6 +19,24 @@ export default function RegisterPage() {
 	const emailId = useId();
 	const passwordId = useId();
 	const [loading, setLoading] = useState(false);
+
+	/**
+	 * An invited agency arrives at `/register?invite=<token>`.
+	 *
+	 * The token buys one thing: the address it was sent to, so the partner
+	 * cannot fat-finger a different one and land in the program unlinked from
+	 * the rate the admin proposed. It buys no privileges: accepting still
+	 * creates the same pending application a cold signup creates.
+	 *
+	 * An absent, expired or spent token simply yields no invite, and the page is
+	 * the ordinary open application form.
+	 */
+	const inviteToken = useSearchParams().get("invite");
+	const { data: invite } = useQuery({
+		...trpc.invites.peek.queryOptions({ token: inviteToken ?? "" }),
+		enabled: Boolean(inviteToken),
+	});
+	const acceptInvite = useMutation(trpc.invites.accept.mutationOptions());
 
 	async function handleSubmit(event: FormEvent<HTMLFormElement>) {
 		event.preventDefault();
@@ -43,8 +63,20 @@ export default function RegisterPage() {
 			status: "pending",
 		});
 
+		/* Link the invite to the row signup just created, so the admin sees the
+		   rate they proposed. Never allowed to fail the signup: the account
+		   exists, and an unlinked application is reviewable either way. */
+		if (inviteToken) {
+			try {
+				await acceptInvite.mutateAsync({ token: inviteToken });
+			} catch {
+				/* Wrong address for this invite, or already claimed. Nothing the
+				   new partner can act on, and their application still stands. */
+			}
+		}
+
 		toast.success("Account created. Your application is pending review.");
-		router.push("/partner" as Route);
+		router.push("/partner/welcome" as Route);
 		router.refresh();
 	}
 
@@ -52,11 +84,14 @@ export default function RegisterPage() {
 		<div className="flex flex-col gap-6">
 			<div className="flex flex-col gap-1">
 				<h1 className="font-medium text-h2 text-primary-foreground tracking-tight">
-					Apply to the Partner Program
+					{invite
+						? "Accept your Edge Partners invitation"
+						: "Apply to the Partner Program"}
 				</h1>
 				<p className="text-body-sm text-secondary-foreground">
-					Create your account. Once approved, you can register merchants and
-					track commission.
+					{invite?.companyName
+						? `Create the account for ${invite.companyName}. We review it, set your commission rate, and email you your code.`
+						: "Create your account. We review it, set your commission rate, and email you the code you hand to the stores you manage."}
 				</p>
 			</div>
 
@@ -69,11 +104,19 @@ export default function RegisterPage() {
 					<Label htmlFor={emailId}>Work email</Label>
 					<Input
 						autoComplete="email"
+						defaultValue={invite?.email ?? ""}
 						id={emailId}
+						key={invite?.email ?? "open"}
 						name="email"
+						readOnly={Boolean(invite)}
 						required
 						type="email"
 					/>
+					{invite ? (
+						<span className="text-caption text-secondary-foreground">
+							The address your invitation was sent to.
+						</span>
+					) : null}
 				</div>
 				<div className="flex flex-col gap-2">
 					<Label htmlFor={passwordId}>Password</Label>

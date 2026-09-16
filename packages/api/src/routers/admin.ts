@@ -1,6 +1,7 @@
 import { decimalStringToMinorUnits } from "@edgecoms/billing/money";
 import { createPartnerApiSource } from "@edgecoms/billing/partner-api";
 import { runBillingSync } from "@edgecoms/billing/run-sync";
+import type { Database } from "@edgecoms/db";
 import { apps } from "@edgecoms/db/schema/apps";
 import { user } from "@edgecoms/db/schema/auth";
 import { commissions } from "@edgecoms/db/schema/earnings";
@@ -11,6 +12,7 @@ import {
 import {
 	partnerAppRates,
 	partnerCodes,
+	partnerInvites,
 	partners,
 } from "@edgecoms/db/schema/partners";
 import { payouts } from "@edgecoms/db/schema/payouts";
@@ -30,7 +32,14 @@ import {
 } from "drizzle-orm";
 import { z } from "zod";
 import { normalizeCode } from "../attribution/codes";
+import type { EmailDelivery, EmailSender } from "../context";
+import {
+	type OutboundEmail,
+	renderPartnerApprovedEmail,
+	renderPartnerInviteEmail,
+} from "../email/partner-emails";
 import { adminProcedure, router } from "../index";
+import { createInviteToken, INVITE_TTL_DAYS } from "./invites";
 
 const MONEY_SUM = (column: typeof commissions.commissionAmount) =>
 	sql<string>`coalesce(sum(${column}), 0)`;
@@ -46,6 +55,66 @@ const MONEY_SUM = (column: typeof commissions.commissionAmount) =>
  * the admin UI and the rate is only ever read from the partner row.
  */
 const CODE_PATTERN = /^[A-Z0-9-]{4,32}$/;
+
+/** Upper bound on one invite batch, so a paste cannot mail thousands. */
+const MAX_INVITES_PER_BATCH = 50;
+const MS_PER_DAY = 86_400_000;
+/** Trailing slashes on the configured origin, so links do not double up. */
+const TRAILING_SLASHES = /\/+$/;
+
+/**
+ * Sends one email without ever failing the operation that triggered it.
+ *
+ * Every caller here has already committed a write to the money system by the
+ * time this runs. A partner approval that rolled back because Resend was
+ * briefly unavailable would be a far worse bug than a notification that has to
+ * be resent, so this swallows everything and reports what happened.
+ *
+ * A context with no sender (the router tests build one by hand) reports
+ * "skipped", which is why adding mail did not change a single existing test.
+ */
+async function notify(
+	ctx: { sendEmail?: EmailSender },
+	email: OutboundEmail
+): Promise<EmailDelivery> {
+	if (!ctx.sendEmail) {
+		return "skipped";
+	}
+	try {
+		return await ctx.sendEmail(email);
+	} catch (error) {
+		console.warn(`admin_notify: sender threw: ${String(error)}`);
+		return "failed";
+	}
+}
+
+/**
+ * The origin to build partner-facing links on.
+ *
+ * `BETTER_AUTH_URL` rather than a separate variable because it is already
+ * required to equal the deployment's own origin. If it were wrong, sign-in
+ * would be broken long before anybody noticed a bad link in an email.
+ */
+function siteOrigin(): string {
+	/* Typed as a required URL, but SKIP_ENV_VALIDATION (which the test suite
+	   sets) leaves every value undefined, so this must not assume a string. */
+	const configured: string | undefined = env.BETTER_AUTH_URL;
+	return (configured ?? "").replace(TRAILING_SLASHES, "");
+}
+
+/** Normalized, de-duplicated, order-preserving list of addresses. */
+function normalizeEmails(values: readonly string[]): string[] {
+	const seen = new Set<string>();
+	const out: string[] = [];
+	for (const value of values) {
+		const email = value.trim().toLowerCase();
+		if (email && !seen.has(email)) {
+			seen.add(email);
+			out.push(email);
+		}
+	}
+	return out;
+}
 
 /** Billing intervals a discount may span. Ten years is well past any real promo. */
 const MAX_DISCOUNT_CYCLES = 120;
@@ -196,6 +265,45 @@ function codeTermsPatch(input: CodeTermsInput) {
 	return set;
 }
 
+/** The transaction handle Drizzle hands a `db.transaction` callback. */
+type Tx = Parameters<Parameters<Database["transaction"]>[0]>[0];
+
+/**
+ * ISSUE a merchant-facing code onto a partner, inside the caller's transaction.
+ *
+ * Shares `CODE_PATTERN` and the global-unique conflict handling with
+ * codes.create, because "approve issues a code" and "issue a code" must not be
+ * able to disagree about what a valid code is.
+ */
+async function issueCodeInTx(
+	tx: Tx,
+	partnerId: string,
+	rawCode: string
+): Promise<string> {
+	const code = normalizeCode(rawCode);
+	if (!CODE_PATTERN.test(code)) {
+		throw new TRPCError({
+			code: "BAD_REQUEST",
+			message:
+				"Use 4\u201332 letters, digits or hyphens. Keep the commission rate out of the code.",
+		});
+	}
+
+	const inserted = await tx
+		.insert(partnerCodes)
+		.values({ partnerId, code })
+		.onConflictDoNothing({ target: partnerCodes.code })
+		.returning({ id: partnerCodes.id });
+
+	if (!inserted[0]) {
+		throw new TRPCError({
+			code: "CONFLICT",
+			message: "That code is already in use.",
+		});
+	}
+	return code;
+}
+
 /**
  * Admin-scoped router. Every procedure asserts the admin role via
  * `adminProcedure`. Admins operate across all partners — they are not
@@ -275,18 +383,58 @@ export const adminRouter = router({
 				merchantCounts.map((row) => [row.partnerId, row.value])
 			);
 
+			/* The rate the inviting admin had in mind, carried off the accepted
+			   invite so the approve dialog opens on it instead of a guess. A
+			   PROPOSAL and nothing more: commission generation never reads this,
+			   only `partners.defaultRateBps`. */
+			const proposals = await ctx.db
+				.select({
+					partnerId: partnerInvites.acceptedPartnerId,
+					proposedRateBps: partnerInvites.proposedRateBps,
+				})
+				.from(partnerInvites)
+				.where(
+					and(
+						isNotNull(partnerInvites.acceptedPartnerId),
+						isNotNull(partnerInvites.proposedRateBps)
+					)
+				);
+			const proposedByPartner = new Map(
+				proposals.map((row) => [row.partnerId, row.proposedRateBps])
+			);
+
 			return rows.map((row) => ({
 				...row,
 				merchantCount: countByPartner.get(row.id) ?? 0,
+				proposedRateBps: proposedByPartner.get(row.id) ?? null,
 			}));
 		}),
 
-		/** Approve a partner: set status + default rate + optional per-app rates. */
+		/**
+		 * APPROVE a partner: status, default rate, optional per-app rates, and,
+		 * in the same transaction, the attribution code they are about to be told
+		 * they have.
+		 *
+		 * The code used to be a separate trip to /admin/codes that an admin had to
+		 * remember, while the partner's dashboard told them "we issue one when your
+		 * account is approved". Approving without issuing produced a partner
+		 * staring at a promise nothing kept, so the two are now one action.
+		 *
+		 * `code` is optional ONLY because re-approving a suspended partner must not
+		 * demand a second code: if the partner already holds an active one, that is
+		 * the code they keep. With no active code and no `code` supplied, this
+		 * refuses rather than approving somebody who cannot acquire a store.
+		 *
+		 * Mail goes out AFTER the transaction commits, and cannot fail it. The
+		 * return value reports what happened so the admin sees "approved, but the
+		 * email did not go out" rather than silently assuming the partner was told.
+		 */
 		approve: adminProcedure
 			.input(
 				z.object({
 					partnerId: z.string(),
 					defaultRateBps: z.number().int().min(0).max(10_000),
+					code: z.string().min(4).max(32).optional(),
 					appRates: z
 						.array(
 							z.object({
@@ -298,7 +446,22 @@ export const adminRouter = router({
 				})
 			)
 			.mutation(async ({ ctx, input }) => {
-				await ctx.db.transaction(async (tx) => {
+				const approved = await ctx.db.transaction(async (tx) => {
+					const rows = await tx
+						.select({ email: user.email, name: user.name })
+						.from(partners)
+						.innerJoin(user, eq(user.id, partners.userId))
+						.where(eq(partners.id, input.partnerId))
+						.limit(1);
+
+					const recipient = rows[0];
+					if (!recipient) {
+						throw new TRPCError({
+							code: "NOT_FOUND",
+							message: "No such partner.",
+						});
+					}
+
 					await tx
 						.update(partners)
 						.set({
@@ -322,7 +485,184 @@ export const adminRouter = router({
 								set: { rateBps: rate.rateBps },
 							});
 					}
+
+					const existing = await tx
+						.select({ code: partnerCodes.code })
+						.from(partnerCodes)
+						.where(
+							and(
+								eq(partnerCodes.partnerId, input.partnerId),
+								eq(partnerCodes.status, "active")
+							)
+						)
+						.limit(1);
+
+					let code = existing[0]?.code ?? null;
+					if (!code) {
+						if (!input.code) {
+							throw new TRPCError({
+								code: "BAD_REQUEST",
+								message:
+									"This partner has no active code. Supply one to issue with the approval.",
+							});
+						}
+						code = await issueCodeInTx(tx, input.partnerId, input.code);
+					}
+
+					return { code, email: recipient.email };
 				});
+
+				const delivery = await notify(
+					ctx,
+					renderPartnerApprovedEmail({
+						code: approved.code,
+						rateBps: input.defaultRateBps,
+						to: approved.email,
+						welcomeUrl: `${siteOrigin()}/partner/welcome`,
+					})
+				);
+
+				return { code: approved.code, emailed: delivery, ok: true };
+			}),
+
+		/**
+		 * INVITE agencies by email address.
+		 *
+		 * The outbound half of partner acquisition: an admin who already knows who
+		 * they want, and has nothing but a list of addresses. Each address gets a
+		 * signup link tied to it.
+		 *
+		 * AN INVITE IS NOT AN APPROVAL. `proposedRateBps` is recorded on the invite
+		 * and pre-fills the approve dialog once they sign up; it is never read when
+		 * commission is generated. The money gate stays exactly where CLAUDE.md
+		 * puts it.
+		 *
+		 * Per-address results rather than one pass/fail, because a batch pasted
+		 * from a spreadsheet will contain an address that already has an account
+		 * and that must not stop the other nine from going out. Re-inviting a live
+		 * address revokes the old token and issues a new one, which is what makes
+		 * the button safe to press twice.
+		 */
+		invite: adminProcedure
+			.input(
+				z.object({
+					/* Raw strings, validated per address in the handler. `z.email()`
+					   here would reject the entire batch because one pasted row has
+					   a stray space or a typo, which is every real batch. */
+					emails: z
+						.array(z.string().min(1).max(320))
+						.min(1)
+						.max(MAX_INVITES_PER_BATCH),
+					companyName: z.string().max(200).optional(),
+					proposedRateBps: z.number().int().min(0).max(10_000).optional(),
+				})
+			)
+			.mutation(async ({ ctx, input }) => {
+				const emails = normalizeEmails(input.emails);
+				const expiresAt = new Date(Date.now() + INVITE_TTL_DAYS * MS_PER_DAY);
+				const results: {
+					email: string;
+					outcome: "already_registered" | "invalid" | "invited";
+					emailed?: EmailDelivery;
+				}[] = [];
+
+				for (const email of emails) {
+					if (!z.email().safeParse(email).success) {
+						results.push({ email, outcome: "invalid" });
+						continue;
+					}
+
+					const existing = await ctx.db
+						.select({ id: user.id })
+						.from(user)
+						.where(eq(user.email, email))
+						.limit(1);
+
+					/* They can already sign in; an invite would only confuse them. */
+					if (existing[0]) {
+						results.push({ email, outcome: "already_registered" });
+						continue;
+					}
+
+					const { hash, token } = createInviteToken();
+
+					await ctx.db.transaction(async (tx) => {
+						/* Supersede any live invite for this address, so the partial
+               unique index holds and only the newest link works. */
+						await tx
+							.update(partnerInvites)
+							.set({ status: "revoked" })
+							.where(
+								and(
+									eq(partnerInvites.email, email),
+									eq(partnerInvites.status, "sent")
+								)
+							);
+
+						await tx.insert(partnerInvites).values({
+							email,
+							tokenHash: hash,
+							companyName: input.companyName?.trim() || null,
+							proposedRateBps: input.proposedRateBps ?? null,
+							expiresAt,
+							invitedBy: ctx.session.user.id,
+						});
+					});
+
+					const delivery = await notify(
+						ctx,
+						renderPartnerInviteEmail({
+							acceptUrl: `${siteOrigin()}/register?invite=${encodeURIComponent(token)}`,
+							companyName: input.companyName?.trim() || null,
+							inviterName: ctx.session.user.name ?? null,
+							to: email,
+						})
+					);
+
+					results.push({ email, emailed: delivery, outcome: "invited" });
+				}
+
+				return { results };
+			}),
+
+		/** Outstanding and historical invitations, newest first. */
+		invites: adminProcedure.query(async ({ ctx }) => {
+			const rows = await ctx.db
+				.select({
+					id: partnerInvites.id,
+					email: partnerInvites.email,
+					companyName: partnerInvites.companyName,
+					proposedRateBps: partnerInvites.proposedRateBps,
+					status: partnerInvites.status,
+					expiresAt: partnerInvites.expiresAt,
+					acceptedAt: partnerInvites.acceptedAt,
+					createdAt: partnerInvites.createdAt,
+				})
+				.from(partnerInvites)
+				.orderBy(desc(partnerInvites.createdAt));
+
+			const now = new Date();
+			return rows.map((row) => ({
+				...row,
+				/* Expiry is a fact about time, not a status anybody writes, so it is
+           derived here rather than by a job that has to keep up. */
+				expired: row.status === "sent" && row.expiresAt <= now,
+			}));
+		}),
+
+		/** Kill a live invitation's link. Accepted invites are history and stay. */
+		revokeInvite: adminProcedure
+			.input(z.object({ inviteId: z.string() }))
+			.mutation(async ({ ctx, input }) => {
+				await ctx.db
+					.update(partnerInvites)
+					.set({ status: "revoked" })
+					.where(
+						and(
+							eq(partnerInvites.id, input.inviteId),
+							eq(partnerInvites.status, "sent")
+						)
+					);
 				return { ok: true };
 			}),
 

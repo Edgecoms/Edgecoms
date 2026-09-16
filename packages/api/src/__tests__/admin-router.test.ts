@@ -106,6 +106,7 @@ async function commissionFor(txn: string) {
 describe("admin.partners.approve", () => {
 	test("sets status, default rate, and per-app overrides", async () => {
 		await adminCaller().admin.partners.approve({
+			code: "TESTCODE",
 			partnerId: PARTNER,
 			defaultRateBps: 1000,
 			appRates: [{ appId: APP_Y, rateBps: 2000 }],
@@ -128,6 +129,7 @@ describe("admin.partners.approve", () => {
 describe("admin.merchants.approve + grandfathering + generation", () => {
 	test("grandfathered app earns nothing; non-grandfathered earns at the frozen rate", async () => {
 		await adminCaller().admin.partners.approve({
+			code: "TESTCODE",
 			partnerId: PARTNER,
 			defaultRateBps: 1000,
 			appRates: [{ appId: APP_Y, rateBps: 2000 }],
@@ -157,6 +159,7 @@ describe("admin.merchants.approve + grandfathering + generation", () => {
 describe("admin.commissions.markPaid — immutable amounts", () => {
 	test("marking paid flips status but never rewrites the money", async () => {
 		await adminCaller().admin.partners.approve({
+			code: "TESTCODE",
 			partnerId: PARTNER,
 			defaultRateBps: 1000,
 		});
@@ -184,6 +187,7 @@ describe("admin.commissions.markPaid — immutable amounts", () => {
 describe("admin.payouts.pay — grouping", () => {
 	test("groups a partner/period's pending commissions into one paid payout", async () => {
 		await adminCaller().admin.partners.approve({
+			code: "TESTCODE",
 			partnerId: PARTNER,
 			defaultRateBps: 1000,
 		});

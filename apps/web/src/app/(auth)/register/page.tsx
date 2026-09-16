@@ -76,7 +76,7 @@ export default function RegisterPage() {
 		}
 
 		toast.success("Account created. Your application is pending review.");
-		router.push("/partner/welcome" as Route);
+		router.push("/partner" as Route);
 		router.refresh();
 	}
 

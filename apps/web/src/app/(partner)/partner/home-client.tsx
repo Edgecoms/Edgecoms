@@ -5,13 +5,21 @@ import { useQuery } from "@tanstack/react-query";
 import type { Route } from "next";
 import Link from "next/link";
 import { PartnerCodeCard } from "@/components/portal/partner-code-card";
-import { PortalHeader, StatusBadge } from "@/components/portal/ui";
+import {
+	EmptyState,
+	PortalHeader,
+	StatusBadge,
+	TableShell,
+} from "@/components/portal/ui";
 import { AppIcon } from "@/components/ui/app-icon";
-import { formatMoney } from "@/lib/money";
+import { formatMoney, formatPeriod } from "@/lib/money";
 import { trpc } from "@/utils/trpc";
 
 /**
- * WHAT A PARTNER SEES FIRST.
+ * THE PARTNER'S HOME. One screen, because there was never a second one worth
+ * navigating to: a separate "Start here" meant the numbers lived on one page
+ * and the reasons lived on another, and a partner had to guess which was the
+ * real dashboard.
  *
  * Built around one idea: a partner does not want to be taught, they want to
  * know what they have, what it is worth, and what to do next. So every block
@@ -288,6 +296,16 @@ function StoreCoverage({
 							<span className="text-caption text-secondary-foreground">
 								{store.shopDomain}
 							</span>
+							{store.monthsEarning > 0 ? (
+								<span className="text-body-sm text-primary-foreground tabular-nums">
+									Month {store.monthsEarning} ·{" "}
+									{formatMoney(store.lifetimeMinor, store.currency)} to date
+								</span>
+							) : (
+								<span className="text-caption text-secondary-foreground">
+									Earns from the first charge Shopify records
+								</span>
+							)}
 							{store.grandfatheredApps > 0 ? (
 								<span className="text-caption text-secondary-foreground">
 									{store.grandfatheredApps} grandfathered, never earns
@@ -411,7 +429,116 @@ function SuiteGrid({
 	);
 }
 
-export function PartnerWelcome({
+/** One commission per row, newest first. The ledger, not a summary of it. */
+function RecentActivity({
+	loading,
+	rows,
+}: {
+	loading: boolean;
+	rows: readonly {
+		amountMinor: string;
+		appName: string;
+		currency: string;
+		id: string;
+		merchantName: string;
+		period: string;
+		status: string;
+	}[];
+}) {
+	return (
+		<section className="flex flex-col gap-4">
+			<h2 className="font-medium text-h3 text-primary-foreground">
+				Recent commission
+			</h2>
+			{!loading && rows.length === 0 ? (
+				<EmptyState
+					description="Every charge Shopify records against an approved store of yours lands here, once, at the rate in force when you earned it."
+					title="Nothing yet"
+				/>
+			) : (
+				<TableShell
+					head={
+						<>
+							<th>Store</th>
+							<th>App</th>
+							<th>Period</th>
+							<th>Status</th>
+							<th className="text-right">Commission</th>
+						</>
+					}
+				>
+					{rows.map((row) => (
+						<tr key={row.id}>
+							<td className="text-primary-foreground">{row.merchantName}</td>
+							<td className="text-secondary-foreground">{row.appName}</td>
+							<td className="text-secondary-foreground">
+								{formatPeriod(row.period)}
+							</td>
+							<td>
+								<StatusBadge status={row.status} />
+							</td>
+							<td className="text-right text-primary-foreground tabular-nums">
+								{formatMoney(row.amountMinor, row.currency)}
+							</td>
+						</tr>
+					))}
+				</TableShell>
+			)}
+		</section>
+	);
+}
+
+/** One step at a time, with the bar as the reward for clearing one. */
+function NextSteps({
+	done,
+	steps,
+}: {
+	done: number;
+	steps: readonly { href: Route; label: string; title: string }[];
+}) {
+	if (steps.length === 0) {
+		return null;
+	}
+	return (
+		<section className="flex flex-col gap-3">
+			<div className="flex items-baseline justify-between gap-4">
+				<h2 className="font-medium text-h3 text-primary-foreground">Next</h2>
+				<span className="text-caption text-secondary-foreground tabular-nums">
+					{done} of 4 done
+				</span>
+			</div>
+			<div
+				aria-hidden="true"
+				className="h-1 w-full overflow-hidden rounded-full bg-border"
+			>
+				<div
+					className="h-full rounded-full bg-primary-foreground transition-all"
+					style={{ width: `${(done / 4) * 100}%` }}
+				/>
+			</div>
+			<ul className="flex flex-col gap-px overflow-hidden rounded-xl border border-border bg-border">
+				{steps.map((step) => (
+					<li
+						className="flex items-center justify-between gap-4 bg-surface px-5 py-3.5"
+						key={step.title}
+					>
+						<span className="text-body-sm text-primary-foreground">
+							{step.title}
+						</span>
+						<Link
+							className="text-caption text-primary-foreground underline underline-offset-4"
+							href={step.href}
+						>
+							{step.label}
+						</Link>
+					</li>
+				))}
+			</ul>
+		</section>
+	);
+}
+
+export function PartnerHome({
 	catalog,
 	firstName,
 }: {
@@ -525,7 +652,7 @@ export function PartnerWelcome({
 				/>
 				<Figure
 					hint={`of ${rows.length || 7} Edge apps`}
-					href={"/partner/welcome" as Route}
+					href={"/partner" as Route}
 					label="Apps earning"
 					loading={appsQuery.isLoading}
 					value={String(earningApps)}
@@ -534,45 +661,7 @@ export function PartnerWelcome({
 
 			<PartnerCodeCard />
 
-			{todo.length > 0 ? (
-				<section className="flex flex-col gap-3">
-					<div className="flex items-baseline justify-between gap-4">
-						<h2 className="font-medium text-h3 text-primary-foreground">
-							Next
-						</h2>
-						<span className="text-caption text-secondary-foreground tabular-nums">
-							{done} of 4 done
-						</span>
-					</div>
-					<div
-						aria-hidden="true"
-						className="h-1 w-full overflow-hidden rounded-full bg-border"
-					>
-						<div
-							className="h-full rounded-full bg-primary-foreground transition-all"
-							style={{ width: `${(done / 4) * 100}%` }}
-						/>
-					</div>
-					<ul className="flex flex-col gap-px overflow-hidden rounded-xl border border-border bg-border">
-						{todo.map((step) => (
-							<li
-								className="flex items-center justify-between gap-4 bg-surface px-5 py-3.5"
-								key={step.title}
-							>
-								<span className="text-body-sm text-primary-foreground">
-									{step.title}
-								</span>
-								<Link
-									className="text-caption text-primary-foreground underline underline-offset-4"
-									href={step.href}
-								>
-									{step.label}
-								</Link>
-							</li>
-						))}
-					</ul>
-				</section>
-			) : null}
+			<NextSteps done={done} steps={todo} />
 
 			<StoreCoverage catalogSize={catalogSize} stores={stores} />
 
@@ -599,6 +688,11 @@ export function PartnerWelcome({
 					</ul>
 				</section>
 			) : null}
+
+			<RecentActivity
+				loading={dashboard.isLoading}
+				rows={dashboard.data?.recentActivity ?? []}
+			/>
 
 			<SuiteGrid
 				copyBySlug={copyBySlug}

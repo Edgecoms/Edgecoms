@@ -518,7 +518,7 @@ export const adminRouter = router({
 						code: approved.code,
 						rateBps: input.defaultRateBps,
 						to: approved.email,
-						welcomeUrl: `${siteOrigin()}/partner/welcome`,
+						welcomeUrl: `${siteOrigin()}/partner`,
 					})
 				);
 

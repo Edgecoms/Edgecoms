@@ -509,7 +509,7 @@ describe("the rendered emails", () => {
 		code: "ACMEAGENCY",
 		rateBps: 2000,
 		to: "alex@acme.com",
-		welcomeUrl: "https://edge.test/partner/welcome",
+		welcomeUrl: "https://edge.test/partner",
 	});
 
 	test("contain no em dash, in either rendering", () => {
@@ -546,7 +546,7 @@ describe("the rendered emails", () => {
 		expect(approved.subject).toContain("ACMEAGENCY");
 		expect(approved.text).toContain("ACMEAGENCY");
 		expect(approved.text).toContain("20%");
-		expect(approved.text).toContain("https://edge.test/partner/welcome");
+		expect(approved.text).toContain("https://edge.test/partner");
 
 		expect(invite.text).not.toContain("ACMEAGENCY");
 		expect(invite.text).not.toContain("20%");

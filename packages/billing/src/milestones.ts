@@ -1,7 +1,6 @@
 import type { Database } from "@edgecoms/db";
 import { apps } from "@edgecoms/db/schema/apps";
 import { commissions } from "@edgecoms/db/schema/earnings";
-import { merchants } from "@edgecoms/db/schema/merchants";
 import { partnerBonuses } from "@edgecoms/db/schema/payouts";
 import { and, count, eq, ne, sql } from "drizzle-orm";
 
@@ -118,11 +117,21 @@ export async function evaluatePartnerMilestones(
 	db: Database,
 	partnerId: string
 ): Promise<PartnerMilestones> {
-	const storeRows = await db
-		.select({ value: count() })
-		.from(merchants)
-		.where(eq(merchants.partnerId, partnerId));
-	const storeCount = storeRows[0]?.value ?? 0;
+	/**
+	 * Stores that have EARNED, not stores that exist.
+	 *
+	 * This counted every merchant row for the partner, in any status. A partner
+	 * could bind five myshopify domains they control, let the settling sweep
+	 * approve them a day later, and collect $50 for stores that had never paid
+	 * Edge anything: rejected and suspended rows counted too. The bounty already
+	 * uses "has generated commission" as its bar precisely because it cannot be
+	 * faked without actually paying Shopify, so the rung uses the same one.
+	 */
+	const earningStoreRows = await db
+		.selectDistinct({ merchantId: commissions.merchantId })
+		.from(commissions)
+		.where(eq(commissions.partnerId, partnerId));
+	const storeCount = earningStoreRows.length;
 
 	const commissionRows = await db
 		.select({ value: count() })
@@ -230,7 +239,7 @@ export async function evaluatePartnerMilestones(
 				bonusMinor: MILESTONE_BONUS_MINOR.five_stores.toString(),
 				current: storeCount,
 				key: "five_stores",
-				label: "Five stores on your code",
+				label: "Five stores paying for Edge",
 				reached: storeCount >= 5,
 				target: 5,
 			},

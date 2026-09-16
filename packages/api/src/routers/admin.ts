@@ -26,6 +26,7 @@ import {
 	eq,
 	inArray,
 	isNotNull,
+	lte,
 	ne,
 	notInArray,
 	sql,
@@ -398,23 +399,45 @@ export const adminRouter = router({
 			.select({ value: count() })
 			.from(merchants)
 			.where(eq(merchants.status, "pending"));
+		/* Grouped by currency, like every other total in the system. These two
+		   were the last place summing across currencies and labelling the
+		   result USD: with one EUR partner the admin's own dashboard reported a
+		   figure that was not money in any currency. */
 		const monthCommission = await ctx.db
-			.select({ total: MONEY_SUM(commissions.commissionAmount) })
+			.select({
+				currency: commissions.currency,
+				total: MONEY_SUM(commissions.commissionAmount),
+			})
 			.from(commissions)
-			.where(eq(commissions.periodMonth, period));
+			.where(eq(commissions.periodMonth, period))
+			.groupBy(commissions.currency);
 		const payable = await ctx.db
-			.select({ total: MONEY_SUM(commissions.commissionAmount) })
+			.select({
+				currency: commissions.currency,
+				total: MONEY_SUM(commissions.commissionAmount),
+			})
 			.from(commissions)
-			.where(eq(commissions.status, "pending"));
+			.where(eq(commissions.status, "pending"))
+			.groupBy(commissions.currency);
+
+		const byAmountDesc = (
+			rows: readonly { currency: string; total: string }[]
+		) =>
+			rows
+				.map((row) => ({ amountMinor: row.total, currency: row.currency }))
+				.filter((row) => BigInt(row.amountMinor) !== 0n)
+				.sort((a, b) =>
+					BigInt(b.amountMinor) > BigInt(a.amountMinor) ? 1 : -1
+				);
 
 		return {
-			currency: "USD",
 			totalPartners: totalPartners[0]?.value ?? 0,
 			pendingPartners: pendingPartners[0]?.value ?? 0,
 			activeMerchants: activeMerchants[0]?.value ?? 0,
 			pendingMerchants: pendingMerchants[0]?.value ?? 0,
-			monthlyCommissionsMinor: monthCommission[0]?.total ?? "0",
-			pendingPayoutsMinor: payable[0]?.total ?? "0",
+			monthlyCommissions: byAmountDesc(monthCommission),
+			pendingPayouts: byAmountDesc(payable),
+			zeroCurrency: "USD",
 		};
 	}),
 
@@ -843,6 +866,13 @@ export const adminRouter = router({
 						status: partnerBonuses.status,
 						paidAt: partnerBonuses.paidAt,
 						createdAt: partnerBonuses.createdAt,
+						/* Which KIND of bonus. Null means a person chose it; a key
+						   means the programme owed it, and a key prefixed
+						   `merchant_earning:` is the per-store bounty. An admin
+						   auditing money leaving the business has to tell those
+						   apart. Safe to spread: text and uuid, unlike `amount`. */
+						milestoneKey: partnerBonuses.milestoneKey,
+						merchantId: partnerBonuses.merchantId,
 						partnerCompany: partners.companyName,
 						partnerName: user.name,
 					})
@@ -1430,47 +1460,79 @@ export const adminRouter = router({
 			.mutation(
 				async ({ ctx, input }) =>
 					await ctx.db.transaction(async (tx) => {
-						const groupWhere = and(
+						/**
+						 * THROUGH the named period, not just it.
+						 *
+						 * `lte` rather than `eq`, and this is the whole reason the
+						 * minimum below is honest. With `eq`, a partner earning
+						 * $15 a month had a March group worth $15 for ever: it
+						 * never reached the $50 floor, the next month formed its
+						 * own group that also never reached it, and the money was
+						 * permanently unpayable while the error message claimed it
+						 * would "roll into next month". `periodMonth` is
+						 * `YYYY-MM`, so lexicographic <= is chronological <=.
+						 *
+						 * The payout's own `periodMonth` is therefore the period it
+						 * runs THROUGH, and the return value reports every period
+						 * actually covered.
+						 */
+						const commissionWhere = and(
 							eq(commissions.partnerId, input.partnerId),
-							eq(commissions.periodMonth, input.periodMonth),
+							lte(commissions.periodMonth, input.periodMonth),
 							eq(commissions.currency, input.currency),
 							eq(commissions.status, "pending")
 						);
 
-						const totals = await tx
-							.select({
-								total: MONEY_SUM(commissions.commissionAmount),
-								items: count(),
-							})
-							.from(commissions)
-							.where(groupWhere);
-
-						/**
-						 * Bonuses ride the same payout, keyed identically. Scoped
-						 * to the SAME currency, so a EUR bonus waits for the EUR
-						 * payout instead of being converted into this one.
-						 */
+						/* Bonuses ride the same payout on the same key. Scoped to
+						   the SAME currency, so a EUR bonus waits for the EUR
+						   payout instead of being converted into this one. */
 						const bonusWhere = and(
 							eq(partnerBonuses.partnerId, input.partnerId),
-							eq(partnerBonuses.periodMonth, input.periodMonth),
+							lte(partnerBonuses.periodMonth, input.periodMonth),
 							eq(partnerBonuses.currency, input.currency),
 							eq(partnerBonuses.status, "pending")
 						);
 
-						const bonusTotals = await tx
-							.select({
-								total: MONEY_SUM(partnerBonuses.amount),
-								items: count(),
-							})
-							.from(partnerBonuses)
-							.where(bonusWhere);
-
 						await assertPayable(tx, input.partnerId);
 
-						const commissionTotal = BigInt(totals[0]?.total ?? "0");
-						const commissionItems = totals[0]?.items ?? 0;
-						const bonusTotal = BigInt(bonusTotals[0]?.total ?? "0");
-						const bonusItems = bonusTotals[0]?.items ?? 0;
+						/**
+						 * CLAIM THE ROWS, then total exactly what was claimed.
+						 *
+						 * `for("update")` locks them for the life of the
+						 * transaction. Summing with an aggregate and then running
+						 * the same predicate again in an UPDATE left a window: a
+						 * commission generated in between was stamped paid by the
+						 * update but excluded from the total the payout recorded,
+						 * and two concurrent calls each recorded a full-value
+						 * payout. Totalling the locked rows makes the payout equal
+						 * the money it actually claimed, by construction.
+						 */
+						const claimedCommissions = await tx
+							.select({
+								amount: commissions.commissionAmount,
+								id: commissions.id,
+								periodMonth: commissions.periodMonth,
+							})
+							.from(commissions)
+							.where(commissionWhere)
+							.for("update");
+
+						const claimedBonuses = await tx
+							.select({ amount: partnerBonuses.amount, id: partnerBonuses.id })
+							.from(partnerBonuses)
+							.where(bonusWhere)
+							.for("update");
+
+						const commissionTotal = claimedCommissions.reduce(
+							(sum, row) => sum + row.amount,
+							0n
+						);
+						const commissionItems = claimedCommissions.length;
+						const bonusTotal = claimedBonuses.reduce(
+							(sum, row) => sum + row.amount,
+							0n
+						);
+						const bonusItems = claimedBonuses.length;
 
 						/* Integers, added as integers. */
 						const total = commissionTotal + bonusTotal;
@@ -1485,14 +1547,15 @@ export const adminRouter = router({
 						/**
 						 * A MINIMUM, so a transfer fee cannot eat the payout.
 						 *
-						 * Nothing is lost by holding: the commissions stay
-						 * `pending` and join next month's group, which is the same
-						 * mechanism a late charge already uses.
+						 * Held money is not stranded money: because the sweep above
+						 * is `lte`, everything still pending is picked up by the
+						 * next run for this partner, and the total grows month by
+						 * month until it clears the floor.
 						 */
 						if (!input.force && total < MINIMUM_PAYOUT_MINOR) {
 							throw new TRPCError({
 								code: "PRECONDITION_FAILED",
-								message: `Below the ${MINIMUM_PAYOUT_MINOR / 100n} minimum; it rolls into next month. Use force to pay it anyway.`,
+								message: `Below the ${MINIMUM_PAYOUT_MINOR / 100n} minimum. It stays pending and the next run for this partner will sweep it in. Use force to pay it now anyway.`,
 							});
 						}
 
@@ -1529,21 +1592,37 @@ export const adminRouter = router({
 						}
 
 						const paidAt = new Date();
+						/* BY ID, not by predicate: exactly the rows that were
+						   locked and totalled, so the payout can never be stamped
+						   onto money it did not count. */
 						if (commissionItems > 0) {
 							await tx
 								.update(commissions)
 								.set({ status: "paid", paidAt, payoutId })
-								.where(groupWhere);
+								.where(
+									inArray(
+										commissions.id,
+										claimedCommissions.map((row) => row.id)
+									)
+								);
 						}
 						if (bonusItems > 0) {
-							/* Same predicate as the sum, inside the same transaction, so
-							   a bonus issued mid-payout is either counted and paid or
-							   left entirely for the next one. */
 							await tx
 								.update(partnerBonuses)
 								.set({ status: "paid", paidAt, payoutId })
-								.where(bonusWhere);
+								.where(
+									inArray(
+										partnerBonuses.id,
+										claimedBonuses.map((row) => row.id)
+									)
+								);
 						}
+
+						/* Which periods this actually covered, so an admin sees
+						   that a June run swept an unpaid March. */
+						const periodsCovered = [
+							...new Set(claimedCommissions.map((row) => row.periodMonth)),
+						].sort();
 
 						return {
 							bonusCount: bonusItems,
@@ -1552,6 +1631,7 @@ export const adminRouter = router({
 							items: commissionItems,
 							netMinor: net.toString(),
 							payoutId,
+							periodsCovered,
 							totalMinor: total.toString(),
 							withheldMinor: withheld.toString(),
 						};

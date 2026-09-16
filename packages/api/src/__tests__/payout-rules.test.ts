@@ -45,8 +45,18 @@ const admin = () =>
 		session: { user: { id: "admin1", role: "admin" } },
 	} as unknown as Context);
 
-/** A commission of `amount` minor units for one of the two partners. */
+/** A commission of `amount` minor units, in `PERIOD` unless told otherwise. */
 async function earn(partnerId: string, merchantId: string, amount: bigint) {
+	await earnIn(partnerId, merchantId, amount, PERIOD);
+}
+
+/** As `earn`, in a named period, for the accumulate-and-sweep tests. */
+async function earnIn(
+	partnerId: string,
+	merchantId: string,
+	amount: bigint,
+	period: string
+) {
 	seq += 1;
 	const inserted = await harness.db
 		.insert(earningEvents)
@@ -71,7 +81,7 @@ async function earn(partnerId: string, merchantId: string, amount: bigint) {
 		earningEventId: inserted[0]?.id ?? "",
 		merchantId,
 		partnerId,
-		periodMonth: PERIOD,
+		periodMonth: period,
 		rateBps: 2000,
 	});
 }
@@ -231,19 +241,99 @@ describe("the minimum", () => {
 		expect(result.totalMinor).toBe("5000");
 	});
 
-	test("two small months become one payable group", async () => {
-		/* The rolling-forward mechanism, from the partner's side: nothing is
-		   special-cased, the commissions simply stay pending. */
-		await earn(PAYABLE, STORE_A, 3000n);
-		await earn(PAYABLE, STORE_A, 3000n);
+	test("small months accumulate until they clear the floor, then pay as one", async () => {
+		/**
+		 * THE BUG THIS REPLACES. The earlier version of this test seeded two
+		 * commissions in the SAME period and called them "two small months", so
+		 * it proved nothing about rolling forward. The period was part of the
+		 * grouping key, which meant a partner earning $15 a month had a March
+		 * group worth $15 for ever: it never reached the floor, April formed its
+		 * own group that also never did, and the money was permanently unpayable
+		 * while the error message promised it would roll over.
+		 */
+		await earnIn(PAYABLE, STORE_A, 2000n, "2026-01");
+		await expect(
+			admin().admin.payouts.pay({
+				currency: "USD",
+				partnerId: PAYABLE,
+				periodMonth: "2026-01",
+			})
+		).rejects.toThrow(BELOW_MINIMUM);
+
+		await earnIn(PAYABLE, STORE_A, 2000n, "2026-02");
+		await expect(
+			admin().admin.payouts.pay({
+				currency: "USD",
+				partnerId: PAYABLE,
+				periodMonth: "2026-02",
+			})
+		).rejects.toThrow(BELOW_MINIMUM);
+
+		/* Third month crosses $50 across all three, so one payout covers them. */
+		await earnIn(PAYABLE, STORE_A, 2000n, "2026-03");
+		const result = await admin().admin.payouts.pay({
+			currency: "USD",
+			partnerId: PAYABLE,
+			periodMonth: "2026-03",
+		});
+
+		expect(result.totalMinor).toBe("6000");
+		expect(result.items).toBe(3);
+		expect(result.periodsCovered).toEqual(["2026-01", "2026-02", "2026-03"]);
+	});
+
+	test("a later run sweeps an earlier unpaid period", async () => {
+		await earnIn(PAYABLE, STORE_A, 2000n, "2026-01");
+		await earnIn(PAYABLE, STORE_A, 20_000n, "2026-02");
 
 		const result = await admin().admin.payouts.pay({
 			currency: "USD",
 			partnerId: PAYABLE,
-			periodMonth: PERIOD,
+			periodMonth: "2026-02",
 		});
-		expect(result.totalMinor).toBe("6000");
-		expect(result.items).toBe(2);
+
+		/* January was under the floor on its own and is picked up here, which is
+		   what makes the held-money promise true. */
+		expect(result.totalMinor).toBe("22000");
+		expect(result.periodsCovered).toEqual(["2026-01", "2026-02"]);
+	});
+
+	test("a later period is not swept by an earlier run", async () => {
+		await earnIn(PAYABLE, STORE_A, 20_000n, "2026-01");
+		await earnIn(PAYABLE, STORE_A, 20_000n, "2026-02");
+
+		const result = await admin().admin.payouts.pay({
+			currency: "USD",
+			partnerId: PAYABLE,
+			periodMonth: "2026-01",
+		});
+
+		/* Through, not across: February is still to come. */
+		expect(result.periodsCovered).toEqual(["2026-01"]);
+		expect(result.totalMinor).toBe("20000");
+	});
+
+	test("the payout total equals exactly the rows it stamped", async () => {
+		await earnIn(PAYABLE, STORE_A, 20_000n, "2026-01");
+		await earnIn(PAYABLE, STORE_A, 30_000n, "2026-01");
+
+		const result = await admin().admin.payouts.pay({
+			currency: "USD",
+			partnerId: PAYABLE,
+			periodMonth: "2026-01",
+		});
+
+		/* The rows are locked and totalled, then stamped BY ID. Summing with an
+		   aggregate and re-running the predicate in the UPDATE left a window
+		   where money generated in between was marked paid but excluded from
+		   the total the payout recorded. */
+		const paid = await harness.db
+			.select()
+			.from(commissions)
+			.where(eq(commissions.payoutId, result.payoutId));
+		const stamped = paid.reduce((sum, row) => sum + row.commissionAmount, 0n);
+		expect(stamped.toString()).toBe(result.totalMinor);
+		expect(paid).toHaveLength(result.items);
 	});
 });
 

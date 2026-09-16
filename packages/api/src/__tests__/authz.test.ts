@@ -156,3 +156,43 @@ describe("partnerProcedure — tenant isolation", () => {
 		).toBe("FORBIDDEN");
 	});
 });
+
+describe("partner.me exposes only what is the partner's own", () => {
+	test("internal columns never reach the partner", async () => {
+		/* The stub row carries the sensitive columns, so this proves the
+		   projection STRIPS them rather than proving the stub lacked them. */
+		const caller = makeCaller({
+			partnerRow: {
+				approvedBy: "admin-1",
+				id: "partner-A",
+				notes: "Chasing an invoice, do not renew",
+				payoutAccountNumber: "123456789012",
+				payoutIfsc: "HDFC0001234",
+				userId: "user-A",
+			} as never,
+			session: partnerSession("user-A"),
+		});
+
+		const me = await caller.partner.me();
+
+		/* `partners.notes` has no writer yet, so this leak was latent: the first
+		   admin screen to use the column would have shipped an internal note to
+		   the person it was written about. `approvedBy` names our admin. */
+		expect(me).not.toHaveProperty("notes");
+		expect(me).not.toHaveProperty("approvedBy");
+		/* Account details belong to `settings`, where a partner reads and writes
+		   them. Not scattered across responses that have no use for them. */
+		expect(me).not.toHaveProperty("payoutAccountNumber");
+		expect(me).not.toHaveProperty("payoutIfsc");
+
+		expect(Object.keys(me).sort()).toEqual([
+			"approvedAt",
+			"companyName",
+			"defaultRateBps",
+			"id",
+			"status",
+			"userId",
+			"website",
+		]);
+	});
+});

@@ -213,16 +213,23 @@ describe("admin.payouts.pay — grouping", () => {
 			partnerId: PARTNER,
 			periodMonth: "2026-06",
 		});
-		expect(result.items).toBe(2);
-		expect(result.totalMinor).toBe("1500");
+		// A payout covers everything THROUGH the named period, so paying 2026-06
+		// also settles the unpaid 2026-05 commission. That is a deliberate
+		// change: while the period was part of the grouping key, a partner
+		// earning under the payout minimum each month had every month's group
+		// stranded below the floor for ever.
+		expect(result.items).toBe(3);
+		expect(result.totalMinor).toBe("2500");
+		expect(result.periodsCovered).toEqual(["2026-05", "2026-06"]);
 
 		const cy2 = await commissionFor("ey2");
 		expect(cy2?.status).toBe("paid");
 		expect(cy2?.payoutId).toBe(result.payoutId);
 
-		// The 2026-05 commission is in a different period — still pending.
+		// Swept in by the same run, and stamped with the same payout.
 		const cy1 = await commissionFor("ey1");
-		expect(cy1?.status).toBe("pending");
+		expect(cy1?.status).toBe("paid");
+		expect(cy1?.payoutId).toBe(result.payoutId);
 
 		// Re-paying the same group now has nothing to pay.
 		await expect(

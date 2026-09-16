@@ -67,7 +67,29 @@ function toMoneyList(
 const ZERO_CURRENCY = "USD";
 
 export const partnerRouter = router({
-	me: partnerProcedure.query(({ ctx }) => ctx.partner),
+	/**
+	 * Who the caller is, PROJECTED rather than returned wholesale.
+	 *
+	 * This used to return `ctx.partner`, which is the entire row: `notes` and
+	 * `approvedBy` included. `partners.notes` has no writer anywhere in the
+	 * codebase and exists for exactly one thing, an admin's private note about a
+	 * partner, so the first admin screen to use it would have shipped straight
+	 * to the partner it was written about. `approvedBy` names the admin who
+	 * approved them, which is ours and not theirs.
+	 *
+	 * Payout account details are deliberately absent too. A partner reads and
+	 * writes those through `settings`, and an account number is not something to
+	 * scatter across responses that do not need it.
+	 */
+	me: partnerProcedure.query(({ ctx }) => ({
+		approvedAt: ctx.partner.approvedAt,
+		companyName: ctx.partner.companyName,
+		defaultRateBps: ctx.partner.defaultRateBps,
+		id: ctx.partner.id,
+		status: ctx.partner.status,
+		userId: ctx.partner.userId,
+		website: ctx.partner.website,
+	})),
 
 	/**
 	 * Diagnostic: proves the resolved scope is the SESSION's partner id and that
@@ -723,7 +745,16 @@ export const partnerRouter = router({
 			.select({
 				id: payouts.id,
 				periodMonth: payouts.periodMonth,
+				/* Gross, withheld and net. Showing gross alone told a partner
+				   they were paid $500 while $450 reached their bank, which is
+				   precisely the dispute CLAUDE.md's withholding invariant exists
+				   to prevent. The note explains the deduction in our words. */
 				amount: payouts.totalAmount,
+				withheld: payouts.withheldAmount,
+				net: payouts.netAmount,
+				withholdingNote: payouts.withholdingNote,
+				settled: payouts.settledAmount,
+				settledCurrency: payouts.settledCurrency,
 				currency: payouts.currency,
 				status: payouts.status,
 				paidAt: payouts.paidAt,
@@ -751,6 +782,11 @@ export const partnerRouter = router({
 				id: p.id,
 				periodMonth: p.periodMonth,
 				amountMinor: p.amount.toString(),
+				withheldMinor: p.withheld.toString(),
+				netMinor: p.net.toString(),
+				withholdingNote: p.withholdingNote,
+				settledMinor: p.settled?.toString() ?? null,
+				settledCurrency: p.settledCurrency,
 				currency: p.currency,
 				status: p.status,
 				paidAt: p.paidAt,

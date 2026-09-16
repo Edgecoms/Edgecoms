@@ -1,22 +1,18 @@
+import { minorUnitDigits } from "@edgecoms/billing/money";
+
 /**
  * Display-only money formatting. The API returns amounts as integer minor-unit
  * STRINGS (bigint-safe); this converts them for human display. Never use the
- * result for further math — the server owns all money arithmetic.
+ * result for further math: the server owns all money arithmetic.
+ *
+ * The minor-unit digits come from `@edgecoms/billing/money`, the same table the
+ * server converts with. This file used to keep its own shorter copy: nine
+ * currencies against billing's twenty-odd, so a partner paid in UGX, XOF or
+ * IQD saw an amount a hundred or a thousand times wrong. That module is pure
+ * integer math with no imports of its own, so it is safe in a browser bundle.
  */
-const MINOR_DIGITS: Record<string, number> = {
-	JPY: 0,
-	KRW: 0,
-	VND: 0,
-	CLP: 0,
-	ISK: 0,
-	BHD: 3,
-	KWD: 3,
-	OMR: 3,
-	TND: 3,
-};
-
 export function formatMoney(minorUnits: string, currency = "USD"): string {
-	const digits = MINOR_DIGITS[currency] ?? 2;
+	const digits = minorUnitDigits(currency);
 	const value = Number(minorUnits) / 10 ** digits;
 	return new Intl.NumberFormat("en-US", {
 		style: "currency",

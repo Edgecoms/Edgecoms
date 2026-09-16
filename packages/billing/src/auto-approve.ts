@@ -4,7 +4,7 @@ import {
 	merchants,
 } from "@edgecoms/db/schema/merchants";
 import { partners } from "@edgecoms/db/schema/partners";
-import { and, eq, lte, notExists, sql } from "drizzle-orm";
+import { and, eq, exists, lte, notExists, sql } from "drizzle-orm";
 
 /**
  * THE SETTLING SWEEP -- approving the stores where there is nothing to decide.
@@ -118,6 +118,28 @@ export async function autoApproveSettledMerchants(
 								.select({ one: sql`1` })
 								.from(merchantGrandfatheredApps)
 								.where(eq(merchantGrandfatheredApps.merchantId, candidate.id))
+						),
+						/**
+						 * The partner is still approved.
+						 *
+						 * This was checked against the candidate list read
+						 * BEFORE the transaction, which made it the one
+						 * condition this function's own contract claimed to
+						 * re-assert and did not. A partner suspended while a
+						 * sweep was mid-run still had their stores approved,
+						 * opening new earning for somebody we had just stopped
+						 * working with.
+						 */
+						exists(
+							tx
+								.select({ one: sql`1` })
+								.from(partners)
+								.where(
+									and(
+										eq(partners.id, merchants.partnerId),
+										eq(partners.status, "approved")
+									)
+								)
 						)
 					)
 				)

@@ -4,7 +4,7 @@ import { Button } from "@edgecoms/ui/components/button";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { PortalHeader, StatCard } from "@/components/portal/ui";
-import { formatMoney } from "@/lib/money";
+import { allMoney } from "@/lib/money";
 import { queryClient, trpc } from "@/utils/trpc";
 
 function formatTimestamp(value: string | Date | null | undefined): string {
@@ -18,7 +18,6 @@ export default function AdminDashboardPage() {
 	const { data, isLoading } = useQuery(trpc.admin.dashboard.queryOptions());
 	const syncQuery = useQuery(trpc.admin.syncState.queryOptions());
 	const runSync = useMutation(trpc.admin.runSync.mutationOptions());
-	const currency = data?.currency ?? "USD";
 	const sync = syncQuery.data?.[0];
 
 	function handleRunSync() {
@@ -82,13 +81,13 @@ export default function AdminDashboardPage() {
 					hint="This month"
 					label="Commissions"
 					loading={isLoading}
-					value={formatMoney(data?.monthlyCommissionsMinor ?? "0", currency)}
+					value={allMoney(data?.monthlyCommissions ?? [], data?.zeroCurrency)}
 				/>
 				<StatCard
 					hint="Unpaid commission"
 					label="Pending payouts"
 					loading={isLoading}
-					value={formatMoney(data?.pendingPayoutsMinor ?? "0", currency)}
+					value={allMoney(data?.pendingPayouts ?? [], data?.zeroCurrency)}
 				/>
 			</div>
 

@@ -223,16 +223,34 @@ describe("the amounts, and when they are owed", () => {
 		expect((await bonusFor("three_apps"))?.amount).toBe(1000n);
 	});
 
-	test("five stores pays fifty, at five and not at four", async () => {
+	test("five stores pays fifty, at five PAYING stores and not at four", async () => {
 		for (let index = 0; index < 4; index += 1) {
-			await addStore(`22222222-2222-2222-2222-00000000000${index}`);
+			const id = `22222222-2222-2222-2222-00000000000${index}`;
+			await addStore(id);
+			await earn({ merchantId: id });
 		}
 		await award();
 		expect(await bonusFor("five_stores")).toBeUndefined();
 
-		await addStore("22222222-2222-2222-2222-000000000004");
+		const fifth = "22222222-2222-2222-2222-000000000004";
+		await addStore(fifth);
+		await earn({ merchantId: fifth });
 		await award();
 		expect((await bonusFor("five_stores"))?.amount).toBe(5000n);
+	});
+
+	test("five stores that never paid earn nothing", async () => {
+		/* The rung counted every merchant row in any status, so a partner could
+		   bind five myshopify domains they controlled, let the settling sweep
+		   approve them a day later, and collect $50 for stores that had never
+		   paid Edge anything. */
+		for (let index = 0; index < 5; index += 1) {
+			await addStore(`22222222-2222-2222-2222-10000000000${index}`);
+		}
+
+		await award();
+
+		expect(await bonusFor("five_stores")).toBeUndefined();
 	});
 
 	test("the whole suite pays seventy, counting every app in the catalogue", async () => {

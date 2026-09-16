@@ -23,7 +23,7 @@ export default function PartnerEarningsPage() {
 	return (
 		<div className="flex flex-col gap-8">
 			<PortalHeader
-				description="Your commission by month, what's owed, and your payout history."
+				description="Your commission by month, what is owed, and every payout. Where tax was withheld at source, you see what you earned and what reached you."
 				title="Earnings"
 			/>
 
@@ -111,9 +111,11 @@ export default function PartnerEarningsPage() {
 					<TableShell
 						head={
 							<>
-								<th>Period</th>
+								<th>Through</th>
 								<th>Status</th>
-								<th className="text-right">Amount</th>
+								<th className="text-right">Earned</th>
+								<th className="text-right">Withheld</th>
+								<th className="text-right">Paid to you</th>
 							</>
 						}
 					>
@@ -125,8 +127,34 @@ export default function PartnerEarningsPage() {
 								<td>
 									<StatusBadge status={payout.status} />
 								</td>
-								<td className="text-right text-primary-foreground tabular-nums">
+								<td className="text-right text-secondary-foreground tabular-nums">
 									{formatMoney(payout.amountMinor, payout.currency)}
+								</td>
+								<td className="text-right text-secondary-foreground tabular-nums">
+									<div className="flex flex-col items-end">
+										<span>
+											{formatMoney(payout.withheldMinor, payout.currency)}
+										</span>
+										{payout.withholdingNote ? (
+											<span className="text-caption">
+												{payout.withholdingNote}
+											</span>
+										) : null}
+									</div>
+								</td>
+								<td className="text-right text-primary-foreground tabular-nums">
+									<div className="flex flex-col items-end">
+										<span>{formatMoney(payout.netMinor, payout.currency)}</span>
+										{payout.settledMinor && payout.settledCurrency ? (
+											<span className="text-caption text-secondary-foreground">
+												Sent{" "}
+												{formatMoney(
+													payout.settledMinor,
+													payout.settledCurrency
+												)}
+											</span>
+										) : null}
+									</div>
 								</td>
 							</tr>
 						))}

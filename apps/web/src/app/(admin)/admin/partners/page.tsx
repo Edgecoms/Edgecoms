@@ -11,6 +11,8 @@ import { Label } from "@edgecoms/ui/components/label";
 import { Skeleton } from "@edgecoms/ui/components/skeleton";
 import { Textarea } from "@edgecoms/ui/components/textarea";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import type { Route } from "next";
+import Link from "next/link";
 import { type FormEvent, useId, useState } from "react";
 import { toast } from "sonner";
 import { PortalHeader, StatusBadge, TableShell } from "@/components/portal/ui";
@@ -275,9 +277,12 @@ export default function AdminPartnersPage() {
 						<tr key={partner.id}>
 							<td>
 								<div className="flex flex-col">
-									<span className="text-primary-foreground">
+									<Link
+										className="text-primary-foreground underline decoration-border-strong underline-offset-2"
+										href={`/admin/partners/${partner.id}` as Route}
+									>
 										{partner.companyName ?? partner.name}
-									</span>
+									</Link>
 									<span className="text-caption text-secondary-foreground">
 										{partner.email}
 									</span>

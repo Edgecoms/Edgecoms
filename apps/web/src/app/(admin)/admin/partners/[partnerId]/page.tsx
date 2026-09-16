@@ -19,16 +19,11 @@ import { trpc } from "@/utils/trpc";
  * One partner, end to end: the rate they are on, the codes they hand out, the
  * stores those codes brought in, and the money that followed.
  *
- * There is no partner-detail procedure, so every section reads the same list
- * the matching admin index reads and keeps the rows for this partner. The lists
- * are admin-sized (and commissions are server-capped at 200), so filtering
- * here costs a pass over an array rather than a round trip.
- *
- * `codes.list` carries a `partnerId`, so its rows match exactly. The other
- * payloads carry only the partner LABEL the server renders them with, so their
- * rows are matched on that same `companyName ?? name` string: two partners
- * sharing a company name would see each other's rows, and the fix for that is
- * a `partnerId` on those payloads rather than a cleverer guess here.
+ * Everything below the header comes from `admin.partners.detail`, which reads
+ * by partner id on the server. This page used to fetch every admin list and
+ * keep the rows whose partner NAME matched, so two partners with the same name
+ * showed each other's stores and money, and commission was cut at the 200
+ * newest rows across all partners. Never match rows on a display name.
  */
 
 interface PartnerRow {
@@ -50,7 +45,6 @@ interface CodeRow {
 	id: string;
 	label: string | null;
 	maxRedemptions: number | null;
-	partnerId: string;
 	redemptions: number;
 	status: string;
 }
@@ -58,8 +52,6 @@ interface CodeRow {
 interface StoreRow {
 	id: string;
 	name: string;
-	partnerCompany: string | null;
-	partnerName: string;
 	shopDomain: string;
 	source: string;
 	sourceCode: string | null;
@@ -70,7 +62,6 @@ interface BonusRow {
 	amountMinor: string;
 	currency: string;
 	id: string;
-	partner: string;
 	periodMonth: string;
 	reason: string | null;
 	status: string;
@@ -82,7 +73,6 @@ interface CommissionRow {
 	currency: string;
 	id: string;
 	merchantName: string;
-	partner: string;
 	period: string;
 	rateBps: number;
 	status: string;
@@ -94,7 +84,6 @@ interface PayoutRow {
 	id: string;
 	method: string | null;
 	netMinor: string;
-	partner: string;
 	periodMonth: string;
 	reference: string | null;
 	status: string;
@@ -467,32 +456,15 @@ function PayoutsSection({
 }
 
 function PartnerDetail({ partner }: { partner: PartnerRow }) {
-	const codesQuery = useQuery(trpc.admin.codes.list.queryOptions());
-	const merchantsQuery = useQuery(trpc.admin.merchants.list.queryOptions());
-	const bonusesQuery = useQuery(trpc.admin.partners.bonuses.queryOptions());
-	const payoutsQuery = useQuery(trpc.admin.payouts.list.queryOptions());
-	/* Every status, because a detail page that hid paid commission would make a
-	   partner with a settled book look like they had never earned. */
-	const commissionsQuery = useQuery(
-		trpc.admin.commissions.list.queryOptions(undefined)
+	/* Every status of everything, because a detail page that hid paid
+	   commission would make a partner with a settled book look like they had
+	   never earned. */
+	const detailQuery = useQuery(
+		trpc.admin.partners.detail.queryOptions({ partnerId: partner.id })
 	);
-
+	const loading = detailQuery.isLoading;
+	const detail = detailQuery.data;
 	const label = partner.companyName ?? partner.name;
-	const codes = (codesQuery.data ?? []).filter(
-		(row) => row.partnerId === partner.id
-	);
-	const stores = (merchantsQuery.data ?? []).filter(
-		(row) => (row.partnerCompany ?? row.partnerName) === label
-	);
-	const bonuses = (bonusesQuery.data ?? []).filter(
-		(row) => row.partner === label
-	);
-	const commissions = (commissionsQuery.data ?? []).filter(
-		(row) => row.partner === label
-	);
-	const payouts = (payoutsQuery.data ?? []).filter(
-		(row) => row.partner === label
-	);
 
 	return (
 		<div className="flex flex-col gap-10">
@@ -513,14 +485,25 @@ function PartnerDetail({ partner }: { partner: PartnerRow }) {
 				<PartnerFacts partner={partner} />
 			</div>
 
-			<CodesSection codes={codes} loading={codesQuery.isLoading} />
-			<StoresSection loading={merchantsQuery.isLoading} stores={stores} />
-			<CommissionsSection
-				commissions={commissions}
-				loading={commissionsQuery.isLoading}
-			/>
-			<BonusesSection bonuses={bonuses} loading={bonusesQuery.isLoading} />
-			<PayoutsSection loading={payoutsQuery.isLoading} payouts={payouts} />
+			{detailQuery.isError ? (
+				/* An empty table here would read as "this partner has nothing",
+				   which is a claim about money the page could not check. */
+				<EmptyState
+					description="Their codes, stores and payments could not be loaded. Reload the page to try again."
+					title="Could not load this partner"
+				/>
+			) : (
+				<>
+					<CodesSection codes={detail?.codes ?? []} loading={loading} />
+					<StoresSection loading={loading} stores={detail?.stores ?? []} />
+					<CommissionsSection
+						commissions={detail?.commissions ?? []}
+						loading={loading}
+					/>
+					<BonusesSection bonuses={detail?.bonuses ?? []} loading={loading} />
+					<PayoutsSection loading={loading} payouts={detail?.payouts ?? []} />
+				</>
+			)}
 		</div>
 	);
 }

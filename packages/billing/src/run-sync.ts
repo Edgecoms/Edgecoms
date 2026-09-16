@@ -1,4 +1,5 @@
 import type { Database } from "@edgecoms/db";
+import { autoApproveSettledMerchants } from "./auto-approve";
 import { generateCommissions } from "./commissions";
 import { reconcile } from "./reconcile";
 import type { EarningSource, SyncSummary } from "./types";
@@ -6,13 +7,20 @@ import type { EarningSource, SyncSummary } from "./types";
 export interface RunBillingSyncDeps {
 	db: Database;
 	now?: () => Date;
+	/** Overrides the sweep's settling window. Defaults to 24 hours. */
+	settlingHours?: number;
 	source: EarningSource;
 	sourceKey?: string;
 }
 
 /**
- * A full billing pass: ingest the latest earnings (checkpointed, idempotent)
- * then generate any missing commissions. Pure orchestration over `reconcile`
+ * A full billing pass: ingest the latest earnings (checkpointed, idempotent),
+ * approve the stores that have settled with nothing to decide, then generate
+ * any missing commissions.
+ *
+ * The approval step runs BEFORE generation on purpose, so a store approved by
+ * this pass starts earning in the same pass rather than waiting six hours for
+ * the next one. Pure orchestration over `reconcile`
  * and `generateCommissions` — the SAME function the worker cron and the admin
  * "Run sync now" mutation both call. Errors propagate to the caller (the
  * reconcile step has already persisted the error to sync_state).
@@ -29,11 +37,17 @@ export async function runBillingSync(
 		now,
 	});
 
+	const autoApproval = await autoApproveSettledMerchants(deps.db, {
+		now,
+		settlingHours: deps.settlingHours,
+	});
+
 	const commissionSummary = await generateCommissions(deps.db, { now });
 
 	return {
 		startedAt,
 		finishedAt: now(),
+		autoApproval,
 		reconcile: reconcileSummary,
 		commissions: commissionSummary,
 	};

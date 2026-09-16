@@ -1,5 +1,6 @@
 import { relations } from "drizzle-orm";
 import {
+	boolean,
 	index,
 	pgEnum,
 	pgTable,
@@ -84,6 +85,15 @@ export const merchants = pgTable(
 		 */
 		...discountTerms,
 		discountGrantedAt: timestamp("discount_granted_at"),
+		/**
+		 * True when the settling sweep approved this store rather than a person.
+		 *
+		 * `approvedBy` is null for those, and null is already what a deleted
+		 * admin leaves behind, so without this column the two are
+		 * indistinguishable in an attribution dispute. See
+		 * `autoApproveSettledMerchants` in @edgecoms/billing.
+		 */
+		autoApproved: boolean("auto_approved").default(false).notNull(),
 		approvedAt: timestamp("approved_at"),
 		approvedBy: text("approved_by").references(() => user.id, {
 			onDelete: "set null",

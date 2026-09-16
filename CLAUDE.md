@@ -55,6 +55,10 @@ subscribed.
   proposal. Amending before approval is safe because a `pending` merchant earns
   nothing; widening the set afterwards is forbidden, because it would
   retroactively delete commission the partner was already told they had earned.
+  This is why approval is never decided at bind time: freezing after the FIRST
+  app reported would stop the second app a store installs from ever adding
+  itself, and a shop already paying for that app would earn the partner
+  commission on revenue that predates them.
 - Commission is **lifetime** while the merchant stays subscribed. There is no
   expiry logic; no earning event simply means no commission.
 - **Per-app rates:** a partner has a default rate (basis points); an optional
@@ -81,8 +85,20 @@ See `docs/partner-attribution-codes.md` for the full design.
 - **One partner per shop, permanent.** A code redemption on a claimed domain is
   refused, never reassigned. A replay by the same partner is a no-op that returns
   the existing binding.
-- A code redemption creates the merchant `pending`. **A code never bypasses
-  admin approval** — approval remains the money gate.
+- A code redemption creates the merchant `pending`. **A code never bypasses the
+  approval gate.**
+- **Approval may be automatic, but only where there is nothing to decide.** The
+  settling sweep (`autoApproveSettledMerchants` in `@edgecoms/billing`, run from
+  the billing cron before commission generation) approves a merchant only when
+  ALL of: it is `pending`, `source` is `code`, it has been pending longer than
+  the settling window (24h by default), its grandfathered set is **empty**, and
+  its partner is still `approved`. Every condition is re-asserted inside the
+  updating transaction, and the row is stamped `auto_approved` so a sweep
+  approval is distinguishable from a person's in a dispute.
+  The gate itself is unchanged: a store that was already paying for an Edge app
+  has a non-empty set, fails the test, and waits for a human — which is the only
+  case where a human was deciding anything. What the sweep removes is the wait
+  for stores where the answer was never in question.
 - **Never parse a rate out of a code string.** The rate is read from the partner
   row (or `partner_app_rates`). Merchant-facing codes must be rate-free;
   `partner_codes.label` is the internal note and is never returned to a partner.

@@ -1,0 +1,1 @@
+ALTER TABLE "merchants" ADD COLUMN "auto_approved" boolean DEFAULT false NOT NULL;

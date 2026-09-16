@@ -1,3 +1,4 @@
+import type { AutoApproveSummary } from "./auto-approve";
 /**
  * The normalized earning — the ONLY shape the rest of the system sees. All
  * Shopify-specific shapes are confined to partner-api.ts and converted into
@@ -54,6 +55,8 @@ export interface CommissionSummary {
 }
 
 export interface SyncSummary {
+	/** What the settling sweep approved, and what it left for a person. */
+	autoApproval: AutoApproveSummary;
 	commissions: CommissionSummary;
 	error?: string;
 	finishedAt: Date;

@@ -45,6 +45,8 @@ async function main(): Promise<void> {
 		pagesFetched: summary.reconcile.pagesFetched,
 		earningsSeen: summary.reconcile.earningsSeen,
 		earningsInserted: summary.reconcile.earningsInserted,
+		merchantsAutoApproved: summary.autoApproval.approved.length,
+		merchantsHeldForReview: summary.autoApproval.held.length,
 		commissionsCreated: summary.commissions.commissionsCreated,
 		commissionsSkipped: summary.commissions.commissionsSkipped,
 		cursor: summary.reconcile.cursor,

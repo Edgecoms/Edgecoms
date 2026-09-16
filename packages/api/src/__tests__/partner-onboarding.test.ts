@@ -616,9 +616,11 @@ describe("the rendered emails", () => {
 	test("the invite does not open by repeating its heading", () => {
 		const [heading, , firstLine] = invite.text.split("\n");
 		expect(heading).toBe("Acme Agency is invited to Edge Partners");
-		expect(firstLine).toBe(
-			"Anurag at Edge invited you to join the Edge Partner Program."
-		);
+		expect(
+			firstLine?.startsWith(
+				"Anurag at Edge invited you to join the Edge Partner Program."
+			)
+		).toBe(true);
 		expect(invite.text.split(heading ?? "").length).toBe(2);
 	});
 
@@ -641,10 +643,10 @@ describe("the rendered emails", () => {
 		const ladder = formatBonus(
 			Object.values(MILESTONE_BONUS_MINOR).reduce((sum, v) => sum + v, 0n)
 		);
-		expect(approved.text).toContain(`${bounty} bonus for every store`);
 		expect(approved.text).toContain(
-			`up to ${ladder} more in milestone bonuses`
+			`Every store that starts earning you commission: ${bounty}`
 		);
+		expect(approved.text).toContain(`Milestones as you grow: Up to ${ladder}`);
 		/* The only dollar figures anywhere are those two published promises. */
 		expect(`${approved.text} ${invite.text}`.match(/\$[\d.]+/g)).toEqual([
 			bounty,
@@ -670,7 +672,7 @@ describe("the rendered emails", () => {
 			to: "alex@acme.com",
 		});
 		expect(claimed.text).toContain(
-			`If it was NOT you, email ${PARTNER_CONTACT_EMAIL} straight away.`
+			`Was this not you? Email ${PARTNER_CONTACT_EMAIL} straight away.`
 		);
 		for (const email of [invite, approved, claimed]) {
 			expect(email.text.toLowerCase()).not.toContain("reply to this email");
@@ -679,6 +681,20 @@ describe("the rendered emails", () => {
 			);
 			expect(email.html).toContain(`mailto:${PARTNER_CONTACT_EMAIL}`);
 		}
+	});
+
+	test("the approval shows the code on its own, and the steps in order", () => {
+		expect(approved.text).toContain("Your attribution code: ACMEAGENCY");
+		expect(approved.text).toContain("How it works\n1. Give the code");
+		expect(approved.text).toContain("\n3. You earn 20% of what Edge receives");
+		expect(approved.html).toContain("ACMEAGENCY");
+	});
+
+	test("the inbox preview says the one thing that matters", () => {
+		expect(approved.html).toContain("Your code is ACMEAGENCY.");
+		expect(invite.html).toContain("The link works for 7 days.");
+		/* Preview text is for the inbox list, not a second copy of the body. */
+		expect(approved.text).not.toContain("Your code is ACMEAGENCY.");
 	});
 
 	test("bonus amounts are written as a person writes money", () => {
@@ -709,7 +725,7 @@ describe("claiming an invite tells the invited address", () => {
 		expect(outbox).toHaveLength(1);
 		expect(outbox[0]?.to).toBe("alex@acme.com");
 		expect(outbox[0]?.subject).toContain("invitation was just used");
-		expect(outbox[0]?.text).toContain("If it was NOT you");
+		expect(outbox[0]?.text).toContain("Was this not you?");
 	});
 
 	test("a refused claim notifies nobody", async () => {

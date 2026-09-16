@@ -1,4 +1,4 @@
-import { type Block, renderHtml, renderText } from "@edgecoms/mail/render";
+import { renderEmail } from "@edgecoms/mail/render";
 import type { OutboundEmail } from "@edgecoms/mail/types";
 
 /**
@@ -17,22 +17,25 @@ export function renderVerifyEmail(input: {
 	to: string;
 	url: string;
 }): OutboundEmail {
-	const heading = "Confirm your email for Edge Partners";
-	const blocks: Block[] = [
+	return renderEmail(
 		{
-			text: "Confirm this is your address and your Edge Partners account is ready. If you were invited, this is also what links your invitation to your account.",
+			blocks: [
+				{
+					kind: "paragraph",
+					text: "Confirm this is your address and your Edge Partners account is ready. If you were invited, this also links your invitation to your account.",
+				},
+				{ kind: "button", label: "Confirm my email", url: input.url },
+				{
+					kind: "small",
+					text: "Did not create an account? Ignore this and nothing happens.",
+				},
+			],
+			heading: "Confirm your email",
+			preheader: `One click to confirm ${input.to}.`,
+			subject: "Confirm your email for Edge Partners",
 		},
-		{ label: "Confirm my email", url: input.url },
-		{
-			text: "If you did not create an account, ignore this and nothing happens.",
-		},
-	];
-	return {
-		html: renderHtml(heading, blocks),
-		subject: heading,
-		text: renderText(heading, blocks),
-		to: input.to,
-	};
+		input.to
+	);
 }
 
 /** Sent on request. The link is single-use and expires. */
@@ -40,20 +43,23 @@ export function renderResetPasswordEmail(input: {
 	to: string;
 	url: string;
 }): OutboundEmail {
-	const heading = "Reset your Edge Partners password";
-	const blocks: Block[] = [
+	return renderEmail(
 		{
-			text: "Somebody asked to reset the password on this account. If it was you, choose a new one here.",
+			blocks: [
+				{
+					kind: "paragraph",
+					text: "Somebody asked to reset the password on your Edge Partners account. If it was you, choose a new one.",
+				},
+				{ kind: "button", label: "Choose a new password", url: input.url },
+				{
+					kind: "small",
+					text: "The link works once and expires in an hour. Did not ask for this? Ignore it: your password has not changed and your earnings are untouched.",
+				},
+			],
+			heading: "Reset your password",
+			preheader: "This link works once and expires in an hour.",
+			subject: "Reset your Edge Partners password",
 		},
-		{ label: "Choose a new password", url: input.url },
-		{
-			text: "The link works once and expires in an hour. If you did not ask for this, ignore it: your password has not changed and your earnings are untouched.",
-		},
-	];
-	return {
-		html: renderHtml(heading, blocks),
-		subject: heading,
-		text: renderText(heading, blocks),
-		to: input.to,
-	};
+		input.to
+	);
 }

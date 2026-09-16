@@ -39,12 +39,7 @@ import {
 	MILESTONE_BONUS_MINOR,
 } from "@edgecoms/billing/milestones";
 import { PARTNER_CONTACT_EMAIL } from "@edgecoms/mail/contact";
-import {
-	type Block,
-	formatRate,
-	renderHtml,
-	renderText,
-} from "@edgecoms/mail/render";
+import { formatRate, renderEmail } from "@edgecoms/mail/render";
 import type { OutboundEmail } from "@edgecoms/mail/types";
 
 const MINOR_PER_MAJOR = 100n;
@@ -94,33 +89,45 @@ export function renderPartnerInviteEmail(input: {
 	inviterName: string | null;
 	to: string;
 }): OutboundEmail {
-	const heading = input.companyName
-		? `${input.companyName} is invited to Edge Partners`
-		: "You're invited to Edge Partners";
 	const inviter = input.inviterName
 		? `${input.inviterName} at Edge`
 		: "Someone at Edge";
+	const lifetime = pluralDays(input.expiresInDays);
 
-	const blocks: Block[] = [
-		{ text: `${inviter} invited you to join the Edge Partner Program.` },
+	return renderEmail(
 		{
-			text: "Edge Partners pays agencies a share of what the Shopify stores they manage spend on Edge apps. There is no referral link to share: you get a code, you give it to a store you already manage, and every Edge app that store starts paying for earns you commission for as long as it stays.",
+			blocks: [
+				{
+					kind: "paragraph",
+					text: `${inviter} invited you to join the Edge Partner Program. Edge pays agencies a share of what the Shopify stores they manage spend on Edge apps.`,
+				},
+				{
+					items: [
+						"We approve your application and email you a code.",
+						"You give the code to a Shopify store you manage.",
+						"Every Edge app that store starts paying for earns you commission, every month it stays.",
+					],
+					kind: "steps",
+					title: "How it works",
+				},
+				{ kind: "button", label: "Create your account", url: input.acceptUrl },
+				{
+					kind: "paragraph",
+					text: "Signing up creates an application, not an account with money attached. We send a short email to confirm your address, then review the application and email you your code, usually the same day.",
+				},
+				{
+					kind: "small",
+					text: `This link works only for ${input.to} and expires in ${lifetime}. Not expecting this? Ignore it and nothing happens.`,
+				},
+			],
+			heading: input.companyName
+				? `${input.companyName} is invited to Edge Partners`
+				: "You're invited to Edge Partners",
+			preheader: `${inviter} invited ${input.companyName ?? "you"}. The link works for ${lifetime}.`,
+			subject: "You're invited to the Edge Partner Program",
 		},
-		{ label: "Create your account", url: input.acceptUrl },
-		{
-			text: "Signing up creates an application, not an account with money attached. We send a short email to confirm your address, then review the application, set your commission rate, and email you your code, usually the same day.",
-		},
-		{
-			text: `The link works only with this email address and expires in ${pluralDays(input.expiresInDays)}. If you were not expecting this, ignore it and nothing happens.`,
-		},
-	];
-
-	return {
-		html: renderHtml(heading, blocks),
-		subject: "You're invited to the Edge Partner Program",
-		text: renderText(heading, blocks),
-		to: input.to,
-	};
+		input.to
+	);
 }
 
 /**
@@ -136,35 +143,52 @@ export function renderPartnerApprovedEmail(input: {
 	to: string;
 	welcomeUrl: string;
 }): OutboundEmail {
-	const heading = "You're approved. Here is your code";
 	const rate = formatRate(input.rateBps);
 
-	const blocks: Block[] = [
+	return renderEmail(
 		{
-			text: `Your Edge Partners application is approved at ${rate} commission. Here is your attribution code:`,
+			blocks: [
+				{
+					kind: "paragraph",
+					text: `Welcome to Edge Partners. Your commission rate is ${rate}, and this is the code you give to the stores you manage.`,
+				},
+				{ code: input.code, kind: "code", label: "Your attribution code" },
+				{
+					items: [
+						"Give the code to a Shopify store you manage. They paste it into any Edge app while installing.",
+						"The store appears in your dashboard. Most are approved automatically within a day. A store that was already paying for an Edge app is checked by us first.",
+						`You earn ${rate} of what Edge receives for every Edge app the store starts paying for, every month, for as long as it stays. Nothing expires and there is no clawback.`,
+					],
+					kind: "steps",
+					title: "How it works",
+				},
+				{
+					kind: "facts",
+					note: "Your dashboard shows each milestone and what it pays.",
+					rows: [
+						{
+							label: "Every store that starts earning you commission",
+							value: formatBonus(MERCHANT_BOUNTY_MINOR),
+						},
+						{
+							label: "Milestones as you grow",
+							value: `Up to ${formatBonus(milestoneTotalMinor())}`,
+						},
+					],
+					title: "Bonuses on top",
+				},
+				{ kind: "button", label: "Open your dashboard", url: input.welcomeUrl },
+				{
+					kind: "small",
+					text: "Next step: add your payout details in the dashboard. We cannot pay you without them.",
+				},
+			],
+			heading: "You're approved",
+			preheader: `Your code is ${input.code}. You earn ${rate} of what Edge receives from your stores.`,
+			subject: `You're approved as an Edge partner. Your code is ${input.code}`,
 		},
-		{ emphasis: true, text: input.code },
-		{
-			text: "Give it to a Shopify store you manage. They paste it into any Edge app while installing, and the store arrives in your dashboard bound to you. Most stores are approved automatically within a day. A store that was already paying for an Edge app is checked by us first.",
-		},
-		{
-			text: `After that it is automatic. When Shopify bills that store for an Edge app it started paying for after joining you, you earn ${rate} of what Edge receives, every month, for as long as the store stays on Edge. Nothing expires and there is no clawback window.`,
-		},
-		{
-			text: `On top of commission, you get a ${formatBonus(MERCHANT_BOUNTY_MINOR)} bonus for every store that starts earning you commission, and up to ${formatBonus(milestoneTotalMinor())} more in milestone bonuses as you grow. Your dashboard shows each milestone and what it pays.`,
-		},
-		{ label: "Open your dashboard", url: input.welcomeUrl },
-		{
-			text: "Your dashboard also shows what is left to set up. The one that matters most is your payout details: we cannot pay you without them, so it is worth two minutes now rather than at the end of the month.",
-		},
-	];
-
-	return {
-		html: renderHtml(heading, blocks),
-		subject: `You're approved as an Edge partner. Your code is ${input.code}`,
-		text: renderText(heading, blocks),
-		to: input.to,
-	};
+		input.to
+	);
 }
 
 /**
@@ -185,22 +209,28 @@ export function renderInviteClaimedEmail(input: {
 	companyName: string | null;
 	to: string;
 }): OutboundEmail {
-	const heading = "Your Edge Partners invitation was just used";
-	const blocks: Block[] = [
+	const forCompany = input.companyName ? ` for ${input.companyName}` : "";
+	return renderEmail(
 		{
-			text: `An account has just been created from the invitation we sent to ${input.to}${input.companyName ? ` for ${input.companyName}` : ""}.`,
+			blocks: [
+				{
+					kind: "paragraph",
+					text: `An account was just created from the invitation we sent to ${input.to}${forCompany}.`,
+				},
+				{
+					kind: "paragraph",
+					text: "If that was you, there is nothing to do. We review the application, set your commission rate, and email you your code.",
+				},
+				{
+					kind: "callout",
+					text: `Email ${PARTNER_CONTACT_EMAIL} straight away. The account cannot earn anything until we approve it, so telling us now costs you nothing.`,
+					title: "Was this not you?",
+				},
+			],
+			heading: "Your invitation was just used",
+			preheader: "An account was just created from your invitation.",
+			subject: "Your Edge Partners invitation was just used",
 		},
-		{
-			text: "If that was you, nothing further is needed. We review the application, set your commission rate, and email you your code.",
-		},
-		{
-			text: `If it was NOT you, email ${PARTNER_CONTACT_EMAIL} straight away. The account cannot earn anything until we approve it, so telling us now costs you nothing.`,
-		},
-	];
-	return {
-		html: renderHtml(heading, blocks),
-		subject: heading,
-		text: renderText(heading, blocks),
-		to: input.to,
-	};
+		input.to
+	);
 }

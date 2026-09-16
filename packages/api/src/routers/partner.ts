@@ -1,10 +1,14 @@
 import { toPeriodMonth } from "@edgecoms/billing/commissions";
 import { apps } from "@edgecoms/db/schema/apps";
+import { merchantEvents } from "@edgecoms/db/schema/attribution";
 import { commissions } from "@edgecoms/db/schema/earnings";
-import { merchants } from "@edgecoms/db/schema/merchants";
+import {
+	merchantGrandfatheredApps,
+	merchants,
+} from "@edgecoms/db/schema/merchants";
 import { partnerCodes, partners } from "@edgecoms/db/schema/partners";
 import { payouts } from "@edgecoms/db/schema/payouts";
-import { and, count, desc, eq, isNotNull, ne, sql } from "drizzle-orm";
+import { and, count, desc, eq, inArray, isNotNull, ne, sql } from "drizzle-orm";
 import { z } from "zod";
 import { partnerProcedure, router } from "../index";
 
@@ -164,6 +168,136 @@ export const partnerRouter = router({
 				firstStore: (merchantRows[0]?.value ?? 0) > 0,
 				payoutReady,
 			},
+		};
+	}),
+
+	/**
+	 * THE APP CATALOG, as it stands on this partner's own stores.
+	 *
+	 * Answers the two questions a partner actually has about the suite: which of
+	 * these is already running on a store I manage, and which one should I put
+	 * on the next one. Everything here is derived from rows that exist:
+	 *
+	 *   • `live`  -- the newest `merchant_events` row for that (store, app) is an
+	 *                activation or a plan change rather than an uninstall. The
+	 *                apps report these themselves, so this is the truest signal
+	 *                of what is running right now.
+	 *   • `earning` -- commission rows exist for that (store, app) pair. Live and
+	 *                earning are NOT the same thing, which is the whole point of
+	 *                the next field.
+	 *   • `grandfathered` -- the store was already paying for this app when the
+	 *                partner acquired it, so it never earns. A partner seeing
+	 *                "installed on 3, earning on 2" deserves to know why, and
+	 *                this is the honest answer rather than a silent gap.
+	 *
+	 * No copy lives here. Names, descriptions and icons come from the marketing
+	 * catalog keyed by `slug`, so the portal cannot describe an app differently
+	 * from the public site.
+	 */
+	apps: partnerProcedure.query(async ({ ctx }) => {
+		const partnerId = ctx.partner.id;
+
+		const catalog = await ctx.db
+			.select({
+				id: apps.id,
+				slug: apps.slug,
+				name: apps.name,
+				setupVideoUrl: apps.setupVideoUrl,
+			})
+			.from(apps)
+			.orderBy(apps.name);
+
+		const myMerchants = await ctx.db
+			.select({ id: merchants.id, shopDomain: merchants.shopDomain })
+			.from(merchants)
+			.where(eq(merchants.partnerId, partnerId));
+
+		/* No stores yet: every app is an opportunity and nothing is installed.
+		   Returning early keeps the `inArray` calls below off an empty list,
+		   which Postgres accepts but which reads as a bug waiting to happen. */
+		if (myMerchants.length === 0) {
+			return {
+				apps: catalog.map((app) => ({
+					...app,
+					earningStores: 0,
+					grandfatheredStores: 0,
+					liveStores: 0,
+				})),
+				storeCount: 0,
+			};
+		}
+
+		const merchantIds = myMerchants.map((row) => row.id);
+
+		/* Oldest first, so the last write per (store, app) wins the reduce. */
+		const events = await ctx.db
+			.select({
+				appId: merchantEvents.appId,
+				merchantId: merchantEvents.merchantId,
+				occurredAt: merchantEvents.occurredAt,
+				type: merchantEvents.type,
+			})
+			.from(merchantEvents)
+			.where(inArray(merchantEvents.merchantId, merchantIds))
+			.orderBy(merchantEvents.occurredAt);
+
+		const latestByPair = new Map<string, string>();
+		for (const event of events) {
+			if (event.appId && event.merchantId) {
+				latestByPair.set(`${event.merchantId}:${event.appId}`, event.type);
+			}
+		}
+
+		const grandfathered = await ctx.db
+			.select({
+				appId: merchantGrandfatheredApps.appId,
+				merchantId: merchantGrandfatheredApps.merchantId,
+			})
+			.from(merchantGrandfatheredApps)
+			.where(inArray(merchantGrandfatheredApps.merchantId, merchantIds));
+		const grandfatheredPairs = new Set(
+			grandfathered.map((row) => `${row.merchantId}:${row.appId}`)
+		);
+
+		const earning = await ctx.db
+			.selectDistinct({
+				appId: commissions.appId,
+				merchantId: commissions.merchantId,
+			})
+			.from(commissions)
+			.where(eq(commissions.partnerId, partnerId));
+		const earningPairs = new Set(
+			earning.map((row) => `${row.merchantId}:${row.appId}`)
+		);
+
+		return {
+			apps: catalog.map((app) => {
+				let liveStores = 0;
+				let earningStores = 0;
+				let grandfatheredStores = 0;
+
+				for (const merchant of myMerchants) {
+					const pair = `${merchant.id}:${app.id}`;
+					const latest = latestByPair.get(pair);
+					if (latest && latest !== "uninstalled") {
+						liveStores += 1;
+					}
+					if (earningPairs.has(pair)) {
+						earningStores += 1;
+					}
+					if (grandfatheredPairs.has(pair)) {
+						grandfatheredStores += 1;
+					}
+				}
+
+				return {
+					...app,
+					earningStores,
+					grandfatheredStores,
+					liveStores,
+				};
+			}),
+			storeCount: myMerchants.length,
 		};
 	}),
 

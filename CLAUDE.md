@@ -253,6 +253,19 @@ See `docs/partner-attribution-codes.md` for the full design.
 - **Better Auth owns the user table.** `role` (`admin` | `partner`) is an
   additional field on Better Auth's user. `partners.userId` points at Better
   Auth's `user.id`. There is no parallel hand-rolled users table.
+- **An invite is claimed only from a verified address.** `invites.accept`
+  refuses while `user.emailVerified` is false. The invite is bound to an
+  address, but only the verification email proves the person owns that inbox.
+  Sign-up sends that email; the partner home claims the invite once the link
+  brings them back.
+- `requireEmailVerification` is deliberately **off**. Turning it on locks out
+  every account that signed up before verification existed, the admin
+  included. Gate the specific thing that needs a proven address instead.
+- A password reset signs out every session on that account
+  (`revokeSessionsOnPasswordReset`).
+- All outbound email goes through `@edgecoms/mail` (`send.ts` never throws;
+  it skips with a warning when `PARTNER_FROM_EMAIL` or a transport is unset).
+  Send only after the transaction commits.
 
 ## Tech & process
 

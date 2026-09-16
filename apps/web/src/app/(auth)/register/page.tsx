@@ -3,7 +3,7 @@
 import { Button } from "@edgecoms/ui/components/button";
 import { Input } from "@edgecoms/ui/components/input";
 import { Label } from "@edgecoms/ui/components/label";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import type { Route } from "next";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -36,7 +36,6 @@ export default function RegisterPage() {
 		...trpc.invites.peek.queryOptions({ token: inviteToken ?? "" }),
 		enabled: Boolean(inviteToken),
 	});
-	const acceptInvite = useMutation(trpc.invites.accept.mutationOptions());
 
 	async function handleSubmit(event: FormEvent<HTMLFormElement>) {
 		event.preventDefault();
@@ -46,7 +45,16 @@ export default function RegisterPage() {
 		const password = String(form.get("password"));
 
 		setLoading(true);
-		const { error } = await authClient.signUp.email({ name, email, password });
+		/* After verifying, the link lands them where the invite is claimed.
+		   Claiming now would be refused: the address is not proven yet. */
+		const { error } = await authClient.signUp.email({
+			callbackURL: inviteToken
+				? `/partner?invite=${encodeURIComponent(inviteToken)}`
+				: "/partner",
+			email,
+			name,
+			password,
+		});
 		if (error) {
 			toast.error(error.message ?? "Could not create account");
 			setLoading(false);
@@ -63,20 +71,14 @@ export default function RegisterPage() {
 			status: "pending",
 		});
 
-		/* Link the invite to the row signup just created, so the admin sees the
-		   rate they proposed. Never allowed to fail the signup: the account
-		   exists, and an unlinked application is reviewable either way. */
-		if (inviteToken) {
-			try {
-				await acceptInvite.mutateAsync({ token: inviteToken });
-			} catch {
-				/* Wrong address for this invite, or already claimed. Nothing the
-				   new partner can act on, and their application still stands. */
-			}
-		}
-
-		toast.success("Account created. Your application is pending review.");
-		router.push("/partner" as Route);
+		toast.success(
+			"Account created. Check your email for a link to confirm your address."
+		);
+		router.push(
+			(inviteToken
+				? `/partner?invite=${encodeURIComponent(inviteToken)}`
+				: "/partner") as Route
+		);
 		router.refresh();
 	}
 

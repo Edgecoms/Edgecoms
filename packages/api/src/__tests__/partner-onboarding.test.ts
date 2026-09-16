@@ -6,9 +6,9 @@ import {
 	partnerInvites,
 	partners,
 } from "@edgecoms/db/schema/partners";
+import type { OutboundEmail } from "@edgecoms/mail/types";
 import { eq } from "drizzle-orm";
 import type { Context, EmailDelivery } from "../context";
-import type { OutboundEmail } from "../email/partner-emails";
 import {
 	renderPartnerApprovedEmail,
 	renderPartnerInviteEmail,
@@ -37,6 +37,7 @@ const NO_ACTIVE_CODE = /no active code/i;
 const ALREADY_IN_USE = /already in use/i;
 const ADMIN_REQUIRED = /admin/i;
 const DIFFERENT_EMAIL = /different email/i;
+const CONFIRM_FIRST = /confirm your email/i;
 /** Pulls the raw token out of the accept URL the invite email carried. */
 const INVITE_TOKEN_IN_URL = /invite=([\w-]+)/;
 
@@ -68,11 +69,27 @@ const mutelAdminCaller = () =>
 		session: { user: { id: "admin1", role: "admin", name: "Admin" } },
 	} as unknown as Context);
 
-const partnerCaller = (userId = "uP", email = "p@x.com") =>
+/**
+ * A partner session. Verified by default, because an invite can only be claimed
+ * from a proven address and most tests here are about what happens after that.
+ */
+const partnerCaller = (
+	userId = "uP",
+	email = "p@x.com",
+	emailVerified = true
+) =>
 	createCaller({
 		db: harness.db,
 		sendEmail,
-		session: { user: { id: userId, role: "partner", email, name: "Partner" } },
+		session: {
+			user: {
+				email,
+				emailVerified,
+				id: userId,
+				name: "Partner",
+				role: "partner",
+			},
+		},
 	} as unknown as Context);
 
 beforeEach(async () => {
@@ -600,5 +617,47 @@ describe("claiming an invite tells the invited address", () => {
 		).rejects.toThrow(DIFFERENT_EMAIL);
 
 		expect(outbox).toHaveLength(0);
+	});
+});
+
+describe("an invite needs a proven address", () => {
+	test("an unverified account cannot claim an invitation", async () => {
+		await adminCaller().admin.partners.invite({
+			emails: ["alex@acme.com"],
+			proposedRateBps: 2500,
+		});
+		const token = tokenFromOutbox();
+		await signUp("uR", "alex@acme.com");
+
+		/* The invite is bound to this address, and this account HAS this
+		   address. What is not established is that whoever signed up owns the
+		   inbox: the token came in a URL that could have been forwarded. So the
+		   claim, and the 25% it carries, waits for verification. */
+		await expect(
+			partnerCaller("uR", "alex@acme.com", false).invites.accept({ token })
+		).rejects.toThrow(CONFIRM_FIRST);
+
+		const invite = await harness.db.query.partnerInvites.findFirst({
+			where: eq(partnerInvites.tokenHash, hashInviteToken(token)),
+		});
+		expect(invite?.status).toBe("sent");
+		expect(invite?.acceptedPartnerId).toBeNull();
+	});
+
+	test("the same account can claim it once verified", async () => {
+		await adminCaller().admin.partners.invite({ emails: ["alex@acme.com"] });
+		const token = tokenFromOutbox();
+		await signUp("uR", "alex@acme.com");
+
+		await expect(
+			partnerCaller("uR", "alex@acme.com", false).invites.accept({ token })
+		).rejects.toThrow(CONFIRM_FIRST);
+
+		const result = await partnerCaller(
+			"uR",
+			"alex@acme.com",
+			true
+		).invites.accept({ token });
+		expect(result.claimed).toBe(true);
 	});
 });

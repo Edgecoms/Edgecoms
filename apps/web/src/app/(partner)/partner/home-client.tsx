@@ -1,9 +1,12 @@
 "use client";
 
 import { Skeleton } from "@edgecoms/ui/components/skeleton";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import type { Route } from "next";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { PartnerCodeCard } from "@/components/portal/partner-code-card";
 import {
 	EmptyState,
@@ -12,6 +15,7 @@ import {
 	TableShell,
 } from "@/components/portal/ui";
 import { AppIcon } from "@/components/ui/app-icon";
+import { authClient } from "@/lib/auth-client";
 import {
 	allMoney,
 	formatMoney,
@@ -20,7 +24,7 @@ import {
 	primaryMoney,
 	secondaryMoney,
 } from "@/lib/money";
-import { trpc } from "@/utils/trpc";
+import { queryClient, trpc } from "@/utils/trpc";
 
 /**
  * THE PARTNER'S HOME. One screen, because there was never a second one worth
@@ -862,13 +866,121 @@ function FigureRow({
 	);
 }
 
+/**
+ * Asks an unverified partner to confirm their address, and lets them resend.
+ *
+ * An invitation can only be claimed once the address is proven, so for an
+ * invited partner this banner is the one thing between them and the rate they
+ * were offered. Saying so beats a silent pending state.
+ */
+function VerifyBanner({ email, invited }: { email: string; invited: boolean }) {
+	const [sent, setSent] = useState(false);
+
+	async function resend() {
+		const { error } = await authClient.sendVerificationEmail({
+			callbackURL: window.location.pathname + window.location.search,
+			email,
+		});
+		if (error) {
+			toast.error(error.message ?? "Could not send the email.");
+			return;
+		}
+		setSent(true);
+		toast.success(`Sent to ${email}.`);
+	}
+
+	return (
+		<div className="flex flex-col gap-2 rounded-xl border border-sky-200 bg-sky-50 px-5 py-4 text-sky-900">
+			<span className="font-medium text-body-sm">Confirm your email</span>
+			<p className="text-body-sm">
+				We sent a link to {email}.{" "}
+				{invited
+					? "Your invitation, and the rate it came with, is linked to your account once you confirm."
+					: "Confirming it lets us reach you about approvals and payments."}
+			</p>
+			<button
+				className="w-fit text-body-sm underline disabled:opacity-60"
+				disabled={sent}
+				onClick={resend}
+				type="button"
+			>
+				{sent ? "Sent. Check your inbox." : "Send the link again"}
+			</button>
+		</div>
+	);
+}
+
+/**
+ * Claims an invitation once, as soon as the address is proven.
+ *
+ * The verification link lands here with `?invite=` in the URL. Claiming runs
+ * once, and the parameter is removed afterwards so a refresh does not try
+ * again. A refusal is shown rather than swallowed: the only reasons are a
+ * different address or a spent invite, and a partner deserves to know which.
+ */
+function InviteClaimer({ token }: { token: string }) {
+	const router = useRouter();
+	const claim = useMutation(trpc.invites.accept.mutationOptions());
+	const started = useRef(false);
+
+	useEffect(() => {
+		if (started.current) {
+			return;
+		}
+		started.current = true;
+		claim.mutate(
+			{ token },
+			{
+				onError: (error) => toast.error(error.message),
+				onSettled: () => router.replace("/partner" as Route),
+				onSuccess: (result) => {
+					if (result.claimed) {
+						toast.success("Invitation linked to your account.");
+						queryClient.invalidateQueries();
+					}
+				},
+			}
+		);
+	}, [claim, router, token]);
+
+	return null;
+}
+
+/**
+ * The account notices that sit above everything else: confirm your address,
+ * and claim an invitation once it is confirmed. Kept out of PartnerHome so the
+ * page stays readable.
+ */
+function AccountNotices({
+	email,
+	emailVerified,
+	inviteToken,
+}: {
+	email: string | null;
+	emailVerified: boolean;
+	inviteToken: string | null;
+}) {
+	if (email && !emailVerified) {
+		return <VerifyBanner email={email} invited={Boolean(inviteToken)} />;
+	}
+	if (inviteToken && emailVerified) {
+		return <InviteClaimer token={inviteToken} />;
+	}
+	return null;
+}
+
 export function PartnerHome({
 	catalog,
+	email,
+	emailVerified,
 	firstName,
 }: {
 	catalog: readonly CatalogEntry[];
+	email: string | null;
+	emailVerified: boolean;
 	firstName: string | null;
 }) {
+	const inviteToken = useSearchParams().get("invite");
 	const onboarding = useQuery(trpc.partner.onboarding.queryOptions());
 	const dashboard = useQuery(trpc.partner.dashboard.queryOptions());
 	const appsQuery = useQuery(trpc.partner.apps.queryOptions());
@@ -895,6 +1007,12 @@ export function PartnerHome({
 			<PortalHeader
 				description={describeStanding(data?.status, rate)}
 				title={firstName ? `Welcome, ${firstName}` : "Welcome"}
+			/>
+
+			<AccountNotices
+				email={email}
+				emailVerified={emailVerified}
+				inviteToken={inviteToken}
 			/>
 
 			{data && !approved ? (

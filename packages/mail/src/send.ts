@@ -1,10 +1,17 @@
-import type { EmailDelivery, EmailSender } from "@edgecoms/api/context";
 import { env } from "@edgecoms/env/server";
 import { Resend } from "resend";
-import { sendViaSmtp } from "./dev-smtp";
+import { sendViaSmtp } from "./smtp";
+import type { EmailDelivery, EmailSender } from "./types";
 
 /**
- * DELIVERY for partner lifecycle email.
+ * DELIVERY for every transactional email the platform sends: partner lifecycle
+ * messages, email verification, and password reset.
+ *
+ * It lives in its own package because `@edgecoms/auth` needs to send mail too,
+ * and auth cannot depend on the Next app or on the API. Before this, the
+ * transport sat in apps/web, which is why there was no password reset and no
+ * way to verify an address: the one package that owns those flows could not
+ * reach a sender.
  *
  * Same two-transport shape as the Edge Cart playbook email, and for the same
  * reason: production goes through Resend's HTTPS API, and no configuration of
@@ -36,22 +43,16 @@ function resolveTransport():
 	return { kind: "none" };
 }
 
-export const sendPartnerEmail: EmailSender = async (
-	email
-): Promise<EmailDelivery> => {
+export const sendEmail: EmailSender = async (email): Promise<EmailDelivery> => {
 	const from = env.PARTNER_FROM_EMAIL;
 	if (!from) {
-		console.warn(
-			"partner_mail: PARTNER_FROM_EMAIL is unset; not sending partner email."
-		);
+		console.warn("mail: PARTNER_FROM_EMAIL is unset; not sending.");
 		return "skipped";
 	}
 
 	const transport = resolveTransport();
 	if (transport.kind === "none") {
-		console.warn(
-			"partner_mail: no transport configured; not sending partner email."
-		);
+		console.warn("mail: no transport configured; not sending.");
 		return "skipped";
 	}
 
@@ -66,7 +67,7 @@ export const sendPartnerEmail: EmailSender = async (
 			});
 			return "sent";
 		} catch (error) {
-			console.warn(`partner_mail: SMTP send failed: ${String(error)}`);
+			console.warn(`mail: SMTP send failed: ${String(error)}`);
 			return "failed";
 		}
 	}
@@ -85,13 +86,13 @@ export const sendPartnerEmail: EmailSender = async (
 			   failures: unverified sending domain, revoked key, suppressed
 			   address. Those land here rather than in the catch. */
 			console.warn(
-				`partner_mail: Resend rejected the send: ${error.name}: ${error.message}`
+				`mail: Resend rejected the send: ${error.name}: ${error.message}`
 			);
 			return "failed";
 		}
 		return "sent";
 	} catch (error) {
-		console.warn(`partner_mail: Resend threw: ${String(error)}`);
+		console.warn(`mail: Resend threw: ${String(error)}`);
 		return "failed";
 	}
 };

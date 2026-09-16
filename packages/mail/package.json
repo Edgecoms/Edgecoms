@@ -1,0 +1,21 @@
+{
+  "name": "@edgecoms/mail",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@edgecoms/env": "workspace:*",
+    "resend": "^6.26.0"
+  },
+  "devDependencies": {
+    "@edgecoms/config": "workspace:*",
+    "@types/node": "^22.13.14",
+    "typescript": "catalog:"
+  }
+}

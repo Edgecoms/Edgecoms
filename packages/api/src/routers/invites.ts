@@ -91,6 +91,24 @@ export const invitesRouter = router({
 	accept: protectedProcedure
 		.input(z.object({ token: z.string().min(16).max(400) }))
 		.mutation(async ({ ctx, input }) => {
+			/**
+			 * THE ADDRESS HAS TO BE PROVEN FIRST.
+			 *
+			 * The invite is bound to its address, so signing up with a different
+			 * email cannot claim it. What that binding could not establish is that
+			 * the person signing up with the invited address actually owns that
+			 * inbox: the token travels in a URL that can be forwarded, and the
+			 * address is not a secret. Verification is the proof. Until then the
+			 * invitation, and the rate it carries, stays unclaimed.
+			 */
+			if (!ctx.session.user.emailVerified) {
+				throw new TRPCError({
+					code: "PRECONDITION_FAILED",
+					message:
+						"Confirm your email address first. We sent you a link when you signed up.",
+				});
+			}
+
 			const tokenHash = hashInviteToken(input.token);
 
 			const partner = await ctx.db.query.partners.findFirst({

@@ -35,6 +35,8 @@ export default async function PartnerHomePage() {
 	return (
 		<PartnerHome
 			catalog={catalog}
+			email={session?.user.email ?? null}
+			emailVerified={session?.user.emailVerified ?? false}
 			firstName={session?.user.name?.trim().split(NAME_PARTS)[0] ?? null}
 		/>
 	);

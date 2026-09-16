@@ -5,45 +5,63 @@ import { Input } from "@edgecoms/ui/components/input";
 import { Label } from "@edgecoms/ui/components/label";
 import type { Route } from "next";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { type FormEvent, useId, useState } from "react";
-import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
-import { portalPathForRole } from "@/lib/portal-link";
 
-export default function LoginPage() {
-	const router = useRouter();
+/**
+ * Ask for a password reset link.
+ *
+ * The confirmation is the SAME whether or not the address has an account. A
+ * page that said "no account with that email" would let anybody check which
+ * agencies are partners, one address at a time.
+ */
+export default function ForgotPasswordPage() {
 	const emailId = useId();
-	const passwordId = useId();
 	const [loading, setLoading] = useState(false);
+	const [sentTo, setSentTo] = useState<string | null>(null);
 
 	async function handleSubmit(event: FormEvent<HTMLFormElement>) {
 		event.preventDefault();
-		const form = new FormData(event.currentTarget);
-		const email = String(form.get("email"));
-		const password = String(form.get("password"));
+		const email = String(new FormData(event.currentTarget).get("email")).trim();
 
 		setLoading(true);
-		const { data, error } = await authClient.signIn.email({ email, password });
-		if (error) {
-			toast.error(error.message ?? "Could not sign in");
-			setLoading(false);
-			return;
-		}
+		/* The outcome is deliberately not inspected: see the page comment. */
+		await authClient.requestPasswordReset({
+			email,
+			redirectTo: "/reset-password",
+		});
+		setLoading(false);
+		setSentTo(email);
+	}
 
-		const role = (data?.user as { role?: string } | undefined)?.role;
-		router.push(portalPathForRole(role));
-		router.refresh();
+	if (sentTo) {
+		return (
+			<div className="flex flex-col gap-4">
+				<h1 className="font-medium text-h2 text-primary-foreground tracking-tight">
+					Check your email
+				</h1>
+				<p className="text-body-sm text-secondary-foreground">
+					If {sentTo} has an Edge Partners account, a link to reset its password
+					is on its way. It works once and expires in an hour.
+				</p>
+				<Link
+					className="w-fit text-body-sm text-primary-foreground underline underline-offset-4"
+					href={"/login" as Route}
+				>
+					Back to sign in
+				</Link>
+			</div>
+		);
 	}
 
 	return (
 		<div className="flex flex-col gap-6">
 			<div className="flex flex-col gap-1">
 				<h1 className="font-medium text-h2 text-primary-foreground tracking-tight">
-					Welcome back
+					Reset your password
 				</h1>
 				<p className="text-body-sm text-secondary-foreground">
-					Sign in to your partner dashboard.
+					Enter the email you signed up with and we will send you a link.
 				</p>
 			</div>
 
@@ -58,16 +76,6 @@ export default function LoginPage() {
 						type="email"
 					/>
 				</div>
-				<div className="flex flex-col gap-2">
-					<Label htmlFor={passwordId}>Password</Label>
-					<Input
-						autoComplete="current-password"
-						id={passwordId}
-						name="password"
-						required
-						type="password"
-					/>
-				</div>
 				<Button
 					className="mt-2 w-full"
 					disabled={loading}
@@ -75,24 +83,17 @@ export default function LoginPage() {
 					type="submit"
 					variant="primary"
 				>
-					{loading ? "Signing in…" : "Sign in"}
+					{loading ? "Sending…" : "Send reset link"}
 				</Button>
 			</form>
 
-			<Link
-				className="w-fit text-caption text-secondary-foreground underline underline-offset-4"
-				href={"/forgot-password" as Route}
-			>
-				Forgotten your password?
-			</Link>
-
 			<p className="text-body-sm text-secondary-foreground">
-				New partner?{" "}
+				Remembered it?{" "}
 				<Link
 					className="text-primary-foreground underline underline-offset-4"
-					href={"/register" as Route}
+					href={"/login" as Route}
 				>
-					Apply to the program
+					Sign in
 				</Link>
 			</p>
 		</div>

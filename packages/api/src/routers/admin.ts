@@ -18,6 +18,7 @@ import {
 import { partnerBonuses, payouts } from "@edgecoms/db/schema/payouts";
 import { syncState } from "@edgecoms/db/schema/sync";
 import { env } from "@edgecoms/env/server";
+import type { OutboundEmail } from "@edgecoms/mail/types";
 import { TRPCError } from "@trpc/server";
 import {
 	and,
@@ -36,7 +37,6 @@ import { z } from "zod";
 import { normalizeCode } from "../attribution/codes";
 import type { EmailDelivery, EmailSender } from "../context";
 import {
-	type OutboundEmail,
 	renderPartnerApprovedEmail,
 	renderPartnerInviteEmail,
 } from "../email/partner-emails";

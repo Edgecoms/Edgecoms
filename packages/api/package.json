@@ -18,10 +18,11 @@
     "@edgecoms/billing": "workspace:*",
     "@edgecoms/db": "workspace:*",
     "@edgecoms/env": "workspace:*",
+    "@edgecoms/mail": "workspace:*",
     "@trpc/client": "catalog:",
     "@trpc/server": "catalog:",
-    "drizzle-orm": "^0.45.1",
     "dotenv": "catalog:",
+    "drizzle-orm": "^0.45.1",
     "next": "catalog:",
     "zod": "catalog:"
   },

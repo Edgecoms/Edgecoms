@@ -12,8 +12,10 @@
   "dependencies": {
     "@edgecoms/api": "workspace:*",
     "@edgecoms/auth": "workspace:*",
+    "@edgecoms/billing": "workspace:*",
     "@edgecoms/db": "workspace:*",
     "@edgecoms/env": "workspace:*",
+    "@edgecoms/mail": "workspace:*",
     "@edgecoms/ui": "workspace:*",
     "@mdx-js/loader": "^3.1.1",
     "@mdx-js/react": "^3.1.1",

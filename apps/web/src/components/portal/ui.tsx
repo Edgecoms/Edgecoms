@@ -39,7 +39,7 @@ export function StatCard({
 	loading?: boolean;
 }) {
 	return (
-		<div className="flex flex-col gap-2 rounded-xl border border-border bg-page p-5">
+		<div className="flex flex-col gap-2 rounded-xl border border-border-strong bg-surface p-5 shadow-sm">
 			<span className="font-medium font-mono text-[11px] text-secondary-foreground uppercase tracking-[0.08em]">
 				{label}
 			</span>
@@ -107,7 +107,7 @@ export function TableShell({
 	children: ReactNode;
 }) {
 	return (
-		<div className="overflow-x-auto rounded-xl border border-border bg-page">
+		<div className="overflow-x-auto rounded-xl border border-border-strong bg-surface shadow-sm">
 			<table className="w-full text-left text-body-sm">
 				<thead className="border-border border-b text-secondary-foreground">
 					<tr className="[&>th]:px-4 [&>th]:py-3 [&>th]:font-medium [&>th]:text-[11px] [&>th]:uppercase [&>th]:tracking-[0.06em]">

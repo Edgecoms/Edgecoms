@@ -6,7 +6,7 @@ import {
 	merchants,
 } from "@edgecoms/db/schema/merchants";
 import { partnerAppRates, partners } from "@edgecoms/db/schema/partners";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, gte, isNull } from "drizzle-orm";
 import { computeCommissionMinor } from "./money";
 import type { CommissionSummary } from "./types";
 
@@ -77,7 +77,27 @@ export async function generateCommissions(
 				eq(merchantGrandfatheredApps.appId, apps.id)
 			)
 		)
-		.where(and(isNull(commissions.id), isNull(merchantGrandfatheredApps.id)));
+		.where(
+			and(
+				isNull(commissions.id),
+				isNull(merchantGrandfatheredApps.id),
+				/**
+				 * NOTHING BEFORE THE PARTNER'S CLAIM STARTED.
+				 *
+				 * There was no lower bound here, so approving a store generated
+				 * commission on every charge it had EVER made. With codes shared
+				 * publicly that is a way to harvest existing customers: a store
+				 * already paying Edge directly enters a code it saw posted, and
+				 * the partner collects on revenue going back to the beginning
+				 * having brought nobody.
+				 *
+				 * `earningsFromAt` is the instant the store was bound. A charge
+				 * from the cycle before that belonged to Edge alone, and still
+				 * does.
+				 */
+				gte(earningEvents.occurredAt, merchants.earningsFromAt)
+			)
+		);
 
 	let commissionsCreated = 0;
 	let commissionsSkipped = 0;

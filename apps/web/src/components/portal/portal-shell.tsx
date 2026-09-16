@@ -48,9 +48,15 @@ export function PortalShell({ brand, nav, user, children }: PortalShellProps) {
 							Edge
 							<span className="text-secondary-foreground"> / {brand}</span>
 						</Link>
-						<nav className="hidden items-center gap-1 sm:flex">
+						<nav
+							aria-label="Partner portal"
+							className="hidden items-center gap-1 sm:flex"
+						>
 							{nav.map((item) => (
 								<Link
+									aria-current={
+										isActive(pathname, item.href) ? "page" : undefined
+									}
 									className={`rounded-md px-2.5 py-1.5 text-[13px] transition-colors ${
 										isActive(pathname, item.href)
 											? "bg-surface-item-active text-primary-foreground"
@@ -73,9 +79,13 @@ export function PortalShell({ brand, nav, user, children }: PortalShellProps) {
 						</Button>
 					</div>
 				</div>
-				<nav className="flex items-center gap-1 overflow-x-auto border-border border-t px-4 py-2 sm:hidden">
+				<nav
+					aria-label="Partner portal"
+					className="flex items-center gap-1 overflow-x-auto border-border border-t px-4 py-2 sm:hidden"
+				>
 					{nav.map((item) => (
 						<Link
+							aria-current={isActive(pathname, item.href) ? "page" : undefined}
 							className={`whitespace-nowrap rounded-md px-2.5 py-1.5 text-[13px] transition-colors ${
 								isActive(pathname, item.href)
 									? "bg-surface-item-active text-primary-foreground"

@@ -1,5 +1,6 @@
 import { createContext } from "@edgecoms/api/context";
 import { appRouter } from "@edgecoms/api/routers/index";
+import { sendEmail } from "@edgecoms/mail/send";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import type { NextRequest } from "next/server";
 
@@ -8,7 +9,7 @@ function handler(req: NextRequest) {
 		endpoint: "/api/trpc",
 		req,
 		router: appRouter,
-		createContext: () => createContext(req),
+		createContext: () => createContext(req, sendEmail),
 	});
 }
 

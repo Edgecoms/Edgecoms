@@ -2,6 +2,8 @@
 
 import { Skeleton } from "@edgecoms/ui/components/skeleton";
 import { useQuery } from "@tanstack/react-query";
+import type { Route } from "next";
+import Link from "next/link";
 import {
 	EmptyState,
 	PortalHeader,
@@ -9,32 +11,56 @@ import {
 	StatusBadge,
 	TableShell,
 } from "@/components/portal/ui";
-import { formatMoney, formatPeriod } from "@/lib/money";
+import {
+	formatMoney,
+	formatPeriod,
+	primaryMoney,
+	secondaryMoney,
+} from "@/lib/money";
 import { trpc } from "@/utils/trpc";
 
 export default function PartnerEarningsPage() {
 	const { data, isLoading } = useQuery(trpc.partner.earnings.queryOptions());
-	const currency = data?.currency ?? "USD";
 
 	return (
 		<div className="flex flex-col gap-8">
 			<PortalHeader
-				description="Your commission by month, what's owed, and your payout history."
+				description="Your commission by month, what is owed, and every payout. Where tax was withheld at source, you see what you earned and what reached you."
 				title="Earnings"
 			/>
 
+			{data?.payoutBlocker ? (
+				<div className="flex flex-col gap-2 rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 text-amber-800">
+					<span className="font-medium text-body-sm">
+						We cannot pay you yet
+					</span>
+					<p className="text-body-sm">
+						{data.payoutBlocker}. Nothing is lost: what you have earned stays
+						owed to you and goes out with the next payout once this is fixed.
+					</p>
+					<Link
+						className="w-fit text-body-sm underline"
+						href={"/partner/settings" as Route}
+					>
+						Add your payout details
+					</Link>
+				</div>
+			) : null}
+
 			<div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
 				<StatCard
-					hint="All-time commission"
+					hint={secondaryMoney(data?.lifetime ?? []) ?? "All-time commission"}
 					label="Lifetime"
 					loading={isLoading}
-					value={formatMoney(data?.lifetimeMinor ?? "0", currency)}
+					value={primaryMoney(data?.lifetime ?? [], data?.zeroCurrency)}
 				/>
 				<StatCard
-					hint="Pending commission"
+					hint={
+						secondaryMoney(data?.upcomingPayout ?? []) ?? "Pending commission"
+					}
 					label="Upcoming payout"
 					loading={isLoading}
-					value={formatMoney(data?.upcomingPayoutMinor ?? "0", currency)}
+					value={primaryMoney(data?.upcomingPayout ?? [], data?.zeroCurrency)}
 				/>
 				<StatCard
 					hint="Current period"
@@ -62,6 +88,7 @@ export default function PartnerEarningsPage() {
 						head={
 							<>
 								<th>Period</th>
+								<th>Currency</th>
 								<th className="text-right">Pending</th>
 								<th className="text-right">Paid</th>
 								<th className="text-right">Total</th>
@@ -69,18 +96,21 @@ export default function PartnerEarningsPage() {
 						}
 					>
 						{(data?.months ?? []).map((month) => (
-							<tr key={month.period}>
+							/* One row per month AND currency: a month earned in two
+							   currencies is two payouts, so it is two lines here. */
+							<tr key={`${month.period}:${month.currency}`}>
 								<td className="text-primary-foreground">
 									{formatPeriod(month.period)}
 								</td>
+								<td className="text-secondary-foreground">{month.currency}</td>
 								<td className="text-right text-secondary-foreground tabular-nums">
-									{formatMoney(month.pendingMinor, currency)}
+									{formatMoney(month.pendingMinor, month.currency)}
 								</td>
 								<td className="text-right text-secondary-foreground tabular-nums">
-									{formatMoney(month.paidMinor, currency)}
+									{formatMoney(month.paidMinor, month.currency)}
 								</td>
 								<td className="text-right text-primary-foreground tabular-nums">
-									{formatMoney(month.totalMinor, currency)}
+									{formatMoney(month.totalMinor, month.currency)}
 								</td>
 							</tr>
 						))}
@@ -101,9 +131,11 @@ export default function PartnerEarningsPage() {
 					<TableShell
 						head={
 							<>
-								<th>Period</th>
+								<th>Through</th>
 								<th>Status</th>
-								<th className="text-right">Amount</th>
+								<th className="text-right">Earned</th>
+								<th className="text-right">Withheld</th>
+								<th className="text-right">Paid to you</th>
 							</>
 						}
 					>
@@ -115,8 +147,34 @@ export default function PartnerEarningsPage() {
 								<td>
 									<StatusBadge status={payout.status} />
 								</td>
-								<td className="text-right text-primary-foreground tabular-nums">
+								<td className="text-right text-secondary-foreground tabular-nums">
 									{formatMoney(payout.amountMinor, payout.currency)}
+								</td>
+								<td className="text-right text-secondary-foreground tabular-nums">
+									<div className="flex flex-col items-end">
+										<span>
+											{formatMoney(payout.withheldMinor, payout.currency)}
+										</span>
+										{payout.withholdingNote ? (
+											<span className="text-caption">
+												{payout.withholdingNote}
+											</span>
+										) : null}
+									</div>
+								</td>
+								<td className="text-right text-primary-foreground tabular-nums">
+									<div className="flex flex-col items-end">
+										<span>{formatMoney(payout.netMinor, payout.currency)}</span>
+										{payout.settledMinor && payout.settledCurrency ? (
+											<span className="text-caption text-secondary-foreground">
+												Sent{" "}
+												{formatMoney(
+													payout.settledMinor,
+													payout.settledCurrency
+												)}
+											</span>
+										) : null}
+									</div>
 								</td>
 							</tr>
 						))}

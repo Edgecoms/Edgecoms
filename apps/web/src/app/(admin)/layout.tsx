@@ -21,6 +21,7 @@ const ADMIN_NAV = [
 	{ href: "/admin/codes", label: "Codes" },
 	{ href: "/admin/merchants", label: "Merchants" },
 	{ href: "/admin/commissions", label: "Commissions" },
+	{ href: "/admin/bonuses", label: "Bonuses" },
 	{ href: "/admin/payouts", label: "Payouts" },
 ];
 

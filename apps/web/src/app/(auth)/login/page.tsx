@@ -79,6 +79,13 @@ export default function LoginPage() {
 				</Button>
 			</form>
 
+			<Link
+				className="w-fit text-caption text-secondary-foreground underline underline-offset-4"
+				href={"/forgot-password" as Route}
+			>
+				Forgotten your password?
+			</Link>
+
 			<p className="text-body-sm text-secondary-foreground">
 				New partner?{" "}
 				<Link

@@ -87,6 +87,7 @@
 	   it, which is right for a panel sitting IN the page and wrong for one
 	   sitting over a backdrop. */
 	--elevated: #ffffff;
+	--border-strong: var(--gray-6);
 
 	--secondary: var(--white-a12);
 	--secondary-hover: var(--white-a7);
@@ -130,6 +131,7 @@
 
 	/* Lifted off pure black so an elevated surface still reads as elevated. */
 	--elevated: var(--gray-2);
+	--border-strong: var(--gray-7);
 
 	/* Inverted: the dark scale's 12 is near-white, 11 is mid-grey. */
 	--text-primary: var(--gray-12);
@@ -212,7 +214,12 @@
 	--color-page: var(--page);
 	--color-elevated: var(--elevated);
 
-	--color-surface: var(--bg);
+	/* A card is an ELEVATED surface, not the page ground. These were the same
+	   variable, so every bordered card in the portal rendered in exactly the
+	   colour behind it and the only thing separating them was a gray-3 hairline
+	   one step off the background. `--elevated` already existed for this, and is
+	   #fff in light and gray-2 in dark so a card reads as lifted on either. */
+	--color-surface: var(--elevated);
 	--color-surface-item-hover: var(--surface-item-hover);
 	--color-surface-item-active: var(--surface-item-active);
 	--color-surface-item-foreground: var(--surface-item-foreground);
@@ -240,6 +247,10 @@
 	--color-tertiary-hover: var(--gray-a3);
 
 	--color-border: var(--gray-3);
+	/* For the edge of an elevated surface. `--color-border` is a hairline meant
+	   for dividers INSIDE a card, and it disappears when asked to define the
+	   card itself. */
+	--color-border-strong: var(--border-strong);
 	--color-ring: var(--indigo-a5);
 	--color-muted-ring: var(--gray-5);
 }

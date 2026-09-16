@@ -45,7 +45,8 @@ async function seedCommission(
 	period: string,
 	baseMinor: bigint,
 	commissionMinor: bigint,
-	status: "pending" | "paid"
+	status: "pending" | "paid",
+	currency = "USD"
 ) {
 	txnSeq++;
 	const eventRows = await harness.db
@@ -56,7 +57,7 @@ async function seedCommission(
 			grossAmount: baseMinor,
 			shopifyFeeAmount: 0n,
 			netAmount: baseMinor,
-			currency: "USD",
+			currency,
 			transactionType: "app_subscription",
 			occurredAt: new Date(`${period}-15T00:00:00Z`),
 		})
@@ -73,7 +74,7 @@ async function seedCommission(
 		rateBps: 1000,
 		baseAmount: baseMinor,
 		commissionAmount: commissionMinor,
-		currency: "USD",
+		currency,
 		periodMonth: period,
 		status,
 	});
@@ -144,26 +145,125 @@ describe("partner.dashboard — metrics reconcile with the ledger", () => {
 
 		expect(dashboard.activeMerchants).toBe(1);
 		expect(dashboard.pendingRegistrations).toBe(0);
-		// Lifetime = 1000 + 500 (NOT partner B's 1499).
-		expect(dashboard.lifetimeEarningsMinor).toBe("1500");
+		// Lifetime = 1000 + 500 (NOT partner B's 1499). One currency here, so
+		// one entry -- the list is what makes two currencies expressible.
+		expect(dashboard.lifetimeCommission).toEqual([
+			{ amountMinor: "1500", currency: "USD" },
+		]);
 		// This month = the single current-period commission.
-		expect(dashboard.thisMonthCommissionMinor).toBe("1000");
-		expect(dashboard.monthlyRevenueMinor).toBe("10000");
+		expect(dashboard.thisMonthCommission).toEqual([
+			{ amountMinor: "1000", currency: "USD" },
+		]);
+		expect(dashboard.thisMonthRevenue).toEqual([
+			{ amountMinor: "10000", currency: "USD" },
+		]);
 		expect(dashboard.recentActivity).toHaveLength(2);
 	});
 
 	test("partner B's dashboard is independent", async () => {
 		const dashboard = await callerFor("uB").partner.dashboard();
-		expect(dashboard.lifetimeEarningsMinor).toBe("1499");
+		expect(dashboard.lifetimeCommission).toEqual([
+			{ amountMinor: "1499", currency: "USD" },
+		]);
 	});
 });
 
 describe("partner.earnings — totals reconcile", () => {
 	test("lifetime and monthly breakdown match the seeded commissions", async () => {
 		const earnings = await callerFor("uA").partner.earnings();
-		expect(earnings.lifetimeMinor).toBe("1500");
+		expect(earnings.lifetime).toEqual([
+			{ amountMinor: "1500", currency: "USD" },
+		]);
 		const current = earnings.months.find((m) => m.period === CURRENT);
 		expect(current?.totalMinor).toBe("1000");
 		expect(current?.pendingMinor).toBe("1000");
+	});
+});
+
+describe("two currencies are never added together", () => {
+	/**
+	 * THE BUG THIS GUARDS.
+	 *
+	 * These totals used to be summed across currencies and labelled USD, so a
+	 * partner earning in euros saw a number that was not money in any currency,
+	 * next to a payout that would pay a different figure. There is no exchange
+	 * rate anywhere in this system, so the only honest answer is both.
+	 */
+	test("the dashboard reports each currency, largest first", async () => {
+		await seedCommission(
+			PARTNER_A,
+			MERCHANT_A,
+			CURRENT,
+			90_000n,
+			9000n,
+			"pending",
+			"EUR"
+		);
+
+		const dashboard = await callerFor("uA").partner.dashboard();
+
+		/* 1500 USD already seeded, plus 9000 EUR: two entries, not 10500 of
+		   nothing. */
+		expect(dashboard.lifetimeCommission).toEqual([
+			{ amountMinor: "9000", currency: "EUR" },
+			{ amountMinor: "1500", currency: "USD" },
+		]);
+		expect(dashboard.thisMonthCommission).toEqual([
+			{ amountMinor: "9000", currency: "EUR" },
+			{ amountMinor: "1000", currency: "USD" },
+		]);
+	});
+
+	test("earnings reports each currency, and a month is one row per currency", async () => {
+		await seedCommission(
+			PARTNER_A,
+			MERCHANT_A,
+			CURRENT,
+			90_000n,
+			9000n,
+			"pending",
+			"EUR"
+		);
+
+		const earnings = await callerFor("uA").partner.earnings();
+
+		expect(earnings.lifetime).toEqual([
+			{ amountMinor: "9000", currency: "EUR" },
+			{ amountMinor: "1500", currency: "USD" },
+		]);
+		/* The current month earned in both, so it is two lines: which is what
+		   the partner's payouts will be, one per currency. */
+		const current = earnings.months.filter((m) => m.period === CURRENT);
+		expect(current).toHaveLength(2);
+		expect(current.map((m) => [m.currency, m.totalMinor]).sort()).toEqual([
+			["EUR", "9000"],
+			["USD", "1000"],
+		]);
+	});
+
+	test("a zero total still has a currency to be labelled in", async () => {
+		/* Partner B has commissions; a partner with none has no currency of
+		   their own, and a total has to be labelled something. */
+		const dashboard = await callerFor("uB").partner.dashboard();
+		expect(dashboard.zeroCurrency).toBe("USD");
+	});
+
+	test("the merchants list reports per currency too", async () => {
+		await seedCommission(
+			PARTNER_A,
+			MERCHANT_A,
+			CURRENT,
+			90_000n,
+			9000n,
+			"pending",
+			"EUR"
+		);
+
+		const rows = await callerFor("uA").partner.merchants.list();
+		const merchant = rows.find((row) => row.id === MERCHANT_A);
+		expect(merchant?.commission).toEqual([
+			{ amountMinor: "9000", currency: "EUR" },
+			{ amountMinor: "1500", currency: "USD" },
+		]);
 	});
 });

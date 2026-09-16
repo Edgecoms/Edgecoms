@@ -1,6 +1,7 @@
 import { decimalStringToMinorUnits } from "@edgecoms/billing/money";
 import { createPartnerApiSource } from "@edgecoms/billing/partner-api";
 import { runBillingSync } from "@edgecoms/billing/run-sync";
+import type { Database } from "@edgecoms/db";
 import { apps } from "@edgecoms/db/schema/apps";
 import { user } from "@edgecoms/db/schema/auth";
 import { commissions } from "@edgecoms/db/schema/earnings";
@@ -11,11 +12,13 @@ import {
 import {
 	partnerAppRates,
 	partnerCodes,
+	partnerInvites,
 	partners,
 } from "@edgecoms/db/schema/partners";
-import { payouts } from "@edgecoms/db/schema/payouts";
+import { partnerBonuses, payouts } from "@edgecoms/db/schema/payouts";
 import { syncState } from "@edgecoms/db/schema/sync";
 import { env } from "@edgecoms/env/server";
+import type { OutboundEmail } from "@edgecoms/mail/types";
 import { TRPCError } from "@trpc/server";
 import {
 	and,
@@ -24,15 +27,32 @@ import {
 	eq,
 	inArray,
 	isNotNull,
+	lte,
 	ne,
 	notInArray,
 	sql,
 } from "drizzle-orm";
+import type { AnyPgColumn } from "drizzle-orm/pg-core";
 import { z } from "zod";
 import { normalizeCode } from "../attribution/codes";
+import type { EmailDelivery, EmailSender } from "../context";
+import {
+	renderPartnerApprovedEmail,
+	renderPartnerInviteEmail,
+} from "../email/partner-emails";
 import { adminProcedure, router } from "../index";
+import { payoutBlocker } from "../payout-details";
+import { createInviteToken, INVITE_TTL_DAYS } from "./invites";
 
-const MONEY_SUM = (column: typeof commissions.commissionAmount) =>
+/**
+ * Sum a money column to a string, never null.
+ *
+ * Takes any money column rather than only `commissions.commissionAmount`:
+ * payouts now total commissions AND bonuses, and both are bigint minor units.
+ * The `string` return is deliberate -- a bigint sum must not round-trip through
+ * a JS number on its way out of the driver.
+ */
+const MONEY_SUM = (column: AnyPgColumn) =>
 	sql<string>`coalesce(sum(${column}), 0)`;
 
 /**
@@ -46,6 +66,76 @@ const MONEY_SUM = (column: typeof commissions.commissionAmount) =>
  * the admin UI and the rate is only ever read from the partner row.
  */
 const CODE_PATTERN = /^[A-Z0-9-]{4,32}$/;
+/**
+ * Smallest payout worth making, in minor units. $50.
+ *
+ * Below this a transfer fee is a meaningful share of the payment, and holding
+ * costs the partner nothing: their commissions stay `pending` and join the next
+ * month's group, the same way a late charge already does.
+ */
+const MINIMUM_PAYOUT_MINOR = 5000n;
+/** A payout period, as `YYYY-MM`. */
+const PERIOD_MONTH = /^\d{4}-\d{2}$/;
+
+/** Upper bound on one invite batch, so a paste cannot mail thousands. */
+const MAX_INVITES_PER_BATCH = 50;
+const MS_PER_DAY = 86_400_000;
+/** Trailing slashes on the configured origin, so links do not double up. */
+const TRAILING_SLASHES = /\/+$/;
+
+/**
+ * Sends one email without ever failing the operation that triggered it.
+ *
+ * Every caller here has already committed a write to the money system by the
+ * time this runs. A partner approval that rolled back because Resend was
+ * briefly unavailable would be a far worse bug than a notification that has to
+ * be resent, so this swallows everything and reports what happened.
+ *
+ * A context with no sender (the router tests build one by hand) reports
+ * "skipped", which is why adding mail did not change a single existing test.
+ */
+async function notify(
+	ctx: { sendEmail?: EmailSender },
+	email: OutboundEmail
+): Promise<EmailDelivery> {
+	if (!ctx.sendEmail) {
+		return "skipped";
+	}
+	try {
+		return await ctx.sendEmail(email);
+	} catch (error) {
+		console.warn(`admin_notify: sender threw: ${String(error)}`);
+		return "failed";
+	}
+}
+
+/**
+ * The origin to build partner-facing links on.
+ *
+ * `BETTER_AUTH_URL` rather than a separate variable because it is already
+ * required to equal the deployment's own origin. If it were wrong, sign-in
+ * would be broken long before anybody noticed a bad link in an email.
+ */
+function siteOrigin(): string {
+	/* Typed as a required URL, but SKIP_ENV_VALIDATION (which the test suite
+	   sets) leaves every value undefined, so this must not assume a string. */
+	const configured: string | undefined = env.BETTER_AUTH_URL;
+	return (configured ?? "").replace(TRAILING_SLASHES, "");
+}
+
+/** Normalized, de-duplicated, order-preserving list of addresses. */
+function normalizeEmails(values: readonly string[]): string[] {
+	const seen = new Set<string>();
+	const out: string[] = [];
+	for (const value of values) {
+		const email = value.trim().toLowerCase();
+		if (email && !seen.has(email)) {
+			seen.add(email);
+			out.push(email);
+		}
+	}
+	return out;
+}
 
 /** Billing intervals a discount may span. Ten years is well past any real promo. */
 const MAX_DISCOUNT_CYCLES = 120;
@@ -196,12 +286,100 @@ function codeTermsPatch(input: CodeTermsInput) {
 	return set;
 }
 
+/** The transaction handle Drizzle hands a `db.transaction` callback. */
+type Tx = Parameters<Parameters<Database["transaction"]>[0]>[0];
+
+/**
+ * ISSUE a merchant-facing code onto a partner, inside the caller's transaction.
+ *
+ * Shares `CODE_PATTERN` and the global-unique conflict handling with
+ * codes.create, because "approve issues a code" and "issue a code" must not be
+ * able to disagree about what a valid code is.
+ */
+async function issueCodeInTx(
+	tx: Tx,
+	partnerId: string,
+	rawCode: string
+): Promise<string> {
+	const code = normalizeCode(rawCode);
+	if (!CODE_PATTERN.test(code)) {
+		throw new TRPCError({
+			code: "BAD_REQUEST",
+			message:
+				"Use 4\u201332 letters, digits or hyphens. Keep the commission rate out of the code.",
+		});
+	}
+
+	const inserted = await tx
+		.insert(partnerCodes)
+		.values({ partnerId, code })
+		.onConflictDoNothing({ target: partnerCodes.code })
+		.returning({ id: partnerCodes.id });
+
+	if (!inserted[0]) {
+		throw new TRPCError({
+			code: "CONFLICT",
+			message: "That code is already in use.",
+		});
+	}
+	return code;
+}
+
 /**
  * Admin-scoped router. Every procedure asserts the admin role via
  * `adminProcedure`. Admins operate across all partners — they are not
  * tenant-scoped. This is where the engine's inputs are set: partner rates,
  * merchant approvals, and the grandfathered sets.
  */
+/**
+ * Refuse to pay a partner we could not actually send money to.
+ *
+ * Reads the STORED destination rather than trusting the caller: this is the
+ * last point before money moves, and a row may predate the validator that now
+ * guards the form.
+ */
+async function assertPayable(tx: Tx, partnerId: string): Promise<void> {
+	const rows = await tx
+		.select({
+			payoutAccountName: partners.payoutAccountName,
+			payoutAccountNumber: partners.payoutAccountNumber,
+			payoutCountry: partners.payoutCountry,
+			payoutDestination: partners.payoutDestination,
+			payoutIfsc: partners.payoutIfsc,
+		})
+		.from(partners)
+		.where(eq(partners.id, partnerId))
+		.limit(1);
+
+	const row = rows[0];
+	if (!row) {
+		throw new TRPCError({ code: "NOT_FOUND", message: "No such partner." });
+	}
+	const blocker = payoutBlocker(row);
+	if (blocker) {
+		throw new TRPCError({
+			code: "PRECONDITION_FAILED",
+			message: `Cannot pay this partner: ${blocker}.`,
+		});
+	}
+}
+
+/** Withholding as integer minor units, refused if it exceeds what was earned. */
+function resolveWithholding(
+	amount: string,
+	currency: string,
+	total: bigint
+): bigint {
+	const withheld = decimalStringToMinorUnits(amount, currency);
+	if (withheld < 0n || withheld > total) {
+		throw new TRPCError({
+			code: "BAD_REQUEST",
+			message: "Withholding cannot exceed the amount earned.",
+		});
+	}
+	return withheld;
+}
+
 export const adminRouter = router({
 	dashboard: adminProcedure.query(async ({ ctx }) => {
 		const period = currentPeriod();
@@ -221,23 +399,45 @@ export const adminRouter = router({
 			.select({ value: count() })
 			.from(merchants)
 			.where(eq(merchants.status, "pending"));
+		/* Grouped by currency, like every other total in the system. These two
+		   were the last place summing across currencies and labelling the
+		   result USD: with one EUR partner the admin's own dashboard reported a
+		   figure that was not money in any currency. */
 		const monthCommission = await ctx.db
-			.select({ total: MONEY_SUM(commissions.commissionAmount) })
+			.select({
+				currency: commissions.currency,
+				total: MONEY_SUM(commissions.commissionAmount),
+			})
 			.from(commissions)
-			.where(eq(commissions.periodMonth, period));
+			.where(eq(commissions.periodMonth, period))
+			.groupBy(commissions.currency);
 		const payable = await ctx.db
-			.select({ total: MONEY_SUM(commissions.commissionAmount) })
+			.select({
+				currency: commissions.currency,
+				total: MONEY_SUM(commissions.commissionAmount),
+			})
 			.from(commissions)
-			.where(eq(commissions.status, "pending"));
+			.where(eq(commissions.status, "pending"))
+			.groupBy(commissions.currency);
+
+		const byAmountDesc = (
+			rows: readonly { currency: string; total: string }[]
+		) =>
+			rows
+				.map((row) => ({ amountMinor: row.total, currency: row.currency }))
+				.filter((row) => BigInt(row.amountMinor) !== 0n)
+				.sort((a, b) =>
+					BigInt(b.amountMinor) > BigInt(a.amountMinor) ? 1 : -1
+				);
 
 		return {
-			currency: "USD",
 			totalPartners: totalPartners[0]?.value ?? 0,
 			pendingPartners: pendingPartners[0]?.value ?? 0,
 			activeMerchants: activeMerchants[0]?.value ?? 0,
 			pendingMerchants: pendingMerchants[0]?.value ?? 0,
-			monthlyCommissionsMinor: monthCommission[0]?.total ?? "0",
-			pendingPayoutsMinor: payable[0]?.total ?? "0",
+			monthlyCommissions: byAmountDesc(monthCommission),
+			pendingPayouts: byAmountDesc(payable),
+			zeroCurrency: "USD",
 		};
 	}),
 
@@ -275,18 +475,58 @@ export const adminRouter = router({
 				merchantCounts.map((row) => [row.partnerId, row.value])
 			);
 
+			/* The rate the inviting admin had in mind, carried off the accepted
+			   invite so the approve dialog opens on it instead of a guess. A
+			   PROPOSAL and nothing more: commission generation never reads this,
+			   only `partners.defaultRateBps`. */
+			const proposals = await ctx.db
+				.select({
+					partnerId: partnerInvites.acceptedPartnerId,
+					proposedRateBps: partnerInvites.proposedRateBps,
+				})
+				.from(partnerInvites)
+				.where(
+					and(
+						isNotNull(partnerInvites.acceptedPartnerId),
+						isNotNull(partnerInvites.proposedRateBps)
+					)
+				);
+			const proposedByPartner = new Map(
+				proposals.map((row) => [row.partnerId, row.proposedRateBps])
+			);
+
 			return rows.map((row) => ({
 				...row,
 				merchantCount: countByPartner.get(row.id) ?? 0,
+				proposedRateBps: proposedByPartner.get(row.id) ?? null,
 			}));
 		}),
 
-		/** Approve a partner: set status + default rate + optional per-app rates. */
+		/**
+		 * APPROVE a partner: status, default rate, optional per-app rates, and,
+		 * in the same transaction, the attribution code they are about to be told
+		 * they have.
+		 *
+		 * The code used to be a separate trip to /admin/codes that an admin had to
+		 * remember, while the partner's dashboard told them "we issue one when your
+		 * account is approved". Approving without issuing produced a partner
+		 * staring at a promise nothing kept, so the two are now one action.
+		 *
+		 * `code` is optional ONLY because re-approving a suspended partner must not
+		 * demand a second code: if the partner already holds an active one, that is
+		 * the code they keep. With no active code and no `code` supplied, this
+		 * refuses rather than approving somebody who cannot acquire a store.
+		 *
+		 * Mail goes out AFTER the transaction commits, and cannot fail it. The
+		 * return value reports what happened so the admin sees "approved, but the
+		 * email did not go out" rather than silently assuming the partner was told.
+		 */
 		approve: adminProcedure
 			.input(
 				z.object({
 					partnerId: z.string(),
 					defaultRateBps: z.number().int().min(0).max(10_000),
+					code: z.string().min(4).max(32).optional(),
 					appRates: z
 						.array(
 							z.object({
@@ -298,7 +538,22 @@ export const adminRouter = router({
 				})
 			)
 			.mutation(async ({ ctx, input }) => {
-				await ctx.db.transaction(async (tx) => {
+				const approved = await ctx.db.transaction(async (tx) => {
+					const rows = await tx
+						.select({ email: user.email, name: user.name })
+						.from(partners)
+						.innerJoin(user, eq(user.id, partners.userId))
+						.where(eq(partners.id, input.partnerId))
+						.limit(1);
+
+					const recipient = rows[0];
+					if (!recipient) {
+						throw new TRPCError({
+							code: "NOT_FOUND",
+							message: "No such partner.",
+						});
+					}
+
 					await tx
 						.update(partners)
 						.set({
@@ -322,9 +577,321 @@ export const adminRouter = router({
 								set: { rateBps: rate.rateBps },
 							});
 					}
+
+					const existing = await tx
+						.select({ code: partnerCodes.code })
+						.from(partnerCodes)
+						.where(
+							and(
+								eq(partnerCodes.partnerId, input.partnerId),
+								eq(partnerCodes.status, "active")
+							)
+						)
+						.limit(1);
+
+					let code = existing[0]?.code ?? null;
+					if (!code) {
+						if (!input.code) {
+							throw new TRPCError({
+								code: "BAD_REQUEST",
+								message:
+									"This partner has no active code. Supply one to issue with the approval.",
+							});
+						}
+						code = await issueCodeInTx(tx, input.partnerId, input.code);
+					}
+
+					return { code, email: recipient.email };
 				});
+
+				const delivery = await notify(
+					ctx,
+					renderPartnerApprovedEmail({
+						code: approved.code,
+						rateBps: input.defaultRateBps,
+						to: approved.email,
+						welcomeUrl: `${siteOrigin()}/partner`,
+					})
+				);
+
+				return { code: approved.code, emailed: delivery, ok: true };
+			}),
+
+		/**
+		 * INVITE agencies by email address.
+		 *
+		 * The outbound half of partner acquisition: an admin who already knows who
+		 * they want, and has nothing but a list of addresses. Each address gets a
+		 * signup link tied to it.
+		 *
+		 * AN INVITE IS NOT AN APPROVAL. `proposedRateBps` is recorded on the invite
+		 * and pre-fills the approve dialog once they sign up; it is never read when
+		 * commission is generated. The money gate stays exactly where CLAUDE.md
+		 * puts it.
+		 *
+		 * Per-address results rather than one pass/fail, because a batch pasted
+		 * from a spreadsheet will contain an address that already has an account
+		 * and that must not stop the other nine from going out. Re-inviting a live
+		 * address revokes the old token and issues a new one, which is what makes
+		 * the button safe to press twice.
+		 */
+		invite: adminProcedure
+			.input(
+				z.object({
+					/* Raw strings, validated per address in the handler. `z.email()`
+					   here would reject the entire batch because one pasted row has
+					   a stray space or a typo, which is every real batch. */
+					emails: z
+						.array(z.string().min(1).max(320))
+						.min(1)
+						.max(MAX_INVITES_PER_BATCH),
+					companyName: z.string().max(200).optional(),
+					proposedRateBps: z.number().int().min(0).max(10_000).optional(),
+				})
+			)
+			.mutation(async ({ ctx, input }) => {
+				const emails = normalizeEmails(input.emails);
+				const expiresAt = new Date(Date.now() + INVITE_TTL_DAYS * MS_PER_DAY);
+				const results: {
+					email: string;
+					outcome: "already_registered" | "invalid" | "invited";
+					emailed?: EmailDelivery;
+				}[] = [];
+
+				for (const email of emails) {
+					if (!z.email().safeParse(email).success) {
+						results.push({ email, outcome: "invalid" });
+						continue;
+					}
+
+					const existing = await ctx.db
+						.select({ id: user.id })
+						.from(user)
+						.where(eq(user.email, email))
+						.limit(1);
+
+					/* They can already sign in; an invite would only confuse them. */
+					if (existing[0]) {
+						results.push({ email, outcome: "already_registered" });
+						continue;
+					}
+
+					const { hash, token } = createInviteToken();
+
+					await ctx.db.transaction(async (tx) => {
+						/* Supersede any live invite for this address, so the partial
+               unique index holds and only the newest link works. */
+						await tx
+							.update(partnerInvites)
+							.set({ status: "revoked" })
+							.where(
+								and(
+									eq(partnerInvites.email, email),
+									eq(partnerInvites.status, "sent")
+								)
+							);
+
+						await tx.insert(partnerInvites).values({
+							email,
+							tokenHash: hash,
+							companyName: input.companyName?.trim() || null,
+							proposedRateBps: input.proposedRateBps ?? null,
+							expiresAt,
+							invitedBy: ctx.session.user.id,
+						});
+					});
+
+					const delivery = await notify(
+						ctx,
+						renderPartnerInviteEmail({
+							acceptUrl: `${siteOrigin()}/register?invite=${encodeURIComponent(token)}`,
+							companyName: input.companyName?.trim() || null,
+							inviterName: ctx.session.user.name ?? null,
+							to: email,
+						})
+					);
+
+					results.push({ email, emailed: delivery, outcome: "invited" });
+				}
+
+				return { results };
+			}),
+
+		/** Outstanding and historical invitations, newest first. */
+		invites: adminProcedure.query(async ({ ctx }) => {
+			const rows = await ctx.db
+				.select({
+					id: partnerInvites.id,
+					email: partnerInvites.email,
+					companyName: partnerInvites.companyName,
+					proposedRateBps: partnerInvites.proposedRateBps,
+					status: partnerInvites.status,
+					expiresAt: partnerInvites.expiresAt,
+					acceptedAt: partnerInvites.acceptedAt,
+					createdAt: partnerInvites.createdAt,
+				})
+				.from(partnerInvites)
+				.orderBy(desc(partnerInvites.createdAt));
+
+			const now = new Date();
+			return rows.map((row) => ({
+				...row,
+				/* Expiry is a fact about time, not a status anybody writes, so it is
+           derived here rather than by a job that has to keep up. */
+				expired: row.status === "sent" && row.expiresAt <= now,
+			}));
+		}),
+
+		/** Kill a live invitation's link. Accepted invites are history and stay. */
+		revokeInvite: adminProcedure
+			.input(z.object({ inviteId: z.string() }))
+			.mutation(async ({ ctx, input }) => {
+				await ctx.db
+					.update(partnerInvites)
+					.set({ status: "revoked" })
+					.where(
+						and(
+							eq(partnerInvites.id, input.inviteId),
+							eq(partnerInvites.status, "sent")
+						)
+					);
 				return { ok: true };
 			}),
+
+		/**
+		 * ISSUE A BONUS -- money with no earning event behind it.
+		 *
+		 * Discretionary by design: nothing mints these, so nothing is owed to a
+		 * partner who has not been given one. That is what keeps a bonus from
+		 * becoming a published promise the business owes everybody who reaches
+		 * the same number.
+		 *
+		 * The amount arrives as a DECIMAL STRING and is converted with the same
+		 * integer conversion the rest of the money system uses. A float never
+		 * touches it (CLAUDE.md "Money correctness").
+		 *
+		 * `periodMonth` decides which payout it rides, so a bonus issued for a
+		 * period already paid forms part of the next payout for that period
+		 * rather than mutating a settled one -- the same rule as a late
+		 * commission.
+		 */
+		issueBonus: adminProcedure
+			.input(
+				z.object({
+					partnerId: z.string(),
+					amount: z.string().regex(DECIMAL_AMOUNT, "Use a decimal amount"),
+					currency: z.string().length(3),
+					reason: z.string().min(3).max(300),
+					periodMonth: z.string().regex(PERIOD_MONTH, "Use YYYY-MM"),
+				})
+			)
+			.mutation(async ({ ctx, input }) => {
+				const currency = input.currency.toUpperCase();
+				const amountMinor = decimalStringToMinorUnits(input.amount, currency);
+				if (amountMinor <= 0n) {
+					throw new TRPCError({
+						code: "BAD_REQUEST",
+						message: "A bonus must be more than zero.",
+					});
+				}
+
+				const partner = await ctx.db.query.partners.findFirst({
+					where: eq(partners.id, input.partnerId),
+					columns: { id: true, status: true },
+				});
+				if (!partner) {
+					throw new TRPCError({
+						code: "NOT_FOUND",
+						message: "No such partner.",
+					});
+				}
+				if (partner.status !== "approved") {
+					/* An unapproved partner has no agreed rate and no payout details;
+					   paying one is a decision to make after approving them. */
+					throw new TRPCError({
+						code: "PRECONDITION_FAILED",
+						message: "Approve the partner before issuing a bonus.",
+					});
+				}
+
+				const inserted = await ctx.db
+					.insert(partnerBonuses)
+					.values({
+						amount: amountMinor,
+						currency,
+						issuedBy: ctx.session.user.id,
+						partnerId: input.partnerId,
+						periodMonth: input.periodMonth,
+						reason: input.reason.trim(),
+					})
+					.returning({ id: partnerBonuses.id });
+
+				return { id: inserted[0]?.id ?? null, ok: true };
+			}),
+
+		/** Withdraw a bonus that has not been paid. Paid bonuses are history. */
+		revokeBonus: adminProcedure
+			.input(z.object({ bonusId: z.string() }))
+			.mutation(async ({ ctx, input }) => {
+				const updated = await ctx.db
+					.update(partnerBonuses)
+					.set({ status: "revoked" })
+					.where(
+						and(
+							eq(partnerBonuses.id, input.bonusId),
+							eq(partnerBonuses.status, "pending")
+						)
+					)
+					.returning({ id: partnerBonuses.id });
+
+				if (!updated[0]) {
+					throw new TRPCError({
+						code: "PRECONDITION_FAILED",
+						message: "That bonus is already paid or revoked.",
+					});
+				}
+				return { ok: true };
+			}),
+
+		/** Every bonus, newest first, for the admin ledger. */
+		bonuses: adminProcedure.query(
+			async ({ ctx }) =>
+				await ctx.db
+					.select({
+						id: partnerBonuses.id,
+						amount: partnerBonuses.amount,
+						currency: partnerBonuses.currency,
+						reason: partnerBonuses.reason,
+						periodMonth: partnerBonuses.periodMonth,
+						status: partnerBonuses.status,
+						paidAt: partnerBonuses.paidAt,
+						createdAt: partnerBonuses.createdAt,
+						/* Which KIND of bonus. Null means a person chose it; a key
+						   means the programme owed it, and a key prefixed
+						   `merchant_earning:` is the per-store bounty. An admin
+						   auditing money leaving the business has to tell those
+						   apart. Safe to spread: text and uuid, unlike `amount`. */
+						milestoneKey: partnerBonuses.milestoneKey,
+						merchantId: partnerBonuses.merchantId,
+						partnerCompany: partners.companyName,
+						partnerName: user.name,
+					})
+					.from(partnerBonuses)
+					.innerJoin(partners, eq(partners.id, partnerBonuses.partnerId))
+					.innerJoin(user, eq(user.id, partners.userId))
+					.orderBy(desc(partnerBonuses.createdAt))
+					.then((rows) =>
+						/* `amount` destructured OUT, not spread through: a bigint
+						   cannot be JSON-serialized, so leaving it on the response
+						   breaks the query over HTTP -- which an in-process router
+						   test never exercises. */
+						rows.map(({ amount, ...row }) => ({
+							...row,
+							amountMinor: amount.toString(),
+							partner: row.partnerCompany ?? row.partnerName,
+						}))
+					)
+		),
 
 		setStatus: adminProcedure
 			.input(
@@ -718,14 +1285,100 @@ export const adminRouter = router({
 				)
 				.orderBy(desc(commissions.periodMonth));
 
-			return rows.map((row) => ({
-				partnerId: row.partnerId,
-				periodMonth: row.periodMonth,
-				currency: row.currency,
-				totalMinor: row.total,
-				items: row.items,
-				partner: row.partnerCompany ?? row.partnerName,
-			}));
+			/**
+			 * Bonuses form payable groups too, and a bonus-only group has no
+			 * commission rows to be found by the query above -- so without this
+			 * it would be invisible here and therefore impossible to pay.
+			 */
+			const bonusRows = await ctx.db
+				.select({
+					partnerId: partnerBonuses.partnerId,
+					periodMonth: partnerBonuses.periodMonth,
+					currency: partnerBonuses.currency,
+					total: MONEY_SUM(partnerBonuses.amount),
+					items: count(),
+					partnerCompany: partners.companyName,
+					partnerName: user.name,
+				})
+				.from(partnerBonuses)
+				.innerJoin(partners, eq(partners.id, partnerBonuses.partnerId))
+				.innerJoin(user, eq(user.id, partners.userId))
+				.where(eq(partnerBonuses.status, "pending"))
+				.groupBy(
+					partnerBonuses.partnerId,
+					partnerBonuses.periodMonth,
+					partnerBonuses.currency,
+					partners.companyName,
+					user.name
+				);
+
+			const groups = new Map<
+				string,
+				{
+					bonusCount: number;
+					bonusesMinor: bigint;
+					commissionsMinor: bigint;
+					currency: string;
+					items: number;
+					partner: string;
+					partnerId: string;
+					periodMonth: string;
+				}
+			>();
+
+			const keyOf = (row: {
+				currency: string;
+				partnerId: string;
+				periodMonth: string;
+			}) => `${row.partnerId}:${row.periodMonth}:${row.currency}`;
+
+			for (const row of rows) {
+				groups.set(keyOf(row), {
+					bonusCount: 0,
+					bonusesMinor: 0n,
+					commissionsMinor: BigInt(row.total),
+					currency: row.currency,
+					items: row.items,
+					partner: row.partnerCompany ?? row.partnerName,
+					partnerId: row.partnerId,
+					periodMonth: row.periodMonth,
+				});
+			}
+
+			for (const row of bonusRows) {
+				const key = keyOf(row);
+				const existing = groups.get(key);
+				if (existing) {
+					existing.bonusesMinor = BigInt(row.total);
+					existing.bonusCount = row.items;
+				} else {
+					groups.set(key, {
+						bonusCount: row.items,
+						bonusesMinor: BigInt(row.total),
+						commissionsMinor: 0n,
+						currency: row.currency,
+						items: 0,
+						partner: row.partnerCompany ?? row.partnerName,
+						partnerId: row.partnerId,
+						periodMonth: row.periodMonth,
+					});
+				}
+			}
+
+			return [...groups.values()]
+				.map((group) => ({
+					bonusCount: group.bonusCount,
+					bonusesMinor: group.bonusesMinor.toString(),
+					commissionsMinor: group.commissionsMinor.toString(),
+					currency: group.currency,
+					items: group.items,
+					partner: group.partner,
+					partnerId: group.partnerId,
+					periodMonth: group.periodMonth,
+					/* What the payout will actually be. */
+					totalMinor: (group.commissionsMinor + group.bonusesMinor).toString(),
+				}))
+				.sort((a, b) => b.periodMonth.localeCompare(a.periodMonth));
 		}),
 
 		list: adminProcedure.query(async ({ ctx }) => {
@@ -734,6 +1387,13 @@ export const adminRouter = router({
 					id: payouts.id,
 					periodMonth: payouts.periodMonth,
 					amount: payouts.totalAmount,
+					withheld: payouts.withheldAmount,
+					net: payouts.netAmount,
+					settled: payouts.settledAmount,
+					settledCurrency: payouts.settledCurrency,
+					method: payouts.method,
+					reference: payouts.reference,
+					withholdingNote: payouts.withholdingNote,
 					currency: payouts.currency,
 					status: payouts.status,
 					paidAt: payouts.paidAt,
@@ -746,12 +1406,24 @@ export const adminRouter = router({
 				.innerJoin(user, eq(user.id, partners.userId))
 				.orderBy(desc(payouts.createdAt));
 
+			/* Every bigint stringified: they cannot be JSON-serialized, and an
+			   in-process test would never catch one left on the response. */
 			return rows.map((row) => ({
 				id: row.id,
 				periodMonth: row.periodMonth,
+				/* Gross, withheld and net, because the amount transferred is not
+				   the amount earned once tax is withheld at source. */
 				amountMinor: row.amount.toString(),
+				withheldMinor: row.withheld.toString(),
+				netMinor: row.net.toString(),
+				settledMinor: row.settled?.toString() ?? null,
+				settledCurrency: row.settledCurrency,
+				method: row.method,
+				reference: row.reference,
+				withholdingNote: row.withholdingNote,
 				currency: row.currency,
 				status: row.status,
+				paidAt: row.paidAt,
 				partner: row.partnerCompany ?? row.partnerName,
 			}));
 		}),
@@ -767,42 +1439,145 @@ export const adminRouter = router({
 					partnerId: z.string(),
 					periodMonth: z.string(),
 					currency: z.string().length(3),
+					/** How the money moved. Recorded, not inferred. */
+					method: z
+						.enum(["bank_transfer", "upi", "wire", "payment_link", "other"])
+						.default("bank_transfer"),
+					/** Tax withheld at source, as a decimal string. "0" if none. */
+					withheld: z.string().regex(DECIMAL_AMOUNT).default("0"),
+					/** Section, rate, certificate number -- whatever explains it. */
+					withholdingNote: z.string().max(300).optional(),
+					/** UTR, wire reference, or the id of a link that was paid. */
+					reference: z.string().max(200).optional(),
+					/**
+					 * Pay a group below the minimum anyway. Small payouts are held
+					 * so a transfer fee does not eat them, but sometimes you are
+					 * settling a partner's final balance and want it gone.
+					 */
+					force: z.boolean().default(false),
 				})
 			)
 			.mutation(
 				async ({ ctx, input }) =>
 					await ctx.db.transaction(async (tx) => {
-						const groupWhere = and(
+						/**
+						 * THROUGH the named period, not just it.
+						 *
+						 * `lte` rather than `eq`, and this is the whole reason the
+						 * minimum below is honest. With `eq`, a partner earning
+						 * $15 a month had a March group worth $15 for ever: it
+						 * never reached the $50 floor, the next month formed its
+						 * own group that also never reached it, and the money was
+						 * permanently unpayable while the error message claimed it
+						 * would "roll into next month". `periodMonth` is
+						 * `YYYY-MM`, so lexicographic <= is chronological <=.
+						 *
+						 * The payout's own `periodMonth` is therefore the period it
+						 * runs THROUGH, and the return value reports every period
+						 * actually covered.
+						 */
+						const commissionWhere = and(
 							eq(commissions.partnerId, input.partnerId),
-							eq(commissions.periodMonth, input.periodMonth),
+							lte(commissions.periodMonth, input.periodMonth),
 							eq(commissions.currency, input.currency),
 							eq(commissions.status, "pending")
 						);
 
-						const totals = await tx
+						/* Bonuses ride the same payout on the same key. Scoped to
+						   the SAME currency, so a EUR bonus waits for the EUR
+						   payout instead of being converted into this one. */
+						const bonusWhere = and(
+							eq(partnerBonuses.partnerId, input.partnerId),
+							lte(partnerBonuses.periodMonth, input.periodMonth),
+							eq(partnerBonuses.currency, input.currency),
+							eq(partnerBonuses.status, "pending")
+						);
+
+						await assertPayable(tx, input.partnerId);
+
+						/**
+						 * CLAIM THE ROWS, then total exactly what was claimed.
+						 *
+						 * `for("update")` locks them for the life of the
+						 * transaction. Summing with an aggregate and then running
+						 * the same predicate again in an UPDATE left a window: a
+						 * commission generated in between was stamped paid by the
+						 * update but excluded from the total the payout recorded,
+						 * and two concurrent calls each recorded a full-value
+						 * payout. Totalling the locked rows makes the payout equal
+						 * the money it actually claimed, by construction.
+						 */
+						const claimedCommissions = await tx
 							.select({
-								total: MONEY_SUM(commissions.commissionAmount),
-								items: count(),
+								amount: commissions.commissionAmount,
+								id: commissions.id,
+								periodMonth: commissions.periodMonth,
 							})
 							.from(commissions)
-							.where(groupWhere);
+							.where(commissionWhere)
+							.for("update");
 
-						const total = totals[0]?.total ?? "0";
-						const items = totals[0]?.items ?? 0;
-						if (items === 0) {
+						const claimedBonuses = await tx
+							.select({ amount: partnerBonuses.amount, id: partnerBonuses.id })
+							.from(partnerBonuses)
+							.where(bonusWhere)
+							.for("update");
+
+						const commissionTotal = claimedCommissions.reduce(
+							(sum, row) => sum + row.amount,
+							0n
+						);
+						const commissionItems = claimedCommissions.length;
+						const bonusTotal = claimedBonuses.reduce(
+							(sum, row) => sum + row.amount,
+							0n
+						);
+						const bonusItems = claimedBonuses.length;
+
+						/* Integers, added as integers. */
+						const total = commissionTotal + bonusTotal;
+
+						if (commissionItems + bonusItems === 0) {
 							throw new TRPCError({
 								code: "PRECONDITION_FAILED",
-								message: "No payable commissions for this group.",
+								message: "Nothing payable for this group.",
 							});
 						}
+
+						/**
+						 * A MINIMUM, so a transfer fee cannot eat the payout.
+						 *
+						 * Held money is not stranded money: because the sweep above
+						 * is `lte`, everything still pending is picked up by the
+						 * next run for this partner, and the total grows month by
+						 * month until it clears the floor.
+						 */
+						if (!input.force && total < MINIMUM_PAYOUT_MINOR) {
+							throw new TRPCError({
+								code: "PRECONDITION_FAILED",
+								message: `Below the ${MINIMUM_PAYOUT_MINOR / 100n} minimum. It stays pending and the next run for this partner will sweep it in. Use force to pay it now anyway.`,
+							});
+						}
+
+						const withheld = resolveWithholding(
+							input.withheld,
+							input.currency,
+							total
+						);
+						const net = total - withheld;
 
 						const inserted = await tx
 							.insert(payouts)
 							.values({
 								partnerId: input.partnerId,
 								periodMonth: input.periodMonth,
-								totalAmount: BigInt(total),
+								totalAmount: total,
+								withheldAmount: withheld,
+								netAmount: net,
 								currency: input.currency,
+								method: input.method,
+								reference: input.reference?.trim() || null,
+								withholdingNote: input.withholdingNote?.trim() || null,
 								status: "paid",
 								paidAt: new Date(),
 							})
@@ -816,12 +1591,50 @@ export const adminRouter = router({
 							});
 						}
 
-						await tx
-							.update(commissions)
-							.set({ status: "paid", paidAt: new Date(), payoutId })
-							.where(groupWhere);
+						const paidAt = new Date();
+						/* BY ID, not by predicate: exactly the rows that were
+						   locked and totalled, so the payout can never be stamped
+						   onto money it did not count. */
+						if (commissionItems > 0) {
+							await tx
+								.update(commissions)
+								.set({ status: "paid", paidAt, payoutId })
+								.where(
+									inArray(
+										commissions.id,
+										claimedCommissions.map((row) => row.id)
+									)
+								);
+						}
+						if (bonusItems > 0) {
+							await tx
+								.update(partnerBonuses)
+								.set({ status: "paid", paidAt, payoutId })
+								.where(
+									inArray(
+										partnerBonuses.id,
+										claimedBonuses.map((row) => row.id)
+									)
+								);
+						}
 
-						return { payoutId, totalMinor: total, items };
+						/* Which periods this actually covered, so an admin sees
+						   that a June run swept an unpaid March. */
+						const periodsCovered = [
+							...new Set(claimedCommissions.map((row) => row.periodMonth)),
+						].sort();
+
+						return {
+							bonusCount: bonusItems,
+							bonusesMinor: bonusTotal.toString(),
+							commissionsMinor: commissionTotal.toString(),
+							items: commissionItems,
+							netMinor: net.toString(),
+							payoutId,
+							periodsCovered,
+							totalMinor: total.toString(),
+							withheldMinor: withheld.toString(),
+						};
 					})
 			),
 	}),

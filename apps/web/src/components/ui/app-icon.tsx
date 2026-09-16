@@ -1,5 +1,4 @@
 import Image from "next/image";
-import type { EdgeProduct } from "@/lib/products";
 
 /**
  * An app's own icon, wherever that app is named.
@@ -25,7 +24,12 @@ export function AppIcon({
 	size = "md",
 }: {
 	className?: string;
-	product: EdgeProduct;
+	/**
+	 * Anything carrying a slug. Deliberately not `EdgeProduct`: the partner
+	 * portal renders these from a slim server-built list, and requiring the full
+	 * marketing product would ship the whole catalog to the browser.
+	 */
+	product: { slug: string };
 	size?: keyof typeof SIZES;
 }) {
 	return (

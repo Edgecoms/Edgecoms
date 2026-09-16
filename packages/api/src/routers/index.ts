@@ -1,5 +1,6 @@
 import { protectedProcedure, publicProcedure, router } from "../index";
 import { adminRouter } from "./admin";
+import { invitesRouter } from "./invites";
 import { partnerRouter } from "./partner";
 
 export const appRouter = router({
@@ -9,6 +10,7 @@ export const appRouter = router({
 		user: ctx.session.user,
 	})),
 	partner: partnerRouter,
+	invites: invitesRouter,
 	admin: adminRouter,
 });
 

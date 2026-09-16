@@ -1,5 +1,6 @@
 import { relations } from "drizzle-orm";
 import {
+	boolean,
 	index,
 	pgEnum,
 	pgTable,
@@ -84,6 +85,37 @@ export const merchants = pgTable(
 		 */
 		...discountTerms,
 		discountGrantedAt: timestamp("discount_granted_at"),
+		/**
+		 * True when the settling sweep approved this store rather than a person.
+		 *
+		 * `approvedBy` is null for those, and null is already what a deleted
+		 * admin leaves behind, so without this column the two are
+		 * indistinguishable in an attribution dispute. See
+		 * `autoApproveSettledMerchants` in @edgecoms/billing.
+		 */
+		/**
+		 * THE DAY THIS PARTNER'S CLAIM STARTS. No charge before it ever earns.
+		 *
+		 * Commission generation had no lower bound, so approving a store paid its
+		 * partner a share of every charge that store had EVER made. With codes
+		 * shared publicly that is a way to harvest existing customers: someone
+		 * already paying Edge directly enters a code they saw posted, and that
+		 * partner collects on revenue going back to the beginning, having brought
+		 * nobody.
+		 *
+		 * Defaults to the instant the row is created, which for a code redemption
+		 * is the moment the code was used. Its own column rather than reusing
+		 * `createdAt`, because `createdAt` is a generic audit timestamp that a
+		 * backfill or a data migration could reasonably rewrite, and it now
+		 * decides money.
+		 *
+		 * COMPLEMENTARY to the grandfathered set, not a replacement. This blocks
+		 * the PAST for every app; grandfathering blocks the FUTURE for apps the
+		 * store was already paying for. An app the store used and cancelled last
+		 * year is caught by this one and not by that one.
+		 */
+		earningsFromAt: timestamp("earnings_from_at").defaultNow().notNull(),
+		autoApproved: boolean("auto_approved").default(false).notNull(),
 		approvedAt: timestamp("approved_at"),
 		approvedBy: text("approved_by").references(() => user.id, {
 			onDelete: "set null",

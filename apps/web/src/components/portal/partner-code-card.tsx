@@ -5,6 +5,7 @@ import { Skeleton } from "@edgecoms/ui/components/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
+import { formatMoney } from "@/lib/money";
 import { trpc } from "@/utils/trpc";
 
 /**
@@ -21,6 +22,34 @@ import { trpc } from "@/utils/trpc";
 
 type DiscountKind = "none" | "percentage" | "fixed" | "free_cycles";
 
+/**
+ * Why a code is not working, if it is not working.
+ *
+ * The card derived its whole health signal from `status`, which only knows
+ * `active` and `disabled`. Expiry and the redemption cap live in separate
+ * columns, so an EXPIRED code rendered in large type with an enabled Copy
+ * button: the partner kept handing it out, every merchant was turned away with
+ * the same deliberately generic "that code isn't valid", and nothing on either
+ * side of the conversation could explain why.
+ */
+function codeProblem(row: {
+	expiresAt: Date | string | null;
+	maxRedemptions: number | null;
+	redemptions: number;
+	status: string;
+}): string | null {
+	if (row.status !== "active") {
+		return "Turned off, so it will not take new stores.";
+	}
+	if (row.expiresAt && new Date(row.expiresAt).getTime() <= Date.now()) {
+		return "Expired, so merchants entering it are turned away. Ask us to reissue it.";
+	}
+	if (row.maxRedemptions !== null && row.redemptions >= row.maxRedemptions) {
+		return "Fully used, so it will not take another store. Ask us to raise the limit.";
+	}
+	return null;
+}
+
 interface CodeRowProps {
 	code: string;
 	disabled: boolean;
@@ -30,9 +59,11 @@ interface CodeRowProps {
 	discountCycles: number | null;
 	discountGrantLimit: number | null;
 	discountKind: DiscountKind;
+	expiresAt: Date | string | null;
 	grantsUsed: number;
 	maxRedemptions: number | null;
 	redemptions: number;
+	status: string;
 }
 
 /** What a merchant gets for using this code, in the partner's own words. */
@@ -46,7 +77,12 @@ function describeOffer(props: CodeRowProps): string | null {
 		case "percentage":
 			return `${(props.discountBps ?? 0) / 100}% off Enterprise ${span}`;
 		case "fixed":
-			return `${props.discountAmountMinor ?? ""} ${props.discountCurrency ?? ""} off Enterprise ${span}`;
+			/* formatMoney, not the raw column: `discountAmountMinor` is an
+			   integer in MINOR units, so interpolating it directly told the
+			   partner their code was worth "5000 USD" when it was worth $50. */
+			return props.discountAmountMinor
+				? `${formatMoney(props.discountAmountMinor, props.discountCurrency ?? "USD")} off Enterprise ${span}`
+				: null;
 		case "free_cycles":
 			return `Enterprise free ${span}`;
 		default:
@@ -55,14 +91,9 @@ function describeOffer(props: CodeRowProps): string | null {
 }
 
 function CodeRow(props: CodeRowProps) {
-	const {
-		code,
-		redemptions,
-		maxRedemptions,
-		discountGrantLimit,
-		grantsUsed,
-		disabled,
-	} = props;
+	const { code, redemptions, maxRedemptions, discountGrantLimit, grantsUsed } =
+		props;
+	const problem = codeProblem(props);
 	const offer = describeOffer(props);
 	const [copied, setCopied] = useState(false);
 
@@ -79,18 +110,21 @@ function CodeRow(props: CodeRowProps) {
 	}
 
 	return (
-		<div className="flex flex-col gap-4 rounded-xl border border-border bg-page p-5 sm:flex-row sm:items-center sm:justify-between">
+		<div className="flex flex-col gap-4 rounded-xl border border-border-strong bg-surface p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
 			<div className="flex flex-col gap-2">
 				<div className="flex items-center gap-3">
 					<span className="font-medium font-mono text-h3 text-primary-foreground tracking-tight">
 						{code}
 					</span>
-					{disabled ? (
-						<span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 font-medium text-[11px] text-slate-600 ring-1 ring-slate-500/20 ring-inset">
-							Disabled
+					{problem ? (
+						<span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 font-medium text-[11px] text-amber-800 ring-1 ring-amber-600/20 ring-inset">
+							Not working
 						</span>
 					) : null}
 				</div>
+				{problem ? (
+					<span className="text-amber-700 text-body-sm">{problem}</span>
+				) : null}
 				<span className="text-caption text-secondary-foreground">
 					{redemptions} {redemptions === 1 ? "store" : "stores"} registered
 					{maxRedemptions === null ? "" : ` of ${maxRedemptions} available`}
@@ -114,10 +148,9 @@ function CodeRow(props: CodeRowProps) {
 				) : null}
 			</div>
 			<Button
-				disabled={disabled}
 				onClick={copy}
 				size="md"
-				variant={disabled ? "secondary" : "primary"}
+				variant={problem ? "secondary" : "primary"}
 			>
 				{copied ? "Copied" : "Copy code"}
 			</Button>
@@ -163,10 +196,12 @@ export function PartnerCodeCard() {
 							discountCycles={row.discountCycles}
 							discountGrantLimit={row.discountGrantLimit}
 							discountKind={row.discountKind}
+							expiresAt={row.expiresAt}
 							grantsUsed={row.grantsUsed}
 							key={row.id}
 							maxRedemptions={row.maxRedemptions}
 							redemptions={row.redemptions}
+							status={row.status}
 						/>
 					))}
 				</div>

@@ -22,7 +22,9 @@
     "PARTNER_API_GID_EDGE_SUBSCRIPTIONS",
     "ADMIN_EMAIL",
     "ADMIN_NAME",
-    "ADMIN_PASSWORD"
+    "ADMIN_PASSWORD",
+    "PARTNER_FROM_EMAIL",
+    "PARTNER_SMTP_URL"
   ],
   "tasks": {
     "build": {

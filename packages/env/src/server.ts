@@ -69,6 +69,21 @@ export const env = createEnv({
 			.string()
 			.regex(/^smtp:\/\//, "Expected an smtp:// URL")
 			.optional(),
+		// The From address on partner lifecycle email (invite, approval), e.g.
+		// `Edge Partners <partners@edgecoms.app>`. Separate from
+		// EDGE_CART_FROM_EMAIL because these are different conversations from
+		// different senders: one is a marketing lead magnet, this one tells an
+		// agency what commission rate they are on. Unset means partner email is
+		// skipped and the admin is told so, and approval itself still succeeds.
+		PARTNER_FROM_EMAIL: z.string().min(1).optional(),
+		// Local mail catcher for partner email, as `smtp://localhost:1025`. When
+		// set it WINS over Resend, so a developer cannot accidentally mail a real
+		// agency while testing an approval. `sendViaSmtp` refuses to run when
+		// NODE_ENV is production.
+		PARTNER_SMTP_URL: z
+			.string()
+			.regex(/^smtp:\/\//, "Expected an smtp:// URL")
+			.optional(),
 	},
 	runtimeEnv: process.env,
 	skipValidation: !!process.env.SKIP_ENV_VALIDATION,

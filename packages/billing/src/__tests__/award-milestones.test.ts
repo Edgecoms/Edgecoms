@@ -7,7 +7,11 @@ import { partners } from "@edgecoms/db/schema/partners";
 import { partnerBonuses } from "@edgecoms/db/schema/payouts";
 import { eq } from "drizzle-orm";
 import { awardMilestoneBonuses } from "../award-milestones";
-import { MILESTONE_BONUS_MINOR } from "../milestones";
+import {
+	evaluatePartnerMilestones,
+	MERCHANT_BOUNTY_MINOR,
+	MILESTONE_BONUS_MINOR,
+} from "../milestones";
 import { createTestDb, type TestDb } from "./db-harness";
 
 /**
@@ -116,34 +120,38 @@ afterEach(async () => {
 describe("paying once", () => {
 	test("a second run over the same data awards nothing", async () => {
 		await addStore(STORE_A);
+		await earn({});
 
 		const first = await award();
 		const second = await award();
 
-		expect(first.awarded.map((row) => row.key)).toEqual(["first_store"]);
-		/* The unique index refuses it, so a six-hourly cron is free to re-run. */
+		expect(first.awarded.map((row) => row.key)).toEqual(["first_commission"]);
+		expect(first.bounties).toHaveLength(1);
+		/* The unique index refuses both, so a six-hourly cron re-runs for free. */
 		expect(second.awarded).toEqual([]);
-		expect(await harness.db.select().from(partnerBonuses)).toHaveLength(1);
+		expect(second.bounties).toEqual([]);
+		expect(await harness.db.select().from(partnerBonuses)).toHaveLength(2);
 	});
 
 	test("a rung already awarded by hand is not awarded again", async () => {
 		await addStore(STORE_A);
+		await earn({});
 		await harness.db.insert(partnerBonuses).values({
-			amount: 500n,
+			amount: 1000n,
 			currency: "USD",
 			issuedBy: null,
-			milestoneKey: "first_store",
+			milestoneKey: "first_commission",
 			partnerId: PARTNER,
 			periodMonth: "2026-01",
 			reason: "Backfilled",
 		});
 
 		expect((await award()).awarded).toEqual([]);
-		expect(await harness.db.select().from(partnerBonuses)).toHaveLength(1);
 	});
 
 	test("a discretionary bonus never blocks a milestone award", async () => {
 		await addStore(STORE_A);
+		await earn({});
 		await harness.db.insert(partnerBonuses).values({
 			amount: 9999n,
 			currency: "USD",
@@ -154,25 +162,26 @@ describe("paying once", () => {
 			reason: "Goodwill, unrelated",
 		});
 
-		/* The unique index is partial: discretionary rows are unconstrained. */
+		/* NULLs are distinct in the unique index, so discretionary rows never
+		   conflict with each other or with a keyed award. */
 		expect((await award()).awarded.map((row) => row.key)).toEqual([
-			"first_store",
+			"first_commission",
 		]);
-		expect(await harness.db.select().from(partnerBonuses)).toHaveLength(2);
 	});
 });
 
 describe("the amounts, and when they are owed", () => {
-	test("a first store pays five dollars, with no issuer", async () => {
+	test("a store that starts paying earns a five dollar bounty, with no issuer", async () => {
 		await addStore(STORE_A);
+		await earn({});
 		await award();
 
-		const bonus = await bonusFor("first_store");
-		expect(bonus?.amount).toBe(MILESTONE_BONUS_MINOR.first_store);
+		const bonus = await bonusFor(`merchant_earning:${STORE_A}`);
 		expect(bonus?.amount).toBe(500n);
+		expect(bonus?.merchantId).toBe(STORE_A);
 		expect(bonus?.currency).toBe("USD");
 		expect(bonus?.status).toBe("pending");
-		expect(bonus?.reason).toBe("First store on your code");
+		expect(bonus?.reason).toBe("A store you brought started paying for Edge");
 		/* Nobody chose this, and a null issuer is how that is recorded. */
 		expect(bonus?.issuedBy).toBeNull();
 		/* It rides the payout for the month the sweep ran. */
@@ -238,18 +247,20 @@ describe("the amounts, and when they are owed", () => {
 		expect((await bonusFor("whole_suite"))?.amount).toBe(7000n);
 	});
 
-	test("the full ladder is worth two hundred and forty five dollars", () => {
+	test("the rungs are worth two hundred and forty dollars, plus five a store", () => {
 		const total = Object.values(MILESTONE_BONUS_MINOR).reduce(
 			(sum, amount) => sum + amount,
 			0n
 		);
-		expect(total).toBe(24_500n);
+		expect(total).toBe(24_000n);
+		expect(MERCHANT_BOUNTY_MINOR).toBe(500n);
 	});
 });
 
 describe("who accrues", () => {
 	test("a partner who is not approved accrues nothing", async () => {
 		await addStore(STORE_A, PENDING_PARTNER);
+		await earn({ partnerId: PENDING_PARTNER });
 
 		const summary = await award();
 
@@ -260,11 +271,11 @@ describe("who accrues", () => {
 
 	test("one partner's progress never awards another", async () => {
 		await addStore(STORE_A);
+		await earn({});
 		await award();
 
 		const rows = await harness.db.select().from(partnerBonuses);
-		expect(rows).toHaveLength(1);
-		expect(rows[0]?.partnerId).toBe(PARTNER);
+		expect(rows.every((row) => row.partnerId === PARTNER)).toBe(true);
 	});
 
 	test("bonuses are paid in dollars even when the partner earns elsewhere", async () => {
@@ -278,5 +289,75 @@ describe("who accrues", () => {
 		const money = await bonusFor("money");
 		expect(money?.currency).toBe("USD");
 		expect(money?.amount).toBe(10_000n);
+	});
+});
+
+describe("the per-store bounty", () => {
+	test("an approved store that has never been billed earns nothing", async () => {
+		await addStore(STORE_A);
+
+		const summary = await award();
+
+		/* Approval is not the trigger. The settling sweep approves clean stores
+		   on its own, so a bounty on approval would be a faucet: bind a domain
+		   you control, wait a day, collect. Earning cannot be faked without
+		   actually paying Shopify. */
+		expect(summary.bounties).toEqual([]);
+		expect(await harness.db.select().from(partnerBonuses)).toHaveLength(0);
+	});
+
+	test("every earning store pays, and it pays once each", async () => {
+		await addStore(STORE_A);
+		await addStore(STORE_B);
+		await earn({ merchantId: STORE_A });
+		await earn({ merchantId: STORE_B });
+
+		const first = await award();
+		expect(first.bounties).toHaveLength(2);
+		expect(first.bounties.map((row) => row.merchantId).sort()).toEqual(
+			[STORE_A, STORE_B].sort()
+		);
+
+		/* Unbounded across stores, capped at one per store. */
+		expect((await award()).bounties).toEqual([]);
+	});
+
+	test("two commissions on one store is still one bounty", async () => {
+		await addStore(STORE_A);
+		await earn({ merchantId: STORE_A });
+		await earn({ merchantId: STORE_A });
+
+		expect((await award()).bounties).toHaveLength(1);
+	});
+
+	test("a store that starts paying later is picked up on a later pass", async () => {
+		await addStore(STORE_A);
+		await addStore(STORE_B);
+		await earn({ merchantId: STORE_A });
+
+		expect((await award()).bounties).toHaveLength(1);
+
+		await earn({ merchantId: STORE_B });
+		const later = await award();
+		expect(later.bounties).toHaveLength(1);
+		expect(later.bounties[0]?.merchantId).toBe(STORE_B);
+	});
+
+	test("the ladder reports the bounty and how much of it is banked", async () => {
+		await addStore(STORE_A);
+		await addStore(STORE_B);
+		await earn({ merchantId: STORE_A });
+		await earn({ merchantId: STORE_B });
+		await award();
+
+		const ladder = await evaluatePartnerMilestones(harness.db, PARTNER);
+		expect(ladder.merchantBounty.amountMinor).toBe("500");
+		expect(ladder.merchantBounty.earningStores).toBe(2);
+		expect(ladder.merchantBounty.paidStores).toBe(2);
+		/* first_store is gone from the rungs: the bounty already pays for it,
+		   and a rung beside it would pay the first store twice. */
+		expect(ladder.milestones.map((rung) => rung.key)).not.toContain(
+			"first_store"
+		);
 	});
 });

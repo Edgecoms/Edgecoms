@@ -11,6 +11,7 @@ import {
 import { currencyCode, moneyMinor, timestamps } from "./_shared";
 import { user } from "./auth";
 import { commissions } from "./earnings";
+import { merchants } from "./merchants";
 import { partners } from "./partners";
 
 export const payoutStatus = pgEnum("payout_status", ["pending", "paid"]);
@@ -108,6 +109,17 @@ export const partnerBonuses = pgTable(
 		 * first, so two concurrent sweeps cannot both decide a rung is unpaid.
 		 */
 		milestoneKey: text("milestone_key"),
+		/**
+		 * The store a per-store bounty was paid for, so the ledger can name it
+		 * rather than parsing it back out of `milestoneKey`. Null for a rung
+		 * award or a discretionary bonus.
+		 *
+		 * restrict, like every money row: a store that earned somebody a bounty
+		 * is history.
+		 */
+		merchantId: uuid("merchant_id").references(() => merchants.id, {
+			onDelete: "restrict",
+		}),
 		/**
 		 * Who authorised money leaving the business. NULL for a milestone award:
 		 * the programme owed it, nobody chose it. Paired with `milestoneKey`

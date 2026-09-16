@@ -655,6 +655,82 @@ function Bonuses({
 	);
 }
 
+/**
+ * THE LADDER: what has been banked, what is next, and what each pays.
+ *
+ * The per-store bounty sits above the rungs rather than among them, because it
+ * is the only one with no ceiling — it pays again for every store a partner
+ * brings, where a rung pays once and is done.
+ */
+function MilestoneLadder({
+	bounty,
+	currency,
+	rungs,
+}: {
+	bounty: {
+		amountMinor: string;
+		earningStores: number;
+		paidStores: number;
+	} | null;
+	currency: string | undefined;
+	rungs: readonly Rung[];
+}) {
+	if (rungs.length === 0) {
+		return null;
+	}
+
+	const reachedCount = rungs.filter((rung) => rung.reached).length;
+	/* Only the first unreached rung is highlighted, so the ladder reads as one
+	   next action rather than a wall of things not done. */
+	const firstUnreached = rungs.findIndex((rung) => !rung.reached);
+	const rungTotal = rungs
+		.reduce((total, rung) => total + BigInt(rung.bonusMinor), 0n)
+		.toString();
+
+	return (
+		<section className="flex flex-col gap-3">
+			<div className="flex items-baseline justify-between gap-4">
+				<h2 className="font-medium text-h3 text-primary-foreground">
+					Milestones
+				</h2>
+				<span className="text-caption text-secondary-foreground tabular-nums">
+					{reachedCount} of {rungs.length} · {formatMoney(rungTotal, "USD")} in
+					rungs
+				</span>
+			</div>
+			{bounty ? (
+				<div className="flex items-center justify-between gap-4 rounded-xl border border-border-strong bg-surface px-5 py-3.5 shadow-sm">
+					<div className="flex flex-col gap-0.5">
+						<span className="text-body-sm text-primary-foreground">
+							Every store you bring that starts paying
+						</span>
+						<span className="text-caption text-secondary-foreground">
+							{bounty.paidStores} of {bounty.earningStores} paying{" "}
+							{bounty.earningStores === 1 ? "store" : "stores"} banked. No limit
+							on this one.
+						</span>
+					</div>
+					<span className="shrink-0 font-medium text-caption text-primary-foreground tabular-nums">
+						+{formatMoney(bounty.amountMinor, "USD")} each
+					</span>
+				</div>
+			) : null}
+			<ul className="flex flex-col gap-px overflow-hidden rounded-xl border border-border-strong bg-border shadow-sm">
+				{rungs.map((rung, index) => (
+					<RungRow
+						bonus={`+${formatMoney(rung.bonusMinor, "USD")}`}
+						detail={rungDetail(rung, currency)}
+						key={rung.key}
+						label={rungLabel(rung, currency)}
+						next={!rung.reached && index === firstUnreached}
+						reached={rung.reached}
+					/>
+				))}
+			</ul>
+		</section>
+	);
+}
+
 export function PartnerHome({
 	catalog,
 	firstName,
@@ -681,10 +757,7 @@ export function PartnerHome({
 	const catalogSize = appsQuery.data?.catalogSize ?? rows.length;
 
 	const rungs = milestonesQuery.data?.milestones ?? [];
-	const reachedCount = rungs.filter((rung) => rung.reached).length;
-	/* Only the first unreached rung is highlighted, so the ladder reads as one
-	   next action rather than a wall of things not done. */
-	const firstUnreached = rungs.findIndex((rung) => !rung.reached);
+	const bounty = milestonesQuery.data?.merchantBounty ?? null;
 
 	return (
 		<div className="flex flex-col gap-10">
@@ -752,37 +825,11 @@ export function PartnerHome({
 
 			<StoreCoverage catalogSize={catalogSize} stores={stores} />
 
-			{rungs.length > 0 ? (
-				<section className="flex flex-col gap-3">
-					<div className="flex items-baseline justify-between gap-4">
-						<h2 className="font-medium text-h3 text-primary-foreground">
-							Milestones
-						</h2>
-						<span className="text-caption text-secondary-foreground tabular-nums">
-							{reachedCount} of {rungs.length} ·{" "}
-							{formatMoney(
-								rungs
-									.reduce((total, rung) => total + BigInt(rung.bonusMinor), 0n)
-									.toString(),
-								"USD"
-							)}{" "}
-							in bonuses
-						</span>
-					</div>
-					<ul className="flex flex-col gap-px overflow-hidden rounded-xl border border-border-strong bg-border shadow-sm">
-						{rungs.map((rung, index) => (
-							<RungRow
-								bonus={`+${formatMoney(rung.bonusMinor, "USD")}`}
-								detail={rungDetail(rung, milestonesQuery.data?.currency)}
-								key={rung.key}
-								label={rungLabel(rung, milestonesQuery.data?.currency)}
-								next={!rung.reached && index === firstUnreached}
-								reached={rung.reached}
-							/>
-						))}
-					</ul>
-				</section>
-			) : null}
+			<MilestoneLadder
+				bounty={bounty}
+				currency={milestonesQuery.data?.currency}
+				rungs={rungs}
+			/>
 
 			<Bonuses
 				awaiting={bonusesQuery.data?.awaitingPayout ?? []}

@@ -1,13 +1,16 @@
 import type { Database } from "@edgecoms/db";
+import { commissions } from "@edgecoms/db/schema/earnings";
 import { partners } from "@edgecoms/db/schema/partners";
 import { partnerBonuses } from "@edgecoms/db/schema/payouts";
 import { eq } from "drizzle-orm";
 import { toPeriodMonth } from "./commissions";
 import {
 	evaluatePartnerMilestones,
+	MERCHANT_BOUNTY_MINOR,
 	MILESTONE_BONUS_CURRENCY,
 	MILESTONE_BONUS_MINOR,
 	type MilestoneKey,
+	merchantBountyKey,
 } from "./milestones";
 
 /**
@@ -40,9 +43,17 @@ export interface MilestoneAward {
 	partnerId: string;
 }
 
+export interface BountyAward {
+	amountMinor: string;
+	merchantId: string;
+	partnerId: string;
+}
+
 export interface AwardMilestonesSummary {
 	/** Awards actually written by this run. A re-run over the same data is empty. */
 	awarded: MilestoneAward[];
+	/** Per-store bounties written by this run. */
+	bounties: BountyAward[];
 	/** Partners considered. */
 	partnersChecked: number;
 }
@@ -65,6 +76,7 @@ export async function awardMilestoneBonuses(
 
 	const summary: AwardMilestonesSummary = {
 		awarded: [],
+		bounties: [],
 		partnersChecked: eligible.length,
 	};
 
@@ -99,6 +111,47 @@ export async function awardMilestoneBonuses(
 				summary.awarded.push({
 					amountMinor: amount.toString(),
 					key: rung.key,
+					partnerId: partner.id,
+				});
+			}
+		}
+
+		/**
+		 * THE PER-STORE BOUNTY. Unbounded, unlike the rungs: every store the
+		 * partner brought that has generated commission pays once.
+		 *
+		 * Keyed on the merchant id, so the same unique index that caps a rung at
+		 * one award caps each store at one bounty. `merchantId` is stored
+		 * alongside purely so the ledger can name the store instead of parsing
+		 * it back out of the key.
+		 */
+		const earners = await db
+			.selectDistinct({ merchantId: commissions.merchantId })
+			.from(commissions)
+			.where(eq(commissions.partnerId, partner.id));
+
+		for (const earner of earners) {
+			const inserted = await db
+				.insert(partnerBonuses)
+				.values({
+					amount: MERCHANT_BOUNTY_MINOR,
+					currency: MILESTONE_BONUS_CURRENCY,
+					issuedBy: null,
+					merchantId: earner.merchantId,
+					milestoneKey: merchantBountyKey(earner.merchantId),
+					partnerId: partner.id,
+					periodMonth,
+					reason: "A store you brought started paying for Edge",
+				})
+				.onConflictDoNothing({
+					target: [partnerBonuses.partnerId, partnerBonuses.milestoneKey],
+				})
+				.returning({ id: partnerBonuses.id });
+
+			if (inserted[0]) {
+				summary.bounties.push({
+					amountMinor: MERCHANT_BOUNTY_MINOR.toString(),
+					merchantId: earner.merchantId,
 					partnerId: partner.id,
 				});
 			}

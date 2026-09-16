@@ -445,15 +445,17 @@ describe("milestones", () => {
 		);
 	});
 
-	test("the first two rungs fall to one store and one commission", async () => {
+	test("the first rung falls to one commission, and the bounty reports the store", async () => {
 		await giveStores();
 		await earn(PARTNER, STORE_A, CART);
 
 		const result = await partnerCaller().partner.milestones();
 		const byKey = new Map(result.milestones.map((rung) => [rung.key, rung]));
-		expect(byKey.get("first_store")?.reached).toBe(true);
 		expect(byKey.get("first_commission")?.reached).toBe(true);
 		expect(byKey.get("five_stores")?.reached).toBe(false);
+		/* Bringing a store is paid per store now, not as a one-off rung. */
+		expect(result.merchantBounty.earningStores).toBe(1);
+		expect(result.merchantBounty.amountMinor).toBe("500");
 	});
 
 	test("the money rung is an integer comparison, not a formatted one", async () => {

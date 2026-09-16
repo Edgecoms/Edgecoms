@@ -2,7 +2,8 @@ import type { Database } from "@edgecoms/db";
 import { apps } from "@edgecoms/db/schema/apps";
 import { commissions } from "@edgecoms/db/schema/earnings";
 import { merchants } from "@edgecoms/db/schema/merchants";
-import { count, eq, sql } from "drizzle-orm";
+import { partnerBonuses } from "@edgecoms/db/schema/payouts";
+import { and, count, eq, ne, sql } from "drizzle-orm";
 
 /**
  * THE MILESTONE LADDER, and what each rung pays.
@@ -37,16 +38,35 @@ const MONEY_TARGET_MINOR = 10_000n;
 
 export type MilestoneKey =
 	| "first_commission"
-	| "first_store"
 	| "five_stores"
 	| "money"
 	| "three_apps"
 	| "whole_suite";
 
+/**
+ * Paid for EVERY store a partner brings that starts paying for an Edge app.
+ *
+ * "Real" means EARNING, not merely approved. Approved is not a safe trigger:
+ * the settling sweep approves a clean store automatically after a day, so a
+ * bounty on approval would let a partner bind any myshopify domain they control
+ * and mint five dollars a day later. A store that has generated commission has
+ * paid Shopify for an Edge app, which cannot be faked without actually paying
+ * Shopify — so every bounty is backed by revenue Edge received.
+ *
+ * Unlike the rungs this is UNBOUNDED: it pays once per qualifying store, for
+ * as many stores as a partner brings. Once per store is enforced by the same
+ * unique index, via a key that carries the merchant id.
+ */
+export const MERCHANT_BOUNTY_MINOR = 500n;
+
+/** The bonus key for one store's bounty. */
+export function merchantBountyKey(merchantId: string): string {
+	return `merchant_earning:${merchantId}`;
+}
+
 /** What reaching each rung pays, in minor units of MILESTONE_BONUS_CURRENCY. */
 export const MILESTONE_BONUS_MINOR: Record<MilestoneKey, bigint> = {
 	first_commission: 1000n,
-	first_store: 500n,
 	five_stores: 5000n,
 	money: 10_000n,
 	three_apps: 1000n,
@@ -67,6 +87,15 @@ export interface MilestoneReading {
 	targetMinor?: string;
 }
 
+export interface MerchantBounty {
+	/** What each qualifying store pays. */
+	amountMinor: string;
+	/** Stores of theirs that have generated commission. */
+	earningStores: number;
+	/** Stores whose bounty has already been awarded. */
+	paidStores: number;
+}
+
 export interface PartnerMilestones {
 	/**
 	 * The currency the MONEY rung is measured in: the partner's largest single
@@ -74,6 +103,8 @@ export interface PartnerMilestones {
 	 * MILESTONE_BONUS_CURRENCY.
 	 */
 	currency: string;
+	/** The per-store bounty, which is not a rung and has no ceiling. */
+	merchantBounty: MerchantBounty;
 	milestones: MilestoneReading[];
 }
 
@@ -143,17 +174,31 @@ export async function evaluatePartnerMilestones(
 	const catalogRows = await db.select({ value: count() }).from(apps);
 	const catalogSize = catalogRows[0]?.value ?? 0;
 
+	/* Stores that have actually earned, and which of those are already paid. */
+	const earningStores = new Set(earningPairs.map((pair) => pair.merchantId));
+	const paidBounties = await db
+		.select({ milestoneKey: partnerBonuses.milestoneKey })
+		.from(partnerBonuses)
+		.where(
+			and(
+				eq(partnerBonuses.partnerId, partnerId),
+				ne(partnerBonuses.status, "revoked")
+			)
+		);
+	const paidStores = paidBounties.filter((row) =>
+		[...earningStores].some(
+			(merchantId) => row.milestoneKey === merchantBountyKey(merchantId)
+		)
+	).length;
+
 	return {
 		currency: bestCurrency,
+		merchantBounty: {
+			amountMinor: MERCHANT_BOUNTY_MINOR.toString(),
+			earningStores: earningStores.size,
+			paidStores,
+		},
 		milestones: [
-			{
-				bonusMinor: MILESTONE_BONUS_MINOR.first_store.toString(),
-				current: storeCount,
-				key: "first_store",
-				label: "First store on your code",
-				reached: storeCount >= 1,
-				target: 1,
-			},
 			{
 				bonusMinor: MILESTONE_BONUS_MINOR.first_commission.toString(),
 				current: commissionCount,

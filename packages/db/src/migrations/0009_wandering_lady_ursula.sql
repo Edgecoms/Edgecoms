@@ -1,0 +1,2 @@
+ALTER TABLE "partner_bonuses" ADD COLUMN "merchant_id" uuid;--> statement-breakpoint
+ALTER TABLE "partner_bonuses" ADD CONSTRAINT "partner_bonuses_merchant_id_merchants_id_fk" FOREIGN KEY ("merchant_id") REFERENCES "public"."merchants"("id") ON DELETE restrict ON UPDATE no action;

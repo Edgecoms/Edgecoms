@@ -61,11 +61,24 @@ subscribed.
   SAME function (`evaluatePartnerMilestones` in `@edgecoms/billing`): a screen
   saying "reached" while nothing was paid is a dispute, so there is one
   definition of reached in the system.
-- **Milestone amounts, in minor units of `MILESTONE_BONUS_CURRENCY` (USD).** The
-  full ladder is $245: first store $5, first commission $10, first $100 earned
-  $100, three apps on one store $10, five stores $50, every app earning $70.
+- **Amounts, in minor units of `MILESTONE_BONUS_CURRENCY` (USD).** The rungs are
+  $240: first commission $10, first $100 earned $100, three apps on one store
+  $10, five stores $50, every app earning $70. On top of that, **$5 for every
+  store a partner brings that starts paying** — `MERCHANT_BOUNTY_MINOR`, which
+  is UNBOUNDED and so is not a rung.
   Changing an amount changes what FUTURE partners are owed and never rewrites
   what has been paid. Removing a rung stops future awards and leaves past ones.
+- **The bounty's trigger is EARNING, not approval.** A store that has generated
+  commission has paid Shopify for an Edge app, which cannot be faked without
+  actually paying Shopify, so every bounty is backed by revenue Edge received.
+  Approval would be unsafe as a trigger: the settling sweep approves clean
+  stores by itself, so a bounty on approval lets a partner bind any myshopify
+  domain they control and collect five dollars a day later.
+- There is deliberately **no "first store" rung**. The bounty already pays for
+  the first store, and a rung beside it would pay that store twice.
+- One bounty per store, forever, keyed `merchant_earning:<merchantId>` so the
+  same unique index that caps a rung caps each store. `merchant_id` is stored
+  alongside so the ledger can name the store instead of parsing the key.
 - **A milestone pays once per partner, ever**, enforced by the unique index on
   (`partner_id`, `milestone_key`) with `onConflictDoNothing` — a database
   guarantee, not the awarder remembering. Check-then-insert has a window where

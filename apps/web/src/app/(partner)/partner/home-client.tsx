@@ -12,7 +12,14 @@ import {
 	TableShell,
 } from "@/components/portal/ui";
 import { AppIcon } from "@/components/ui/app-icon";
-import { formatMoney, formatPeriod } from "@/lib/money";
+import {
+	allMoney,
+	formatMoney,
+	formatPeriod,
+	type MoneyEntry,
+	primaryMoney,
+	secondaryMoney,
+} from "@/lib/money";
 import { trpc } from "@/utils/trpc";
 
 /**
@@ -118,13 +125,13 @@ interface AppRow {
 
 /** One store's coverage of the suite. */
 interface StoreRow {
-	currency: string;
 	earningApps: number;
 	firstPeriod: string | null;
 	grandfatheredApps: number;
 	id: string;
 	latestPeriod: string | null;
-	lifetimeMinor: string;
+	/** Every currency this store has paid in, largest first. */
+	lifetime: readonly MoneyEntry[];
 	liveApps: number;
 	missing: readonly { name: string; slug: string }[];
 	monthsEarning: number;
@@ -299,8 +306,8 @@ function StoreCoverage({
 							</span>
 							{store.monthsEarning > 0 ? (
 								<span className="text-body-sm text-primary-foreground tabular-nums">
-									Month {store.monthsEarning} ·{" "}
-									{formatMoney(store.lifetimeMinor, store.currency)} to date
+									Month {store.monthsEarning} · {allMoney(store.lifetime)} to
+									date
 								</span>
 							) : (
 								<span className="text-caption text-secondary-foreground">
@@ -731,6 +738,68 @@ function MilestoneLadder({
 	);
 }
 
+/**
+ * The four headline figures.
+ *
+ * Money figures show the largest currency big and name the rest underneath,
+ * because there is no exchange rate in this system: adding two currencies to
+ * make one number would be inventing money, and showing only the larger would
+ * hide money the partner is owed.
+ */
+function FigureRow({
+	appsEarning,
+	catalogCount,
+	dashboard,
+	loading,
+}: {
+	appsEarning: number;
+	catalogCount: number;
+	dashboard:
+		| {
+				activeMerchants: number;
+				lifetimeCommission: readonly MoneyEntry[];
+				thisMonthCommission: readonly MoneyEntry[];
+				zeroCurrency: string;
+		  }
+		| undefined;
+	loading: boolean;
+}) {
+	const thisMonth = dashboard?.thisMonthCommission ?? [];
+	const lifetime = dashboard?.lifetimeCommission ?? [];
+
+	return (
+		<div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+			<Figure
+				href={"/partner/merchants" as Route}
+				label="Your stores"
+				loading={loading}
+				value={String(dashboard?.activeMerchants ?? 0)}
+			/>
+			<Figure
+				hint={secondaryMoney(thisMonth) ?? "Commission"}
+				href={"/partner/earnings" as Route}
+				label="This month"
+				loading={loading}
+				value={primaryMoney(thisMonth, dashboard?.zeroCurrency)}
+			/>
+			<Figure
+				hint={secondaryMoney(lifetime) ?? "All time"}
+				href={"/partner/earnings" as Route}
+				label="Lifetime"
+				loading={loading}
+				value={primaryMoney(lifetime, dashboard?.zeroCurrency)}
+			/>
+			<Figure
+				hint={`of ${catalogCount || 7} Edge apps`}
+				href={"/partner" as Route}
+				label="Apps earning"
+				loading={loading}
+				value={String(appsEarning)}
+			/>
+		</div>
+	);
+}
+
 export function PartnerHome({
 	catalog,
 	firstName,
@@ -783,41 +852,12 @@ export function PartnerHome({
 				</div>
 			) : null}
 
-			<div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-				<Figure
-					href={"/partner/merchants" as Route}
-					label="Your stores"
-					loading={dashboard.isLoading}
-					value={String(dashboard.data?.activeMerchants ?? 0)}
-				/>
-				<Figure
-					hint="Commission"
-					href={"/partner/earnings" as Route}
-					label="This month"
-					loading={dashboard.isLoading}
-					value={formatMoney(
-						dashboard.data?.thisMonthCommissionMinor ?? "0",
-						dashboard.data?.currency ?? "USD"
-					)}
-				/>
-				<Figure
-					hint="All time"
-					href={"/partner/earnings" as Route}
-					label="Lifetime"
-					loading={dashboard.isLoading}
-					value={formatMoney(
-						dashboard.data?.lifetimeEarningsMinor ?? "0",
-						dashboard.data?.currency ?? "USD"
-					)}
-				/>
-				<Figure
-					hint={`of ${rows.length || 7} Edge apps`}
-					href={"/partner" as Route}
-					label="Apps earning"
-					loading={appsQuery.isLoading}
-					value={String(earningApps)}
-				/>
-			</div>
+			<FigureRow
+				appsEarning={earningApps}
+				catalogCount={rows.length}
+				dashboard={dashboard.data}
+				loading={dashboard.isLoading}
+			/>
 
 			<PartnerCodeCard />
 

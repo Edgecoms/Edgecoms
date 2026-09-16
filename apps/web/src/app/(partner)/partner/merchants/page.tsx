@@ -8,7 +8,7 @@ import {
 	StatusBadge,
 	TableShell,
 } from "@/components/portal/ui";
-import { formatMoney } from "@/lib/money";
+import { allMoney } from "@/lib/money";
 import { trpc } from "@/utils/trpc";
 
 export default function PartnerMerchantsPage() {
@@ -59,10 +59,10 @@ export default function PartnerMerchantsPage() {
 								<StatusBadge status={merchant.status} />
 							</td>
 							<td className="text-right text-secondary-foreground tabular-nums">
-								{formatMoney(merchant.revenueMinor, merchant.currency)}
+								{allMoney(merchant.revenue, merchant.zeroCurrency)}
 							</td>
 							<td className="text-right text-primary-foreground tabular-nums">
-								{formatMoney(merchant.commissionMinor, merchant.currency)}
+								{allMoney(merchant.commission, merchant.zeroCurrency)}
 							</td>
 						</tr>
 					))}

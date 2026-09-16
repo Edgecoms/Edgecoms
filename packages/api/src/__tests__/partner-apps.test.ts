@@ -550,7 +550,7 @@ describe("compounding, per store", () => {
 		);
 
 		expect(store?.monthsEarning).toBe(0);
-		expect(store?.lifetimeMinor).toBe("0");
+		expect(store?.lifetime).toEqual([]);
 		expect(store?.firstPeriod).toBeNull();
 		expect(store?.latestPeriod).toBeNull();
 	});
@@ -563,7 +563,7 @@ describe("compounding, per store", () => {
 			(row) => row.id === STORE_A
 		);
 		expect(store?.monthsEarning).toBe(1);
-		expect(store?.lifetimeMinor).toBe("2000");
+		expect(store?.lifetime).toEqual([{ amountMinor: "2000", currency: "USD" }]);
 		expect(store?.firstPeriod).toBe("2026-01");
 		expect(store?.latestPeriod).toBe("2026-01");
 	});
@@ -579,7 +579,7 @@ describe("compounding, per store", () => {
 		/* The run counts MONTHS the store has paid, not commissions. Two apps
 		   billed in January is one month of a recurring relationship. */
 		expect(store?.monthsEarning).toBe(1);
-		expect(store?.lifetimeMinor).toBe("4000");
+		expect(store?.lifetime).toEqual([{ amountMinor: "4000", currency: "USD" }]);
 	});
 
 	test("a run across months counts the months and totals the money", async () => {
@@ -592,7 +592,7 @@ describe("compounding, per store", () => {
 			(row) => row.id === STORE_A
 		);
 		expect(store?.monthsEarning).toBe(3);
-		expect(store?.lifetimeMinor).toBe("6600");
+		expect(store?.lifetime).toEqual([{ amountMinor: "6600", currency: "USD" }]);
 		expect(store?.firstPeriod).toBe("2026-01");
 		expect(store?.latestPeriod).toBe("2026-03");
 	});
@@ -620,8 +620,8 @@ describe("compounding, per store", () => {
 		const result = await partnerCaller().partner.apps();
 		const a = result.stores.find((row) => row.id === STORE_A);
 		const b = result.stores.find((row) => row.id === STORE_B);
-		expect(a?.lifetimeMinor).toBe("2000");
-		expect(b?.lifetimeMinor).toBe("5000");
+		expect(a?.lifetime).toEqual([{ amountMinor: "2000", currency: "USD" }]);
+		expect(b?.lifetime).toEqual([{ amountMinor: "5000", currency: "USD" }]);
 		expect(a?.monthsEarning).toBe(1);
 		expect(b?.monthsEarning).toBe(1);
 	});
@@ -634,10 +634,13 @@ describe("compounding, per store", () => {
 		const store = (await partnerCaller().partner.apps()).stores.find(
 			(row) => row.id === STORE_A
 		);
-		/* The larger single currency is reported with its own code, rather than
-		   9000 of something that does not exist. */
-		expect(store?.currency).toBe("EUR");
-		expect(store?.lifetimeMinor).toBe("7000");
+		/* BOTH currencies, largest first. Summing them would invent 9000 of
+		   something that does not exist; reporting only the larger would hide
+		   money the partner is owed. */
+		expect(store?.lifetime).toEqual([
+			{ amountMinor: "7000", currency: "EUR" },
+			{ amountMinor: "2000", currency: "USD" },
+		]);
 	});
 
 	test("another partner's run never lands on my store", async () => {
@@ -647,7 +650,7 @@ describe("compounding, per store", () => {
 		const result = await partnerCaller().partner.apps();
 		expect(result.stores.some((row) => row.id === STORE_C)).toBe(false);
 		for (const store of result.stores) {
-			expect(store.lifetimeMinor).toBe("0");
+			expect(store.lifetime).toEqual([]);
 			expect(store.monthsEarning).toBe(0);
 		}
 	});

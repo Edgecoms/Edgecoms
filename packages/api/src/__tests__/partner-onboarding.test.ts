@@ -456,7 +456,7 @@ describe("partner.onboarding", () => {
 		await partnerCaller().partner.settings.setPayoutDetails({
 			accountName: "Acme Agency",
 			accountNumber: "123456789012",
-			destination: "bank_in",
+			country: "IN",
 			ifsc: "HDFC0001234",
 		});
 		await harness.db.insert(merchants).values({

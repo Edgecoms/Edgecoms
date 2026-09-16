@@ -1357,6 +1357,13 @@ export const adminRouter = router({
 					id: payouts.id,
 					periodMonth: payouts.periodMonth,
 					amount: payouts.totalAmount,
+					withheld: payouts.withheldAmount,
+					net: payouts.netAmount,
+					settled: payouts.settledAmount,
+					settledCurrency: payouts.settledCurrency,
+					method: payouts.method,
+					reference: payouts.reference,
+					withholdingNote: payouts.withholdingNote,
 					currency: payouts.currency,
 					status: payouts.status,
 					paidAt: payouts.paidAt,
@@ -1369,12 +1376,24 @@ export const adminRouter = router({
 				.innerJoin(user, eq(user.id, partners.userId))
 				.orderBy(desc(payouts.createdAt));
 
+			/* Every bigint stringified: they cannot be JSON-serialized, and an
+			   in-process test would never catch one left on the response. */
 			return rows.map((row) => ({
 				id: row.id,
 				periodMonth: row.periodMonth,
+				/* Gross, withheld and net, because the amount transferred is not
+				   the amount earned once tax is withheld at source. */
 				amountMinor: row.amount.toString(),
+				withheldMinor: row.withheld.toString(),
+				netMinor: row.net.toString(),
+				settledMinor: row.settled?.toString() ?? null,
+				settledCurrency: row.settledCurrency,
+				method: row.method,
+				reference: row.reference,
+				withholdingNote: row.withholdingNote,
 				currency: row.currency,
 				status: row.status,
+				paidAt: row.paidAt,
 				partner: row.partnerCompany ?? row.partnerName,
 			}));
 		}),

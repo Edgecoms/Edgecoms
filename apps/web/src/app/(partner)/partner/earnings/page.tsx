@@ -9,12 +9,16 @@ import {
 	StatusBadge,
 	TableShell,
 } from "@/components/portal/ui";
-import { formatMoney, formatPeriod } from "@/lib/money";
+import {
+	formatMoney,
+	formatPeriod,
+	primaryMoney,
+	secondaryMoney,
+} from "@/lib/money";
 import { trpc } from "@/utils/trpc";
 
 export default function PartnerEarningsPage() {
 	const { data, isLoading } = useQuery(trpc.partner.earnings.queryOptions());
-	const currency = data?.currency ?? "USD";
 
 	return (
 		<div className="flex flex-col gap-8">
@@ -25,16 +29,18 @@ export default function PartnerEarningsPage() {
 
 			<div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
 				<StatCard
-					hint="All-time commission"
+					hint={secondaryMoney(data?.lifetime ?? []) ?? "All-time commission"}
 					label="Lifetime"
 					loading={isLoading}
-					value={formatMoney(data?.lifetimeMinor ?? "0", currency)}
+					value={primaryMoney(data?.lifetime ?? [], data?.zeroCurrency)}
 				/>
 				<StatCard
-					hint="Pending commission"
+					hint={
+						secondaryMoney(data?.upcomingPayout ?? []) ?? "Pending commission"
+					}
 					label="Upcoming payout"
 					loading={isLoading}
-					value={formatMoney(data?.upcomingPayoutMinor ?? "0", currency)}
+					value={primaryMoney(data?.upcomingPayout ?? [], data?.zeroCurrency)}
 				/>
 				<StatCard
 					hint="Current period"
@@ -62,6 +68,7 @@ export default function PartnerEarningsPage() {
 						head={
 							<>
 								<th>Period</th>
+								<th>Currency</th>
 								<th className="text-right">Pending</th>
 								<th className="text-right">Paid</th>
 								<th className="text-right">Total</th>
@@ -69,18 +76,21 @@ export default function PartnerEarningsPage() {
 						}
 					>
 						{(data?.months ?? []).map((month) => (
-							<tr key={month.period}>
+							/* One row per month AND currency: a month earned in two
+							   currencies is two payouts, so it is two lines here. */
+							<tr key={`${month.period}:${month.currency}`}>
 								<td className="text-primary-foreground">
 									{formatPeriod(month.period)}
 								</td>
+								<td className="text-secondary-foreground">{month.currency}</td>
 								<td className="text-right text-secondary-foreground tabular-nums">
-									{formatMoney(month.pendingMinor, currency)}
+									{formatMoney(month.pendingMinor, month.currency)}
 								</td>
 								<td className="text-right text-secondary-foreground tabular-nums">
-									{formatMoney(month.paidMinor, currency)}
+									{formatMoney(month.paidMinor, month.currency)}
 								</td>
 								<td className="text-right text-primary-foreground tabular-nums">
-									{formatMoney(month.totalMinor, currency)}
+									{formatMoney(month.totalMinor, month.currency)}
 								</td>
 							</tr>
 						))}

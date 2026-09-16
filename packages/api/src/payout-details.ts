@@ -33,53 +33,71 @@ const COUNTRY = /^[A-Z]{2}$/;
  * shape is a discriminated union rather than a bag of optionals -- an Indian
  * account with no IFSC is not a valid thing to accept and then reject later.
  */
-export const payoutDetailsInput = z.discriminatedUnion("destination", [
-	z.object({
+/**
+ * COUNTRY FIRST, then the fields that country actually uses.
+ *
+ * The partner picks where their bank is and the form follows: an Indian bank
+ * asks for an account number and an IFSC, anywhere else asks for an IBAN or
+ * local account number. Asking "Indian or not?" as its own question made the
+ * partner classify themselves before answering the thing we needed, and the
+ * classification is derivable — `IN` is a domestic transfer, everything else is
+ * an outward remittance.
+ */
+export const payoutDetailsInput = z
+	.object({
 		accountName: z.string().min(2).max(140),
-		accountNumber: z.string().regex(IN_ACCOUNT_PATTERN, "9 to 18 digits"),
-		destination: z.literal("bank_in"),
-		ifsc: z
-			.string()
-			.trim()
-			.toUpperCase()
-			.regex(IFSC_PATTERN, "An IFSC is 11 characters, e.g. HDFC0001234"),
-	}),
-	z.object({
-		accountName: z.string().min(2).max(140),
-		accountNumber: z
-			.string()
-			.trim()
-			.toUpperCase()
-			.regex(INTL_ACCOUNT_PATTERN, "Use the IBAN or account number"),
+		accountNumber: z.string().trim(),
 		country: z
 			.string()
 			.trim()
 			.toUpperCase()
-			.regex(COUNTRY, "A two-letter country code, e.g. DE"),
-		destination: z.literal("bank_intl"),
-	}),
-]);
+			.regex(COUNTRY, "A two-letter country code, e.g. IN or DE"),
+		/** Indian accounts only; ignored for every other country. */
+		ifsc: z.string().trim().toUpperCase().optional(),
+	})
+	.superRefine((value, ctx) => {
+		if (value.country === "IN") {
+			if (!IN_ACCOUNT_PATTERN.test(value.accountNumber)) {
+				ctx.addIssue({
+					code: "custom",
+					message: "An Indian account number is 9 to 18 digits",
+					path: ["accountNumber"],
+				});
+			}
+			if (!IFSC_PATTERN.test(value.ifsc ?? "")) {
+				ctx.addIssue({
+					code: "custom",
+					message: "An IFSC is 11 characters, e.g. HDFC0001234",
+					path: ["ifsc"],
+				});
+			}
+			return;
+		}
+		if (!INTL_ACCOUNT_PATTERN.test(value.accountNumber.toUpperCase())) {
+			ctx.addIssue({
+				code: "custom",
+				message: "Use the IBAN or local account number",
+				path: ["accountNumber"],
+			});
+		}
+	});
 
 export type PayoutDetailsInput = z.infer<typeof payoutDetailsInput>;
 
 /** The columns a validated submission writes. */
 export function payoutDetailsPatch(input: PayoutDetailsInput) {
-	if (input.destination === "bank_in") {
-		return {
-			payoutAccountName: input.accountName.trim(),
-			payoutAccountNumber: input.accountNumber,
-			payoutCountry: "IN",
-			payoutDestination: "bank_in" as const,
-			payoutIfsc: input.ifsc,
-		};
-	}
+	/* The route is derived from the country rather than asked for separately:
+	   IN is a domestic transfer, anywhere else is an outward remittance. */
+	const domestic = input.country === "IN";
 	return {
 		payoutAccountName: input.accountName.trim(),
-		payoutAccountNumber: input.accountNumber,
+		payoutAccountNumber: domestic
+			? input.accountNumber
+			: input.accountNumber.toUpperCase(),
 		payoutCountry: input.country,
-		payoutDestination: "bank_intl" as const,
-		/* Not an Indian account, so an IFSC would be meaningless here. */
-		payoutIfsc: null,
+		payoutDestination: domestic ? ("bank_in" as const) : ("bank_intl" as const),
+		/* An IFSC is an Indian routing code and means nothing anywhere else. */
+		payoutIfsc: domestic ? (input.ifsc ?? null) : null,
 	};
 }
 

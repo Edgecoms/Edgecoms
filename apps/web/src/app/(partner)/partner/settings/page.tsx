@@ -19,17 +19,32 @@ import { queryClient, trpc } from "@/utils/trpc";
  * yet payable.
  */
 
-type Destination = "bank_in" | "bank_intl";
+/**
+ * A short list of countries, with the rest reachable by typing a code.
+ *
+ * India first because that is where most partners and the business itself are.
+ * Not an exhaustive list on purpose: a select of 200 countries is worse to use
+ * than five buttons and a free field, and the server validates the code either
+ * way.
+ */
+const COMMON_COUNTRIES = [
+	["IN", "India"],
+	["US", "United States"],
+	["GB", "United Kingdom"],
+	["DE", "Germany"],
+	["CA", "Canada"],
+	["AE", "UAE"],
+] as const;
 
-/** Where the money goes. Its own form, and its own submit. */
+/** Where the money goes. Country first, then the fields that country uses. */
 function PayoutDetailsForm({
-	chosen,
+	country,
 	data,
-	onChoose,
+	onCountry,
 	onSubmit,
 	pending,
 }: {
-	chosen: Destination;
+	country: string;
 	data: {
 		payoutAccountName: string | null;
 		payoutAccountNumber: string | null;
@@ -37,7 +52,7 @@ function PayoutDetailsForm({
 		payoutCountry: string | null;
 		payoutIfsc: string | null;
 	};
-	onChoose: (value: Destination) => void;
+	onCountry: (value: string) => void;
 	onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 	pending: boolean;
 }) {
@@ -45,6 +60,7 @@ function PayoutDetailsForm({
 	const accountId = useId();
 	const ifscId = useId();
 	const countryId = useId();
+	const domestic = country === "IN";
 
 	return (
 		<form
@@ -69,25 +85,37 @@ function PayoutDetailsForm({
 
 			<div className="flex flex-col gap-2">
 				<span className="text-body-sm text-primary-foreground">
-					Account type
+					Which country is your bank in?
 				</span>
 				<div className="flex flex-wrap gap-2">
-					{(
-						[
-							["bank_in", "Indian bank account"],
-							["bank_intl", "Outside India"],
-						] as const
-					).map(([value, label]) => (
+					{COMMON_COUNTRIES.map(([code, label]) => (
 						<Button
-							key={value}
-							onClick={() => onChoose(value)}
+							key={code}
+							onClick={() => onCountry(code)}
 							size="md"
 							type="button"
-							variant={chosen === value ? "primary" : "secondary"}
+							variant={country === code ? "primary" : "secondary"}
 						>
 							{label}
 						</Button>
 					))}
+				</div>
+				<div className="flex items-center gap-2">
+					<Label className="text-caption" htmlFor={countryId}>
+						Somewhere else
+					</Label>
+					<Input
+						className="w-20"
+						id={countryId}
+						maxLength={2}
+						onChange={(event) =>
+							onCountry(event.currentTarget.value.toUpperCase())
+						}
+						placeholder="JP"
+						value={
+							COMMON_COUNTRIES.some(([code]) => code === country) ? "" : country
+						}
+					/>
 				</div>
 			</div>
 
@@ -103,17 +131,17 @@ function PayoutDetailsForm({
 
 			<div className="flex flex-col gap-2">
 				<Label htmlFor={accountId}>
-					{chosen === "bank_in" ? "Account number" : "IBAN or account number"}
+					{domestic ? "Account number" : "IBAN or account number"}
 				</Label>
 				<Input
 					defaultValue={data.payoutAccountNumber ?? ""}
 					id={accountId}
 					name="accountNumber"
-					placeholder={chosen === "bank_in" ? "9 to 18 digits" : "IBAN"}
+					placeholder={domestic ? "9 to 18 digits" : "IBAN"}
 				/>
 			</div>
 
-			{chosen === "bank_in" ? (
+			{domestic ? (
 				<div className="flex flex-col gap-2">
 					<Label htmlFor={ifscId}>IFSC</Label>
 					<Input
@@ -127,20 +155,10 @@ function PayoutDetailsForm({
 					</span>
 				</div>
 			) : (
-				<div className="flex flex-col gap-2">
-					<Label htmlFor={countryId}>Bank country</Label>
-					<Input
-						defaultValue={data.payoutCountry ?? ""}
-						id={countryId}
-						maxLength={2}
-						name="country"
-						placeholder="DE"
-					/>
-					<span className="text-caption text-secondary-foreground">
-						Two-letter country code. Payments outside India take longer and
-						carry their own bank charges.
-					</span>
-				</div>
+				<span className="text-caption text-secondary-foreground">
+					Payments outside India are an outward remittance: they take longer and
+					carry their own bank charges.
+				</span>
 			)}
 
 			<div>
@@ -166,9 +184,13 @@ export default function PartnerSettingsPage() {
 		trpc.partner.settings.setPayoutDetails.mutationOptions()
 	);
 
-	const [destination, setDestination] = useState<Destination | null>(null);
-	const chosen: Destination =
-		destination ?? data?.payoutDestination ?? "bank_in";
+	/**
+	 * Country first. The rest of the form follows from it, so the partner
+	 * answers the thing we need rather than classifying themselves into a
+	 * remittance route they should not have to know about.
+	 */
+	const [chosenCountry, setChosenCountry] = useState<string | null>(null);
+	const country = chosenCountry ?? data?.payoutCountry ?? "IN";
 
 	function refresh() {
 		queryClient.invalidateQueries({
@@ -200,23 +222,15 @@ export default function PartnerSettingsPage() {
 	function handlePayout(event: FormEvent<HTMLFormElement>) {
 		event.preventDefault();
 		const form = new FormData(event.currentTarget);
-		const accountName = String(form.get("accountName") ?? "").trim();
-		const accountNumber = String(form.get("accountNumber") ?? "").trim();
 
 		payoutMutation.mutate(
-			chosen === "bank_in"
-				? {
-						accountName,
-						accountNumber,
-						destination: "bank_in",
-						ifsc: String(form.get("ifsc") ?? "").trim(),
-					}
-				: {
-						accountName,
-						accountNumber,
-						country: String(form.get("country") ?? "").trim(),
-						destination: "bank_intl",
-					},
+			{
+				accountName: String(form.get("accountName") ?? "").trim(),
+				accountNumber: String(form.get("accountNumber") ?? "").trim(),
+				country,
+				/* Sent regardless; the server ignores it outside India. */
+				ifsc: String(form.get("ifsc") ?? "").trim() || undefined,
+			},
 			{
 				onError: (error) => toast.error(error.message),
 				onSuccess: () => {
@@ -289,9 +303,9 @@ export default function PartnerSettingsPage() {
 					</form>
 
 					<PayoutDetailsForm
-						chosen={chosen}
+						country={country}
 						data={data}
-						onChoose={setDestination}
+						onCountry={setChosenCountry}
 						onSubmit={handlePayout}
 						pending={payoutMutation.isPending}
 					/>

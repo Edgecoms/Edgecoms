@@ -31,6 +31,41 @@ const profileInput = z.object({
  * session; EVERY query below filters by `ctx.partner.id`. No procedure accepts
  * a partner id from input — the tenant-isolation wall (CLAUDE.md).
  */
+/**
+ * A money total, per currency.
+ *
+ * Every partner-facing total is a LIST, not a scalar. A partner may earn in
+ * more than one currency, and the two wrong answers are both worse than a
+ * list: summing them produces a number that means nothing, and showing only
+ * the largest hides money the partner is owed. Sorted largest first, so a
+ * caller that wants one headline figure can take the first entry and show the
+ * rest beside it.
+ */
+export interface MoneyByCurrency {
+	amountMinor: string;
+	currency: string;
+}
+
+/** Rows of `{currency, total}` into a sorted list. */
+function toMoneyList(
+	rows: readonly { currency: string; total: string }[]
+): MoneyByCurrency[] {
+	return rows
+		.map((row) => ({ amountMinor: row.total, currency: row.currency }))
+		.filter((entry) => BigInt(entry.amountMinor) !== 0n)
+		.sort((a, b) => (BigInt(b.amountMinor) > BigInt(a.amountMinor) ? 1 : -1));
+}
+
+/**
+ * What currency to label a zero in.
+ *
+ * A partner with no commissions has no currency of their own yet, and a total
+ * has to be labelled something. The programme's own currency is the honest
+ * default: it is what milestone bonuses pay in, so it is the first money most
+ * partners will see.
+ */
+const ZERO_CURRENCY = "USD";
+
 export const partnerRouter = router({
 	me: partnerProcedure.query(({ ctx }) => ctx.partner),
 
@@ -66,8 +101,11 @@ export const partnerRouter = router({
 				and(eq(merchants.partnerId, partnerId), eq(merchants.status, "pending"))
 			);
 
+		/* Grouped by currency. Summing across them would produce a figure that
+		   is not money in any currency. */
 		const monthRows = await ctx.db
 			.select({
+				currency: commissions.currency,
 				commission: MONEY_SUM(commissions.commissionAmount),
 				revenue: MONEY_SUM(commissions.baseAmount),
 			})
@@ -77,12 +115,17 @@ export const partnerRouter = router({
 					eq(commissions.partnerId, partnerId),
 					eq(commissions.periodMonth, period)
 				)
-			);
+			)
+			.groupBy(commissions.currency);
 
 		const lifetimeRows = await ctx.db
-			.select({ commission: MONEY_SUM(commissions.commissionAmount) })
+			.select({
+				currency: commissions.currency,
+				commission: MONEY_SUM(commissions.commissionAmount),
+			})
 			.from(commissions)
-			.where(eq(commissions.partnerId, partnerId));
+			.where(eq(commissions.partnerId, partnerId))
+			.groupBy(commissions.currency);
 
 		const recent = await ctx.db
 			.select({
@@ -107,10 +150,23 @@ export const partnerRouter = router({
 			defaultRateBps: ctx.partner.defaultRateBps,
 			activeMerchants: activeRows[0]?.value ?? 0,
 			pendingRegistrations: pendingRows[0]?.value ?? 0,
-			thisMonthCommissionMinor: monthRows[0]?.commission ?? "0",
-			monthlyRevenueMinor: monthRows[0]?.revenue ?? "0",
-			lifetimeEarningsMinor: lifetimeRows[0]?.commission ?? "0",
-			currency: "USD",
+			thisMonthCommission: toMoneyList(
+				monthRows.map((row) => ({
+					currency: row.currency,
+					total: row.commission,
+				}))
+			),
+			thisMonthRevenue: toMoneyList(
+				monthRows.map((row) => ({ currency: row.currency, total: row.revenue }))
+			),
+			lifetimeCommission: toMoneyList(
+				lifetimeRows.map((row) => ({
+					currency: row.currency,
+					total: row.commission,
+				}))
+			),
+			/* What to label a zero with when they have earned nothing yet. */
+			zeroCurrency: ZERO_CURRENCY,
 			recentActivity: recent.map((row) => ({
 				id: row.id,
 				amountMinor: row.amount.toString(),
@@ -391,23 +447,22 @@ export const partnerRouter = router({
 				   watching the thing the program actually promises. */
 				const history = historyByStore.get(merchant.id);
 				const months = history ? [...history.months].sort() : [];
-				let currency = "USD";
-				let lifetime = 0n;
-				for (const [code, total] of history?.totals ?? []) {
-					if (total > lifetime) {
-						lifetime = total;
-						currency = code;
-					}
-				}
+				/* Every currency the store has paid in, not just the biggest:
+				   "to date" should be the whole story. */
+				const lifetime = toMoneyList(
+					[...(history?.totals ?? [])].map(([code, total]) => ({
+						currency: code,
+						total: total.toString(),
+					}))
+				);
 
 				return {
-					currency,
 					earningApps: earning.length,
 					firstPeriod: months[0] ?? null,
 					grandfatheredApps: grandfatheredOnStore.length,
 					id: merchant.id,
 					latestPeriod: months.at(-1) ?? null,
-					lifetimeMinor: lifetime.toString(),
+					lifetime,
 					liveApps: live.length,
 					missing,
 					monthsEarning: months.length,
@@ -515,22 +570,41 @@ export const partnerRouter = router({
 
 			const totals = await ctx.db
 				.select({
+					currency: commissions.currency,
 					merchantId: commissions.merchantId,
 					commission: MONEY_SUM(commissions.commissionAmount),
 					revenue: MONEY_SUM(commissions.baseAmount),
 				})
 				.from(commissions)
 				.where(eq(commissions.partnerId, partnerId))
-				.groupBy(commissions.merchantId);
+				.groupBy(commissions.merchantId, commissions.currency);
 
-			const byMerchant = new Map(totals.map((t) => [t.merchantId, t]));
+			const byMerchant = new Map<
+				string,
+				{ currency: string; commission: string; revenue: string }[]
+			>();
+			for (const total of totals) {
+				const forMerchant = byMerchant.get(total.merchantId) ?? [];
+				forMerchant.push(total);
+				byMerchant.set(total.merchantId, forMerchant);
+			}
 
-			return rows.map((merchant) => ({
-				...merchant,
-				commissionMinor: byMerchant.get(merchant.id)?.commission ?? "0",
-				revenueMinor: byMerchant.get(merchant.id)?.revenue ?? "0",
-				currency: "USD",
-			}));
+			return rows.map((merchant) => {
+				const totalsFor = byMerchant.get(merchant.id) ?? [];
+				return {
+					...merchant,
+					commission: toMoneyList(
+						totalsFor.map((t) => ({
+							currency: t.currency,
+							total: t.commission,
+						}))
+					),
+					revenue: toMoneyList(
+						totalsFor.map((t) => ({ currency: t.currency, total: t.revenue }))
+					),
+					zeroCurrency: ZERO_CURRENCY,
+				};
+			});
 		}),
 
 		/** Registers a merchant the partner manages. New rows are `pending`. */
@@ -607,8 +681,11 @@ export const partnerRouter = router({
 		const partnerId = ctx.partner.id;
 		const period = toPeriodMonth(new Date());
 
+		/* Currency joins the grouping key everywhere. A month's total across two
+		   currencies is not a total, it is two. */
 		const byMonth = await ctx.db
 			.select({
+				currency: commissions.currency,
 				period: commissions.periodMonth,
 				total: MONEY_SUM(commissions.commissionAmount),
 				paid: sql<string>`coalesce(sum(${commissions.commissionAmount}) filter (where ${commissions.status} = 'paid'), 0)`,
@@ -616,23 +693,31 @@ export const partnerRouter = router({
 			})
 			.from(commissions)
 			.where(eq(commissions.partnerId, partnerId))
-			.groupBy(commissions.periodMonth)
+			.groupBy(commissions.periodMonth, commissions.currency)
 			.orderBy(desc(commissions.periodMonth));
 
 		const lifetimeRows = await ctx.db
-			.select({ total: MONEY_SUM(commissions.commissionAmount) })
+			.select({
+				currency: commissions.currency,
+				total: MONEY_SUM(commissions.commissionAmount),
+			})
 			.from(commissions)
-			.where(eq(commissions.partnerId, partnerId));
+			.where(eq(commissions.partnerId, partnerId))
+			.groupBy(commissions.currency);
 
 		const upcomingRows = await ctx.db
-			.select({ total: MONEY_SUM(commissions.commissionAmount) })
+			.select({
+				currency: commissions.currency,
+				total: MONEY_SUM(commissions.commissionAmount),
+			})
 			.from(commissions)
 			.where(
 				and(
 					eq(commissions.partnerId, partnerId),
 					eq(commissions.status, "pending")
 				)
-			);
+			)
+			.groupBy(commissions.currency);
 
 		const payoutHistory = await ctx.db
 			.select({
@@ -649,11 +734,14 @@ export const partnerRouter = router({
 			.orderBy(desc(payouts.createdAt));
 
 		return {
-			currency: "USD",
+			zeroCurrency: ZERO_CURRENCY,
 			currentPeriod: period,
-			lifetimeMinor: lifetimeRows[0]?.total ?? "0",
-			upcomingPayoutMinor: upcomingRows[0]?.total ?? "0",
+			lifetime: toMoneyList(lifetimeRows),
+			upcomingPayout: toMoneyList(upcomingRows),
+			/* One row per (month, currency): a month a partner earned in two
+			   currencies is two lines, which is what their payouts will be. */
 			months: byMonth.map((m) => ({
+				currency: m.currency,
 				period: m.period,
 				totalMinor: m.total,
 				paidMinor: m.paid,

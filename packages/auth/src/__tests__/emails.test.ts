@@ -36,6 +36,13 @@ describe("the account emails", () => {
 		expect(reset.text).toContain(`Choose a new password: ${LINK}`);
 	});
 
+	test("name who to write to, since replies are not received", () => {
+		for (const email of [verify, reset]) {
+			expect(email.text).toContain("Questions? Email anurag@edgecoms.com.");
+			expect(email.text.toLowerCase()).not.toContain("reply to this email");
+		}
+	});
+
 	test("the reset email says the link is short-lived and safe to ignore", () => {
 		expect(reset.text).toContain("expires in an hour");
 		expect(reset.text).toContain("your password has not changed");

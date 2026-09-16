@@ -74,12 +74,23 @@ async function report(
  * its own tests. The earning event is still real because the FK requires it.
  */
 async function earn(partnerId: string, merchantId: string, appId: string) {
+	await earnIn(partnerId, merchantId, appId, "USD", 2000n);
+}
+
+/** As `earn`, in a named currency and amount, for the multi-currency rung. */
+async function earnIn(
+	partnerId: string,
+	merchantId: string,
+	appId: string,
+	currency: string,
+	commissionAmount: bigint
+) {
 	eventSeq += 1;
 	const inserted = await harness.db
 		.insert(earningEvents)
 		.values({
 			appPartnerApiGid: `gid://${appId}`,
-			currency: "USD",
+			currency,
 			grossAmount: 10_000n,
 			netAmount: 10_000n,
 			occurredAt: new Date(Date.UTC(2026, 0, 15)),
@@ -93,8 +104,8 @@ async function earn(partnerId: string, merchantId: string, appId: string) {
 	await harness.db.insert(commissions).values({
 		appId,
 		baseAmount: 10_000n,
-		commissionAmount: 2000n,
-		currency: "USD",
+		commissionAmount,
+		currency,
 		earningEventId: inserted[0]?.id ?? "",
 		merchantId,
 		partnerId,
@@ -340,5 +351,190 @@ describe("the tenant wall", () => {
 		await earn(PARTNER, STORE_C, CART);
 
 		expect((await appRow("edge-cart")).earningStores).toBe(0);
+	});
+});
+
+describe("coverage, per store", () => {
+	test("a store with nothing installed is all gap", async () => {
+		await giveStores();
+		const result = await partnerCaller().partner.apps();
+
+		expect(result.catalogSize).toBe(3);
+		const store = result.stores.find((row) => row.id === STORE_A);
+		expect(store?.liveApps).toBe(0);
+		expect(store?.earningApps).toBe(0);
+		/* `missing` is the whole point of the ring: the cheapest next move. */
+		expect(store?.missing.map((app) => app.slug)).toEqual([
+			"edge-cart",
+			"edge-reviews",
+			"edge-timer",
+		]);
+	});
+
+	test("installing removes an app from the gap without earning yet", async () => {
+		await giveStores();
+		await report(STORE_A, CART, "edge-cart", "subscription.activated", 2);
+
+		const result = await partnerCaller().partner.apps();
+		const store = result.stores.find((row) => row.id === STORE_A);
+		expect(store?.liveApps).toBe(1);
+		expect(store?.earningApps).toBe(0);
+		expect(store?.missing.map((app) => app.slug)).toEqual([
+			"edge-reviews",
+			"edge-timer",
+		]);
+	});
+
+	test("a grandfathered app counts as installed, not as coverage that earns", async () => {
+		await giveStores();
+		await report(STORE_A, REVIEWS, "edge-reviews", "subscription.activated", 2);
+		await harness.db
+			.insert(merchantGrandfatheredApps)
+			.values({ appId: REVIEWS, merchantId: STORE_A });
+
+		const store = (await partnerCaller().partner.apps()).stores.find(
+			(row) => row.id === STORE_A
+		);
+		expect(store?.liveApps).toBe(1);
+		expect(store?.grandfatheredApps).toBe(1);
+		expect(store?.earningApps).toBe(0);
+		/* Installed, so not offered again as the next move. */
+		expect(store?.missing.map((app) => app.slug)).not.toContain("edge-reviews");
+	});
+
+	test("an uninstalled app returns to the gap", async () => {
+		await giveStores();
+		await report(STORE_A, CART, "edge-cart", "subscription.activated", 2);
+		await report(STORE_A, CART, "edge-cart", "uninstalled", 9);
+
+		const store = (await partnerCaller().partner.apps()).stores.find(
+			(row) => row.id === STORE_A
+		);
+		expect(store?.liveApps).toBe(0);
+		expect(store?.missing.map((app) => app.slug)).toContain("edge-cart");
+	});
+
+	test("coverage is per store, not shared between them", async () => {
+		await giveStores();
+		await report(STORE_A, CART, "edge-cart", "subscription.activated", 2);
+		await earn(PARTNER, STORE_A, CART);
+
+		const result = await partnerCaller().partner.apps();
+		expect(result.stores.find((row) => row.id === STORE_A)?.earningApps).toBe(
+			1
+		);
+		expect(result.stores.find((row) => row.id === STORE_B)?.earningApps).toBe(
+			0
+		);
+		/* And another partner's store is not in the list at all. */
+		expect(result.stores.some((row) => row.id === STORE_C)).toBe(false);
+	});
+});
+
+describe("milestones", () => {
+	test("a partner with nothing has reached nothing, and is told the targets", async () => {
+		const result = await partnerCaller().partner.milestones();
+
+		expect(result.milestones.every((rung) => !rung.reached)).toBe(true);
+		const suite = result.milestones.find((rung) => rung.key === "whole_suite");
+		expect(suite && "target" in suite ? suite.target : null).toBe(3);
+		const money = result.milestones.find((rung) => rung.key === "money");
+		expect(money && "currentMinor" in money ? money.currentMinor : null).toBe(
+			"0"
+		);
+	});
+
+	test("the first two rungs fall to one store and one commission", async () => {
+		await giveStores();
+		await earn(PARTNER, STORE_A, CART);
+
+		const result = await partnerCaller().partner.milestones();
+		const byKey = new Map(result.milestones.map((rung) => [rung.key, rung]));
+		expect(byKey.get("first_store")?.reached).toBe(true);
+		expect(byKey.get("first_commission")?.reached).toBe(true);
+		expect(byKey.get("five_stores")?.reached).toBe(false);
+	});
+
+	test("the money rung is an integer comparison, not a formatted one", async () => {
+		await giveStores();
+		/* Each `earn` is 2000 minor units, so five of them is exactly the
+		   10,000-minor target -- the boundary, which is where an off-by-one
+		   would hide. */
+		for (let index = 0; index < 4; index += 1) {
+			await earn(PARTNER, STORE_A, CART);
+		}
+		const before = await partnerCaller().partner.milestones();
+		const beforeRung = before.milestones.find((rung) => rung.key === "money");
+		expect(
+			beforeRung && "currentMinor" in beforeRung
+				? beforeRung.currentMinor
+				: null
+		).toBe("8000");
+		expect(beforeRung?.reached).toBe(false);
+
+		await earn(PARTNER, STORE_A, CART);
+		const after = await partnerCaller().partner.milestones();
+		const afterRung = after.milestones.find((rung) => rung.key === "money");
+		expect(
+			afterRung && "currentMinor" in afterRung ? afterRung.currentMinor : null
+		).toBe("10000");
+		expect(afterRung?.reached).toBe(true);
+	});
+
+	test("currencies are measured separately, never added together", async () => {
+		await giveStores();
+		await earn(PARTNER, STORE_A, CART);
+		await earnIn(PARTNER, STORE_B, TIMER, "EUR", 9000n);
+
+		const result = await partnerCaller().partner.milestones();
+		const money = result.milestones.find((rung) => rung.key === "money");
+
+		/* The largest single currency wins the rung. 2000 USD + 9000 EUR must
+		   not become 11000 of anything, which would cross the target on a sum
+		   that means nothing. */
+		expect(result.currency).toBe("EUR");
+		expect(money && "currentMinor" in money ? money.currentMinor : null).toBe(
+			"9000"
+		);
+		expect(money?.reached).toBe(false);
+	});
+
+	test("depth counts apps on one store; breadth counts apps anywhere", async () => {
+		await giveStores();
+		await earn(PARTNER, STORE_A, CART);
+		await earn(PARTNER, STORE_A, REVIEWS);
+		await earn(PARTNER, STORE_B, TIMER);
+
+		const byKey = new Map(
+			(await partnerCaller().partner.milestones()).milestones.map((rung) => [
+				rung.key,
+				rung,
+			])
+		);
+
+		const depth = byKey.get("three_apps");
+		expect(depth && "current" in depth ? depth.current : null).toBe(2);
+		expect(depth?.reached).toBe(false);
+
+		/* Three distinct apps earning, spread over two stores. */
+		const breadth = byKey.get("whole_suite");
+		expect(breadth && "current" in breadth ? breadth.current : null).toBe(3);
+		expect(breadth?.reached).toBe(true);
+	});
+
+	test("another partner's earnings never advance my ladder", async () => {
+		await giveStores();
+		await earn(OTHER, STORE_C, CART);
+		await earn(OTHER, STORE_C, REVIEWS);
+
+		const byKey = new Map(
+			(await partnerCaller().partner.milestones()).milestones.map((rung) => [
+				rung.key,
+				rung,
+			])
+		);
+		expect(byKey.get("first_commission")?.reached).toBe(false);
+		const depth = byKey.get("three_apps");
+		expect(depth && "current" in depth ? depth.current : null).toBe(0);
 	});
 });

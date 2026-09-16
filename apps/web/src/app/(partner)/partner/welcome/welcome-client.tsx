@@ -97,6 +97,315 @@ const TONES = {
 	live: "bg-sky-50 text-sky-700 ring-sky-600/20",
 } as const;
 
+/** One app's standing across the partner's stores, as `partner.apps` returns it. */
+interface AppRow {
+	earningStores: number;
+	grandfatheredStores: number;
+	id: string;
+	liveStores: number;
+	name: string;
+	setupVideoUrl: string | null;
+	slug: string;
+}
+
+/** One store's coverage of the suite. */
+interface StoreRow {
+	earningApps: number;
+	grandfatheredApps: number;
+	id: string;
+	liveApps: number;
+	missing: readonly { name: string; slug: string }[];
+	name: string;
+	shopDomain: string;
+}
+
+/** One milestone as returned by the server: a count rung or a money rung. */
+type Rung =
+	| {
+			current: number;
+			key: string;
+			label: string;
+			reached: boolean;
+			target: number;
+	  }
+	| {
+			currentMinor: string;
+			key: string;
+			label: string;
+			reached: boolean;
+			targetMinor: string;
+	  };
+
+/**
+ * The right-hand figure on a rung.
+ *
+ * The money rung arrives as two integers in minor units plus a currency, and
+ * is formatted here rather than compared here -- the server already decided
+ * whether it was reached. `formatMoney` output is display only.
+ */
+function rungLabel(rung: Rung, currency: string | undefined): string {
+	/* The money rung's target is an integer whose meaning depends on its
+	   currency, so the label is composed here rather than hardcoded server-side
+	   as "$100" -- which would be wrong the first time a partner earns in yen. */
+	if ("targetMinor" in rung) {
+		return `Your first ${formatMoney(rung.targetMinor, currency ?? "USD")} earned`;
+	}
+	return rung.label;
+}
+
+function rungDetail(rung: Rung, currency: string | undefined): string {
+	if ("currentMinor" in rung) {
+		return `${formatMoney(rung.currentMinor, currency ?? "USD")} of ${formatMoney(rung.targetMinor, currency ?? "USD")}`;
+	}
+	return `${rung.current} of ${rung.target}`;
+}
+
+/** Circumference of the coverage ring, for the dash offset. */
+const RING_RADIUS = 22;
+const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
+
+/**
+ * How much of the suite is earning on one store.
+ *
+ * A ring rather than a bar because the number that matters is the gap, and a
+ * ring shows an unfinished circle as unfinished at a glance.
+ */
+function CoverageRing({ earning, total }: { earning: number; total: number }) {
+	const fraction = total > 0 ? earning / total : 0;
+	return (
+		<div className="relative shrink-0">
+			<svg
+				aria-hidden="true"
+				className="-rotate-90"
+				height="56"
+				viewBox="0 0 56 56"
+				width="56"
+			>
+				<circle
+					className="stroke-border"
+					cx="28"
+					cy="28"
+					fill="none"
+					r={RING_RADIUS}
+					strokeWidth="4"
+				/>
+				<circle
+					className="stroke-primary-foreground transition-all"
+					cx="28"
+					cy="28"
+					fill="none"
+					r={RING_RADIUS}
+					strokeDasharray={RING_CIRCUMFERENCE}
+					strokeDashoffset={RING_CIRCUMFERENCE * (1 - fraction)}
+					strokeLinecap="round"
+					strokeWidth="4"
+				/>
+			</svg>
+			<span className="absolute inset-0 flex items-center justify-center font-medium text-caption text-primary-foreground tabular-nums">
+				{earning}/{total}
+			</span>
+		</div>
+	);
+}
+
+/** One rung. Reached rungs are quiet; the next one is the only one shouting. */
+function Rung({
+	detail,
+	label,
+	next,
+	reached,
+}: {
+	detail: string;
+	label: string;
+	next: boolean;
+	reached: boolean;
+}) {
+	return (
+		<li
+			className={`flex items-center gap-3 px-5 py-3.5 ${next ? "bg-page" : "bg-surface"}`}
+		>
+			<span
+				aria-hidden="true"
+				className={
+					reached
+						? "flex size-5 shrink-0 items-center justify-center rounded-full bg-primary-foreground text-caption text-surface"
+						: "size-5 shrink-0 rounded-full border border-border border-dashed"
+				}
+			>
+				{reached ? "\u2713" : null}
+			</span>
+			<span
+				className={`flex-1 text-body-sm ${reached ? "text-secondary-foreground" : "text-primary-foreground"}`}
+			>
+				{label}
+				<span className="sr-only">{reached ? " (done)" : " (not yet)"}</span>
+			</span>
+			<span className="text-caption text-secondary-foreground tabular-nums">
+				{detail}
+			</span>
+		</li>
+	);
+}
+
+/** The quest board: one ring per store, and the cheapest next move on it. */
+function StoreCoverage({
+	catalogSize,
+	stores,
+}: {
+	catalogSize: number;
+	stores: readonly StoreRow[];
+}) {
+	if (stores.length === 0) {
+		return null;
+	}
+	return (
+		<section className="flex flex-col gap-4">
+			<div className="flex flex-col gap-1">
+				<h2 className="font-medium text-h3 text-primary-foreground">
+					Your stores
+				</h2>
+				<p className="text-body-sm text-secondary-foreground">
+					Another Edge app on a store you already hold needs no new pitch and
+					earns at the same rate. It is the cheapest move you have.
+				</p>
+			</div>
+			<ul className="grid gap-4 sm:grid-cols-2">
+				{stores.map((store) => (
+					<li
+						className="flex items-start gap-4 rounded-xl border border-border bg-surface px-5 py-4"
+						key={store.id}
+					>
+						<CoverageRing earning={store.earningApps} total={catalogSize} />
+						<div className="flex flex-col gap-1">
+							<span className="font-medium text-body-sm text-primary-foreground">
+								{store.name}
+							</span>
+							<span className="text-caption text-secondary-foreground">
+								{store.shopDomain}
+							</span>
+							{store.grandfatheredApps > 0 ? (
+								<span className="text-caption text-secondary-foreground">
+									{store.grandfatheredApps} grandfathered, never earns
+								</span>
+							) : null}
+							{store.missing.length > 0 ? (
+								<span className="text-caption text-primary-foreground">
+									Next:{" "}
+									{store.missing
+										.slice(0, 2)
+										.map((app) => app.name)
+										.join(", ")}
+								</span>
+							) : (
+								<span className="text-caption text-primary-foreground">
+									Whole suite installed
+								</span>
+							)}
+						</div>
+					</li>
+				))}
+			</ul>
+		</section>
+	);
+}
+
+/** The whole catalog, with each app's standing on this partner's stores. */
+function SuiteGrid({
+	copyBySlug,
+	loading,
+	rate,
+	rows,
+}: {
+	copyBySlug: Map<string, CatalogEntry>;
+	loading: boolean;
+	rate: string | null;
+	rows: readonly AppRow[];
+}) {
+	return (
+		<section className="flex flex-col gap-4">
+			<div className="flex flex-col gap-1">
+				<h2 className="font-medium text-h3 text-primary-foreground">
+					The suite, on your stores
+				</h2>
+				<p className="text-body-sm text-secondary-foreground">
+					Every Edge app a store you manage can install. Each one it starts
+					paying for earns you {rate ?? "your"}
+					{rate ? "%" : " share"}.
+				</p>
+			</div>
+
+			{loading ? (
+				<Skeleton className="h-64 w-full rounded-xl" />
+			) : (
+				<ul className="grid gap-4 sm:grid-cols-2">
+					{rows.map((app) => {
+						const copy = copyBySlug.get(app.slug);
+						const state = appState(app);
+						return (
+							<li
+								className="flex flex-col gap-3 rounded-xl border border-border bg-surface px-5 py-4"
+								key={app.id}
+							>
+								<div className="flex items-start gap-3">
+									<AppIcon product={{ slug: app.slug }} size="lg" />
+									<div className="flex flex-col gap-0.5">
+										<span className="font-medium text-body text-primary-foreground">
+											{app.name}
+										</span>
+										<span className="text-caption text-secondary-foreground">
+											{copy?.eyebrow ?? ""}
+										</span>
+									</div>
+								</div>
+
+								<div className="flex flex-wrap items-center gap-2">
+									<span
+										className={`inline-flex items-center rounded-full px-2 py-0.5 font-medium text-[11px] ring-1 ring-inset ${TONES[state.tone]}`}
+									>
+										{state.text}
+									</span>
+									{copy ? (
+										<span className="text-caption text-secondary-foreground">
+											Moves {copy.category.toLowerCase()}
+										</span>
+									) : null}
+								</div>
+
+								<div className="mt-auto flex items-center gap-4 pt-1">
+									{app.setupVideoUrl ? (
+										<a
+											className="text-caption text-primary-foreground underline underline-offset-4"
+											href={app.setupVideoUrl}
+											rel="noopener noreferrer"
+											target="_blank"
+										>
+											Watch the setup
+										</a>
+									) : (
+										<span className="text-caption text-secondary-foreground">
+											Setup walkthrough coming
+										</span>
+									)}
+									{copy?.listingUrl ? (
+										<a
+											className="text-caption text-secondary-foreground underline underline-offset-4"
+											href={copy.listingUrl}
+											rel="noopener noreferrer"
+											target="_blank"
+										>
+											App Store
+										</a>
+									) : null}
+								</div>
+							</li>
+						);
+					})}
+				</ul>
+			)}
+		</section>
+	);
+}
+
 export function PartnerWelcome({
 	catalog,
 	firstName,
@@ -107,6 +416,7 @@ export function PartnerWelcome({
 	const onboarding = useQuery(trpc.partner.onboarding.queryOptions());
 	const dashboard = useQuery(trpc.partner.dashboard.queryOptions());
 	const appsQuery = useQuery(trpc.partner.apps.queryOptions());
+	const milestonesQuery = useQuery(trpc.partner.milestones.queryOptions());
 
 	const data = onboarding.data;
 	const approved = data?.status === "approved";
@@ -125,6 +435,14 @@ export function PartnerWelcome({
 	const copyBySlug = new Map(catalog.map((entry) => [entry.slug, entry]));
 	const rows = appsQuery.data?.apps ?? [];
 	const earningApps = rows.filter((app) => app.earningStores > 0).length;
+	const stores = appsQuery.data?.stores ?? [];
+	const catalogSize = appsQuery.data?.catalogSize ?? rows.length;
+
+	const rungs = milestonesQuery.data?.milestones ?? [];
+	const reachedCount = rungs.filter((rung) => rung.reached).length;
+	/* Only the first unreached rung is highlighted, so the ladder reads as one
+	   next action rather than a wall of things not done. */
+	const firstUnreached = rungs.findIndex((rung) => !rung.reached);
 
 	const todo = steps
 		? [
@@ -251,87 +569,38 @@ export function PartnerWelcome({
 				</section>
 			) : null}
 
-			<section className="flex flex-col gap-4">
-				<div className="flex flex-col gap-1">
-					<h2 className="font-medium text-h3 text-primary-foreground">
-						The suite, on your stores
-					</h2>
-					<p className="text-body-sm text-secondary-foreground">
-						Every Edge app a store you manage can install. Each one it starts
-						paying for earns you {rate ?? "your"}
-						{rate ? "%" : " share"}.
-					</p>
-				</div>
+			<StoreCoverage catalogSize={catalogSize} stores={stores} />
 
-				{appsQuery.isLoading ? (
-					<Skeleton className="h-64 w-full rounded-xl" />
-				) : (
-					<ul className="grid gap-4 sm:grid-cols-2">
-						{rows.map((app) => {
-							const copy = copyBySlug.get(app.slug);
-							const state = appState(app);
-							return (
-								<li
-									className="flex flex-col gap-3 rounded-xl border border-border bg-surface px-5 py-4"
-									key={app.id}
-								>
-									<div className="flex items-start gap-3">
-										<AppIcon product={{ slug: app.slug }} size="lg" />
-										<div className="flex flex-col gap-0.5">
-											<span className="font-medium text-body text-primary-foreground">
-												{app.name}
-											</span>
-											<span className="text-caption text-secondary-foreground">
-												{copy?.eyebrow ?? ""}
-											</span>
-										</div>
-									</div>
-
-									<div className="flex flex-wrap items-center gap-2">
-										<span
-											className={`inline-flex items-center rounded-full px-2 py-0.5 font-medium text-[11px] ring-1 ring-inset ${TONES[state.tone]}`}
-										>
-											{state.text}
-										</span>
-										{copy ? (
-											<span className="text-caption text-secondary-foreground">
-												Moves {copy.category.toLowerCase()}
-											</span>
-										) : null}
-									</div>
-
-									<div className="mt-auto flex items-center gap-4 pt-1">
-										{app.setupVideoUrl ? (
-											<a
-												className="text-caption text-primary-foreground underline underline-offset-4"
-												href={app.setupVideoUrl}
-												rel="noopener noreferrer"
-												target="_blank"
-											>
-												Watch the setup
-											</a>
-										) : (
-											<span className="text-caption text-secondary-foreground">
-												Setup walkthrough coming
-											</span>
-										)}
-										{copy?.listingUrl ? (
-											<a
-												className="text-caption text-secondary-foreground underline underline-offset-4"
-												href={copy.listingUrl}
-												rel="noopener noreferrer"
-												target="_blank"
-											>
-												App Store
-											</a>
-										) : null}
-									</div>
-								</li>
-							);
-						})}
+			{rungs.length > 0 ? (
+				<section className="flex flex-col gap-3">
+					<div className="flex items-baseline justify-between gap-4">
+						<h2 className="font-medium text-h3 text-primary-foreground">
+							Milestones
+						</h2>
+						<span className="text-caption text-secondary-foreground tabular-nums">
+							{reachedCount} of {rungs.length}
+						</span>
+					</div>
+					<ul className="flex flex-col gap-px overflow-hidden rounded-xl border border-border bg-border">
+						{rungs.map((rung, index) => (
+							<Rung
+								detail={rungDetail(rung, milestonesQuery.data?.currency)}
+								key={rung.key}
+								label={rungLabel(rung, milestonesQuery.data?.currency)}
+								next={!rung.reached && index === firstUnreached}
+								reached={rung.reached}
+							/>
+						))}
 					</ul>
-				)}
-			</section>
+				</section>
+			) : null}
+
+			<SuiteGrid
+				copyBySlug={copyBySlug}
+				loading={appsQuery.isLoading}
+				rate={rate}
+				rows={rows}
+			/>
 
 			<details className="rounded-xl border border-border bg-surface px-5 py-4">
 				<summary className="cursor-pointer font-medium text-body-sm text-primary-foreground">

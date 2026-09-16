@@ -40,27 +40,68 @@ export function formatRate(rateBps: number): string {
 	return `${Number.isInteger(percent) ? percent : percent.toFixed(2)}%`;
 }
 
-export interface Block {
-	/** Rendered as a bare line, not a paragraph. Used for the code and links. */
+/** A paragraph. `emphasis` sets it as a bare bold line, used for the code. */
+export interface TextBlock {
 	emphasis?: boolean;
 	text: string;
 }
 
 /**
- * One plain HTML shell for both messages.
+ * The one thing the reader should click.
+ *
+ * A button in HTML, with the address written out under it for clients that
+ * strip links. In plain text, the label and the address. Before this, every
+ * link was a bare line of text, and a verification URL ran to four lines of
+ * characters that read as broken rather than as something to press.
+ */
+export interface ButtonBlock {
+	label: string;
+	url: string;
+}
+
+export type Block = ButtonBlock | TextBlock;
+
+/** Only a web address becomes a link. Anything else is shown, never followed. */
+const WEB_ADDRESS = /^https?:\/\//i;
+
+function isButton(block: Block): block is ButtonBlock {
+	return "url" in block;
+}
+
+function renderButtonHtml(block: ButtonBlock): string {
+	const label = escapeHtml(block.label);
+	const url = escapeHtml(block.url);
+	if (!WEB_ADDRESS.test(block.url)) {
+		return `<p style="margin:0 0 14px">${label}: ${url}</p>`;
+	}
+	return [
+		`<p style="margin:6px 0 16px"><a href="${url}" style="display:inline-block;padding:12px 22px;background:#151a22;border-radius:4px;color:#ffffff;font-size:15px;font-weight:600;line-height:1.2;text-decoration:none">${label}</a></p>`,
+		`<p style="margin:0 0 18px;font-size:12px;line-height:1.5;color:#8b95a4;word-break:break-all">If the button does not work, paste this into your browser: <a href="${url}" style="color:#5a6472">${url}</a></p>`,
+	].join("\n      ");
+}
+
+function renderBlockHtml(block: Block): string {
+	if (isButton(block)) {
+		return renderButtonHtml(block);
+	}
+	return block.emphasis
+		? `<p style="margin:0 0 18px;font-size:16px;font-weight:600;color:#151a22">${escapeHtml(block.text)}</p>`
+		: `<p style="margin:0 0 14px">${escapeHtml(block.text)}</p>`;
+}
+
+function renderBlockText(block: Block): string {
+	return isButton(block) ? `${block.label}: ${block.url}` : block.text;
+}
+
+/**
+ * One plain HTML shell for every message.
  *
  * No images, no columns, no web fonts. These are transactional notes from a
  * sender the recipient may never have heard from, and a heavy template lands in
  * Promotions more often than it impresses anybody.
  */
 export function renderHtml(heading: string, blocks: readonly Block[]): string {
-	const body = blocks
-		.map((block) =>
-			block.emphasis
-				? `<p style="margin:0 0 18px;font-size:16px;font-weight:600;color:#151a22">${escapeHtml(block.text)}</p>`
-				: `<p style="margin:0 0 14px">${escapeHtml(block.text)}</p>`
-		)
-		.join("\n      ");
+	const body = blocks.map(renderBlockHtml).join("\n      ");
 
 	return `<!doctype html>
 <html>
@@ -75,7 +116,6 @@ export function renderHtml(heading: string, blocks: readonly Block[]): string {
 }
 
 export function renderText(heading: string, blocks: readonly Block[]): string {
-	return [heading, "", ...blocks.map((block) => block.text)]
-		.join("\n\n")
-		.trim();
+	/* One blank line between every part, the heading included. */
+	return [heading, ...blocks.map(renderBlockText)].join("\n\n").trim();
 }

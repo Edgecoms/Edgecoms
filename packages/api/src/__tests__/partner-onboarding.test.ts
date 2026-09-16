@@ -1,4 +1,8 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+import {
+	MERCHANT_BOUNTY_MINOR,
+	MILESTONE_BONUS_MINOR,
+} from "@edgecoms/billing/milestones";
 import { user } from "@edgecoms/db/schema/auth";
 import { merchants } from "@edgecoms/db/schema/merchants";
 import {
@@ -10,12 +14,13 @@ import type { OutboundEmail } from "@edgecoms/mail/types";
 import { eq } from "drizzle-orm";
 import type { Context, EmailDelivery } from "../context";
 import {
+	formatBonus,
 	renderPartnerApprovedEmail,
 	renderPartnerInviteEmail,
 } from "../email/partner-emails";
 import { createCallerFactory } from "../index";
 import { appRouter } from "../routers/index";
-import { hashInviteToken } from "../routers/invites";
+import { hashInviteToken, INVITE_TTL_DAYS } from "../routers/invites";
 import { createTestDb, type TestDb } from "./db-harness";
 
 /**
@@ -266,6 +271,20 @@ describe("inviting partners", () => {
 		/* An invite is not an approval and must not read like a rate quote. */
 		expect(outbox[0]?.text).not.toContain("20%");
 		expect(outbox[0]?.subject).not.toContain("20");
+	});
+
+	test("the invite email and the stored expiry agree", async () => {
+		const before = Date.now();
+		await adminCaller().admin.partners.invite({ emails: ["alex@acme.com"] });
+
+		const row = await harness.db.query.partnerInvites.findFirst({
+			where: eq(partnerInvites.email, "alex@acme.com"),
+		});
+		const lifetimeDays = Math.round(
+			((row?.expiresAt.getTime() ?? 0) - before) / (24 * 60 * 60 * 1000)
+		);
+		expect(lifetimeDays).toBe(INVITE_TTL_DAYS);
+		expect(outbox[0]?.text).toContain(`expires in ${lifetimeDays} days`);
 	});
 
 	test("duplicate addresses in one batch collapse to one invite", async () => {
@@ -521,6 +540,7 @@ describe("the rendered emails", () => {
 	const invite = renderPartnerInviteEmail({
 		acceptUrl: "https://edge.test/register?invite=abc",
 		companyName: "Acme Agency",
+		expiresInDays: INVITE_TTL_DAYS,
 		inviterName: "Anurag",
 		to: "alex@acme.com",
 	});
@@ -576,11 +596,75 @@ describe("the rendered emails", () => {
 		const hostile = renderPartnerInviteEmail({
 			acceptUrl: "https://edge.test/register?invite=abc",
 			companyName: '<script>alert("x")</script>',
+			expiresInDays: INVITE_TTL_DAYS,
 			inviterName: null,
 			to: "alex@acme.com",
 		});
 		expect(hostile.html).not.toContain("<script>");
 		expect(hostile.html).toContain("&lt;script&gt;");
+	});
+
+	test("the invite states the expiry the link really has", () => {
+		/* It said 14 days while links lived 7. The figure is now passed in from
+		   the constant that sets the expiry, so the two cannot disagree. */
+		expect(invite.text).toContain(`expires in ${INVITE_TTL_DAYS} days`);
+		expect(invite.text).not.toContain("14 days");
+	});
+
+	test("the invite does not open by repeating its heading", () => {
+		const [heading, , firstLine] = invite.text.split("\n");
+		expect(heading).toBe("Acme Agency is invited to Edge Partners");
+		expect(firstLine).toBe(
+			"Anurag at Edge invited you to join the Edge Partner Program."
+		);
+		expect(invite.text.split(heading ?? "").length).toBe(2);
+	});
+
+	test("each email's link is a button, and still readable as plain text", () => {
+		expect(invite.html).toContain(
+			'<a href="https://edge.test/register?invite=abc"'
+		);
+		expect(invite.html).toContain(">Create your account</a>");
+		expect(invite.text).toContain(
+			"Create your account: https://edge.test/register?invite=abc"
+		);
+		expect(approved.html).toContain('<a href="https://edge.test/partner"');
+		expect(approved.text).toContain(
+			"Open your dashboard: https://edge.test/partner"
+		);
+	});
+
+	test("the approval names the bonuses, at the amounts the awarder pays", () => {
+		const bounty = formatBonus(MERCHANT_BOUNTY_MINOR);
+		const ladder = formatBonus(
+			Object.values(MILESTONE_BONUS_MINOR).reduce((sum, v) => sum + v, 0n)
+		);
+		expect(approved.text).toContain(`${bounty} bonus for every store`);
+		expect(approved.text).toContain(
+			`up to ${ladder} more in milestone bonuses`
+		);
+		/* The only dollar figures anywhere are those two published promises. */
+		expect(`${approved.text} ${invite.text}`.match(/\$[\d.]+/g)).toEqual([
+			bounty,
+			ladder,
+		]);
+		/* And the invite, which is not an approval, promises no money at all. */
+		expect(invite.text.toLowerCase()).not.toContain("bonus");
+	});
+
+	test("no email says every store waits for a person", () => {
+		for (const email of [invite, approved]) {
+			expect(email.text).not.toContain("waiting for our approval");
+			expect(email.text).not.toContain("once we approve that store");
+		}
+		expect(approved.text).toContain("approved automatically within a day");
+	});
+
+	test("bonus amounts are written as a person writes money", () => {
+		expect(formatBonus(500n)).toBe("$5");
+		expect(formatBonus(24_000n)).toBe("$240");
+		expect(formatBonus(1250n)).toBe("$12.50");
+		expect(formatBonus(5n)).toBe("$0.05");
 	});
 });
 

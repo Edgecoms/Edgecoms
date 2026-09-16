@@ -29,6 +29,13 @@ describe("the account emails", () => {
 		}
 	});
 
+	test("the link is a button someone can press", () => {
+		expect(verify.html).toContain(`<a href="${LINK}"`);
+		expect(verify.html).toContain(">Confirm my email</a>");
+		expect(reset.html).toContain(">Choose a new password</a>");
+		expect(reset.text).toContain(`Choose a new password: ${LINK}`);
+	});
+
 	test("the reset email says the link is short-lived and safe to ignore", () => {
 		expect(reset.text).toContain("expires in an hour");
 		expect(reset.text).toContain("your password has not changed");

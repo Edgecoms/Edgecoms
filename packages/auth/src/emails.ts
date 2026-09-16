@@ -22,7 +22,7 @@ export function renderVerifyEmail(input: {
 		{
 			text: "Confirm this is your address and your Edge Partners account is ready. If you were invited, this is also what links your invitation to your account.",
 		},
-		{ emphasis: true, text: input.url },
+		{ label: "Confirm my email", url: input.url },
 		{
 			text: "If you did not create an account, ignore this and nothing happens.",
 		},
@@ -43,9 +43,9 @@ export function renderResetPasswordEmail(input: {
 	const heading = "Reset your Edge Partners password";
 	const blocks: Block[] = [
 		{
-			text: "Somebody asked to reset the password on this account. If it was you, choose a new one here:",
+			text: "Somebody asked to reset the password on this account. If it was you, choose a new one here.",
 		},
-		{ emphasis: true, text: input.url },
+		{ label: "Choose a new password", url: input.url },
 		{
 			text: "The link works once and expires in an hour. If you did not ask for this, ignore it: your password has not changed and your earnings are untouched.",
 		},

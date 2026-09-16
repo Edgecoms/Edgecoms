@@ -20,14 +20,24 @@
  *     totals paid out. A first email that quotes a number invites the reader to
  *     hold us to it.
  *   • **Any promise the product cannot keep.** No customer-facing discount
- *     codes, no sub-partner tiers, no bounties. The marketing site currently
- *     offers several of these; the product does not have them, and an email
- *     that repeats them is a support ticket with a delay on it.
+ *     codes, no sub-partner tiers, no content bounties. The marketing site
+ *     currently offers several of these; the product does not have them, and
+ *     an email that repeats them is a support ticket with a delay on it.
+ *     The partner BONUSES are the exception because they are real: the
+ *     per-store bonus and the milestone ladder are published promises the
+ *     billing pass pays automatically (CLAUDE.md, "Bonuses"). The approval
+ *     email names them, with amounts read from the same constants the awarder
+ *     pays from, so the email cannot promise a figure the ledger does not.
  *   • **The commission rate, in the invite.** An invite is not an approval and
  *     must not read like one. The rate appears only once it is real, in the
  *     approval email, read off the partner row.
  */
 
+import {
+	MERCHANT_BOUNTY_MINOR,
+	MILESTONE_BONUS_CURRENCY,
+	MILESTONE_BONUS_MINOR,
+} from "@edgecoms/billing/milestones";
 import {
 	type Block,
 	formatRate,
@@ -35,6 +45,38 @@ import {
 	renderText,
 } from "@edgecoms/mail/render";
 import type { OutboundEmail } from "@edgecoms/mail/types";
+
+const MINOR_PER_MAJOR = 100n;
+
+/**
+ * A bonus amount as a person would write it: `$5`, `$240`, `$12.50`.
+ *
+ * Integer arithmetic only, like everything else that touches money here. The
+ * bonus currency is USD today; anything else is written with its code rather
+ * than borrowing a dollar sign.
+ */
+export function formatBonus(amountMinor: bigint): string {
+	const whole = amountMinor / MINOR_PER_MAJOR;
+	const cents = amountMinor % MINOR_PER_MAJOR;
+	const figure =
+		cents === 0n ? `${whole}` : `${whole}.${cents.toString().padStart(2, "0")}`;
+	return MILESTONE_BONUS_CURRENCY === "USD"
+		? `$${figure}`
+		: `${figure} ${MILESTONE_BONUS_CURRENCY}`;
+}
+
+/** Everything the milestone ladder pays, if a partner reaches every rung. */
+function milestoneTotalMinor(): bigint {
+	let total = 0n;
+	for (const amount of Object.values(MILESTONE_BONUS_MINOR)) {
+		total += amount;
+	}
+	return total;
+}
+
+function pluralDays(days: number): string {
+	return days === 1 ? "1 day" : `${days} days`;
+}
 
 /**
  * THE INVITE. Sent when an admin adds an email address by hand.
@@ -46,35 +88,36 @@ import type { OutboundEmail } from "@edgecoms/mail/types";
 export function renderPartnerInviteEmail(input: {
 	acceptUrl: string;
 	companyName: string | null;
+	/** How long the link lives. Passed in, so the email cannot drift from it. */
+	expiresInDays: number;
 	inviterName: string | null;
 	to: string;
 }): OutboundEmail {
-	const greeting = input.companyName
-		? `${input.companyName} has been invited to the Edge Partner Program.`
-		: "You have been invited to the Edge Partner Program.";
-	const from = input.inviterName
-		? `${input.inviterName} at Edge invited you.`
-		: "Someone at Edge invited you.";
+	const heading = input.companyName
+		? `${input.companyName} is invited to Edge Partners`
+		: "You're invited to Edge Partners";
+	const inviter = input.inviterName
+		? `${input.inviterName} at Edge`
+		: "Someone at Edge";
 
 	const blocks: Block[] = [
-		{ text: `${greeting} ${from}` },
+		{ text: `${inviter} invited you to join the Edge Partner Program.` },
 		{
-			text: "Edge Partners pays agencies a share of what the Shopify stores they manage spend on Edge apps. There is no referral link to share: you get a code, you give it to a store you already manage, and once we approve that store every Edge app it pays for earns you commission for as long as it stays.",
+			text: "Edge Partners pays agencies a share of what the Shopify stores they manage spend on Edge apps. There is no referral link to share: you get a code, you give it to a store you already manage, and every Edge app that store starts paying for earns you commission for as long as it stays.",
 		},
-		{ text: "Create your account here:" },
-		{ emphasis: true, text: input.acceptUrl },
+		{ label: "Create your account", url: input.acceptUrl },
 		{
-			text: "This creates an application, not an account with money attached. We review it, set your commission rate, and email you your code, usually the same day.",
+			text: "Signing up creates an application, not an account with money attached. We send a short email to confirm your address, then review the application, set your commission rate, and email you your code, usually the same day.",
 		},
 		{
-			text: "The link is tied to this email address and expires in 14 days. If you were not expecting this, ignore it and nothing happens.",
+			text: `The link works only with this email address and expires in ${pluralDays(input.expiresInDays)}. If you were not expecting this, ignore it and nothing happens.`,
 		},
 	];
 
 	return {
-		html: renderHtml(greeting, blocks),
+		html: renderHtml(heading, blocks),
 		subject: "You're invited to the Edge Partner Program",
-		text: renderText(greeting, blocks),
+		text: renderText(heading, blocks),
 		to: input.to,
 	};
 }
@@ -101,15 +144,17 @@ export function renderPartnerApprovedEmail(input: {
 		},
 		{ emphasis: true, text: input.code },
 		{
-			text: "Give it to a Shopify store you manage. They paste it into any Edge app while installing, and the store arrives in your dashboard bound to you, waiting for our approval.",
+			text: "Give it to a Shopify store you manage. They paste it into any Edge app while installing, and the store arrives in your dashboard bound to you. Most stores are approved automatically within a day. A store that was already paying for an Edge app is checked by us first.",
 		},
 		{
-			text: `After that it is automatic. When Shopify bills that store for an Edge app, you earn ${rate} of what Edge receives, again every month, for as long as the store stays on Edge. Nothing expires and there is no clawback window.`,
+			text: `After that it is automatic. When Shopify bills that store for an Edge app it started paying for after joining you, you earn ${rate} of what Edge receives, every month, for as long as the store stays on Edge. Nothing expires and there is no clawback window.`,
 		},
-		{ text: "Your dashboard, and the two things left to set up:" },
-		{ emphasis: true, text: input.welcomeUrl },
 		{
-			text: "One of those is your payout details. We cannot pay you without them, so it is worth two minutes now rather than at the end of the month.",
+			text: `On top of commission, you get a ${formatBonus(MERCHANT_BOUNTY_MINOR)} bonus for every store that starts earning you commission, and up to ${formatBonus(milestoneTotalMinor())} more in milestone bonuses as you grow. Your dashboard shows each milestone and what it pays.`,
+		},
+		{ label: "Open your dashboard", url: input.welcomeUrl },
+		{
+			text: "Your dashboard also shows what is left to set up. The one that matters most is your payout details: we cannot pay you without them, so it is worth two minutes now rather than at the end of the month.",
 		},
 	];
 

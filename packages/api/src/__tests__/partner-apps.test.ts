@@ -83,7 +83,8 @@ async function earnIn(
 	merchantId: string,
 	appId: string,
 	currency: string,
-	commissionAmount: bigint
+	commissionAmount: bigint,
+	period = "2026-01"
 ) {
 	eventSeq += 1;
 	const inserted = await harness.db
@@ -109,7 +110,7 @@ async function earnIn(
 		earningEventId: inserted[0]?.id ?? "",
 		merchantId,
 		partnerId,
-		periodMonth: "2026-01",
+		periodMonth: period,
 		rateBps: 2000,
 	});
 }
@@ -536,5 +537,116 @@ describe("milestones", () => {
 		expect(byKey.get("first_commission")?.reached).toBe(false);
 		const depth = byKey.get("three_apps");
 		expect(depth && "current" in depth ? depth.current : null).toBe(0);
+	});
+});
+
+describe("compounding, per store", () => {
+	test("a store that has never been billed shows no run", async () => {
+		await giveStores();
+		const store = (await partnerCaller().partner.apps()).stores.find(
+			(row) => row.id === STORE_A
+		);
+
+		expect(store?.monthsEarning).toBe(0);
+		expect(store?.lifetimeMinor).toBe("0");
+		expect(store?.firstPeriod).toBeNull();
+		expect(store?.latestPeriod).toBeNull();
+	});
+
+	test("one charge is month one", async () => {
+		await giveStores();
+		await earn(PARTNER, STORE_A, CART);
+
+		const store = (await partnerCaller().partner.apps()).stores.find(
+			(row) => row.id === STORE_A
+		);
+		expect(store?.monthsEarning).toBe(1);
+		expect(store?.lifetimeMinor).toBe("2000");
+		expect(store?.firstPeriod).toBe("2026-01");
+		expect(store?.latestPeriod).toBe("2026-01");
+	});
+
+	test("two apps billed in the same month is still month one", async () => {
+		await giveStores();
+		await earn(PARTNER, STORE_A, CART);
+		await earn(PARTNER, STORE_A, TIMER);
+
+		const store = (await partnerCaller().partner.apps()).stores.find(
+			(row) => row.id === STORE_A
+		);
+		/* The run counts MONTHS the store has paid, not commissions. Two apps
+		   billed in January is one month of a recurring relationship. */
+		expect(store?.monthsEarning).toBe(1);
+		expect(store?.lifetimeMinor).toBe("4000");
+	});
+
+	test("a run across months counts the months and totals the money", async () => {
+		await giveStores();
+		await earnIn(PARTNER, STORE_A, CART, "USD", 2000n, "2026-01");
+		await earnIn(PARTNER, STORE_A, CART, "USD", 2200n, "2026-02");
+		await earnIn(PARTNER, STORE_A, CART, "USD", 2400n, "2026-03");
+
+		const store = (await partnerCaller().partner.apps()).stores.find(
+			(row) => row.id === STORE_A
+		);
+		expect(store?.monthsEarning).toBe(3);
+		expect(store?.lifetimeMinor).toBe("6600");
+		expect(store?.firstPeriod).toBe("2026-01");
+		expect(store?.latestPeriod).toBe("2026-03");
+	});
+
+	test("a gap in the middle is counted honestly, not smoothed over", async () => {
+		await giveStores();
+		await earnIn(PARTNER, STORE_A, CART, "USD", 2000n, "2026-01");
+		await earnIn(PARTNER, STORE_A, CART, "USD", 2000n, "2026-03");
+
+		const store = (await partnerCaller().partner.apps()).stores.find(
+			(row) => row.id === STORE_A
+		);
+		/* Two months paid, three months spanned. The store paused, and saying
+		   "month 3" would claim a run that did not happen. */
+		expect(store?.monthsEarning).toBe(2);
+		expect(store?.firstPeriod).toBe("2026-01");
+		expect(store?.latestPeriod).toBe("2026-03");
+	});
+
+	test("a store's run is its own, not the partner's", async () => {
+		await giveStores();
+		await earnIn(PARTNER, STORE_A, CART, "USD", 2000n, "2026-01");
+		await earnIn(PARTNER, STORE_B, TIMER, "USD", 5000n, "2026-02");
+
+		const result = await partnerCaller().partner.apps();
+		const a = result.stores.find((row) => row.id === STORE_A);
+		const b = result.stores.find((row) => row.id === STORE_B);
+		expect(a?.lifetimeMinor).toBe("2000");
+		expect(b?.lifetimeMinor).toBe("5000");
+		expect(a?.monthsEarning).toBe(1);
+		expect(b?.monthsEarning).toBe(1);
+	});
+
+	test("a store's currencies are not added together", async () => {
+		await giveStores();
+		await earnIn(PARTNER, STORE_A, CART, "USD", 2000n, "2026-01");
+		await earnIn(PARTNER, STORE_A, TIMER, "EUR", 7000n, "2026-01");
+
+		const store = (await partnerCaller().partner.apps()).stores.find(
+			(row) => row.id === STORE_A
+		);
+		/* The larger single currency is reported with its own code, rather than
+		   9000 of something that does not exist. */
+		expect(store?.currency).toBe("EUR");
+		expect(store?.lifetimeMinor).toBe("7000");
+	});
+
+	test("another partner's run never lands on my store", async () => {
+		await giveStores();
+		await earnIn(OTHER, STORE_C, CART, "USD", 9000n, "2026-01");
+
+		const result = await partnerCaller().partner.apps();
+		expect(result.stores.some((row) => row.id === STORE_C)).toBe(false);
+		for (const store of result.stores) {
+			expect(store.lifetimeMinor).toBe("0");
+			expect(store.monthsEarning).toBe(0);
+		}
 	});
 });

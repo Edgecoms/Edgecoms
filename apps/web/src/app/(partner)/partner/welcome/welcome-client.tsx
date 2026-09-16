@@ -110,11 +110,16 @@ interface AppRow {
 
 /** One store's coverage of the suite. */
 interface StoreRow {
+	currency: string;
 	earningApps: number;
+	firstPeriod: string | null;
 	grandfatheredApps: number;
 	id: string;
+	latestPeriod: string | null;
+	lifetimeMinor: string;
 	liveApps: number;
 	missing: readonly { name: string; slug: string }[];
+	monthsEarning: number;
 	name: string;
 	shopDomain: string;
 }

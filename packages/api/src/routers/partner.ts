@@ -277,6 +277,45 @@ export const partnerRouter = router({
 			earning.map((row) => `${row.merchantId}:${row.appId}`)
 		);
 
+		/**
+		 * COMPOUNDING, the raw material.
+		 *
+		 * Grouped by currency as well as month so a store's running total is
+		 * never a sum of two currencies wearing one label -- the same rule the
+		 * milestone ladder follows.
+		 */
+		const byStoreMonth = await ctx.db
+			.select({
+				currency: commissions.currency,
+				merchantId: commissions.merchantId,
+				periodMonth: commissions.periodMonth,
+				total: MONEY_SUM(commissions.commissionAmount),
+			})
+			.from(commissions)
+			.where(eq(commissions.partnerId, partnerId))
+			.groupBy(
+				commissions.merchantId,
+				commissions.periodMonth,
+				commissions.currency
+			);
+
+		const historyByStore = new Map<
+			string,
+			{ months: Set<string>; totals: Map<string, bigint> }
+		>();
+		for (const row of byStoreMonth) {
+			const entry = historyByStore.get(row.merchantId) ?? {
+				months: new Set<string>(),
+				totals: new Map<string, bigint>(),
+			};
+			entry.months.add(row.periodMonth);
+			entry.totals.set(
+				row.currency,
+				(entry.totals.get(row.currency) ?? 0n) + BigInt(row.total)
+			);
+			historyByStore.set(row.merchantId, entry);
+		}
+
 		return {
 			apps: catalog.map((app) => {
 				let liveStores = 0;
@@ -342,12 +381,32 @@ export const partnerRouter = router({
 					}
 				}
 
+				/* The store's own run: how many months it has paid, and what it
+				   has paid in total. This is the recurring half of the deal made
+				   visible -- a partner watching one store's total climb is
+				   watching the thing the program actually promises. */
+				const history = historyByStore.get(merchant.id);
+				const months = history ? [...history.months].sort() : [];
+				let currency = "USD";
+				let lifetime = 0n;
+				for (const [code, total] of history?.totals ?? []) {
+					if (total > lifetime) {
+						lifetime = total;
+						currency = code;
+					}
+				}
+
 				return {
+					currency,
 					earningApps: earning.length,
+					firstPeriod: months[0] ?? null,
 					grandfatheredApps: grandfatheredOnStore.length,
 					id: merchant.id,
+					latestPeriod: months.at(-1) ?? null,
+					lifetimeMinor: lifetime.toString(),
 					liveApps: live.length,
 					missing,
+					monthsEarning: months.length,
 					name: merchant.name,
 					shopDomain: merchant.shopDomain,
 					status: merchant.status,

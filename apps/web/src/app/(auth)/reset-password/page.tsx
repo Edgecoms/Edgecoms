@@ -9,16 +9,20 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { type FormEvent, useId, useState } from "react";
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
-
-/** Better Auth's own minimum, restated so the field can say it before submit. */
-const MIN_PASSWORD_LENGTH = 8;
+import {
+	describeResetFailure,
+	EXPIRED_LINK_CODE,
+	MAX_PASSWORD_LENGTH,
+	MIN_PASSWORD_LENGTH,
+} from "@/lib/reset-password-outcome";
 
 /**
  * Choose a new password, from the link in the reset email.
  *
  * Better Auth puts the token on the URL, or an `error` when the link was
  * already used or has expired. The expired case is the common one, so it gets
- * its own screen with a way to start again rather than a failed form.
+ * its own screen with a way to start again rather than a failed form. A link
+ * that runs out while the form is open lands on that same screen.
  */
 export default function ResetPasswordPage() {
 	const router = useRouter();
@@ -42,7 +46,14 @@ export default function ResetPasswordPage() {
 		const { error } = await authClient.resetPassword({ newPassword, token });
 		setLoading(false);
 		if (error) {
-			toast.error(error.message ?? "That link no longer works.");
+			const failure = describeResetFailure(error.code);
+			if (failure.kind === "expired") {
+				/* `replace`, so Back does not return to a form that cannot work,
+				   and the dead token leaves the address bar. */
+				router.replace(`/reset-password?error=${EXPIRED_LINK_CODE}` as Route);
+				return;
+			}
+			toast.error(failure.message);
 			return;
 		}
 		toast.success("Password changed. Sign in with the new one.");
@@ -86,6 +97,7 @@ export default function ResetPasswordPage() {
 					<Input
 						autoComplete="new-password"
 						id={passwordId}
+						maxLength={MAX_PASSWORD_LENGTH}
 						minLength={MIN_PASSWORD_LENGTH}
 						name="password"
 						required

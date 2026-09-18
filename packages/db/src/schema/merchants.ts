@@ -25,7 +25,18 @@ export const merchantStatus = pgEnum("merchant_status", [
  * How the binding was created: an admin/partner filling the form, or a merchant
  * redeeming an attribution code inside an Edge app.
  */
-export const merchantSource = pgEnum("merchant_source", ["manual", "code"]);
+/**
+ * How the store arrived. `link` joins the original two in Phase 2: a merchant
+ * who typed their store address on a partner's referral landing page, whose
+ * claim was matched at install time. It is a different FACT from `code` (the
+ * merchant typed a code inside the app) and an admin reviewing an attribution
+ * should be able to tell them apart.
+ */
+export const merchantSource = pgEnum("merchant_source", [
+	"manual",
+	"code",
+	"link",
+]);
 
 /**
  * A merchant store bound to a partner. Keyed by its canonical

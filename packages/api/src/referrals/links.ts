@@ -149,8 +149,12 @@ async function findLinkBySlug(
 	return rows[0] ?? null;
 }
 
-/** The partner's first active code, for a link addressed by its custom slug. */
-async function codeForPartner(
+/**
+ * The partner's first active code: the address of their main link, the UTM
+ * campaign on every outgoing redirect, and what a link-sourced merchant row
+ * records as the code it came from.
+ */
+export async function activePartnerCode(
 	db: Database,
 	partnerId: string
 ): Promise<string | null> {
@@ -242,7 +246,7 @@ export async function resolveReferral(
 	const bySlug = slug === "" ? null : await findLinkBySlug(db, slug);
 
 	if (bySlug) {
-		const code = await codeForPartner(db, bySlug.partnerId);
+		const code = await activePartnerCode(db, bySlug.partnerId);
 		if (!code) {
 			return null;
 		}

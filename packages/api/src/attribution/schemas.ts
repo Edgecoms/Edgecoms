@@ -55,6 +55,30 @@ export const createAttributionBody = z.object({
 
 export type CreateAttributionBody = z.infer<typeof createAttributionBody>;
 
+/**
+ * The install-time question: "does this shop belong to a partner?" No code,
+ * because the merchant may never have typed one; the match comes from a claim
+ * they made on a referral landing page (see referrals/resolve.ts).
+ */
+export const resolveAttributionBody = z.object({
+	appSlug: APP_SLUG,
+	/**
+	 * The caller's hashed IP. Used ONLY to suggest a match for an admin to
+	 * judge, never to attribute.
+	 *
+	 * For a suggestion to be possible the app must hash with the SAME salt the
+	 * platform uses for its click rows (`REFERRAL_IP_SALT`), because that is
+	 * what the hash is compared against. With a different salt, or none, the
+	 * comparison simply never matches and the endpoint answers "none": the
+	 * platform never sees a raw address either way.
+	 */
+	ipHash: z.string().max(128).nullish(),
+	paidAppSlugs: z.array(z.string().max(64)).max(50).optional(),
+	shop: SHOP,
+});
+
+export type ResolveAttributionBody = z.infer<typeof resolveAttributionBody>;
+
 export const shopEventBody = z.object({
 	shopDomain: SHOP,
 	appSlug: APP_SLUG,

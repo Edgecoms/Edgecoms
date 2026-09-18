@@ -11,6 +11,7 @@ import {
 	varchar,
 } from "drizzle-orm/pg-core";
 import { timestamps } from "./_shared";
+import { merchants } from "./merchants";
 import { partners } from "./partners";
 
 /**
@@ -152,6 +153,84 @@ export const referralClicksRelations = relations(referralClicks, ({ one }) => ({
 	}),
 	partner: one(partners, {
 		fields: [referralClicks.partnerId],
+		references: [partners.id],
+	}),
+}));
+
+/**
+ * What became of a claim. `suggested` is the one a visitor never made: the
+ * resolve endpoint found a click from the same address within a week and wrote
+ * it down for an admin to judge. It is never attributed automatically.
+ */
+export const referralClaimStatus = pgEnum("referral_claim_status", [
+	"pending",
+	"converted",
+	"expired",
+	"rejected",
+	"suggested",
+]);
+
+/**
+ * REFERRAL CLAIMS — "this store is coming, and this partner sent it".
+ *
+ * A merchant on a partner's landing page types their store address before they
+ * install. That is a claim: an intent, with an expiry, and no money attached.
+ * It becomes an attribution only when the app calls the resolve endpoint at
+ * install time and the shop still has no partner (see
+ * packages/api/src/referrals/resolve.ts).
+ *
+ * A claim CANNOT move a store that already belongs to a partner. One partner
+ * per shop stays permanent, exactly as it is for codes, so the worst a bogus
+ * claim can do is sit here until it expires.
+ */
+export const referralClaims = pgTable(
+	"referral_claims",
+	{
+		id: uuid("id").primaryKey().defaultRandom(),
+		/** Canonical myshopify domain where one could be derived, else as typed. */
+		shopDomain: text("shop_domain").notNull(),
+		partnerId: uuid("partner_id")
+			.notNull()
+			.references(() => partners.id, { onDelete: "restrict" }),
+		linkId: uuid("link_id").references(() => referralLinks.id, {
+			onDelete: "restrict",
+		}),
+		appSlug: text("app_slug"),
+		/** The click this claim came from, when it came from one. */
+		clickId: uuid("click_id").references(() => referralClicks.id, {
+			onDelete: "set null",
+		}),
+		status: referralClaimStatus("status").default("pending").notNull(),
+		/** 30 days from the claim. A merchant who installs later is not referred. */
+		expiresAt: timestamp("expires_at").notNull(),
+		/** The store this claim turned into, once it converted. */
+		convertedMerchantId: uuid("converted_merchant_id").references(
+			() => merchants.id,
+			{ onDelete: "restrict" }
+		),
+		convertedAt: timestamp("converted_at"),
+		...timestamps,
+	},
+	(table) => [
+		index("referral_claims_shop_status_idx").on(table.shopDomain, table.status),
+		index("referral_claims_partner_created_idx").on(
+			table.partnerId,
+			table.createdAt
+		),
+		index("referral_claims_status_expires_idx").on(
+			table.status,
+			table.expiresAt
+		),
+	]
+);
+
+export const referralClaimsRelations = relations(referralClaims, ({ one }) => ({
+	link: one(referralLinks, {
+		fields: [referralClaims.linkId],
+		references: [referralLinks.id],
+	}),
+	partner: one(partners, {
+		fields: [referralClaims.partnerId],
 		references: [partners.id],
 	}),
 }));

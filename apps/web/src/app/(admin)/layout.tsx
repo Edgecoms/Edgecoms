@@ -23,6 +23,7 @@ const ADMIN_NAV = [
 	{ href: "/admin/commissions", label: "Commissions" },
 	{ href: "/admin/bonuses", label: "Bonuses" },
 	{ href: "/admin/payouts", label: "Payouts" },
+	{ href: "/admin/referrals", label: "Referrals" },
 ];
 
 export default async function AdminLayout({

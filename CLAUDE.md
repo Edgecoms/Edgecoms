@@ -238,7 +238,7 @@ See `docs/partner-attribution-codes.md` for the full design.
   it exists a code must not promise a price cut nothing can honour. When they
   arrive they are integers (basis points / minor units), never a float.
 
-## Referral links (Phase 1: clicks only)
+## Referral links
 
 - A link is the second way a partner brings a store, and it changes **nothing**
   about the first. `/r/<code>` works for every approved partner with no row
@@ -263,6 +263,39 @@ See `docs/partner-attribution-codes.md` for the full design.
   unless each has its own link.
 - Disabling a link stops new clicks resolving to it and never unbinds a store
   it already brought, the same rule a disabled code follows.
+- A link with no app and no channel is refused: every partner already has that
+  link at `/r/<code>` without a row, and creating one would derive the same
+  address and quietly take over those clicks. A custom address for the main
+  link is allowed; the code itself is not.
+
+## Referral claims and install-time attribution
+
+- A **claim** is a store address a merchant typed on a partner's landing page.
+  It is an intent with a 30-day expiry (`CLAIM_TTL_DAYS`) and carries no money.
+  Where two partners hold a claim on one store, the NEWEST wins.
+- **`/api/v1/attributions/resolve` answers in a fixed order**, and the first
+  rule that matches wins (`packages/api/src/referrals/resolve.ts`):
+  1. the store already has a partner: KEEP it, whatever any claim says;
+  2. a live claim: attribute it, `pending`, the same as a code bind;
+  3. nothing: the in-app code box is still the fallback;
+  4. a hashed address that clicked in the last 7 days: record a **suggestion**
+     for an admin. **Never** attributed automatically, because one address is an
+     office, a household and a cafe.
+- Rule 1 is first so nothing below it can move a store. One partner per shop
+  stays permanent, for links exactly as for codes.
+- **Self-referral is refused**, matched on the domain of the partner's sign-up
+  email and their website. Mailbox providers are excluded from the name
+  comparison, so a partner on gmail.com has not claimed every store called
+  gmail. It is deliberately narrow; admin approval is still the real check.
+- A link-sourced store is `merchants.source = 'link'`, earns from the install
+  (`earningsFromAt = now`, the claim-start rule), and carries **no discount**:
+  grants come off a code and belong to the discount phase.
+- An admin approving a suggestion runs the SAME path as an honoured claim
+  (`approveClaim`), so it lands identically: pending, earning from today, and
+  refused if the store already belongs to somebody.
+- The `ipHash` an app sends must be hashed with the platform's own
+  `REFERRAL_IP_SALT` or it simply never matches, which answers "none". The
+  platform never receives a raw address.
 
 ## Shopify boundary
 

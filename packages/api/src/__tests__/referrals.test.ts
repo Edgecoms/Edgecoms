@@ -401,6 +401,27 @@ describe("creating links", () => {
 		expect(link.subId).toBe("youtube");
 	});
 
+	test("the main link cannot be created as a row", async () => {
+		/* Every partner already reaches /r/<code> with no row. A row for "all
+		   apps, no channel" would derive that same address and silently take
+		   over those clicks. */
+		await expect(
+			createLink(harness.db, { partnerId: APPROVED })
+		).rejects.toMatchObject({ code: "BAD_REQUEST" });
+	});
+
+	test("a custom address for the main link is allowed, the code itself is not", async () => {
+		const vanity = await createLink(harness.db, {
+			partnerId: APPROVED,
+			slug: "acme",
+		});
+		expect(vanity.slug).toBe("acme");
+
+		await expect(
+			createLink(harness.db, { partnerId: OTHER, slug: "THIRDCO" })
+		).rejects.toMatchObject({ code: "BAD_REQUEST" });
+	});
+
 	test("the same app and channel cannot be created twice", async () => {
 		await createLink(harness.db, { appSlug: "edge-cart", partnerId: APPROVED });
 		await expect(

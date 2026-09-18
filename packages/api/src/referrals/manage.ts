@@ -1,11 +1,11 @@
 import type { Database } from "@edgecoms/db";
 import { apps } from "@edgecoms/db/schema/apps";
-import { partnerCodes } from "@edgecoms/db/schema/partners";
 import { referralLinks } from "@edgecoms/db/schema/referrals";
 import { TRPCError } from "@trpc/server";
 import { and, asc, count, eq, isNull } from "drizzle-orm";
 import { clickTotals } from "./clicks";
 import {
+	activePartnerCode,
 	isUsableSlug,
 	normalizeSlug,
 	normalizeSubId,
@@ -39,25 +39,6 @@ export interface LinkRow {
 	uniqueClicks: number;
 }
 
-/** The partner's first active code: the address of their main link. */
-async function activeCode(
-	db: Database,
-	partnerId: string
-): Promise<string | null> {
-	const rows = await db
-		.select({ code: partnerCodes.code })
-		.from(partnerCodes)
-		.where(
-			and(
-				eq(partnerCodes.partnerId, partnerId),
-				eq(partnerCodes.status, "active")
-			)
-		)
-		.orderBy(asc(partnerCodes.createdAt))
-		.limit(1);
-	return rows[0]?.code ?? null;
-}
-
 export interface PartnerLinks {
 	/** Null while the partner holds no active code, which also means no links. */
 	code: string | null;
@@ -69,7 +50,7 @@ export async function listPartnerLinks(
 	partnerId: string
 ): Promise<PartnerLinks> {
 	const [code, rows, totals] = await Promise.all([
-		activeCode(db, partnerId),
+		activePartnerCode(db, partnerId),
 		db
 			.select({
 				appSlug: referralLinks.appSlug,
@@ -174,7 +155,7 @@ export async function createLink(
 	db: Database,
 	input: CreateLinkInput
 ): Promise<LinkRow> {
-	const code = await activeCode(db, input.partnerId);
+	const code = await activePartnerCode(db, input.partnerId);
 	if (!code) {
 		throw new TRPCError({
 			code: "PRECONDITION_FAILED",
@@ -188,6 +169,19 @@ export async function createLink(
 		await assertKnownApp(db, appSlug);
 	}
 	const subId = input.subId ? normalizeSubId(input.subId) : null;
+
+	/**
+	 * A link with no app and no channel IS the main link, which every partner
+	 * already has at `/r/<code>` without a row. Creating one derives the code
+	 * as its address and quietly takes over those clicks, so it is refused
+	 * unless somebody is deliberately giving the main link a nicer address.
+	 */
+	if (appSlug === null && subId === null && !input.slug) {
+		throw new TRPCError({
+			code: "BAD_REQUEST",
+			message: `This partner already has that link at /r/${code}. Give this one an app, a channel, or a custom address.`,
+		});
+	}
 	await assertUnderCap(db, input.partnerId);
 
 	let slug: string;
@@ -197,6 +191,12 @@ export async function createLink(
 			throw new TRPCError({
 				code: "BAD_REQUEST",
 				message: `Use ${SLUG_MIN_LENGTH} to ${SLUG_MAX_LENGTH} letters, digits or hyphens, and not a word the site already uses.`,
+			});
+		}
+		if (slug === normalizeSlug(code)) {
+			throw new TRPCError({
+				code: "BAD_REQUEST",
+				message: `/r/${code} is already this partner's main link. Pick a different address.`,
 			});
 		}
 		if (!(await slugIsFree(db, slug))) {

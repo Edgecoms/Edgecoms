@@ -1,11 +1,13 @@
 import { z } from "zod";
 import { adminProcedure, partnerProcedure, router } from "../index";
+import { listSuggestions, rejectClaim } from "../referrals/claims";
 import {
 	createLink,
 	listPartnerLinks,
 	setLinkActive,
 	setLinkSlug,
 } from "../referrals/manage";
+import { approveClaim } from "../referrals/resolve";
 
 /**
  * REFERRAL LINK MANAGEMENT.
@@ -25,6 +27,29 @@ const appSlugInput = z.string().min(2).max(APP_SLUG_MAX).nullish();
 const subIdInput = z.string().max(SUB_ID_MAX).nullish();
 
 export const adminReferralsRouter = router({
+	/**
+	 * Matches found by hashed address and never acted on. Approving one lands
+	 * the store exactly as an honoured claim does: pending, earning from today,
+	 * and refused outright if the shop already belongs to somebody.
+	 */
+	suggestions: router({
+		approve: adminProcedure
+			.input(z.object({ claimId: z.guid() }))
+			.mutation(async ({ ctx, input }) => {
+				const outcome = await approveClaim(ctx.db, input.claimId);
+				return { status: outcome.status };
+			}),
+
+		dismiss: adminProcedure
+			.input(z.object({ claimId: z.guid() }))
+			.mutation(async ({ ctx, input }) => {
+				await rejectClaim(ctx.db, input.claimId);
+				return { ok: true };
+			}),
+
+		list: adminProcedure.query(({ ctx }) => listSuggestions(ctx.db)),
+	}),
+
 	links: router({
 		create: adminProcedure
 			.input(

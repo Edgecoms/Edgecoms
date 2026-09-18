@@ -9,4 +9,5 @@ export * from "./marketing";
 export * from "./merchants";
 export * from "./partners";
 export * from "./payouts";
+export * from "./referrals";
 export * from "./sync";

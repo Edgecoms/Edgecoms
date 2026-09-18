@@ -21,6 +21,7 @@ import {
 	payoutDetailsInput,
 	payoutDetailsPatch,
 } from "../payout-details";
+import { partnerLinksRouter } from "./referrals";
 
 const MONEY_SUM = (column: typeof commissions.commissionAmount) =>
 	sql<string>`coalesce(sum(${column}), 0)`;
@@ -71,6 +72,9 @@ function toMoneyList(
 const ZERO_CURRENCY = "USD";
 
 export const partnerRouter = router({
+	/** The partner's own referral links. See ./referrals.ts. */
+	links: partnerLinksRouter,
+
 	/**
 	 * Who the caller is, PROJECTED rather than returned wholesale.
 	 *

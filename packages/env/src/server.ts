@@ -81,6 +81,13 @@ export const env = createEnv({
 		// contact.ts). Unset means replies go to PARTNER_FROM_EMAIL, which
 		// receives no mail.
 		PARTNER_REPLY_TO: z.string().min(1).optional(),
+		// The salt for hashing a referral click's IP address. The raw address is
+		// never stored; the hash is what counts one visitor once a day and stops
+		// a flood. Unset means clicks are recorded with NO hash at all rather
+		// than with a guessable one: an unsalted hash of an IP is a reversible
+		// record of who visited. Falls back to BETTER_AUTH_SECRET so a deploy
+		// that has not set it still hashes, rather than storing nothing.
+		REFERRAL_IP_SALT: z.string().min(16).optional(),
 		// Local mail catcher for partner email, as `smtp://localhost:1025`. When
 		// set it WINS over Resend, so a developer cannot accidentally mail a real
 		// agency while testing an approval. `sendViaSmtp` refuses to run when

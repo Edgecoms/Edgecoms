@@ -44,6 +44,7 @@ import { adminProcedure, router } from "../index";
 import { readPartnerDetail } from "../partner-detail";
 import { payoutBlocker } from "../payout-details";
 import { createInviteToken, INVITE_TTL_DAYS } from "./invites";
+import { adminReferralsRouter } from "./referrals";
 
 /**
  * Sum a money column to a string, never null.
@@ -382,6 +383,9 @@ function resolveWithholding(
 }
 
 export const adminRouter = router({
+	/** Referral links, per partner. See ./referrals.ts. */
+	referrals: adminReferralsRouter,
+
 	dashboard: adminProcedure.query(async ({ ctx }) => {
 		const period = currentPeriod();
 

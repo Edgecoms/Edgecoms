@@ -14,6 +14,7 @@ import {
 } from "@/components/portal/ui";
 import { formatMoney, formatPeriod } from "@/lib/money";
 import { trpc } from "@/utils/trpc";
+import { ReferralLinksSection } from "./links-section";
 
 /**
  * One partner, end to end: the rate they are on, the codes they hand out, the
@@ -495,6 +496,7 @@ function PartnerDetail({ partner }: { partner: PartnerRow }) {
 			) : (
 				<>
 					<CodesSection codes={detail?.codes ?? []} loading={loading} />
+					<ReferralLinksSection partnerId={partner.id} />
 					<StoresSection loading={loading} stores={detail?.stores ?? []} />
 					<CommissionsSection
 						commissions={detail?.commissions ?? []}

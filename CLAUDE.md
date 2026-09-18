@@ -11,11 +11,13 @@ correctness and auditability over cleverness.
 
 ## Business model (drives correctness)
 
-Partners do **not** use referral links. A partner is given an **attribution
-code**, which they hand to a merchant they manage; the merchant enters it inside
+A partner is given an **attribution code**, which they hand to a merchant they
+manage; the merchant enters it inside
 an Edge app and the store arrives in the dashboard already bound to that partner.
 A partner may also register a store by hand — the same row either way, just a
-different `merchants.source`. An admin approves the partner with a commission
+different `merchants.source`. Partners also have **referral links**, but a link
+only TRACKS (see "Referral links"): attribution still comes from a code, never
+from a click. An admin approves the partner with a commission
 percentage and approves the merchant. Shopify bills the merchant for the Edge
 apps they use, Edge receives the subscription revenue, and Edge pays the partner
 a recurring share of it every month, for as long as the merchant stays
@@ -235,6 +237,32 @@ See `docs/partner-attribution-codes.md` for the full design.
 - Codes carry **no discount terms** yet. Credit issuance is a later phase; until
   it exists a code must not promise a price cut nothing can honour. When they
   arrive they are integers (basis points / minor units), never a float.
+
+## Referral links (Phase 1: clicks only)
+
+- A link is the second way a partner brings a store, and it changes **nothing**
+  about the first. `/r/<code>` works for every approved partner with no row
+  anywhere; a `referral_links` row exists only for a vanity address, a
+  single-app link, or a channel (`?s=`) a partner wants counted separately.
+- **A click is not an attribution.** Nothing under `/r/` binds a store, and one
+  partner per shop stays permanent. A store still becomes a partner's through a
+  code in an Edge app (and, from Phase 2, a claim checked against that same
+  rule).
+- A link resolves through the SAME `validateCode` the bind uses, so a
+  suspended partner's link stops working exactly as their code does. An address
+  that resolves to nothing records no click: a click that can never convert is
+  noise, not data.
+- **`referral_clicks` is append-only and never holds a raw IP.** The address is
+  a salted SHA-256 (`REFERRAL_IP_SALT`, falling back to `BETTER_AUTH_SECRET`);
+  with no salt the hash column is left null rather than filled with a
+  guessable one. Bots are recorded with `is_bot` and never counted `is_unique`;
+  past the hourly ceiling per address nothing is written and the visitor is
+  still redirected.
+- A visitor counts once per 24 hours per LINK, or per partner for clicks on the
+  bare code. Two apps shared with one person therefore count one unique visitor
+  unless each has its own link.
+- Disabling a link stops new clicks resolving to it and never unbinds a store
+  it already brought, the same rule a disabled code follows.
 
 ## Shopify boundary
 

@@ -393,7 +393,7 @@ export default function AdminPartnersPage() {
 							<Textarea
 								id={emailsId}
 								name="emails"
-								placeholder={"alex@acmeagency.com\nsam@brightcommerce.co"}
+								placeholder={"name@youragency.com\nsecond@youragency.com"}
 								rows={4}
 							/>
 							<span className="text-caption text-secondary-foreground">
@@ -406,7 +406,7 @@ export default function AdminPartnersPage() {
 							<Input
 								id={companyId}
 								name="companyName"
-								placeholder="Acme Agency"
+								placeholder="Your agency"
 							/>
 							<span className="text-caption text-secondary-foreground">
 								Applied to every address in this batch, so send one agency at a
@@ -575,7 +575,7 @@ export default function AdminPartnersPage() {
 									defaultValue={suggestCode(approving)}
 									id={codeId}
 									name="code"
-									placeholder="ACMEAGENCY"
+									placeholder="YOURAGENCY"
 								/>
 								<span className="text-caption text-secondary-foreground">
 									4–32 letters, digits or hyphens. Keep the rate out of it,

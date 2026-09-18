@@ -25,6 +25,7 @@
     "ADMIN_PASSWORD",
     "PARTNER_FROM_EMAIL",
     "PARTNER_REPLY_TO",
+    "REFERRAL_IP_SALT",
     "PARTNER_SMTP_URL"
   ],
   "tasks": {

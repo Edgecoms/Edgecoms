@@ -1,17 +1,17 @@
 "use client";
 
 import { ButtonLink } from "@edgecoms/ui/components/button";
-import { Skeleton } from "@edgecoms/ui/components/skeleton";
-import { useQuery } from "@tanstack/react-query";
-import type { Route } from "next";
-import { useParams } from "next/navigation";
-import type { ReactNode } from "react";
 import {
 	EmptyState,
 	PortalHeader,
 	StatusBadge,
 	TableShell,
-} from "@/components/portal/ui";
+} from "@edgecoms/ui/components/portal";
+import { Skeleton } from "@edgecoms/ui/components/skeleton";
+import { useQuery } from "@tanstack/react-query";
+import type { Route } from "next";
+import { useParams } from "next/navigation";
+import type { ReactNode } from "react";
 import { formatMoney, formatPeriod } from "@/lib/money";
 import { trpc } from "@/utils/trpc";
 import { ReferralLinksSection } from "./links-section";

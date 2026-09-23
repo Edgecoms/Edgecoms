@@ -9,16 +9,16 @@ import {
 } from "@edgecoms/ui/components/dialog";
 import { Input } from "@edgecoms/ui/components/input";
 import { Label } from "@edgecoms/ui/components/label";
-import { Skeleton } from "@edgecoms/ui/components/skeleton";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { type FormEvent, useId, useState } from "react";
-import { toast } from "sonner";
 import {
 	EmptyState,
 	PortalHeader,
 	StatusBadge,
 	TableShell,
-} from "@/components/portal/ui";
+} from "@edgecoms/ui/components/portal";
+import { Skeleton } from "@edgecoms/ui/components/skeleton";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { type FormEvent, useId, useState } from "react";
+import { toast } from "sonner";
 import { formatMoney, formatPeriod } from "@/lib/money";
 import { queryClient, trpc } from "@/utils/trpc";
 

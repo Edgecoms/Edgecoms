@@ -8,6 +8,11 @@ import {
 } from "@edgecoms/ui/components/dialog";
 import { Input } from "@edgecoms/ui/components/input";
 import { Label } from "@edgecoms/ui/components/label";
+import {
+	PortalHeader,
+	StatusBadge,
+	TableShell,
+} from "@edgecoms/ui/components/portal";
 import { Skeleton } from "@edgecoms/ui/components/skeleton";
 import { Textarea } from "@edgecoms/ui/components/textarea";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -15,7 +20,6 @@ import type { Route } from "next";
 import Link from "next/link";
 import { type FormEvent, useId, useState } from "react";
 import { toast } from "sonner";
-import { PortalHeader, StatusBadge, TableShell } from "@/components/portal/ui";
 import { queryClient, trpc } from "@/utils/trpc";
 
 interface PartnerRow {

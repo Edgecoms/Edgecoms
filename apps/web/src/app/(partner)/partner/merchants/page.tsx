@@ -1,13 +1,13 @@
 "use client";
 
-import { Skeleton } from "@edgecoms/ui/components/skeleton";
-import { useQuery } from "@tanstack/react-query";
 import {
 	EmptyState,
 	PortalHeader,
 	StatusBadge,
 	TableShell,
-} from "@/components/portal/ui";
+} from "@edgecoms/ui/components/portal";
+import { Skeleton } from "@edgecoms/ui/components/skeleton";
+import { useQuery } from "@tanstack/react-query";
 import { allMoney } from "@/lib/money";
 import { trpc } from "@/utils/trpc";
 

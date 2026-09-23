@@ -1,16 +1,16 @@
 "use client";
 
-import { Skeleton } from "@edgecoms/ui/components/skeleton";
-import { useQuery } from "@tanstack/react-query";
-import type { Route } from "next";
-import Link from "next/link";
 import {
 	EmptyState,
 	PortalHeader,
 	StatCard,
 	StatusBadge,
 	TableShell,
-} from "@/components/portal/ui";
+} from "@edgecoms/ui/components/portal";
+import { Skeleton } from "@edgecoms/ui/components/skeleton";
+import { useQuery } from "@tanstack/react-query";
+import type { Route } from "next";
+import Link from "next/link";
 import {
 	formatMoney,
 	formatPeriod,

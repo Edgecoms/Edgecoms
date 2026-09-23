@@ -6,11 +6,15 @@ import {
 	DialogClose,
 	DialogContent,
 } from "@edgecoms/ui/components/dialog";
+import {
+	PortalHeader,
+	StatusBadge,
+	TableShell,
+} from "@edgecoms/ui/components/portal";
 import { Skeleton } from "@edgecoms/ui/components/skeleton";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { type FormEvent, useState } from "react";
 import { toast } from "sonner";
-import { PortalHeader, StatusBadge, TableShell } from "@/components/portal/ui";
 import { queryClient, trpc } from "@/utils/trpc";
 
 interface MerchantRow {

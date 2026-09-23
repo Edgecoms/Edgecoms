@@ -1,7 +1,6 @@
 import { auth } from "@edgecoms/auth";
 import { db } from "@edgecoms/db";
 import type { EmailSender } from "@edgecoms/mail/types";
-import type { NextRequest } from "next/server";
 
 /* Re-exported so existing imports from this module keep working. */
 export type {
@@ -19,7 +18,9 @@ export type {
  * caller treats that as "skipped" rather than an error. That is what keeps the
  * existing router tests, which build a context by hand, working unchanged.
  */
-export async function createContext(req: NextRequest, sendEmail?: EmailSender) {
+/** A plain `Request`: only its headers are read, and Edge Mail mounts this
+ * router under Hono, which hands over a standard Request, not a NextRequest. */
+export async function createContext(req: Request, sendEmail?: EmailSender) {
 	const session = await auth.api.getSession({
 		headers: req.headers,
 	});

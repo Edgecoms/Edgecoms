@@ -1,10 +1,14 @@
 "use client";
 
 import { Button } from "@edgecoms/ui/components/button";
+import {
+	EmptyState,
+	PortalHeader,
+	TableShell,
+} from "@edgecoms/ui/components/portal";
 import { Skeleton } from "@edgecoms/ui/components/skeleton";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { EmptyState, PortalHeader, TableShell } from "@/components/portal/ui";
 import { queryClient, trpc } from "@/utils/trpc";
 
 /**

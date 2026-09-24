@@ -105,6 +105,12 @@ export const mailContacts = pgTable("mail_contacts", {
 	productUpdates: boolean("product_updates").default(false).notNull(),
 	marketing: boolean("marketing").default(false).notNull(),
 	education: boolean("education").default(false).notNull(),
+	/**
+	 * When the MERCHANT last set their opt-ins on the preferences page: the
+	 * evidence behind every `true` above. Null means they never have, so any
+	 * opt-in on such a row did not come from this app.
+	 */
+	preferencesSetAt: timestamp("preferences_set_at"),
 	/** Set by a bounce or complaint webhook. A suppressed contact is never a campaign recipient. */
 	suppressedAt: timestamp("suppressed_at"),
 	suppressionReason: mailSuppressionReason("suppression_reason"),

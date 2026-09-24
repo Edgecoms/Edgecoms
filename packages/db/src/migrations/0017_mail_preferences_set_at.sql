@@ -1,0 +1,1 @@
+ALTER TABLE "mail_contacts" ADD COLUMN "preferences_set_at" timestamp;

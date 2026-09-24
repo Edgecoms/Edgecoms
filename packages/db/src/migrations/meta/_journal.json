@@ -120,6 +120,13 @@
       "when": 1790227555660,
       "tag": "0016_mail_campaign_test_mode",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1790228060616,
+      "tag": "0017_mail_preferences_set_at",
+      "breakpoints": true
     }
   ]
 }

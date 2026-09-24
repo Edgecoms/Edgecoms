@@ -148,6 +148,13 @@
       "when": 1790247016377,
       "tag": "0020_mail_app_settings_sender_only",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1790250194271,
+      "tag": "0021_mail_events_unique_per_app",
+      "breakpoints": true
     }
   ]
 }

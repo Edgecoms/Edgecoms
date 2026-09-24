@@ -13,6 +13,7 @@ import {
 	TEMPLATE_VARIABLES,
 } from "@/emails/templates";
 import { identityOf, listAppsWithSettings } from "@/server/apps/identity";
+import { requireAdmin } from "@/server/session";
 
 export const metadata: Metadata = { title: "Templates" };
 
@@ -33,6 +34,7 @@ export default async function TemplatesPage({
 }: {
 	searchParams: Promise<{ app?: string; t?: string }>;
 }) {
+	await requireAdmin();
 	const { app: slug, t } = await searchParams;
 	const all = await listAppsWithSettings(db);
 	const app = all.find((row) => row.slug === slug) ?? all[0];

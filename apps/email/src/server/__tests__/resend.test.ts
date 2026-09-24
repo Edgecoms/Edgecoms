@@ -236,6 +236,12 @@ describe("resend webhook", () => {
 		expect(response.status).toBe(503);
 	});
 
+	test("is 503, not 401, with a secret but no API key to verify it", async () => {
+		setEnv({ RESEND_WEBHOOK_SECRET: WEBHOOK_SECRET });
+		const response = await post(signed(complaint("owner@brand.com")));
+		expect(response.status).toBe(503);
+	});
+
 	test("refuses a bad signature", async () => {
 		configure();
 		const response = await post(

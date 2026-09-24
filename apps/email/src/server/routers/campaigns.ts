@@ -13,7 +13,12 @@ import {
 	MAX_HTML_LENGTH,
 	withoutPlaceholders,
 } from "@/emails/campaign-html";
-import { fromHeader, identityOf, listAppsWithSettings } from "../apps/identity";
+import {
+	appWithSettings,
+	fromHeader,
+	identityOf,
+	listAppsWithSettings,
+} from "../apps/identity";
 import {
 	audienceSchema,
 	type Category,
@@ -99,12 +104,10 @@ const START_ERRORS: Record<
 };
 
 async function configuredApp(
-	db: Parameters<typeof listAppsWithSettings>[0],
+	db: Parameters<typeof appWithSettings>[0],
 	appId: string
 ) {
-	const app = (await listAppsWithSettings(db)).find(
-		(row) => row.appId === appId
-	);
+	const app = await appWithSettings(db, appId);
 	if (!app?.settings) {
 		throw new TRPCError({
 			code: "PRECONDITION_FAILED",

@@ -49,6 +49,11 @@ export function deliveryAddress(email: string): string | null {
 	return email;
 }
 
+/** Whether a Resend API key is configured at all. */
+export function resendConfigured(): boolean {
+	return Boolean(env.RESEND_API_KEY);
+}
+
 function client(): Resend | null {
 	return env.RESEND_API_KEY ? new Resend(env.RESEND_API_KEY) : null;
 }
@@ -464,13 +469,18 @@ export async function createCampaignSegment(name: string): Promise<string> {
 
 /**
  * Loads the recipients into the campaign's segment with ONE import instead of
- * one call per contact, opting each into the campaign's topic: every one of
- * them opted in on our side, which is how they were chosen.
+ * one call per contact.
+ *
+ * It never opts a real merchant INTO a topic. Someone who unsubscribed via
+ * Resend's own link is opted out there, and our database cannot see that
+ * (the webhook carries no topics), so writing opt_in here would re-subscribe
+ * them. Resend's topic state decides; opt-ins reach it from the preferences
+ * page. `optInTopicId` exists for the test inbox alone.
  */
 export async function importSegmentContacts(input: {
 	emails: string[];
+	optInTopicId: string | null;
 	segmentId: string;
-	topicId: string | null;
 }): Promise<string> {
 	const resend = requireClient();
 	const csv = ["email", ...input.emails].join("\n");
@@ -479,8 +489,10 @@ export async function importSegmentContacts(input: {
 		file: new Blob([csv], { type: "text/csv" }),
 		onConflict: "upsert",
 		segments: [{ id: input.segmentId }],
-		...(input.topicId
-			? { topics: [{ id: input.topicId, subscription: "opt_in" as const }] }
+		...(input.optInTopicId
+			? {
+					topics: [{ id: input.optInTopicId, subscription: "opt_in" as const }],
+				}
 			: {}),
 	});
 	return unwrap(result, "contacts.imports.create").id;

@@ -158,6 +158,25 @@ describe("ingest", () => {
 		expect(syncCalls).toHaveLength(1);
 	});
 
+	test("two apps may use the same event id; each counts once", async () => {
+		const body = event();
+		await send(body);
+		const bundles = await send(body, {
+			appId: "edge-bundles",
+			secret: BUNDLES_SECRET,
+		});
+		expect(await bundles.json()).toEqual({ ok: true, status: "recorded" });
+		expect(await testDb.db.select().from(mailEvents)).toHaveLength(2);
+		expect(await testDb.db.select().from(mailInstallations)).toHaveLength(2);
+	});
+
+	test("refuses an event stamped in the future", async () => {
+		const response = await send(
+			event({ occurredAt: new Date(Date.now() + 2 * 86_400_000).toISOString() })
+		);
+		expect(response.status).toBe(400);
+	});
+
 	test("a late older event cannot undo a newer uninstall", async () => {
 		await send(
 			event({ event: "app.uninstalled", occurredAt: "2026-09-21T10:00:00Z" })
@@ -213,7 +232,7 @@ describe("attribution forwarding", () => {
 		const rows = await testDb.db.select().from(merchantEvents);
 		expect(rows).toHaveLength(1);
 		expect(rows[0]?.type).toBe("uninstalled");
-		expect(rows[0]?.idempotencyKey).toBe(body.eventId);
+		expect(rows[0]?.idempotencyKey).toBe(`edge-cart:${body.eventId}`);
 	});
 
 	test("plan.started is recorded as subscription.activated with its plan", async () => {

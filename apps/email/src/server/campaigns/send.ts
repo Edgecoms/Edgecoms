@@ -6,7 +6,7 @@ import {
 } from "@edgecoms/db/schema/mail";
 import { and, eq, gte, isNull, lt, sql } from "drizzle-orm";
 import { htmlToText } from "@/emails/campaign-html";
-import { fromHeader, listAppsWithSettings } from "../apps/identity";
+import { appWithSettings, fromHeader } from "../apps/identity";
 import type { ImportState } from "../resend";
 import { type Category, resolveRecipients } from "./audience";
 
@@ -40,10 +40,11 @@ export interface CampaignGateway {
 	createSegment(name: string): Promise<string>;
 	/** Test-mode aware: the address a message to `email` really goes to. */
 	deliveryAddress(email: string): string | null;
+	/** `optInTopicId` only for the test inbox; never a real merchant. */
 	importContacts(input: {
 		emails: string[];
+		optInTopicId: string | null;
 		segmentId: string;
-		topicId: string | null;
 	}): Promise<string>;
 	importState(importId: string): Promise<ImportState>;
 	sendBroadcast(broadcastId: string, scheduledAt: Date | null): Promise<void>;
@@ -216,8 +217,12 @@ export async function startSend(
 			.where(eq(mailCampaigns.id, campaign.id));
 		const importId = await gateway.importContacts({
 			emails: addresses,
+			// Live, Resend's own opt-outs stand. The test inbox is ours, so it
+			// is opted in to see the send.
+			optInTopicId: gateway.testMode()
+				? await gateway.topicId(campaign.category)
+				: null,
 			segmentId,
-			topicId: await gateway.topicId(campaign.category),
 		});
 		await db
 			.update(mailCampaigns)
@@ -268,9 +273,7 @@ async function createBroadcastOnce(
 	if (!claimed[0]) {
 		return;
 	}
-	const app = (await listAppsWithSettings(db)).find(
-		(row) => row.appId === campaign.appId
-	);
+	const app = await appWithSettings(db, campaign.appId);
 	try {
 		if (!app?.settings) {
 			throw new Error("The app has no sender configured.");
@@ -303,6 +306,19 @@ async function sendOnce(
 ): Promise<void> {
 	const broadcastId = campaign.resendBroadcastId;
 	if (!broadcastId || broadcastId === CREATING) {
+		return;
+	}
+	// The import can outlast the lead time. A scheduled time that has passed is
+	// never quietly turned into "send now", or into a late send.
+	if (
+		campaign.scheduledAt &&
+		campaign.scheduledAt.getTime() < now.getTime() + MIN_SCHEDULE_LEAD_MS
+	) {
+		await markFailed(
+			db,
+			campaign.id,
+			"The scheduled time passed before the recipients finished loading. Duplicate the campaign and schedule it again."
+		);
 		return;
 	}
 	// Claim the send BEFORE calling Resend: two pollers, one broadcast send.

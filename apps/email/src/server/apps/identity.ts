@@ -2,7 +2,7 @@ import type { Database } from "@edgecoms/db";
 import { apps } from "@edgecoms/db/schema/apps";
 import { mailAppSettings } from "@edgecoms/db/schema/mail";
 import { env } from "@edgecoms/env/mail";
-import { asc, eq, inArray } from "drizzle-orm";
+import { and, asc, eq, inArray } from "drizzle-orm";
 import type { AppIdentity } from "@/emails/templates";
 
 /**
@@ -45,6 +45,22 @@ export function listAppsWithSettings(db: Database) {
 		.leftJoin(mailAppSettings, eq(mailAppSettings.appId, apps.id))
 		.where(inArray(apps.slug, [...MAIL_APP_SLUGS]))
 		.orderBy(asc(apps.name));
+}
+
+/** One of Edge Mail's apps with its settings, or undefined. */
+export async function appWithSettings(db: Database, appId: string) {
+	const [app] = await db
+		.select({
+			appId: apps.id,
+			name: apps.name,
+			slug: apps.slug,
+			settings: mailAppSettings,
+		})
+		.from(apps)
+		.leftJoin(mailAppSettings, eq(mailAppSettings.appId, apps.id))
+		.where(and(eq(apps.id, appId), inArray(apps.slug, [...MAIL_APP_SLUGS])))
+		.limit(1);
+	return app;
 }
 
 export type AppWithSettings = Awaited<

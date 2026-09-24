@@ -27,11 +27,22 @@ export type MailEventType = (typeof MAIL_EVENT_TYPES)[number];
 
 const SHORT = z.string().trim().min(1).max(255);
 
+/** Room for an app server whose clock runs a little fast. */
+const MAX_CLOCK_AHEAD_MS = 60 * 60_000;
+
 export const mailEventBody = z.object({
 	/** The app's own id for this delivery, and the dedup key. */
 	eventId: z.string().min(1).max(128),
 	event: z.enum(MAIL_EVENT_TYPES),
-	occurredAt: z.iso.datetime({ offset: true }),
+	/**
+	 * Never meaningfully in the future: installation state only moves for
+	 * NEWER events, so one event stamped in 2099 would freeze it for good.
+	 */
+	occurredAt: z.iso
+		.datetime({ offset: true })
+		.refine((value) => Date.parse(value) <= Date.now() + MAX_CLOCK_AHEAD_MS, {
+			message: "occurredAt is in the future",
+		}),
 	store: z.object({
 		domain: SHORT,
 		name: SHORT.nullish(),

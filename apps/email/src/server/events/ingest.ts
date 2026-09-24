@@ -18,7 +18,7 @@ import type { MailEventBody, MailEventType } from "./schema";
 /**
  * INGEST one event from an Edge app.
  *
- * Idempotent on `eventId`: the event row is inserted with conflict-do-nothing,
+ * Idempotent on (app, `eventId`): the event row is inserted with conflict-do-nothing,
  * and only the delivery that actually inserted it applies state. A redelivery
  * is a no-op, except that it retries the Resend sync if the first delivery
  * never got that far. The app retries on any non-2xx, so a Resend outage
@@ -273,7 +273,7 @@ export async function ingestEvent(
 				payload: body.properties,
 				occurredAt,
 			})
-			.onConflictDoNothing({ target: mailEvents.eventId })
+			.onConflictDoNothing({ target: [mailEvents.appId, mailEvents.eventId] })
 			.returning({ id: mailEvents.id });
 
 		if (inserted[0]) {
@@ -282,11 +282,16 @@ export async function ingestEvent(
 		return { isNew: Boolean(inserted[0]), storeId, contactId };
 	});
 
+	const thisEvent = and(
+		eq(mailEvents.appId, app.id),
+		eq(mailEvents.eventId, body.eventId)
+	);
+
 	if (!recorded.isNew) {
 		const [existing] = await db
 			.select({ resendSyncedAt: mailEvents.resendSyncedAt })
 			.from(mailEvents)
-			.where(eq(mailEvents.eventId, body.eventId))
+			.where(thisEvent)
 			.limit(1);
 		if (existing?.resendSyncedAt) {
 			return { ok: true, status: "duplicate" };
@@ -298,7 +303,8 @@ export async function ingestEvent(
 		const plan = planFrom(body);
 		await recordShopEvent(db, {
 			appSlug: input.appSlug,
-			idempotencyKey: body.eventId,
+			// merchant_events keys are global, so the app scopes its own ids.
+			idempotencyKey: `${input.appSlug}:${body.eventId}`,
 			occurredAt,
 			planHandle: plan ?? null,
 			shopDomain,
@@ -323,7 +329,7 @@ export async function ingestEvent(
 	await db
 		.update(mailEvents)
 		.set({ resendSyncedAt: new Date() })
-		.where(eq(mailEvents.eventId, body.eventId));
+		.where(thisEvent);
 
 	return { ok: true, status: recorded.isNew ? "recorded" : "duplicate" };
 }

@@ -44,6 +44,7 @@ function stub(options: { testInbox?: string | null } = {}) {
 		createBroadcast: 0,
 		createSegment: 0,
 		imported: [] as string[][],
+		optIn: [] as (string | null)[],
 		sent: [] as (Date | null)[],
 	};
 	let state: ImportState = "pending";
@@ -67,8 +68,9 @@ function stub(options: { testInbox?: string | null } = {}) {
 				: Promise.resolve("seg_1");
 		},
 		deliveryAddress: (email) => (inbox === undefined ? email : inbox),
-		importContacts: ({ emails }) => {
+		importContacts: ({ emails, optInTopicId }) => {
 			calls.imported.push(emails);
+			calls.optIn.push(optInTopicId);
 			return Promise.resolve("imp_1");
 		},
 		importState: () => Promise.resolve(state),
@@ -378,6 +380,8 @@ describe("starting a send", () => {
 		expect([first, second]).toContainEqual({ ok: false, reason: "not_draft" });
 		expect(calls.createSegment).toBe(1);
 		expect(calls.imported).toEqual([["a@a.com", "d@d.com", "e@e.com"]]);
+		// Live, nobody is opted in by a send: Resend's own opt-outs stand.
+		expect(calls.optIn).toEqual([null]);
 		expect(await testDb.db.select().from(mailCampaignRecipients)).toHaveLength(
 			3
 		);
@@ -394,6 +398,7 @@ describe("starting a send", () => {
 			scheduledAt: null,
 		});
 		expect(calls.imported).toEqual([["team@edgecoms.com"]]);
+		expect(calls.optIn).toEqual(["topic_1"]);
 		expect((await campaign(id))?.sentInTestMode).toBe(true);
 	});
 
@@ -471,6 +476,19 @@ describe("advancing a send", () => {
 		resend.setImport("failed");
 		expect(await advanceSend(testDb.db, resend.gateway, id)).toBe("failed");
 		expect(resend.calls.createBroadcast).toBe(0);
+	});
+
+	test("a schedule that passed while loading fails instead of sending late", async () => {
+		const resend = stub();
+		const at = new Date(Date.now() + 2 * 60_000);
+		const id = await started(resend.gateway, at);
+		resend.setImport("completed");
+		const later = new Date(at.getTime() + 60_000);
+		expect(await advanceSend(testDb.db, resend.gateway, id, later)).toBe(
+			"failed"
+		);
+		expect(resend.calls.sent).toHaveLength(0);
+		expect((await campaign(id))?.failureReason).toContain("scheduled time");
 	});
 
 	test("a scheduled send can be cancelled before it goes", async () => {

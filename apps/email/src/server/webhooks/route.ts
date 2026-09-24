@@ -8,7 +8,7 @@ import {
 import { env as mailEnv } from "@edgecoms/env/mail";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
-import { verifyResendWebhook } from "../resend";
+import { resendConfigured, verifyResendWebhook } from "../resend";
 
 /**
  * POST /api/webhooks/resend: delivery events into `mail_email_events`.
@@ -168,7 +168,9 @@ async function record(
 export function resendWebhookRoute(deps: { db: Database }) {
 	return new Hono().post("/", async (c) => {
 		const secret = mailEnv.RESEND_WEBHOOK_SECRET;
-		if (!secret) {
+		// Verifying needs the SDK, and the SDK needs the API key: without either
+		// this is a configuration problem (503), never a bad signature (401).
+		if (!(secret && resendConfigured())) {
 			return c.json({ error: "Webhook is not configured." }, 503, NO_STORE);
 		}
 

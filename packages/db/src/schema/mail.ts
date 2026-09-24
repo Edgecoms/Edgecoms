@@ -178,7 +178,7 @@ export const mailInstallations = pgTable(
 );
 
 /**
- * THE EVENT LOG: append-only, idempotent on the app's `eventId`, exactly like
+ * THE EVENT LOG: append-only, idempotent on (app, `eventId`), like
  * `merchant_events` on its idempotency key. `resendSyncedAt` is the one field
  * that changes: null means the Resend side has not landed yet, and a redelivery
  * of the same event retries it instead of being dropped as a duplicate.
@@ -187,7 +187,8 @@ export const mailEvents = pgTable(
 	"mail_events",
 	{
 		id: uuid("id").primaryKey().defaultRandom(),
-		eventId: text("event_id").notNull().unique(),
+		/** The app's own id for the event: unique per APP, not globally. */
+		eventId: text("event_id").notNull(),
 		appId: uuid("app_id")
 			.notNull()
 			.references(() => apps.id, { onDelete: "restrict" }),
@@ -204,6 +205,9 @@ export const mailEvents = pgTable(
 		resendSyncedAt: timestamp("resend_synced_at"),
 	},
 	(table) => [
+		// Two apps may pick the same id; only a repeat from the SAME app is a
+		// duplicate.
+		unique("mail_events_app_event_unique").on(table.appId, table.eventId),
 		index("mail_events_contact_idx").on(table.contactId),
 		index("mail_events_store_idx").on(table.storeId),
 	]

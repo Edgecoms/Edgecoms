@@ -1,0 +1,197 @@
+/// <reference types="bun" />
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+import { createCallerFactory } from "@edgecoms/api";
+import { createTestDb, type TestDb } from "@edgecoms/api/__tests__/db-harness";
+import type { Context } from "@edgecoms/api/context";
+import { apps } from "@edgecoms/db/schema/apps";
+import {
+	mailAppSettings,
+	mailContactStores,
+	mailContacts,
+	mailEmailEvents,
+	mailInstallations,
+	mailStores,
+} from "@edgecoms/db/schema/mail";
+import { listContacts } from "../queries/contacts";
+import { deliveryStats, rate } from "../queries/dashboard";
+import { mailRouter } from "../router";
+
+const createCaller = createCallerFactory(mailRouter);
+
+let testDb: TestDb;
+let appId: string;
+
+function callerAs(role: "admin" | "partner" | null) {
+	const session =
+		role === null
+			? null
+			: { user: { email: "a@edgecoms.app", name: "A", role } };
+	return createCaller({ db: testDb.db, session } as unknown as Context);
+}
+
+beforeEach(async () => {
+	testDb = await createTestDb();
+	const [app] = await testDb.db
+		.insert(apps)
+		.values({ slug: "edge-cart", name: "Edge Cart", partnerApiGid: "gid://1" })
+		.returning();
+	appId = app?.id ?? "";
+});
+
+afterEach(async () => {
+	await testDb.close();
+});
+
+const settings = () => ({
+	appId,
+	appUrl: "https://admin.shopify.com/apps/edge-cart",
+	brandColor: "#2255ff",
+	logoUrl: "",
+	replyTo: "",
+	reviewUrl: "",
+	senderEmail: "updates@edgecoms.app",
+	senderName: "Edge Cart",
+	supportUrl: "https://edgecoms.app/support",
+});
+
+describe("admin mutations are admin-only", () => {
+	test("saving app settings refuses a partner and an anonymous caller", async () => {
+		await expect(
+			callerAs("partner").apps.saveSettings(settings())
+		).rejects.toMatchObject({ code: "FORBIDDEN" });
+		await expect(
+			callerAs(null).apps.saveSettings(settings())
+		).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+		expect(await testDb.db.select().from(mailAppSettings)).toHaveLength(0);
+	});
+
+	test("opting a contact out refuses a partner", async () => {
+		await expect(
+			callerAs("partner").contacts.optOut({
+				contactId: "0b8e5c2a-1d2f-4c3b-9a8e-7f6d5c4b3a21",
+			})
+		).rejects.toMatchObject({ code: "FORBIDDEN" });
+	});
+});
+
+describe("app settings", () => {
+	test("save, then save again, updates the one row", async () => {
+		await callerAs("admin").apps.saveSettings(settings());
+		await callerAs("admin").apps.saveSettings({
+			...settings(),
+			senderName: "Edge Cart Team",
+		});
+		const rows = await testDb.db.select().from(mailAppSettings);
+		expect(rows).toHaveLength(1);
+		expect(rows[0]?.senderName).toBe("Edge Cart Team");
+		expect(rows[0]?.logoUrl).toBeNull();
+	});
+
+	test("refuse a colour that is not #rrggbb and a link that is not https", async () => {
+		await expect(
+			callerAs("admin").apps.saveSettings({
+				...settings(),
+				brandColor: "red;} body{display:none",
+			})
+		).rejects.toMatchObject({ code: "BAD_REQUEST" });
+		await expect(
+			callerAs("admin").apps.saveSettings({
+				...settings(),
+				supportUrl: "javascript:alert(1)",
+			})
+		).rejects.toMatchObject({ code: "BAD_REQUEST" });
+	});
+});
+
+describe("opt out", () => {
+	test("switches every category off", async () => {
+		const [contact] = await testDb.db
+			.insert(mailContacts)
+			.values({
+				education: true,
+				email: "owner@brand.com",
+				marketing: true,
+				productUpdates: true,
+			})
+			.returning();
+		await callerAs("admin").contacts.optOut({ contactId: contact?.id ?? "" });
+		const [row] = await testDb.db.select().from(mailContacts);
+		expect(row?.marketing).toBe(false);
+		expect(row?.productUpdates).toBe(false);
+		expect(row?.education).toBe(false);
+	});
+});
+
+describe("contact search", () => {
+	test("treats % and _ as literal characters", async () => {
+		await testDb.db
+			.insert(mailContacts)
+			.values([{ email: "a_b@brand.com" }, { email: "axb@brand.com" }]);
+		const rows = await listContacts(testDb.db, "a_b");
+		expect(rows.map((row) => row.email)).toEqual(["a_b@brand.com"]);
+	});
+});
+
+describe("contact list", () => {
+	test("counts each contact's own live apps and store, not a neighbour's", async () => {
+		const [store] = await testDb.db
+			.insert(mailStores)
+			.values({ shopDomain: "brand.myshopify.com" })
+			.returning();
+		const [owner, other] = await testDb.db
+			.insert(mailContacts)
+			.values([{ email: "owner@brand.com" }, { email: "other@else.com" }])
+			.returning();
+		await testDb.db
+			.insert(mailContactStores)
+			.values({ contactId: owner?.id ?? "", storeId: store?.id ?? "" });
+		await testDb.db.insert(mailInstallations).values({
+			appId,
+			lastActiveAt: new Date("2026-09-20T10:00:00Z"),
+			status: "active",
+			statusChangedAt: new Date(),
+			storeId: store?.id ?? "",
+		});
+
+		const rows = await listContacts(testDb.db, "");
+		const byEmail = new Map(rows.map((row) => [row.email, row]));
+		expect(byEmail.get("owner@brand.com")?.appCount).toBe(1);
+		expect(byEmail.get("owner@brand.com")?.shopDomain).toBe(
+			"brand.myshopify.com"
+		);
+		expect(byEmail.get("other@else.com")?.appCount).toBe(0);
+		expect(byEmail.get("other@else.com")?.shopDomain).toBeNull();
+		expect(await listContacts(testDb.db, "brand.my")).toHaveLength(1);
+		expect(other).toBeDefined();
+	});
+});
+
+describe("dashboard", () => {
+	test("counts an email opened five times as one open", async () => {
+		const at = new Date();
+		const opens = Array.from({ length: 5 }, (_, index) => ({
+			appId,
+			occurredAt: at,
+			payload: {},
+			resendEmailId: "em_1",
+			svixId: `open_${index}`,
+			type: "email.opened",
+		}));
+		await testDb.db.insert(mailEmailEvents).values([
+			...opens,
+			{
+				appId,
+				occurredAt: at,
+				payload: {},
+				resendEmailId: "em_1",
+				svixId: "delivered_1",
+				type: "email.delivered",
+			},
+		]);
+		const stats = await deliveryStats(testDb.db, new Date(0));
+		expect(stats.totals["email.opened"]).toBe(1);
+		expect(stats.byApp[0]?.name).toBe("Edge Cart");
+		expect(rate(1, 1)).toBe("100.0%");
+		expect(rate(1, 0)).toBeNull();
+	});
+});

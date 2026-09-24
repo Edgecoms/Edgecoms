@@ -4,6 +4,7 @@ import { Button } from "@edgecoms/ui/components/button";
 import { Label } from "@edgecoms/ui/components/label";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type { Route } from "next";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type ReactNode, useId, useState } from "react";
 import { toast } from "sonner";
@@ -241,9 +242,17 @@ export function Composer({
 				<div className="grid gap-5 sm:grid-cols-2">
 					<Field
 						hint={
-							configured.length === 0
-								? "Save a sender for an app on the Apps page first."
-								: undefined
+							configured.length < (options.data?.apps.length ?? 0) ? (
+								<>
+									An app needs a sender before it can send.{" "}
+									<Link
+										className="text-primary-foreground underline underline-offset-4"
+										href={"/apps" as Route}
+									>
+										Set one on the Apps page
+									</Link>
+								</>
+							) : undefined
 						}
 						label="App"
 					>
@@ -256,9 +265,14 @@ export function Composer({
 								}
 								value={appId}
 							>
-								{configured.map((row) => (
-									<option key={row.appId} value={row.appId}>
-										{row.name}
+								{appId === "" ? <option value="">Choose an app</option> : null}
+								{(options.data?.apps ?? []).map((row) => (
+									<option
+										disabled={!row.configured}
+										key={row.appId}
+										value={row.appId}
+									>
+										{row.configured ? row.name : `${row.name} (no sender yet)`}
 									</option>
 								))}
 							</select>

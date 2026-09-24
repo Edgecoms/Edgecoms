@@ -105,7 +105,7 @@ mail_installations   id, (store_id, app_id) UNIQUE, status (installed|active|ina
 mail_events          id, event_id UNIQUE, app_id, store_id, contact_id, type, payload jsonb,
                      occurred_at, received_at, resend_synced_at
 mail_campaigns       id, name, type, category (product_updates|marketing|education), app_id,
-                     subject, preheader, eyebrow, headline, body, hero_image, cta_label, cta_url,
+                     subject, preheader, html (the pasted email, sent as-is),
                      audience jsonb (zod-typed), status (draft|importing|scheduled|sent|failed|cancelled),
                      content_updated_at, test_sent_at, recipient_count, resend_segment_id,
                      resend_import_id, resend_broadcast_id, scheduled_at, sent_at, sent_in_test_mode,
@@ -216,7 +216,7 @@ tests before committing (66 tests in `apps/email`, plus render tests in `@edgeco
 | 3 Resend | Adapter, test mode, `/api/webhooks/resend`, suppression, `resend:setup` |
 | 4 Templates | Brand option on `@edgecoms/mail/render`, 5 lifecycle templates, `/templates`, `resend:push-templates` |
 | 5 Admin UI | Dashboard, Contacts (+ profile, opt-out), Apps (settings, secret status), Templates |
-| 6 Campaigns | Audience, composer with live preview, test send, guarded send/schedule/cancel (migration 0016) |
+| 6 Campaigns | Paste the email's HTML (written with Claude; a "Copy prompt for Claude" brief keeps it email-safe), sandboxed live preview, audience, test send, guarded send/schedule/cancel. HTML must carry `{{{RESEND_UNSUBSCRIBE_URL}}}` and no `<script>`; the plain-text part is derived from it (migrations 0016, 0018, 0019) |
 | 7 Automations | Built in Resend's dashboard; the Templates page shows each template's trigger and alias |
 | 8 Preferences | `/preferences/<token>`, consent timestamp `preferences_set_at` (migration 0017) |
 | 9 Client | `apps/email/clients/edge-mail-client.ts`, the one file each Shopify app copies, tested end to end |

@@ -26,11 +26,8 @@ export const CATEGORY_LABEL: Record<CampaignType, string> = {
 export interface CampaignForm {
 	appId: string;
 	audience: MailAudience;
-	body: string;
-	ctaLabel: string;
-	ctaUrl: string;
-	eyebrow: string;
-	headline: string;
+	/** The whole email, pasted. */
+	html: string;
 	name: string;
 	preheader: string;
 	subject: string;
@@ -40,11 +37,7 @@ export interface CampaignForm {
 export const EMPTY_FORM: CampaignForm = {
 	appId: "",
 	audience: {},
-	body: "",
-	ctaLabel: "",
-	ctaUrl: "",
-	eyebrow: "",
-	headline: "",
+	html: "",
 	name: "",
 	preheader: "",
 	subject: "",
@@ -53,5 +46,5 @@ export const EMPTY_FORM: CampaignForm = {
 
 export const FIELD =
 	"h-9 w-full rounded-lg border border-border bg-white px-3 text-body-sm text-primary-foreground";
-export const AREA =
-	"min-h-40 w-full rounded-lg border border-border bg-white px-3 py-2 text-body-sm text-primary-foreground";
+export const CODE_AREA =
+	"min-h-72 w-full rounded-lg border border-border bg-white px-3 py-2 font-mono text-[12px] text-primary-foreground leading-relaxed";

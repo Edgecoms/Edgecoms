@@ -294,10 +294,9 @@ describe("resend webhook", () => {
 			.values({
 				appId: app.id,
 				audience: {},
-				body: "b",
 				category: "product_updates",
 				createdBy: "u1",
-				headline: "h",
+				html: "<p>Launch</p>",
 				name: "Launch",
 				preheader: "p",
 				resendBroadcastId: "bc_1",

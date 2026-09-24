@@ -4,16 +4,9 @@ import {
 	mailCampaignRecipients,
 	mailCampaigns,
 } from "@edgecoms/db/schema/mail";
-import { renderMinimalHtml } from "@edgecoms/mail/minimal";
-import { RESEND_UNSUBSCRIBE_URL, renderText } from "@edgecoms/mail/render";
 import { and, eq, gte, isNull, lt, sql } from "drizzle-orm";
-import { brandFor, campaignContent } from "@/emails/templates";
-import {
-	type AppWithSettings,
-	fromHeader,
-	identityOf,
-	listAppsWithSettings,
-} from "../apps/identity";
+import { htmlToText } from "@/emails/campaign-html";
+import { fromHeader, listAppsWithSettings } from "../apps/identity";
 import type { ImportState } from "../resend";
 import { type Category, resolveRecipients } from "./audience";
 
@@ -238,14 +231,12 @@ export async function startSend(
 	}
 }
 
-/** The broadcast's HTML and text: the same render the composer previews. */
-export function renderCampaign(campaign: Campaign, app: AppWithSettings) {
-	const content = campaignContent(campaign, app.name);
-	const brand = brandFor(identityOf(app), RESEND_UNSUBSCRIBE_URL);
-	return {
-		html: renderMinimalHtml(content, brand),
-		text: renderText(content, brand),
-	};
+/**
+ * The broadcast's HTML is the pasted email, as-is (it was checked on save);
+ * the plain-text part is derived from it.
+ */
+export function renderCampaign(campaign: Campaign) {
+	return { html: campaign.html, text: htmlToText(campaign.html) };
 }
 
 async function createBroadcastOnce(
@@ -285,7 +276,7 @@ async function createBroadcastOnce(
 		if (!app?.settings) {
 			throw new Error("The app has no sender configured.");
 		}
-		const { html, text } = renderCampaign(campaign, app);
+		const { html, text } = renderCampaign(campaign);
 		const broadcastId = await gateway.createBroadcast({
 			from: fromHeader(app.settings),
 			html,

@@ -127,6 +127,20 @@
       "when": 1790228060616,
       "tag": "0017_mail_preferences_set_at",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1790237110440,
+      "tag": "0018_mail_campaign_html",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1790237110951,
+      "tag": "0019_mail_campaign_drop_fields",
+      "breakpoints": true
     }
   ]
 }

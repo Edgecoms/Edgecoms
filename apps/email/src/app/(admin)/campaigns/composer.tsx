@@ -1,7 +1,5 @@
 "use client";
 
-import { renderMinimalHtml } from "@edgecoms/mail/minimal";
-import { RESEND_UNSUBSCRIBE_URL } from "@edgecoms/mail/render";
 import { Button } from "@edgecoms/ui/components/button";
 import { Label } from "@edgecoms/ui/components/label";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -9,30 +7,26 @@ import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { type ReactNode, useId, useState } from "react";
 import { toast } from "sonner";
-import { brandFor, campaignContent } from "@/emails/templates";
+import {
+	byteSize,
+	claudePrompt,
+	GMAIL_CLIP_BYTES,
+	htmlProblem,
+	withoutPlaceholders,
+} from "@/emails/campaign-html";
 import { count as formatCount } from "@/lib/format";
 import { queryClient, trpc } from "@/utils/trpc";
 import { AudienceFields } from "./audience-fields";
 import { SendDialog } from "./send-dialog";
 import {
-	AREA,
 	CAMPAIGN_TYPES,
 	CATEGORY_LABEL,
 	type CampaignForm,
 	type CampaignType,
+	CODE_AREA,
 	EMPTY_FORM,
 	FIELD,
 } from "./shared";
-
-/** Example copy, shown as a placeholder: short, specific, one idea per paragraph. */
-const SAMPLE_BODY = [
-	"Your cart can now choose the upsell for you. Set a rule once, like showing the travel case whenever a suitcase is in the cart, and every shopper sees the add-on that fits.",
-	"It takes about two minutes to set up, and each rule shows what it has earned on the same screen.",
-].join("\n\n");
-
-function nullIfEmpty(value: string): string | null {
-	return value.trim() === "" ? null : value;
-}
 
 function Field({
 	children,
@@ -40,7 +34,7 @@ function Field({
 	label,
 }: {
 	children: (id: string) => ReactNode;
-	hint?: string;
+	hint?: ReactNode;
 	label: string;
 }) {
 	const id = useId();
@@ -55,10 +49,103 @@ function Field({
 	);
 }
 
+/** The pasted email, with what is wrong with it and the brief for Claude. */
+function HtmlField({
+	app,
+	onChange,
+	value,
+}: {
+	app: { logoUrl: string | null; name: string } | null;
+	onChange: (html: string) => void;
+	value: string;
+}) {
+	const problem = value.trim() === "" ? null : htmlProblem(value);
+	const size = byteSize(value);
+
+	async function copyPrompt() {
+		try {
+			await navigator.clipboard.writeText(
+				claudePrompt(app?.name ?? "an Edge app", app?.logoUrl ?? null)
+			);
+			toast.success(
+				"Prompt copied. Add what the email is about, then paste it into Claude."
+			);
+		} catch {
+			toast.error("Could not copy. Your browser blocked the clipboard.");
+		}
+	}
+
+	return (
+		<>
+			<Field
+				hint={
+					<>
+						Paste the full HTML. It is sent exactly as pasted.{" "}
+						<button
+							className="text-primary-foreground underline underline-offset-4"
+							onClick={copyPrompt}
+							type="button"
+						>
+							Copy prompt for Claude
+						</button>
+					</>
+				}
+				label="Email HTML"
+			>
+				{(id) => (
+					<textarea
+						className={CODE_AREA}
+						id={id}
+						onChange={(event) => onChange(event.target.value)}
+						placeholder="<!doctype html>…"
+						spellCheck={false}
+						value={value}
+					/>
+				)}
+			</Field>
+			{problem ? (
+				<p className="rounded-lg border border-rose-300 bg-rose-50 p-3 text-body-sm text-rose-800">
+					{problem}
+				</p>
+			) : null}
+			{size > GMAIL_CLIP_BYTES ? (
+				<p className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-amber-900 text-body-sm">
+					This email is {Math.round(size / 1000)} KB. Gmail hides anything past
+					102 KB behind "View entire message".
+				</p>
+			) : null}
+		</>
+	);
+}
+
+/** The email as it will arrive, in a sandbox: nothing in it can run. */
+function EmailPreview({ html, subject }: { html: string; subject: string }) {
+	return (
+		<div className="flex flex-col gap-2 lg:sticky lg:top-6 lg:self-start">
+			<p className="text-body-sm text-secondary-foreground">
+				Subject:{" "}
+				<span className="text-primary-foreground">{subject || "-"}</span>
+			</p>
+			{html.trim() === "" ? (
+				<div className="flex h-[720px] items-center justify-center rounded-xl border border-border-strong border-dashed bg-white text-body-sm text-secondary-foreground">
+					The preview appears when you paste the HTML.
+				</div>
+			) : (
+				<iframe
+					className="h-[720px] w-full rounded-xl border border-border-strong bg-white"
+					sandbox=""
+					srcDoc={withoutPlaceholders(html)}
+					title="Email preview"
+				/>
+			)}
+		</div>
+	);
+}
+
 /**
- * Structured fields and a live preview. The preview is rendered in the
- * browser by the SAME layout code the send uses, so what is shown is what
- * goes out.
+ * Paste the email, see it exactly as it will arrive, choose who gets it.
+ * The HTML is written elsewhere (the "Copy prompt for Claude" brief keeps it
+ * email-safe); this checks it and never changes it.
  */
 export function Composer({
 	campaign,
@@ -88,7 +175,6 @@ export function Composer({
 		setDirty(true);
 	}
 
-	const payload = { ...form, appId };
 	const onError = (error: { message: string }) => toast.error(error.message);
 	const create = useMutation(
 		trpc.campaigns.create.mutationOptions({
@@ -116,25 +202,13 @@ export function Composer({
 		})
 	);
 
-	const preview = app
-		? renderMinimalHtml(
-				campaignContent(
-					{
-						body: form.body,
-						ctaLabel: nullIfEmpty(form.ctaLabel),
-						ctaUrl: nullIfEmpty(form.ctaUrl),
-						eyebrow: nullIfEmpty(form.eyebrow),
-						headline: form.headline || "Your headline",
-						preheader: form.preheader,
-						subject: form.subject,
-					},
-					app.name
-				),
-				brandFor(app.identity, RESEND_UNSUBSCRIBE_URL)
-			)
-		: "";
-
 	const count = recipients.data?.count;
+	const canSave =
+		dirty &&
+		appId !== "" &&
+		htmlProblem(form.html) === null &&
+		!create.isPending &&
+		!save.isPending;
 	const canSend =
 		campaign !== undefined && !dirty && campaign.tested && (count ?? 0) > 0;
 
@@ -144,6 +218,7 @@ export function Composer({
 				className="flex flex-col gap-5"
 				onSubmit={(event) => {
 					event.preventDefault();
+					const payload = { ...form, appId };
 					if (campaign) {
 						save.mutate({ ...payload, id: campaign.id });
 					} else {
@@ -164,7 +239,14 @@ export function Composer({
 					)}
 				</Field>
 				<div className="grid gap-5 sm:grid-cols-2">
-					<Field label="App">
+					<Field
+						hint={
+							configured.length === 0
+								? "Save a sender for an app on the Apps page first."
+								: undefined
+						}
+						label="App"
+					>
 						{(id) => (
 							<select
 								className={FIELD}
@@ -216,7 +298,10 @@ export function Composer({
 						/>
 					)}
 				</Field>
-				<Field label="Preview text">
+				<Field
+					hint="The line inboxes show beside the subject."
+					label="Preview text"
+				>
 					{(id) => (
 						<input
 							className={FIELD}
@@ -227,73 +312,12 @@ export function Composer({
 						/>
 					)}
 				</Field>
-				<div className="grid gap-5 sm:grid-cols-2">
-					<Field label="Eyebrow (optional)">
-						{(id) => (
-							<input
-								className={FIELD}
-								id={id}
-								onChange={(event) => update({ eyebrow: event.target.value })}
-								placeholder="New feature"
-								value={form.eyebrow}
-							/>
-						)}
-					</Field>
-					<Field label="Headline">
-						{(id) => (
-							<input
-								className={FIELD}
-								id={id}
-								onChange={(event) => update({ headline: event.target.value })}
-								placeholder="Smart Upsells are here"
-								required
-								value={form.headline}
-							/>
-						)}
-					</Field>
-				</div>
-				<Field
-					hint={
-						'A blank line starts a new paragraph. "The <app> team" is added after the button.'
-					}
-					label="Body"
-				>
-					{(id) => (
-						<textarea
-							className={AREA}
-							id={id}
-							onChange={(event) => update({ body: event.target.value })}
-							placeholder={SAMPLE_BODY}
-							required
-							value={form.body}
-						/>
-					)}
-				</Field>
-				<div className="grid gap-5 sm:grid-cols-2">
-					<Field label="Button text">
-						{(id) => (
-							<input
-								className={FIELD}
-								id={id}
-								onChange={(event) => update({ ctaLabel: event.target.value })}
-								placeholder="Try Smart Upsells →"
-								value={form.ctaLabel}
-							/>
-						)}
-					</Field>
-					<Field label="Button link (https)">
-						{(id) => (
-							<input
-								className={FIELD}
-								id={id}
-								onChange={(event) => update({ ctaUrl: event.target.value })}
-								placeholder="https://"
-								type="url"
-								value={form.ctaUrl}
-							/>
-						)}
-					</Field>
-				</div>
+
+				<HtmlField
+					app={app ? { logoUrl: app.identity.logoUrl, name: app.name } : null}
+					onChange={(html) => update({ html })}
+					value={form.html}
+				/>
 
 				<AudienceFields
 					audience={form.audience}
@@ -317,9 +341,7 @@ export function Composer({
 
 				<div className="flex flex-wrap items-center gap-3">
 					<Button
-						disabled={
-							!dirty || create.isPending || save.isPending || appId === ""
-						}
+						disabled={!canSave}
 						size="lg"
 						type="submit"
 						variant={campaign ? "secondary" : "primary"}
@@ -356,18 +378,7 @@ export function Composer({
 				) : null}
 			</form>
 
-			<div className="flex flex-col gap-2 lg:sticky lg:top-6 lg:self-start">
-				<p className="text-body-sm text-secondary-foreground">
-					Subject:{" "}
-					<span className="text-primary-foreground">{form.subject || "-"}</span>
-				</p>
-				<iframe
-					className="h-[720px] w-full rounded-xl border border-border-strong bg-white"
-					sandbox=""
-					srcDoc={preview}
-					title="Email preview"
-				/>
-			</div>
+			<EmailPreview html={form.html} subject={form.subject} />
 
 			{campaign && count !== undefined ? (
 				<SendDialog

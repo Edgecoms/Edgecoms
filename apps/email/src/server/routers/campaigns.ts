@@ -5,10 +5,14 @@ import {
 	mailCampaignType,
 	mailEmailEvents,
 } from "@edgecoms/db/schema/mail";
-import { RESEND_UNSUBSCRIBE_URL } from "@edgecoms/mail/render";
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { z } from "zod";
+import {
+	htmlProblem,
+	MAX_HTML_LENGTH,
+	withoutPlaceholders,
+} from "@/emails/campaign-html";
 import { fromHeader, identityOf, listAppsWithSettings } from "../apps/identity";
 import {
 	audienceSchema,
@@ -43,30 +47,19 @@ export const CATEGORY_FOR_TYPE: Record<CampaignType, Category> = {
 	winback: "marketing",
 };
 
-const WEB_ADDRESS = /^https:\/\/\S+$/i;
-
-const optionalText = (max: number) =>
-	z
-		.string()
-		.trim()
-		.max(max)
-		.transform((value) => (value === "" ? null : value));
-
 export const campaignFields = z.object({
 	appId: z.uuid(),
 	audience: audienceSchema,
-	body: z.string().trim().min(1).max(5000),
-	ctaLabel: optionalText(60),
-	ctaUrl: z
+	/** The whole email, pasted. Must carry the unsubscribe placeholder. */
+	html: z
 		.string()
-		.trim()
-		.max(500)
-		.refine((value) => value === "" || WEB_ADDRESS.test(value), {
-			message: "Must start with https://",
-		})
-		.transform((value) => (value === "" ? null : value)),
-	eyebrow: optionalText(60),
-	headline: z.string().trim().min(1).max(200),
+		.max(MAX_HTML_LENGTH)
+		.superRefine((value, context) => {
+			const problem = htmlProblem(value);
+			if (problem) {
+				context.addIssue({ code: "custom", message: problem });
+			}
+		}),
 	name: z.string().trim().min(1).max(120),
 	preheader: z.string().trim().max(200),
 	subject: z.string().trim().min(1).max(200),
@@ -260,17 +253,17 @@ export function createCampaignsRouter(gateway: CampaignGateway) {
 					});
 				}
 				const app = await configuredApp(ctx.db, campaign.appId);
-				const { html, text } = renderCampaign(campaign, app);
+				const { html, text } = renderCampaign(campaign);
 				const to = ctx.session.user.email;
 				try {
 					// The test goes to the admin who asked; Resend fills the
 					// unsubscribe placeholder only in a broadcast.
 					await sendTestEmail({
 						from: fromHeader(app.settings),
-						html: html.replaceAll(RESEND_UNSUBSCRIBE_URL, "#"),
+						html: withoutPlaceholders(html),
 						replyTo: app.settings.replyTo,
 						subject: `[Test] ${campaign.subject}`,
-						text: text.replaceAll(RESEND_UNSUBSCRIBE_URL, "#"),
+						text: withoutPlaceholders(text),
 						to,
 					});
 				} catch (error) {
@@ -348,14 +341,10 @@ export function createCampaignsRouter(gateway: CampaignGateway) {
 					.values({
 						appId: source.appId,
 						audience: source.audience,
-						body: source.body,
 						category: source.category,
 						contentUpdatedAt: new Date(),
 						createdBy: ctx.session.user.id,
-						ctaLabel: source.ctaLabel,
-						ctaUrl: source.ctaUrl,
-						eyebrow: source.eyebrow,
-						headline: source.headline,
+						html: source.html,
 						name: `${source.name} (copy)`,
 						preheader: source.preheader,
 						subject: source.subject,

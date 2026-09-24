@@ -30,11 +30,7 @@ export default function CampaignPage() {
 						form: {
 							appId: campaign.appId,
 							audience: campaign.audience,
-							body: campaign.body,
-							ctaLabel: campaign.ctaLabel ?? "",
-							ctaUrl: campaign.ctaUrl ?? "",
-							eyebrow: campaign.eyebrow ?? "",
-							headline: campaign.headline,
+							html: campaign.html,
 							name: campaign.name,
 							preheader: campaign.preheader,
 							subject: campaign.subject,

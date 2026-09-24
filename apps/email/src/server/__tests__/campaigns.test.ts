@@ -264,6 +264,9 @@ describe("audience", () => {
 	});
 });
 
+const EMAIL_HTML =
+	'<!doctype html><html><body><p>Save 30%</p><a href="{{{RESEND_UNSUBSCRIBE_URL}}}">Unsubscribe</a></body></html>';
+
 async function draft(
 	overrides: Partial<typeof mailCampaigns.$inferInsert> = {}
 ) {
@@ -272,10 +275,9 @@ async function draft(
 		.values({
 			appId: cartId,
 			audience: {},
-			body: "Body",
 			category: "marketing",
 			createdBy: "admin-1",
-			headline: "Save 30%",
+			html: EMAIL_HTML,
 			name: "September offer",
 			preheader: "p",
 			subject: "Save 30% on Edge Cart",
@@ -330,11 +332,7 @@ describe("starting a send", () => {
 		await caller.campaigns.update({
 			appId: cartId,
 			audience: {},
-			body: "New body",
-			ctaLabel: "",
-			ctaUrl: "",
-			eyebrow: "",
-			headline: row?.headline ?? "",
+			html: EMAIL_HTML.replace("Save 30%", "Save 40%"),
 			id,
 			name: row?.name ?? "",
 			preheader: "p",
@@ -492,6 +490,56 @@ describe("advancing a send", () => {
 		expect(await cancelCampaign(testDb.db, resend.gateway, id)).toBe(
 			"not_cancellable"
 		);
+	});
+});
+
+describe("pasted HTML", () => {
+	function admin() {
+		return createCallerFactory(
+			router({ campaigns: createCampaignsRouter(stub().gateway) })
+		)({
+			db: testDb.db,
+			session: {
+				user: { email: "admin@edgecoms.app", id: "admin-1", role: "admin" },
+			},
+		} as unknown as Context);
+	}
+	const fields = {
+		appId: "",
+		audience: {},
+		name: "Launch",
+		preheader: "p",
+		subject: "s",
+		type: "product_update" as const,
+	};
+
+	test("is refused without Resend's unsubscribe link", async () => {
+		await expect(
+			admin().campaigns.create({
+				...fields,
+				appId: cartId,
+				html: "<p>No way out</p>",
+			})
+		).rejects.toMatchObject({ code: "BAD_REQUEST" });
+	});
+
+	test("is refused with a script in it", async () => {
+		await expect(
+			admin().campaigns.create({
+				...fields,
+				appId: cartId,
+				html: `${EMAIL_HTML}<script>alert(1)</script>`,
+			})
+		).rejects.toMatchObject({ code: "BAD_REQUEST" });
+	});
+
+	test("is stored and sent exactly as pasted", async () => {
+		const { id } = await admin().campaigns.create({
+			...fields,
+			appId: cartId,
+			html: EMAIL_HTML,
+		});
+		expect((await campaign(id))?.html).toBe(EMAIL_HTML);
 	});
 });
 

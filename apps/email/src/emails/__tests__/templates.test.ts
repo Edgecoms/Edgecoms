@@ -9,7 +9,6 @@ import { hostedIconUrl, MAIL_APP_SLUGS } from "../../server/apps/identity";
 import {
 	type AppIdentity,
 	brandFor,
-	campaignContent,
 	LIFECYCLE_TEMPLATES,
 	lifecycleContent,
 	previewVariables,
@@ -136,33 +135,5 @@ describe("brand", () => {
 	test("falls back to the read inbox when the app has no support page", () => {
 		expect(brandFor(unconfigured).contact).toBe(PARTNER_CONTACT_EMAIL);
 		expect(brandFor(configured).contact).toBe("https://edgecoms.app/support");
-	});
-});
-
-describe("campaign content", () => {
-	const copy = {
-		body: "First paragraph.\n\nSecond paragraph.\n\n\n",
-		ctaLabel: "Try it",
-		ctaUrl: "https://edgecoms.app/x",
-		eyebrow: "New feature",
-		headline: "Smart Upsells are here",
-		preheader: "p",
-		subject: "s",
-	};
-
-	test("body, then the button, then the app's sign-off", () => {
-		const content = campaignContent(copy, "Edge Cart");
-		expect(content.eyebrow).toBe("New feature");
-		expect(content.blocks).toEqual([
-			{ kind: "paragraph", text: "First paragraph." },
-			{ kind: "paragraph", text: "Second paragraph." },
-			{ kind: "button", label: "Try it", url: "https://edgecoms.app/x" },
-			{ kind: "paragraph", text: "The Edge Cart team" },
-		]);
-	});
-
-	test("has no button without both a label and a link", () => {
-		const content = campaignContent({ ...copy, ctaUrl: null });
-		expect(content.blocks.some((block) => block.kind === "button")).toBe(false);
 	});
 });

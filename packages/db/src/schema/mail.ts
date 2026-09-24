@@ -243,11 +243,11 @@ export const mailCampaigns = pgTable(
 			.references(() => apps.id, { onDelete: "restrict" }),
 		subject: text("subject").notNull(),
 		preheader: text("preheader").notNull(),
-		eyebrow: text("eyebrow"),
-		headline: text("headline").notNull(),
-		body: text("body").notNull(),
-		ctaLabel: text("cta_label"),
-		ctaUrl: text("cta_url"),
+		/**
+		 * The whole email, as pasted by the admin: sent as-is. It must carry
+		 * Resend's unsubscribe placeholder (checked on save).
+		 */
+		html: text("html").notNull().default(""),
 		audience: jsonb("audience").$type<MailAudience>().notNull(),
 		status: mailCampaignStatus("status").default("draft").notNull(),
 		/** A send requires a test sent AFTER the last content change. */

@@ -17,6 +17,8 @@ import type { Block, EmailBrand, EmailContent } from "@edgecoms/mail/render";
 export interface AppIdentity {
 	appUrl: string | null;
 	brandColor: string | null;
+	/** An https PNG. Defaults to the icon Edge Mail hosts (see apps/identity). */
+	logoUrl: string | null;
 	name: string;
 	reviewUrl: string | null;
 	slug: string;
@@ -103,6 +105,7 @@ export function brandFor(app: AppIdentity, manageUrl?: string): EmailBrand {
 		// read otherwise.
 		contact: app.supportUrl ?? PARTNER_CONTACT_EMAIL,
 		footer: `${app.name} by Edge, edgecoms.app`,
+		logoUrl: app.logoUrl ?? undefined,
 		manageUrl,
 		name: app.name,
 	};

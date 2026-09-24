@@ -1,6 +1,7 @@
 import type { Database } from "@edgecoms/db";
 import { apps } from "@edgecoms/db/schema/apps";
 import { mailAppSettings } from "@edgecoms/db/schema/mail";
+import { env } from "@edgecoms/env/mail";
 import { asc, eq } from "drizzle-orm";
 import type { AppIdentity } from "@/emails/templates";
 
@@ -34,11 +35,36 @@ export function fromHeader(settings: {
 	return `${settings.senderName} <${settings.senderEmail}>`;
 }
 
+/**
+ * Apps whose icon Edge Mail serves itself, from `apps/email/public/app-icons`,
+ * as a 200px PNG (email clients cannot rely on WebP). Hosted by the SENDER on
+ * purpose: an image in a sent email must keep resolving for years, so it
+ * should not move when the marketing site does.
+ */
+const HOSTED_ICONS = new Set([
+	"edge-bundles",
+	"edge-cart",
+	"edge-currency",
+	"edge-reviews",
+	"edge-subscriptions",
+	"edge-timer",
+]);
+
+/** The hosted icon's public address, or null when this deploy has no URL set. */
+export function hostedIconUrl(slug: string): string | null {
+	if (!(HOSTED_ICONS.has(slug) && env.EDGE_MAIL_URL)) {
+		return null;
+	}
+	return new URL(`/app-icons/${slug}.png`, env.EDGE_MAIL_URL).toString();
+}
+
 /** What a template needs to know about an app, configured or not. */
 export function identityOf(app: AppWithSettings): AppIdentity {
 	return {
 		appUrl: app.settings?.appUrl ?? null,
 		brandColor: app.settings?.brandColor ?? null,
+		// An uploaded logo wins; otherwise the icon hosted here.
+		logoUrl: app.settings?.logoUrl ?? hostedIconUrl(app.slug),
 		name: app.name,
 		reviewUrl: app.settings?.reviewUrl ?? null,
 		slug: app.slug,

@@ -77,6 +77,31 @@ describe("minimal layout", () => {
 	});
 });
 
+describe("the app icon", () => {
+	test("replaces the wordmark when it is a web address, with the name as alt text", () => {
+		const html = renderMinimalHtml(CONTENT, {
+			...BRAND,
+			logoUrl: "https://email.edgecoms.app/app-icons/edge-cart.png",
+		});
+		expect(html).toContain(
+			'<img src="https://email.edgecoms.app/app-icons/edge-cart.png" width="48" height="48" alt="Edge Cart"'
+		);
+		expect(html).not.toContain("Edge<br>Cart");
+	});
+
+	test("anything else never becomes an image", () => {
+		for (const logoUrl of [
+			"javascript:alert(1)",
+			'" onerror="alert(1)',
+			"icon.png",
+		]) {
+			const html = renderMinimalHtml(CONTENT, { ...BRAND, logoUrl });
+			expect(html).not.toContain("<img");
+			expect(html).toContain("Edge<br>Cart");
+		}
+	});
+});
+
 describe("the link block", () => {
 	test("renders in the card layout too, and in plain text", () => {
 		expect(renderHtml(CONTENT)).toContain(">Get setup help</a>");

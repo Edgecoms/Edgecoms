@@ -32,7 +32,12 @@ const FIELDS = [
 		"url",
 		"https://apps.shopify.com/...#reviews",
 	],
-	["logoUrl", "Logo URL (optional)", "url", ""],
+	[
+		"logoUrl",
+		"Logo URL (empty uses the built-in icon)",
+		"url",
+		"https://…/icon.png",
+	],
 ] as const;
 
 export function AppSettingsForm({

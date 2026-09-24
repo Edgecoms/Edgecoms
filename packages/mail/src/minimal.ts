@@ -174,7 +174,22 @@ function blockRows(blocks: readonly Block[], accent: string): string {
 	return rows;
 }
 
-/** "Edge Cart" set as a small bordered mark, one word per line. */
+const LOGO_SIZE = 48;
+
+/**
+ * The app icon when there is one, else the name as a small bordered mark,
+ * one word per line. The icon carries the name as alt text, which is what
+ * shows when a client blocks images.
+ */
+function mark(brand: EmailBrand): string {
+	const src = brand.logoUrl ? webAddress(brand.logoUrl) : null;
+	if (!src) {
+		return wordmark(brand.name);
+	}
+	const style = `display:block;border:0;outline:none;text-decoration:none;width:${LOGO_SIZE}px;height:${LOGO_SIZE}px;border-radius:12px;`;
+	return `<img src="${escapeHtml(src)}" width="${LOGO_SIZE}" height="${LOGO_SIZE}" alt="${escapeHtml(brand.name)}" style="${style}">`;
+}
+
 function wordmark(name: string): string {
 	const words = name.trim().split(WHITESPACE).map(escapeHtml).join("<br>");
 	const style = `padding:6px 9px;font-family:${MONO};font-size:10px;line-height:13px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:${INK.heading};text-align:center;`;
@@ -187,7 +202,7 @@ function header(content: EmailContent, brand: EmailBrand): string {
 		: "";
 	const headingTop = content.eyebrow ? 8 : 28;
 	const heading = `<tr><td align="center" style="padding-top:${headingTop}px;"><h1 class="h1" style="${type(22, 30, INK.heading, "font-weight:600;letter-spacing:-0.3px;text-align:center;text-wrap:balance;")}">${escapeHtml(content.heading)}</h1></td></tr>`;
-	return `<tr><td align="center">${wordmark(brand.name)}</td></tr>${eyebrow}${heading}`;
+	return `<tr><td align="center">${mark(brand)}</td></tr>${eyebrow}${heading}`;
 }
 
 function footer(brand: EmailBrand): string {

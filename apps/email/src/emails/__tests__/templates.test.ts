@@ -1,8 +1,11 @@
 /// <reference types="bun" />
 import { describe, expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { PARTNER_CONTACT_EMAIL } from "@edgecoms/mail/contact";
 import { renderMinimalHtml } from "@edgecoms/mail/minimal";
 import { renderText } from "@edgecoms/mail/render";
+import { hostedIconUrl } from "../../server/apps/identity";
 import {
 	type AppIdentity,
 	brandFor,
@@ -12,6 +15,8 @@ import {
 	previewVariables,
 	TEMPLATE_VARIABLES,
 } from "../templates";
+
+process.env.EDGE_MAIL_URL = "https://email.edgecoms.app";
 
 const EM_DASH = "—";
 const SIX_APPS = [
@@ -26,6 +31,7 @@ const SIX_APPS = [
 const unconfigured: AppIdentity = {
 	appUrl: null,
 	brandColor: null,
+	logoUrl: null,
 	name: "Edge Cart",
 	reviewUrl: null,
 	slug: "edge-cart",
@@ -35,6 +41,7 @@ const unconfigured: AppIdentity = {
 const configured: AppIdentity = {
 	appUrl: "https://admin.shopify.com/apps/edge-cart",
 	brandColor: "#2255ff",
+	logoUrl: "https://email.edgecoms.app/app-icons/edge-cart.png",
 	name: "Edge Cart",
 	reviewUrl: "https://apps.shopify.com/edge-cart#reviews",
 	slug: "edge-cart",
@@ -101,6 +108,33 @@ describe("lifecycle templates", () => {
 		);
 		expect(html).toContain("Hi there,");
 		expect(html).not.toContain("{{{");
+	});
+});
+
+describe("app icon", () => {
+	test("the header shows the app's icon, and the name when there is none", () => {
+		const content = lifecycleContent("welcome", configured);
+		expect(renderMinimalHtml(content, brandFor(configured))).toContain(
+			'<img src="https://email.edgecoms.app/app-icons/edge-cart.png" width="48" height="48" alt="Edge Cart"'
+		);
+		const plain = renderMinimalHtml(content, brandFor(unconfigured));
+		expect(plain).not.toContain("<img");
+		expect(plain).toContain("Edge<br>Cart");
+	});
+
+	test("every hosted icon exists as a real PNG, so no email links a missing image", () => {
+		const PNG = [0x89, 0x50, 0x4e, 0x47];
+		for (const slug of SIX_APPS) {
+			const url = hostedIconUrl(slug);
+			expect(url).toBe(`https://email.edgecoms.app/app-icons/${slug}.png`);
+			const file = join(
+				import.meta.dir,
+				"../../../public/app-icons",
+				`${slug}.png`
+			);
+			expect([...readFileSync(file).subarray(0, 4)]).toEqual(PNG);
+		}
+		expect(hostedIconUrl("not-an-app")).toBeNull();
 	});
 });
 

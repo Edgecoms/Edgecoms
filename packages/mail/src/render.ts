@@ -149,6 +149,12 @@ export interface EmailBrand {
 	contact: string;
 	/** The second footer line, like "Edge Partners, edgecoms.app". */
 	footer: string;
+	/**
+	 * The app's icon: a web address of a PNG, shown at 48px. Minimal layout
+	 * only (the card shows the wordmark), and never a WebP: Outlook cannot
+	 * display one.
+	 */
+	logoUrl?: string;
 	/** An unsubscribe or preferences link: a web address, or Resend's placeholder. */
 	manageUrl?: string;
 	name: string;

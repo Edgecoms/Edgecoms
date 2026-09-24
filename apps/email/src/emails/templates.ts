@@ -138,14 +138,30 @@ export const LIFECYCLE_TEMPLATES = [
 
 export type LifecycleTemplate = (typeof LIFECYCLE_TEMPLATES)[number];
 
-/** What starts each one in Resend. Shown on the Templates page. */
-export const LIFECYCLE_TRIGGERS: Record<LifecycleTemplate, string> = {
-	welcome: "app.installed",
-	"setup-reminder": "app.installed, then no setup.completed within 24 hours",
-	activation: "app.activated",
-	uninstall: "app.uninstalled",
-	"review-request": "milestone.first_value",
+/**
+ * What starts each one in Resend. `unless`: wait that long for that event
+ * from the same app, and send only if it never comes.
+ */
+export const LIFECYCLE_TRIGGERS: Record<
+	LifecycleTemplate,
+	{ event: string; unless?: { event: string; within: string } }
+> = {
+	welcome: { event: "app.installed" },
+	"setup-reminder": {
+		event: "app.installed",
+		unless: { event: "setup.completed", within: "24 hours" },
+	},
+	activation: { event: "app.activated" },
+	uninstall: { event: "app.uninstalled" },
+	"review-request": { event: "milestone.first_value" },
 };
+
+export function triggerLabel(template: LifecycleTemplate): string {
+	const { event, unless } = LIFECYCLE_TRIGGERS[template];
+	return unless
+		? `${event}, then no ${unless.event} within ${unless.within}`
+		: event;
+}
 
 export const LIFECYCLE_NAMES: Record<LifecycleTemplate, string> = {
 	welcome: "Welcome",

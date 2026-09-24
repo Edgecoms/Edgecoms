@@ -9,7 +9,18 @@ import {
 import { isTestMode, env as mailEnv } from "@edgecoms/env/mail";
 import { env } from "@edgecoms/env/server";
 import { eq } from "drizzle-orm";
-import { Resend, type WebhookEventPayload } from "resend";
+import {
+	type AutomationConnection,
+	type AutomationStep,
+	type CreateAutomationOptions,
+	Resend,
+	type WebhookEventPayload,
+} from "resend";
+import {
+	LIFECYCLE_TRIGGERS,
+	LIFECYCLE_VARIABLES,
+	type LifecycleTemplate,
+} from "../emails/templates";
 import { linksOf } from "./apps/identity";
 import type { ResendSync, SyncEvent } from "./events/ingest";
 import { preferencesUrl } from "./preferences/token";
@@ -441,6 +452,110 @@ export async function upsertTemplate(template: {
 		throw new Error(`publish ${template.alias}: ${published.error.message}`);
 	}
 	return outcome;
+}
+
+type LifecycleAutomation = Pick<
+	CreateAutomationOptions,
+	"connections" | "steps"
+>;
+
+/**
+ * One lifecycle email as a Resend automation. Every app sends the same event
+ * names, so the `app_slug` filter is what keeps Edge Cart's welcome from
+ * going to an Edge Timer install. `unless` waits for a cancelling event from
+ * the same app and sends only on timeout.
+ */
+export function lifecycleAutomation(
+	slug: string,
+	template: LifecycleTemplate,
+	from: string
+): LifecycleAutomation {
+	const { event, unless } = LIFECYCLE_TRIGGERS[template];
+	const thisApp = {
+		field: "event.app_slug",
+		operator: "eq",
+		type: "rule",
+		value: slug,
+	} as const;
+	const send: AutomationStep = {
+		config: {
+			from,
+			template: {
+				id: `${slug}-${template}`,
+				variables: Object.fromEntries(
+					LIFECYCLE_VARIABLES.map((variable) => [
+						variable.key,
+						{ var: variable.from },
+					])
+				),
+			},
+		},
+		key: "send",
+		type: "send_email",
+	};
+	const start: AutomationStep[] = [
+		{ config: { eventName: event }, key: "start", type: "trigger" },
+		{ config: thisApp, key: "this_app", type: "condition" },
+	];
+	const toApp: AutomationConnection = { from: "start", to: "this_app" };
+	if (!unless) {
+		return {
+			connections: [
+				toApp,
+				{ from: "this_app", to: "send", type: "condition_met" },
+			],
+			steps: [...start, send],
+		};
+	}
+	return {
+		connections: [
+			toApp,
+			{ from: "this_app", to: "wait", type: "condition_met" },
+			{ from: "wait", to: "send", type: "timeout" },
+		],
+		steps: [
+			...start,
+			{
+				config: {
+					eventName: unless.event,
+					filterRule: thisApp,
+					timeout: unless.within,
+				},
+				key: "wait",
+				type: "wait_for_event",
+			},
+			send,
+		],
+	};
+}
+
+let automationCache: Promise<Map<string, string>> | null = null;
+
+/**
+ * Creates or updates one automation by name, enabled. In test mode that is
+ * safe: every event is sent as the test inbox, so that is who it emails.
+ */
+export async function upsertAutomation(
+	name: string,
+	automation: LifecycleAutomation
+): Promise<"created" | "updated"> {
+	const resend = requireClient();
+	automationCache ??= resend.automations
+		.list({ limit: 100 })
+		.then((result) => unwrap(result, "list automations"))
+		.then(({ data }) => new Map(data.map((row) => [row.name, row.id])));
+	const id = (await automationCache).get(name);
+	const { error } = id
+		? await resend.automations.update(id, { ...automation, status: "enabled" })
+		: await resend.automations.create({
+				...automation,
+				name,
+				status: "enabled",
+			});
+	if (error) {
+		throw new Error(`automation ${name}: ${error.message}`);
+	}
+	return id ? "updated" : "created";
 }
 
 function requireClient(): Resend {

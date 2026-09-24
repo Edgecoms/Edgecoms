@@ -21,6 +21,7 @@ import {
 	contactProperties,
 	createResendSync,
 	deliveryAddress,
+	lifecycleAutomation,
 } from "../resend";
 import { resendWebhookRoute } from "../webhooks/route";
 
@@ -321,5 +322,61 @@ describe("resend webhook", () => {
 		expect(row?.campaignId).toBe(campaign?.id ?? "");
 		expect(row?.appId).toBe(app.id);
 		expect(row?.contactId).toBe(contact.id);
+	});
+});
+
+describe("lifecycle automations", () => {
+	const FROM = "Edge Cart <updates@edgecoms.app>";
+	const onlyCart = {
+		field: "event.app_slug",
+		operator: "eq",
+		type: "rule",
+		value: "edge-cart",
+	} as const;
+
+	test("welcome sends straight after the app filter, with the variables mapped", () => {
+		const { connections, steps } = lifecycleAutomation(
+			"edge-cart",
+			"welcome",
+			FROM
+		);
+		expect(steps.map((step) => step.config)).toEqual([
+			{ eventName: "app.installed" },
+			onlyCart,
+			{
+				from: FROM,
+				template: {
+					id: "edge-cart-welcome",
+					variables: {
+						GREETING_NAME: { var: "event.first_name" },
+						PREFERENCES_URL: { var: "event.preferences_url" },
+					},
+				},
+			},
+		]);
+		// Another app's install ends at the filter: there is no not-met path.
+		expect(connections).toEqual([
+			{ from: "start", to: "this_app" },
+			{ from: "this_app", to: "send", type: "condition_met" },
+		]);
+	});
+
+	test("the setup reminder sends only if the same app never reports setup", () => {
+		const { connections, steps } = lifecycleAutomation(
+			"edge-cart",
+			"setup-reminder",
+			FROM
+		);
+		expect(steps.find((step) => step.key === "wait")?.config).toEqual({
+			eventName: "setup.completed",
+			filterRule: onlyCart,
+			timeout: "24 hours",
+		});
+		expect(connections).toContainEqual({
+			from: "wait",
+			to: "send",
+			type: "timeout",
+		});
+		expect(connections.some((c) => c.type === "event_received")).toBe(false);
 	});
 });

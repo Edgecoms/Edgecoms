@@ -1,112 +1,92 @@
 import type { Database } from "@edgecoms/db";
 import { apps } from "@edgecoms/db/schema/apps";
-import {
-	mailCampaigns,
-	mailContacts,
-	mailEmailEvents,
-	mailStores,
-} from "@edgecoms/db/schema/mail";
-import { and, desc, eq, gte, inArray, sql } from "drizzle-orm";
+import { mailContacts, mailInstallations } from "@edgecoms/db/schema/mail";
+import { and, asc, eq, gte, inArray, lt, sql } from "drizzle-orm";
+import { MAIL_APP_SLUGS } from "../apps/identity";
 
 /**
- * Delivery analytics from Resend's webhooks. Counts are per EMAIL (distinct
- * Resend email id), so a merchant opening one email five times is one open.
- * Rates are for display only; nothing here is money.
+ * THE DASHBOARD: what only Edge Mail knows, the merchants across every Edge
+ * app. Delivery numbers (sent, opens, clicks, bounces) are Resend's, and its
+ * dashboard shows them better, so they are not repeated here.
  */
 
-export const TRACKED_TYPES = [
-	"email.sent",
-	"email.delivered",
-	"email.opened",
-	"email.clicked",
-	"email.bounced",
-	"email.complained",
-] as const;
+const DAY_MS = 86_400_000;
+export const WINDOW_DAYS = 30;
 
-export type TrackedType = (typeof TRACKED_TYPES)[number];
-export type Counts = Record<TrackedType, number>;
-
-function emptyCounts(): Counts {
-	return Object.fromEntries(TRACKED_TYPES.map((type) => [type, 0])) as Counts;
+/** "YYYY-MM-DD" in UTC, the same day key Postgres produces below. */
+function dayKey(date: Date): string {
+	return date.toISOString().slice(0, 10);
 }
 
-/** `part / whole` as a percentage with one decimal, or null with no base. */
-export function rate(part: number, whole: number): string | null {
-	return whole > 0 ? `${((part / whole) * 100).toFixed(1)}%` : null;
-}
-
-export async function deliveryStats(db: Database, since: Date) {
-	const rows = await db
-		.select({
-			appName: apps.name,
-			count: sql<number>`count(distinct coalesce(${mailEmailEvents.resendEmailId}, ${mailEmailEvents.svixId}))::int`,
-			type: mailEmailEvents.type,
-		})
-		.from(mailEmailEvents)
-		.leftJoin(apps, eq(apps.id, mailEmailEvents.appId))
-		.where(
-			and(
-				gte(mailEmailEvents.occurredAt, since),
-				inArray(mailEmailEvents.type, [...TRACKED_TYPES])
-			)
-		)
-		.groupBy(mailEmailEvents.type, apps.name);
-
-	const totals = emptyCounts();
-	const byApp = new Map<string, Counts>();
-	for (const row of rows) {
-		const type = row.type as TrackedType;
-		totals[type] += row.count;
-		const name = row.appName ?? "Unattributed";
-		const counts = byApp.get(name) ?? emptyCounts();
-		counts[type] += row.count;
-		byApp.set(name, counts);
+/** Change against the previous window, or null when there is nothing to compare. */
+export function change(current: number, previous: number): number | null {
+	if (previous === 0) {
+		return null;
 	}
+	return Math.round(((current - previous) / previous) * 100);
+}
 
-	const [unsubscribes] = await db
-		.select({ count: sql<number>`count(*)::int` })
-		.from(mailEmailEvents)
-		.where(
-			and(
-				gte(mailEmailEvents.occurredAt, since),
-				eq(mailEmailEvents.type, "contact.updated"),
-				sql`${mailEmailEvents.payload}->>'unsubscribed' = 'true'`
-			)
-		);
+export async function overview(db: Database, now = new Date()) {
+	// Whole UTC days: today and the 29 before it, so the headline and the
+	// trend line count exactly the same contacts.
+	const today = Date.UTC(
+		now.getUTCFullYear(),
+		now.getUTCMonth(),
+		now.getUTCDate()
+	);
+	const start = new Date(today - (WINDOW_DAYS - 1) * DAY_MS);
+	const previousStart = new Date(start.getTime() - WINDOW_DAYS * DAY_MS);
+	// Timestamps are stored as UTC wall time, so to_char gives the UTC day.
+	const day = sql<string>`to_char(${mailContacts.createdAt}, 'YYYY-MM-DD')`;
+
+	const [daily, [previous], [totals], byApp] = await Promise.all([
+		db
+			.select({ count: sql<number>`count(*)::int`, day })
+			.from(mailContacts)
+			.where(gte(mailContacts.createdAt, start))
+			.groupBy(day),
+		db
+			.select({ count: sql<number>`count(*)::int` })
+			.from(mailContacts)
+			.where(
+				and(
+					gte(mailContacts.createdAt, previousStart),
+					lt(mailContacts.createdAt, start)
+				)
+			),
+		db
+			.select({
+				contacts: sql<number>`count(*)::int`,
+				reachable: sql<number>`count(*) filter (where ${mailContacts.marketing} and ${mailContacts.suppressedAt} is null)::int`,
+			})
+			.from(mailContacts),
+		db
+			.select({
+				installs: sql<number>`count("mail_installations"."id") filter (where "mail_installations"."status" in ('installed', 'active'))::int`,
+				name: apps.name,
+			})
+			.from(apps)
+			.leftJoin(mailInstallations, eq(mailInstallations.appId, apps.id))
+			.where(inArray(apps.slug, [...MAIL_APP_SLUGS]))
+			.groupBy(apps.name)
+			.orderBy(asc(apps.name)),
+	]);
+
+	const perDay = new Map(daily.map((row) => [row.day, row.count]));
+	const series = Array.from(
+		{ length: WINDOW_DAYS },
+		(_, index) =>
+			perDay.get(dayKey(new Date(start.getTime() + index * DAY_MS))) ?? 0
+	);
+	const newContacts = daily.reduce((sum, row) => sum + row.count, 0);
 
 	return {
-		byApp: [...byApp.entries()]
-			.map(([name, counts]) => ({ counts, name }))
-			.sort((a, b) => b.counts["email.sent"] - a.counts["email.sent"]),
-		totals,
-		unsubscribes: unsubscribes?.count ?? 0,
+		byApp,
+		contacts: totals?.contacts ?? 0,
+		liveInstalls: byApp.reduce((sum, row) => sum + row.installs, 0),
+		newContacts,
+		previousNewContacts: previous?.count ?? 0,
+		reachable: totals?.reachable ?? 0,
+		series,
 	};
-}
-
-export async function audienceTotals(db: Database) {
-	const [contacts] = await db
-		.select({ count: sql<number>`count(*)::int` })
-		.from(mailContacts);
-	const [stores] = await db
-		.select({ count: sql<number>`count(*)::int` })
-		.from(mailStores);
-	return { contacts: contacts?.count ?? 0, stores: stores?.count ?? 0 };
-}
-
-export function recentCampaigns(db: Database, limit = 8) {
-	return db
-		.select({
-			appName: apps.name,
-			id: mailCampaigns.id,
-			name: mailCampaigns.name,
-			recipientCount: mailCampaigns.recipientCount,
-			scheduledAt: mailCampaigns.scheduledAt,
-			sentAt: mailCampaigns.sentAt,
-			status: mailCampaigns.status,
-			updatedAt: mailCampaigns.updatedAt,
-		})
-		.from(mailCampaigns)
-		.innerJoin(apps, eq(apps.id, mailCampaigns.appId))
-		.orderBy(desc(mailCampaigns.updatedAt))
-		.limit(limit);
 }

@@ -289,8 +289,8 @@ mapped from `event.first_name` and `event.preferences_url`. The setup reminder w
 `setup.completed` from the same app and sends only on timeout. Re-running updates them in place, so
 edit `LIFECYCLE_TRIGGERS` and push rather than editing them in the Resend dashboard.
 
-**8. Edge Cart first**, with test mode still ON: copy `apps/email/clients/edge-mail-client.ts` into
-it, set `EDGE_MAIL_APP_ID=edge-cart`, `EDGE_MAIL_URL=https://email.edgecoms.app` and
+**8. Edge Cart first**, with test mode still ON: paste `apps/email/clients/handoff/edge-cart.md` into
+Claude Code in the Edge Cart repo (one hand-off per app, the client embedded). It adds the client, sets `EDGE_MAIL_APP_ID=edge-cart`, `EDGE_MAIL_URL=https://email.edgecoms.app` and
 `EDGE_MAIL_SECRET` (the same value as `EDGE_MAIL_SECRET_EDGE_CART` here). Install on a dev store and
 walk the brief's section 43 checklist; confirm the three unverified Resend points (template
 placeholders, import upsert, automation tags). Nothing reaches a merchant: every message goes to the

@@ -390,3 +390,44 @@ export async function ensureResendSetup(input: {
 	}
 	return created;
 }
+
+/**
+ * Creates or updates one Resend template by its alias, then publishes it, so
+ * a re-run of the push is an update and never a duplicate. Automations pick
+ * templates by these aliases (`<app-slug>-<template>`).
+ */
+export async function upsertTemplate(template: {
+	alias: string;
+	from: string;
+	html: string;
+	name: string;
+	replyTo: string | null;
+	subject: string;
+	text: string;
+}): Promise<"created" | "updated"> {
+	const resend = client();
+	if (!resend) {
+		throw new Error("RESEND_API_KEY is not set.");
+	}
+	const fields = {
+		from: template.from,
+		html: template.html,
+		name: template.name,
+		subject: template.subject,
+		text: template.text,
+		...(template.replyTo ? { replyTo: template.replyTo } : {}),
+	};
+	const existing = await resend.templates.get(template.alias);
+	const outcome = existing.data ? "updated" : "created";
+	const { error } = existing.data
+		? await resend.templates.update(template.alias, fields)
+		: await resend.templates.create({ ...fields, alias: template.alias });
+	if (error) {
+		throw new Error(`template ${template.alias}: ${error.message}`);
+	}
+	const published = await resend.templates.publish(template.alias);
+	if (published.error) {
+		throw new Error(`publish ${template.alias}: ${published.error.message}`);
+	}
+	return outcome;
+}

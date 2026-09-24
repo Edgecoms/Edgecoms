@@ -8,7 +8,8 @@
     "check-types": "tsc --noEmit",
     "start": "next start -H 0.0.0.0",
     "test": "SKIP_ENV_VALIDATION=1 bun test",
-    "resend:setup": "bun --env-file=.env scripts/setup-resend.ts"
+    "resend:setup": "bun --env-file=.env scripts/setup-resend.ts",
+    "resend:push-templates": "bun --env-file=.env scripts/push-templates.ts"
   },
   "dependencies": {
     "@edgecoms/api": "workspace:*",

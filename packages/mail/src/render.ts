@@ -41,6 +41,8 @@ export type Block =
 
 export interface EmailContent {
 	blocks: readonly Block[];
+	/** A short label above the heading, like "NEW FEATURE". */
+	eyebrow?: string;
 	heading: string;
 	/** The line an inbox shows next to the subject. HTML only. */
 	preheader: string;
@@ -129,7 +131,61 @@ const HEAD_STYLE = [
 	"}",
 ].join("");
 
-const CONTACT_LINE = `Questions? Email ${PARTNER_CONTACT_EMAIL}. Replies to this email are not received.`;
+/**
+ * WHO an email is from. Partner mail uses the default; Edge Mail passes each
+ * Edge app's own, so a merchant's email says "Edge Cart", not "Edge Partners".
+ * Only the wordmark, the accent and the footer change: the layout is one.
+ */
+export interface EmailBrand {
+	/**
+	 * `#rrggbb`, for the mark and the callout bar only. It never sits behind
+	 * text, so an app's colour cannot fail contrast. Anything else is ignored.
+	 */
+	accent: string;
+	/** Where a reader goes with a question: an email address or a web address. */
+	contact: string;
+	/** The second footer line, like "Edge Partners, edgecoms.app". */
+	footer: string;
+	/** An unsubscribe or preferences link: a web address, or Resend's placeholder. */
+	manageUrl?: string;
+	name: string;
+	/** Set muted after the name in the band, like "Partners". */
+	nameSuffix?: string;
+}
+
+/** Resend swaps this for each recipient's unsubscribe link in a broadcast. */
+export const RESEND_UNSUBSCRIBE_URL = "{{{RESEND_UNSUBSCRIBE_URL}}}";
+
+export const PARTNER_BRAND: EmailBrand = {
+	accent: COLOR.brand,
+	contact: PARTNER_CONTACT_EMAIL,
+	footer: "Edge Partners, edgecoms.app",
+	name: "Edge",
+	nameSuffix: "Partners",
+};
+
+const HEX_COLOR = /^#[0-9a-f]{6}$/i;
+
+/** The accent, or Edge orange if it is not a plain hex colour. It lands in a style attribute. */
+function accentOf(brand: EmailBrand): string {
+	return HEX_COLOR.test(brand.accent) ? brand.accent : COLOR.brand;
+}
+
+function contactLine(brand: EmailBrand): string {
+	const verb = PLAIN_EMAIL.test(brand.contact) ? "Email" : "Visit";
+	return `Questions? ${verb} ${brand.contact}. Replies to this email are not received.`;
+}
+
+/** Only a web address, or Resend's own placeholder, becomes the manage link. */
+function manageHref(brand: EmailBrand): string | null {
+	if (!brand.manageUrl) {
+		return null;
+	}
+	if (brand.manageUrl === RESEND_UNSUBSCRIBE_URL) {
+		return brand.manageUrl;
+	}
+	return webAddress(brand.manageUrl);
+}
 
 /**
  * Escapes a value interpolated into the HTML rendering.
@@ -251,12 +307,12 @@ function renderFacts(block: BlockOf<"facts">): string {
 	return `<table ${FULL_TABLE} bgcolor="${COLOR.panel}" style="background-color:${COLOR.panel};border-radius:10px;border-collapse:separate;"><tr><td style="padding:18px 20px 16px;">${title}<table ${FULL_TABLE}>${rows}</table>${factNote(block.note)}</td></tr></table>`;
 }
 
-function renderCallout(block: BlockOf<"callout">): string {
-	const bar = `width:4px;background-color:${COLOR.brand};border-radius:8px 0 0 8px;font-size:0;line-height:0;`;
+function renderCallout(block: BlockOf<"callout">, accent: string): string {
+	const bar = `width:4px;background-color:${accent};border-radius:8px 0 0 8px;font-size:0;line-height:0;`;
 	const box = `background-color:${COLOR.calloutTint};border:1px solid ${COLOR.calloutBorder};border-left:0;border-radius:0 8px 8px 0;padding:16px 20px 18px;`;
 	const title = `<p style="${text(15, 22, COLOR.calloutTitle, "font-weight:700;padding-bottom:4px;")}">${escapeHtml(block.title)}</p>`;
 	const body = `<p style="${text(15, 24, COLOR.body)}">${escapeHtml(block.text)}</p>`;
-	return `<table ${FULL_TABLE} style="border-collapse:separate;"><tr><td width="4" bgcolor="${COLOR.brand}" style="${bar}">&nbsp;</td><td bgcolor="${COLOR.calloutTint}" style="${box}">${title}${body}</td></tr></table>`;
+	return `<table ${FULL_TABLE} style="border-collapse:separate;"><tr><td width="4" bgcolor="${accent}" style="${bar}">&nbsp;</td><td bgcolor="${COLOR.calloutTint}" style="${box}">${title}${body}</td></tr></table>`;
 }
 
 function renderSmall(block: BlockOf<"small">): string {
@@ -264,12 +320,12 @@ function renderSmall(block: BlockOf<"small">): string {
 	return `<table ${FULL_TABLE}><tr><td style="${rule}${text(13, 20, COLOR.muted, "text-wrap:pretty;")}">${escapeHtml(block.text)}</td></tr></table>`;
 }
 
-function renderBlock(block: Block): string {
+function renderBlock(block: Block, accent: string): string {
 	switch (block.kind) {
 		case "button":
 			return renderButton(block);
 		case "callout":
-			return renderCallout(block);
+			return renderCallout(block, accent);
 		case "code":
 			return renderCode(block);
 		case "facts":
@@ -287,53 +343,92 @@ function renderBlock(block: Block): string {
 	}
 }
 
-function renderBlockRows(blocks: readonly Block[]): string {
+function renderBlockRows(blocks: readonly Block[], accent: string): string {
 	let previous: Block | undefined;
 	let rows = "";
 	for (const block of blocks) {
 		const top = previous
 			? Math.max(BLOCK_SPACE[previous.kind], BLOCK_SPACE[block.kind])
 			: FIRST_BLOCK_GAP;
-		rows += `<tr><td class="px" style="padding:${top}px ${GUTTER}px 0 ${GUTTER}px;text-align:left;">${renderBlock(block)}</td></tr>`;
+		rows += `<tr><td class="px" style="padding:${top}px ${GUTTER}px 0 ${GUTTER}px;text-align:left;">${renderBlock(block, accent)}</td></tr>`;
 		previous = block;
 	}
 	return rows;
 }
 
-function renderBand(): string {
-	const mark = `width:12px;height:12px;background-color:${COLOR.brand};font-size:0;line-height:0;`;
+function renderBand(brand: EmailBrand): string {
+	const accent = accentOf(brand);
+	const mark = `width:12px;height:12px;background-color:${accent};font-size:0;line-height:0;`;
 	const word = text(
 		16,
 		20,
 		COLOR.buttonText,
 		"font-weight:700;padding-left:10px;letter-spacing:-0.2px;"
 	);
-	const square = `<table ${TABLE}><tr><td width="12" height="12" bgcolor="${COLOR.brand}" style="${mark}">&nbsp;</td></tr></table>`;
-	const wordmark = `<table ${TABLE}><tr><td valign="middle" style="width:12px;">${square}</td><td valign="middle" style="${word}">Edge <span style="color:${COLOR.bandMuted};font-weight:500;">Partners</span></td></tr></table>`;
+	const square = `<table ${TABLE}><tr><td width="12" height="12" bgcolor="${accent}" style="${mark}">&nbsp;</td></tr></table>`;
+	const suffix = brand.nameSuffix
+		? ` <span style="color:${COLOR.bandMuted};font-weight:500;">${escapeHtml(brand.nameSuffix)}</span>`
+		: "";
+	const wordmark = `<table ${TABLE}><tr><td valign="middle" style="width:12px;">${square}</td><td valign="middle" style="${word}">${escapeHtml(brand.name)}${suffix}</td></tr></table>`;
 	return `<tr><td class="px" bgcolor="${COLOR.band}" style="background-color:${COLOR.band};border-radius:11px 11px 0 0;padding:22px ${GUTTER}px;">${wordmark}</td></tr>`;
 }
 
-function renderHeading(heading: string): string {
+function renderEyebrow(eyebrow: string | undefined): string {
+	if (!eyebrow) {
+		return "";
+	}
+	const style = text(
+		12,
+		16,
+		COLOR.muted,
+		"font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding-bottom:10px;"
+	);
+	return `<p style="${style}">${escapeHtml(eyebrow)}</p>`;
+}
+
+function renderHeading(heading: string, eyebrow?: string): string {
 	const style = text(
 		28,
 		35,
 		COLOR.heading,
 		"font-weight:700;letter-spacing:-0.4px;text-wrap:balance;"
 	);
-	return `<tr><td class="px" style="padding:36px ${GUTTER}px 0 ${GUTTER}px;text-align:left;"><h1 class="h1" style="${style}">${escapeHtml(heading)}</h1></td></tr>`;
+	return `<tr><td class="px" style="padding:36px ${GUTTER}px 0 ${GUTTER}px;text-align:left;">${renderEyebrow(eyebrow)}<h1 class="h1" style="${style}">${escapeHtml(heading)}</h1></td></tr>`;
 }
 
-function renderCard(content: EmailContent): string {
+function renderCard(content: EmailContent, brand: EmailBrand): string {
 	const card = `width:100%;background-color:${COLOR.card};border:1px solid ${COLOR.hairline};border-radius:12px;border-collapse:separate;text-align:left;`;
 	const end = `<tr><td style="height:40px;font-size:0;line-height:0;">&nbsp;</td></tr>`;
-	return `<table ${FULL_TABLE} bgcolor="${COLOR.card}" style="${card}">${renderBand()}${renderHeading(content.heading)}${renderBlockRows(content.blocks)}${end}</table>`;
+	return `<table ${FULL_TABLE} bgcolor="${COLOR.card}" style="${card}">${renderBand(brand)}${renderHeading(content.heading, content.eyebrow)}${renderBlockRows(content.blocks, accentOf(brand))}${end}</table>`;
 }
 
-function renderFooter(): string {
-	const contact = escapeHtml(PARTNER_CONTACT_EMAIL);
-	const link = PLAIN_EMAIL.test(PARTNER_CONTACT_EMAIL)
-		? `<a href="mailto:${contact}" style="color:${COLOR.heading};text-decoration:underline;">${contact}</a>`
-		: contact;
+function contactHtml(contact: string): string {
+	const shown = escapeHtml(contact);
+	const linkStyle = `color:${COLOR.heading};text-decoration:underline;`;
+	if (PLAIN_EMAIL.test(contact)) {
+		return `Email <a href="mailto:${shown}" style="${linkStyle}">${shown}</a>`;
+	}
+	const href = webAddress(contact);
+	return href
+		? `Visit <a href="${escapeHtml(href)}" style="${linkStyle}">${shown}</a>`
+		: `Visit ${shown}`;
+}
+
+function renderManage(brand: EmailBrand): string {
+	const href = manageHref(brand);
+	if (!href) {
+		return "";
+	}
+	const style = text(
+		12,
+		18,
+		COLOR.mutedOnPage,
+		"text-align:center;padding-top:6px;"
+	);
+	return `<p style="${style}"><a href="${escapeHtml(href)}" style="color:${COLOR.mutedOnPage};text-decoration:underline;">Manage email preferences</a></p>`;
+}
+
+function renderFooter(brand: EmailBrand): string {
 	const first = text(13, 20, COLOR.mutedOnPage, "text-align:center;");
 	const second = text(
 		12,
@@ -341,14 +436,14 @@ function renderFooter(): string {
 		COLOR.mutedOnPage,
 		"text-align:center;padding-top:6px;"
 	);
-	return `<tr><td align="center" style="padding:24px 16px 0;"><p style="${first}">Questions? Email ${link}. Replies to this email are not received.</p><p style="${second}">Edge Partners, edgecoms.app</p></td></tr>`;
+	return `<tr><td align="center" style="padding:24px 16px 0;"><p style="${first}">Questions? ${contactHtml(brand.contact)}. Replies to this email are not received.</p><p style="${second}">${escapeHtml(brand.footer)}</p>${renderManage(brand)}</td></tr>`;
 }
 
-function renderFrame(content: EmailContent): string {
+function renderFrame(content: EmailContent, brand: EmailBrand): string {
 	const column = `width:100%;max-width:${CARD_WIDTH}px;margin:0 auto;`;
 	const msoOpen = `<!--[if mso]><table ${TABLE} width="${CARD_WIDTH}" align="center"><tr><td><![endif]-->`;
 	const msoClose = "<!--[if mso]></td></tr></table><![endif]-->";
-	const inner = `<table ${FULL_TABLE} align="center" style="${column}"><tr><td>${renderCard(content)}</td></tr>${renderFooter()}</table>`;
+	const inner = `<table ${FULL_TABLE} align="center" style="${column}"><tr><td>${renderCard(content, brand)}</td></tr>${renderFooter(brand)}</table>`;
 	return `<table ${FULL_TABLE} bgcolor="${COLOR.page}" style="width:100%;background-color:${COLOR.page};"><tr><td align="center" class="outer" style="padding:32px 16px 40px;">${msoOpen}${inner}${msoClose}</td></tr></table>`;
 }
 
@@ -370,7 +465,10 @@ function renderHead(subject: string): string {
 	].join("\n");
 }
 
-export function renderHtml(content: EmailContent): string {
+export function renderHtml(
+	content: EmailContent,
+	brand: EmailBrand = PARTNER_BRAND
+): string {
 	const body = `background-color:${COLOR.page};margin:0;padding:0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;`;
 	return [
 		"<!doctype html>",
@@ -378,7 +476,7 @@ export function renderHtml(content: EmailContent): string {
 		renderHead(content.subject),
 		`<body style="${body}">`,
 		renderPreheader(content.preheader),
-		renderFrame(content),
+		renderFrame(content, brand),
 		"</body>",
 		"</html>",
 		"",
@@ -419,17 +517,31 @@ function blockText(block: Block): string {
  * blank line between them. The preheader is left out, because it is a preview
  * of the body rather than part of it.
  */
-export function renderText(content: EmailContent): string {
-	return [content.heading, ...content.blocks.map(blockText), CONTACT_LINE]
+export function renderText(
+	content: EmailContent,
+	brand: EmailBrand = PARTNER_BRAND
+): string {
+	const manage = manageHref(brand);
+	return [
+		...(content.eyebrow ? [content.eyebrow] : []),
+		content.heading,
+		...content.blocks.map(blockText),
+		contactLine(brand),
+		...(manage ? [`Manage email preferences: ${manage}`] : []),
+	]
 		.join("\n\n")
 		.trim();
 }
 
-export function renderEmail(content: EmailContent, to: string): OutboundEmail {
+export function renderEmail(
+	content: EmailContent,
+	to: string,
+	brand: EmailBrand = PARTNER_BRAND
+): OutboundEmail {
 	return {
-		html: renderHtml(content),
+		html: renderHtml(content, brand),
 		subject: content.subject,
-		text: renderText(content),
+		text: renderText(content, brand),
 		to,
 	};
 }

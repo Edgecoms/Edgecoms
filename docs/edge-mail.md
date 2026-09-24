@@ -16,7 +16,7 @@ scheduling and tracking.
 | ORM / DB | Drizzle via `@edgecoms/db`, same Postgres, new `mail_*` tables |
 | Auth | Better Auth via `@edgecoms/auth`, same user table, admin role only |
 | UI | shadcn from `@edgecoms/ui` (base-nova). The portal shell and helpers (`PortalHeader`, `StatCard`, `TableShell`, ...) moved there from apps/web so both portals share them. No new components were needed: native `<select>` and `datetime-local` cover the forms |
-| Email layout | **`@edgecoms/mail/render`**, extended with a per-app `brand`, not React Email. CLAUDE.md routes all outbound email through `@edgecoms/mail`, and one layout keeps partner and merchant mail consistent |
+| Email layout | **`@edgecoms/mail/minimal`**, a clean dub.co-style layout (white page, bordered wordmark, centred heading, black pill button, sign-off), on the same content model, escaping and link rules as the partner card layout in `@edgecoms/mail/render`. Partner email keeps the card |
 | Event stream | **One ingest:** apps call only `POST /api/v1/events`; lifecycle events are also recorded into `merchant_events` via the existing `recordShopEvent()` |
 | Apps in scope | 6: edge-cart, edge-bundles, edge-subscriptions, edge-timer, edge-reviews, edge-currency. Trackproof is in the catalog but left out for now (no secret configured, so its calls get a 401) |
 
@@ -241,7 +241,8 @@ tests before committing (66 tests in `apps/email`, plus render tests in `@edgeco
 4. In Resend, add a webhook to `https://email.edgecoms.app/api/webhooks/resend` for email, contact and
    suppression events; put its signing secret in `RESEND_WEBHOOK_SECRET`.
 5. Fill in each app on the Apps page, then `bun run resend:push-templates`.
-6. Build the five automations in Resend, per the Automations page.
+6. Build the five automations in Resend, per the Automations page. In each Send Email step, map
+   `GREETING_NAME` from `event.first_name` and `PREFERENCES_URL` from `event.preferences_url`.
 7. Edge Cart first: copy `clients/edge-mail-client.ts` into it, set `EDGE_MAIL_APP_ID=edge-cart`,
    `EDGE_MAIL_SECRET` (and the same value as `EDGE_MAIL_SECRET_EDGE_CART` here), `EDGE_MAIL_URL`.
    Walk the brief's section 43 checklist with test mode ON. Verify the two open SDK points above.

@@ -3,6 +3,13 @@
 import { Button } from "@edgecoms/ui/components/button";
 import { Input } from "@edgecoms/ui/components/input";
 import { Label } from "@edgecoms/ui/components/label";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@edgecoms/ui/components/select";
 import { Textarea } from "@edgecoms/ui/components/textarea";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type { Route } from "next";
@@ -22,14 +29,13 @@ import { queryClient, trpc } from "@/utils/trpc";
 import { AudienceFields } from "./audience-fields";
 import { SendDialog } from "./send-dialog";
 import {
-	CAMPAIGN_TYPES,
 	CATEGORY_LABEL,
 	type CampaignForm,
-	type CampaignType,
 	CODE_AREA,
 	EMPTY_FORM,
 	FIELD,
-	SELECT,
+	TRIGGER,
+	TYPE_ITEMS,
 } from "./shared";
 
 function Field({
@@ -147,6 +153,72 @@ function EmailPreview({ html, subject }: { html: string; subject: string }) {
 }
 
 /**
+ * Every app, with those that have no sender yet shown but not choosable: a
+ * campaign is sent FROM an app's sender, so it needs one first.
+ */
+function AppPicker({
+	apps,
+	onChange,
+	value,
+}: {
+	apps: { appId: string; configured: boolean; name: string }[];
+	onChange: (appId: string) => void;
+	value: string;
+}) {
+	const items = apps.map((row) => ({
+		disabled: !row.configured,
+		label: row.configured ? row.name : `${row.name} (no sender yet)`,
+		value: row.appId,
+	}));
+	const missing = apps.some((row) => !row.configured);
+	return (
+		<Field
+			hint={
+				missing ? (
+					<>
+						An app needs a sender before it can send.{" "}
+						<Link
+							className="text-primary-foreground underline underline-offset-4"
+							href={"/apps" as Route}
+						>
+							Set one on the Apps page
+						</Link>
+					</>
+				) : undefined
+			}
+			label="App"
+		>
+			{(id) => (
+				<Select
+					items={items}
+					onValueChange={(next) => {
+						if (next) {
+							onChange(next);
+						}
+					}}
+					value={value === "" ? null : value}
+				>
+					<SelectTrigger className={TRIGGER} id={id}>
+						<SelectValue placeholder="Choose an app" />
+					</SelectTrigger>
+					<SelectContent>
+						{items.map((item) => (
+							<SelectItem
+								disabled={item.disabled}
+								key={item.value}
+								value={item.value}
+							>
+								{item.label}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
+			)}
+		</Field>
+	);
+}
+
+/**
  * Paste the email, see it exactly as it will arrive, choose who gets it.
  * The HTML is written elsewhere (the "Copy prompt for Claude" brief keeps it
  * email-safe); this checks it and never changes it.
@@ -243,63 +315,36 @@ export function Composer({
 					)}
 				</Field>
 				<div className="grid gap-5 sm:grid-cols-2">
-					<Field
-						hint={
-							configured.length < (options.data?.apps.length ?? 0) ? (
-								<>
-									An app needs a sender before it can send.{" "}
-									<Link
-										className="text-primary-foreground underline underline-offset-4"
-										href={"/apps" as Route}
-									>
-										Set one on the Apps page
-									</Link>
-								</>
-							) : undefined
-						}
-						label="App"
-					>
-						{(id) => (
-							<select
-								className={SELECT}
-								id={id}
-								onChange={(event) =>
-									update({ appId: event.target.value, audience: {} })
-								}
-								value={appId}
-							>
-								{appId === "" ? <option value="">Choose an app</option> : null}
-								{(options.data?.apps ?? []).map((row) => (
-									<option
-										disabled={!row.configured}
-										key={row.appId}
-										value={row.appId}
-									>
-										{row.configured ? row.name : `${row.name} (no sender yet)`}
-									</option>
-								))}
-							</select>
-						)}
-					</Field>
+					<AppPicker
+						apps={options.data?.apps ?? []}
+						onChange={(value) => update({ appId: value, audience: {} })}
+						value={appId}
+					/>
 					<Field
 						hint={`Goes to: ${CATEGORY_LABEL[form.type]} subscribers`}
 						label="Type"
 					>
 						{(id) => (
-							<select
-								className={SELECT}
-								id={id}
-								onChange={(event) =>
-									update({ type: event.target.value as CampaignType })
-								}
+							<Select
+								items={TYPE_ITEMS}
+								onValueChange={(value) => {
+									if (value) {
+										update({ type: value });
+									}
+								}}
 								value={form.type}
 							>
-								{CAMPAIGN_TYPES.map(([value, label]) => (
-									<option key={value} value={value}>
-										{label}
-									</option>
-								))}
-							</select>
+								<SelectTrigger className={TRIGGER} id={id}>
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									{TYPE_ITEMS.map((item) => (
+										<SelectItem key={item.value} value={item.value}>
+											{item.label}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
 						)}
 					</Field>
 				</div>

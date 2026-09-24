@@ -50,9 +50,14 @@ export const EMPTY_FORM: CampaignForm = {
  */
 export const FIELD = "bg-white";
 
-/** No shared select exists, so a native one wears Input's look. */
-export const SELECT =
-	"h-8 w-full min-w-0 rounded-lg border border-input bg-white px-2 text-base outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm";
+/** The shared SelectTrigger, full width and white like the inputs beside it. */
+export const TRIGGER = "w-full bg-white";
+
+/** The campaign types as Select items: `items` lets the trigger show the label. */
+export const TYPE_ITEMS = CAMPAIGN_TYPES.map(([value, label]) => ({
+	label,
+	value,
+}));
 
 /** The shared Textarea, shaped like Input and set in mono for pasted HTML. */
 export const CODE_AREA =

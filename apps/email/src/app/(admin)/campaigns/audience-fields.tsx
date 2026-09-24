@@ -1,6 +1,7 @@
 "use client";
 
 import type { MailAudience } from "@edgecoms/db/schema/mail";
+import { Checkbox } from "@edgecoms/ui/components/checkbox";
 import { Input } from "@edgecoms/ui/components/input";
 import { Label } from "@edgecoms/ui/components/label";
 import { useId } from "react";
@@ -89,19 +90,14 @@ export function AudienceFields({
 					</span>
 					<div className="flex flex-wrap gap-4">
 						{STATUSES.map(([status, label]) => (
-							<label
-								className="flex items-center gap-2 text-body-sm"
-								key={status}
-							>
-								<input
+							<div className="flex items-center gap-2" key={status}>
+								<Checkbox
 									checked={statuses.includes(status)}
-									onChange={(event) =>
-										toggleStatus(status, event.target.checked)
-									}
-									type="checkbox"
+									id={`${id}-status-${status}`}
+									onCheckedChange={(checked) => toggleStatus(status, checked)}
 								/>
-								{label}
-							</label>
+								<Label htmlFor={`${id}-status-${status}`}>{label}</Label>
+							</div>
 						))}
 					</div>
 				</div>
@@ -155,21 +151,16 @@ export function AudienceFields({
 					</span>
 					<div className="flex flex-wrap gap-4">
 						{otherApps.map((app) => (
-							<label
-								className="flex items-center gap-2 text-body-sm"
-								key={app.slug}
-							>
-								<input
+							<div className="flex items-center gap-2" key={app.slug}>
+								<Checkbox
 									checked={(audience.notInstalledAppSlugs ?? []).includes(
 										app.slug
 									)}
-									onChange={(event) =>
-										toggleApp(app.slug, event.target.checked)
-									}
-									type="checkbox"
+									id={`${id}-without-${app.slug}`}
+									onCheckedChange={(checked) => toggleApp(app.slug, checked)}
 								/>
-								{app.name}
-							</label>
+								<Label htmlFor={`${id}-without-${app.slug}`}>{app.name}</Label>
+							</div>
 						))}
 					</div>
 				</div>

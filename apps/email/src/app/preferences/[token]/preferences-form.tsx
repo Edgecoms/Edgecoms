@@ -1,8 +1,10 @@
 "use client";
 
 import { Button } from "@edgecoms/ui/components/button";
+import { Checkbox } from "@edgecoms/ui/components/checkbox";
+import { Label } from "@edgecoms/ui/components/label";
 import { useMutation } from "@tanstack/react-query";
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useId, useState } from "react";
 import { trpc } from "@/utils/trpc";
 
 const CATEGORIES = [
@@ -24,6 +26,7 @@ export function PreferencesForm({
 	initial: Record<Key, boolean>;
 	token: string;
 }) {
+	const id = useId();
 	const [values, setValues] = useState(initial);
 	const save = useMutation(trpc.preferences.save.mutationOptions());
 
@@ -46,30 +49,30 @@ export function PreferencesForm({
 				<span className="text-body-sm text-secondary-foreground">Required</span>
 			</div>
 			{CATEGORIES.map(([key, label, description]) => (
-				<label
+				<div
 					className="flex items-start justify-between gap-6 border-border border-b pb-5"
 					key={key}
 				>
-					<span>
-						<span className="block font-medium text-body text-primary-foreground">
+					<div>
+						<Label
+							className="block font-medium text-body text-primary-foreground"
+							htmlFor={`${id}-${key}`}
+						>
 							{label}
-						</span>
+						</Label>
 						<span className="block text-body-sm text-secondary-foreground">
 							{description}
 						</span>
-					</span>
-					<input
+					</div>
+					<Checkbox
 						checked={values[key]}
-						className="mt-1 size-4"
-						onChange={(event) =>
-							setValues((current) => ({
-								...current,
-								[key]: event.target.checked,
-							}))
+						className="mt-1"
+						id={`${id}-${key}`}
+						onCheckedChange={(checked) =>
+							setValues((current) => ({ ...current, [key]: checked }))
 						}
-						type="checkbox"
 					/>
-				</label>
+				</div>
 			))}
 			<Button
 				disabled={save.isPending}

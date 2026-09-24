@@ -12,7 +12,7 @@ scheduling and tracking.
 | Where | `apps/email` in this monorepo, deployed as its **own Vercel project** |
 | Server | Next.js 16 App Router + **Hono** owning `/api/*` (`hono/vercel` catch-all) |
 | Admin UI ↔ server | **tRPC mounted inside Hono** (`@hono/trpc-server`), reusing `adminProcedure` |
-| Runtime | Bun for install/dev/test; **Node runtime** on Vercel (Bun runtime is beta: one line in `vercel.json` later) |
+| Runtime | Bun for install/dev/test; **Node runtime** on Vercel (Bun runtime is beta: one line in `vercel.json` later). Dev port 3006 |
 | ORM / DB | Drizzle via `@edgecoms/db`, same Postgres, new `mail_*` tables |
 | Auth | Better Auth via `@edgecoms/auth`, same user table, admin role only |
 | UI | shadcn from `@edgecoms/ui` (base-nova). The portal shell and helpers (`PortalHeader`, `StatCard`, `TableShell`, ...) moved there from apps/web so both portals share them. No new components were needed: native `<select>` and `datetime-local` cover the forms |
@@ -93,25 +93,26 @@ All tables are prefixed `mail_`, so the boundary is visible in SQL and generic n
 
 ```text
 mail_app_settings    app_id PK→apps.id (restrict), sender_name, sender_email, reply_to,
-                     brand_color, logo_url, app_url, support_url, review_url, active
+                     brand_color, logo_url, app_url, support_url, review_url
 mail_contacts        id, email UNIQUE (lowercased), first_name, last_name, resend_contact_id,
-                     product_updates, marketing, education (bool, DEFAULT FALSE),
+                     product_updates, marketing, education (bool, DEFAULT FALSE), preferences_set_at,
                      suppressed_at, suppression_reason ('bounced'|'complained')
 mail_stores          id, shop_domain UNIQUE (normalized), name, country, currency, timezone
-mail_contact_stores  (contact_id, store_id) PK, role, is_primary
+mail_contact_stores  (contact_id, store_id) PK
 mail_installations   id, (store_id, app_id) UNIQUE, status (installed|active|inactive|uninstalled),
                      plan, installed_at, activated_at, setup_completed_at, uninstalled_at,
-                     last_active_at, status_changed_at
+                     last_active_at, status_changed_at, plan_changed_at
 mail_events          id, event_id UNIQUE, app_id, store_id, contact_id, type, payload jsonb,
                      occurred_at, received_at, resend_synced_at
 mail_campaigns       id, name, type, category (product_updates|marketing|education), app_id,
                      subject, preheader, eyebrow, headline, body, hero_image, cta_label, cta_url,
-                     audience jsonb (zod-typed), status (draft|scheduled|sending|sent|failed|cancelled),
-                     test_sent_at, recipient_count, resend_segment_id, resend_broadcast_id,
-                     scheduled_at, sent_at, created_by→user.id
+                     audience jsonb (zod-typed), status (draft|importing|scheduled|sent|failed|cancelled),
+                     content_updated_at, test_sent_at, recipient_count, resend_segment_id,
+                     resend_import_id, resend_broadcast_id, scheduled_at, sent_at, sent_in_test_mode,
+                     failure_reason, created_by→user.id
 mail_campaign_recipients  (campaign_id, contact_id) PK, store_id
-mail_email_events    id, svix_id UNIQUE, resend_email_id, type, contact_id, campaign_id, app_id,
-                     payload jsonb, occurred_at
+mail_email_events    id, svix_id UNIQUE, resend_email_id, type, email, contact_id, campaign_id, app_id,
+                     payload jsonb, occurred_at, received_at
 ```
 
 Rules the schema enforces:
@@ -151,38 +152,7 @@ Processing, in order:
 
 `/api/v1/shop-events` stays live until every app has migrated, then gets removed.
 
-## Resend boundary (`apps/email/src/server/resend.ts`)
-
-Same rule as the Shopify adapter: one file, everything else sees plain types.
-
-- `upsertContact`, `setTopics`, `sendEvent`, `syncCampaignSegment`, `createBroadcast`,
-  `sendBroadcast`, `sendTest`, `verifyWebhook`.
-- **Test mode lives here and only here.** Every outbound address passes through
-  one function; while `EDGE_MAIL_TEST_MODE` is on, real merchant contacts are never
-  created in Resend. Events fire against `EDGE_MAIL_TEST_RECIPIENT`, and a campaign
-  segment contains only that address. Test mode is **on unless the env var is literally `off`**,
-  so a misconfigured deploy fails safe.
-- Topics: `product_updates → edge_product_updates`, `marketing → edge_marketing`,
-  `education → edge_education`.
-- Contact properties (only what automation conditions branch on): `first_name`,
-  `shop_domain`, `<slug>_status`, `<slug>_plan`, `edge_app_count`.
-
-## Campaign send (the safety rail)
-
-The `campaigns.send` admin mutation:
-1. **Atomic claim:** `UPDATE … SET status='sending' WHERE id=? AND status='draft' AND test_sent_at >= updated_at`.
-   A double-click, or a send without a test after the last edit, claims nothing.
-2. Compute recipients in SQL: audience filter ∧ category opt-in ∧ `suppressed_at IS NULL` ∧ distinct contact.
-3. **The client must echo the count it showed** in the confirm modal. If the audience moved, refuse and re-confirm.
-4. Insert `mail_campaign_recipients` (the audit trail), then create the Resend segment and broadcast.
-   Persist `resend_broadcast_id` *before* sending, so a retry reuses it and never creates a second broadcast.
-5. Send now, or pass `scheduledAt`. Recipients are snapshotted at confirm time, not at delivery time.
-
-## Phases
-
-Each phase ends with `check-types` + `ultracite check` + its tests, then a small conventional commit.
-
-### Phase 0: Resend spike: findings
+## Resend SDK findings (Phase 0)
 Checked against the type declarations of the installed SDK (`resend@6.26.0`), not
 against the live API: making real calls would have written to the production
 Resend account.
@@ -202,88 +172,107 @@ Still to verify live, on the first real send in test mode:
 - Whether automation `Send Email` steps can tag emails (for per-app analytics of automation mail).
 - `contacts.imports` with `onConflict: "upsert"` and only an `email` column adds the contact to the segment without touching its other fields.
 
-### Phase 1: Scaffold
-- `apps/email`: Next 16, React 19, Tailwind 4, `@edgecoms/ui/globals.css`, React Compiler, typed routes, port 3002.
-- Hono catch-all; Better Auth at `/api/auth/*` (sign-up disabled); admin-only layout (redirect otherwise).
-- tRPC mounted; `PortalShell` lifted to `@edgecoms/ui`; nav: Dashboard, Campaigns, Contacts, Apps, Templates, Automations, Settings.
-- `packages/env/src/mail.ts`; turbo env lists; `vercel.json`; Vercel project on `email.edgecoms.app` with `turbo-ignore`.
-- **Tests:** unauthenticated and partner sessions are refused on every tRPC procedure; admin allowed.
+## Resend boundary (`apps/email/src/server/resend.ts`)
 
-### Phase 2: Schema + event ingest
-- `mail.ts` schema + migration; seed `mail_app_settings` for the 6 apps.
-- `/api/v1/events` as specified above (Resend sync stubbed behind the adapter).
-- **Tests:** per-app HMAC (another app's secret rejected, unknown app 401, stale timestamp 401, unset secret 401);
-  duplicate `eventId` is a no-op; out-of-order `occurredAt` does not regress status; lifecycle forwarding lands in
-  `merchant_events` exactly once; bad shop domain 400.
+Same rule as the Shopify adapter: the only file that imports `resend`.
 
-### Phase 3: Resend adapter + webhooks
-- Real `resend.ts`; contact/property/event sync; unsynced-duplicate retry path.
-- `/api/webhooks/resend`: signature verified → `mail_email_events`; `bounced`/`complained` set suppression;
-  `contact.updated` writes topic opt-outs back to the DB (DB only, never calls Resend back, so no loop).
-- **Tests:** test mode rewrites every outbound address; bad webhook signature 401; webhook redelivery is a no-op;
-  a bounce suppresses the contact.
+- Event sync (`createResendSync`), topic sync, webhook verification, template upsert, setup, and the
+  campaign calls (segment, CSV import, broadcast create/send/cancel, test email).
+- **Test mode lives here and only here** (`deliveryAddress`). On unless `EDGE_MAIL_TEST_MODE` is
+  exactly `off`. While on, every outbound address becomes `EDGE_MAIL_TEST_RECIPIENT`; with no inbox set,
+  nothing reaches Resend at all. Real merchants are never created as Resend contacts in test mode.
+- Live mode with no `RESEND_API_KEY` makes the event sync FAIL (502), so apps retry rather than
+  losing automation triggers.
+- Topics (created opt-out by default): `edge_product_updates`, `edge_marketing`, `edge_education`.
+- Contact properties, only what automations branch on: `shop_domain`, `edge_app_count`,
+  `<slug>_status`, `<slug>_plan`.
 
-### Phase 4: Templates
-- Templates in `apps/email/src/emails/` as `EmailContent` data rendered by `@edgecoms/mail/render` with the
-  app's brand (name, accent, support URL, preferences link): welcome, setup-reminder, activation,
-  announcement, marketing, uninstall, review-request.
-- `/templates` gallery renders each template per app.
-- `bun run email:push-templates` renders with Resend variable placeholders and upserts Resend Templates.
+## Campaign send (the safety rail)
 
-### Phase 5: Admin UI
-- Dashboard (sent/delivered/open/click/bounce/unsubscribe + per-app table, from `mail_email_events`),
-  Contacts (search, profile with installs, preferences, timeline from `mail_events` + `mail_email_events`),
-  Apps (edit `mail_app_settings`, contact count), Automations (read-only list: name, trigger, link to Resend),
-  Settings (test mode state, last webhook received).
-- Server Components for reads, tRPC for mutations.
+A state machine in `src/server/campaigns/send.ts`; every transition is a conditional `UPDATE`:
 
-### Phase 6: Campaigns
-- Composer with structured fields and a live preview beside the form (the server renders the same layout the send uses).
-- Audience filter (zod): app, install status, plan in [...], NOT installed [apps], uninstalled within N days,
-  active within N days. Live recipient count.
-- Send test → confirm modal (name, recipients, category, "cannot be undone") → send / schedule.
-- **Tests:** unsubscribed, suppressed and wrong-category contacts are excluded; multi-store owner counted once;
-  send without test refused; edit after test refused; double send creates one broadcast; count mismatch refused.
+```text
+draft ──send──▶ importing ──advance──▶ sent | scheduled ──cancel──▶ cancelled
+                    └───────────────────▶ failed (any Resend error; terminal, "Duplicate as draft")
+```
 
-### Phase 7: Automations (config in Resend, not code)
-- Build the 5 in the Resend dashboard: Welcome (`app.installed`), Setup reminder (wait 24h for
-  `setup.completed`), Activation (`app.activated`), Uninstall (`app.uninstalled`), Review request
-  (`milestone.first_value`). Record each one's trigger and template in the Automations page's static list.
+1. `send` refuses unless a test was sent after the last content change (`test_sent_at >= content_updated_at`),
+   the app has a sender, the schedule is at least a minute out, and **the count the admin confirmed equals
+   the count now**. The category comes from the campaign type on the server, never from the form.
+2. One transaction claims `draft → importing` and snapshots `mail_campaign_recipients`.
+3. A per-campaign Resend segment is filled with ONE CSV import (opting the rows into the category topic).
+4. The UI polls `advance`. The broadcast is created at most once (claimed with a sentinel) and sent at most
+   once (status claimed before the call). A creation interrupted for 10 minutes is marked failed.
 
-### Phase 8: Preferences
-- `/preferences/[token]`: token = `contactId.hmac(contactId)` with `EDGE_MAIL_PREFERENCES_SECRET`,
-  so there's no table and old email links keep working. Saving updates the DB and Resend topics.
-- **Tests:** tampered token 404; a token for contact A can't read or change contact B.
+## Build status
 
-### Phase 9: First app (Edge Cart)
-- Vendor the client file into Edge Cart, set its secret, run the brief's §43 checklist with test mode **on**,
-  then flip test mode off. Connect the other five only after that passes.
+All phases are implemented on branch `feat/edge-mail`. Every phase passed typecheck, lint and its
+tests before committing (66 tests in `apps/email`, plus render tests in `@edgecoms/mail`).
+
+| Phase | What shipped |
+|---|---|
+| 1 Scaffold | `apps/email` (port 3006), Hono `/api/*`, Better Auth (sign-up off), admin tRPC, shared `PortalShell` |
+| 2 Ingest | `mail_*` schema (migration 0015), `POST /api/v1/events` with per-app HMAC, idempotency, forwarding to `merchant_events` |
+| 3 Resend | Adapter, test mode, `/api/webhooks/resend`, suppression, `resend:setup` |
+| 4 Templates | Brand option on `@edgecoms/mail/render`, 5 lifecycle templates, `/templates`, `resend:push-templates` |
+| 5 Admin UI | Dashboard, Contacts (+ profile, opt-out), Apps (settings), Automations, Settings |
+| 6 Campaigns | Audience, composer with live preview, test send, guarded send/schedule/cancel (migration 0016) |
+| 7 Automations | Built in Resend's dashboard; the Automations page documents trigger and template alias per flow |
+| 8 Preferences | `/preferences/<token>`, consent timestamp `preferences_set_at` (migration 0017) |
+| 9 Client | `apps/email/clients/edge-mail-client.ts`, the one file each Shopify app copies, tested end to end |
+
+### Decisions made during the build
+
+- **Sending goes through `resend.ts`, not `@edgecoms/mail/send`.** CLAUDE.md routes the partner
+  platform's transactional email through `@edgecoms/mail`. Edge Mail needs broadcasts, automations and
+  per-app senders, which that package does not do, so it reuses the package's LAYOUT and keeps its own
+  transport boundary. Confirm this reading of the rule.
+- **An admin can opt a contact out, never in.** Opting in happens only on the merchant's preferences page,
+  which stamps `preferences_set_at`.
+- **A layout is not an auth boundary.** Every server page that reads data calls `requireAdmin()` itself.
+- **No new shadcn components** were needed; native `<select>`, `datetime-local` and checkboxes cover it.
+
+## Go-live runbook
+
+1. Deploy `apps/web` first: its production build applies migrations 0015-0017 (it is the only migrator).
+2. Create the Vercel project for `apps/email` (root `apps/email`, domain `email.edgecoms.app`) with the
+   environment below. Leave `EDGE_MAIL_TEST_MODE` unset (test mode on) and set `EDGE_MAIL_TEST_RECIPIENT`.
+3. `bun run resend:setup` in `apps/email` (topics, contact properties, event names).
+4. In Resend, add a webhook to `https://email.edgecoms.app/api/webhooks/resend` for email, contact and
+   suppression events; put its signing secret in `RESEND_WEBHOOK_SECRET`.
+5. Fill in each app on the Apps page, then `bun run resend:push-templates`.
+6. Build the five automations in Resend, per the Automations page.
+7. Edge Cart first: copy `clients/edge-mail-client.ts` into it, set `EDGE_MAIL_APP_ID=edge-cart`,
+   `EDGE_MAIL_SECRET` (and the same value as `EDGE_MAIL_SECRET_EDGE_CART` here), `EDGE_MAIL_URL`.
+   Walk the brief's section 43 checklist with test mode ON. Verify the two open SDK points above.
+8. Set `EDGE_MAIL_TEST_MODE=off`. Then connect the other five apps.
 
 ## Environment (`apps/email` Vercel project)
 
+See `apps/email/.env.example`.
+
 ```text
-DATABASE_URL, BETTER_AUTH_SECRET
-BETTER_AUTH_URL=https://email.edgecoms.app   CORS_ORIGIN=https://email.edgecoms.app
-RESEND_API_KEY              full-access key, exists ONLY in this project
+DATABASE_URL, BETTER_AUTH_SECRET          same values as apps/web
+BETTER_AUTH_URL, CORS_ORIGIN, EDGE_MAIL_URL   https://email.edgecoms.app
+RESEND_API_KEY                            full-access key, exists ONLY in this project
 RESEND_WEBHOOK_SECRET
-EDGE_MAIL_SECRET_EDGE_CART … one per app, ≥32 chars
-EDGE_MAIL_TEST_MODE         on unless literally "off"
+EDGE_MAIL_TEST_MODE                       on unless literally "off"
 EDGE_MAIL_TEST_RECIPIENT
-EDGE_MAIL_PREFERENCES_SECRET
+EDGE_MAIL_PREFERENCES_SECRET              32+ chars
+EDGE_MAIL_SECRET_<SLUG>                   one per app, 32+ chars
 ```
 
-Migrations stay owned by `apps/web`'s production build (`scripts/deploy-migrate.sh`), which is the single
-migrator, so two builds never race `drizzle-kit migrate`. A mail schema change therefore ships
-**migration-first**, in a commit that deploys before the code that reads it.
+Migrations stay owned by `apps/web`'s production build (`scripts/deploy-migrate.sh`), so two builds never
+race `drizzle-kit migrate`. A mail schema change ships **migration-first**.
 
 ## Open questions
 
-1. **Consent source.** Where does product-update / marketing / education consent come from (Shopify, an
-   onboarding checkbox, an existing list)? Until this is answered every flag defaults to false, which
-   means **release and marketing campaigns reach nobody**. This blocks Phase 6 being useful.
-2. **Event mapping.** What do the apps currently send to `shop-events` as `subscription.activated`?
-   Is it `plan.started`? This blocks the forwarding step in Phase 2.
-3. **Sending domain.** Broadcasts from `updates@edgecoms.app`, or from a subdomain such as
-   `updates.edgecoms.app` so marketing reputation can't hurt transactional mail from the root domain?
-   The subdomain is recommended.
-4. **App repos.** Are the six Shopify apps outside this monorepo? That confirms vendoring the client file vs publishing it.
+1. **Consent source.** Where does product-update / marketing / education consent come from today?
+   Until a merchant opts in on the preferences page every flag is false, so **release and marketing
+   campaigns reach nobody**. Lifecycle automations are unaffected.
+2. **`plan.started` → `subscription.activated`.** The ingest records `plan.started` into
+   `merchant_events` as `subscription.activated` (the partner portal reads it as "live"). One constant in
+   `src/server/events/ingest.ts`; confirm before any app is connected.
+3. **Sending domain.** Broadcasts from `updates@edgecoms.app`, or a subdomain such as
+   `updates.edgecoms.app` so marketing reputation cannot hurt the root domain? Set per app on the Apps page.
+4. **The `@edgecoms/mail` rule** (see Decisions above).

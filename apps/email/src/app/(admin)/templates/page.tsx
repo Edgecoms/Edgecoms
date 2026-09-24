@@ -73,7 +73,7 @@ export default async function TemplatesPage({
 						key={row.slug}
 					>
 						{row.name}
-						{row.settings ? "" : " (not configured)"}
+						{row.settings ? "" : " (no sender yet)"}
 					</Link>
 				))}
 			</nav>

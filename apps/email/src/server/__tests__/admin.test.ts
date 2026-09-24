@@ -12,6 +12,7 @@ import {
 	mailInstallations,
 	mailStores,
 } from "@edgecoms/db/schema/mail";
+import { listAppsWithSettings } from "../apps/identity";
 import { listContacts } from "../queries/contacts";
 import { deliveryStats, rate } from "../queries/dashboard";
 import { mailRouter } from "../router";
@@ -119,6 +120,20 @@ describe("opt out", () => {
 		expect(row?.marketing).toBe(false);
 		expect(row?.productUpdates).toBe(false);
 		expect(row?.education).toBe(false);
+	});
+});
+
+describe("app list", () => {
+	test("shows Edge Mail's apps only, not the rest of the catalog", async () => {
+		await testDb.db.insert(apps).values({
+			name: "Trackproof",
+			partnerApiGid: "gid://7",
+			slug: "trackproof",
+		});
+		const slugs = (await listAppsWithSettings(testDb.db)).map(
+			(app) => app.slug
+		);
+		expect(slugs).toEqual(["edge-cart"]);
 	});
 });
 

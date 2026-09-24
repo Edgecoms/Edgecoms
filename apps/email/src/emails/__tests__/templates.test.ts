@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { PARTNER_CONTACT_EMAIL } from "@edgecoms/mail/contact";
 import { renderMinimalHtml } from "@edgecoms/mail/minimal";
 import { renderText } from "@edgecoms/mail/render";
-import { hostedIconUrl } from "../../server/apps/identity";
+import { hostedIconUrl, MAIL_APP_SLUGS } from "../../server/apps/identity";
 import {
 	type AppIdentity,
 	brandFor,
@@ -19,14 +19,7 @@ import {
 process.env.EDGE_MAIL_URL = "https://email.edgecoms.app";
 
 const EM_DASH = "—";
-const SIX_APPS = [
-	"edge-cart",
-	"edge-bundles",
-	"edge-subscriptions",
-	"edge-timer",
-	"edge-reviews",
-	"edge-currency",
-];
+const SIX_APPS = MAIL_APP_SLUGS;
 
 const unconfigured: AppIdentity = {
 	appUrl: null,
@@ -135,6 +128,7 @@ describe("app icon", () => {
 			expect([...readFileSync(file).subarray(0, 4)]).toEqual(PNG);
 		}
 		expect(hostedIconUrl("not-an-app")).toBeNull();
+		expect(hostedIconUrl("trackproof")).toBeNull();
 	});
 });
 

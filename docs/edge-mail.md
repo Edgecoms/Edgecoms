@@ -215,9 +215,9 @@ tests before committing (66 tests in `apps/email`, plus render tests in `@edgeco
 | 2 Ingest | `mail_*` schema (migration 0015), `POST /api/v1/events` with per-app HMAC, idempotency, forwarding to `merchant_events` |
 | 3 Resend | Adapter, test mode, `/api/webhooks/resend`, suppression, `resend:setup` |
 | 4 Templates | Brand option on `@edgecoms/mail/render`, 5 lifecycle templates, `/templates`, `resend:push-templates` |
-| 5 Admin UI | Dashboard, Contacts (+ profile, opt-out), Apps (settings), Automations, Settings |
+| 5 Admin UI | Dashboard, Contacts (+ profile, opt-out), Apps (settings, secret status), Templates |
 | 6 Campaigns | Audience, composer with live preview, test send, guarded send/schedule/cancel (migration 0016) |
-| 7 Automations | Built in Resend's dashboard; the Automations page documents trigger and template alias per flow |
+| 7 Automations | Built in Resend's dashboard; the Templates page shows each template's trigger and alias |
 | 8 Preferences | `/preferences/<token>`, consent timestamp `preferences_set_at` (migration 0017) |
 | 9 Client | `apps/email/clients/edge-mail-client.ts`, the one file each Shopify app copies, tested end to end |
 
@@ -241,7 +241,8 @@ tests before committing (66 tests in `apps/email`, plus render tests in `@edgeco
 4. In Resend, add a webhook to `https://email.edgecoms.app/api/webhooks/resend` for email, contact and
    suppression events; put its signing secret in `RESEND_WEBHOOK_SECRET`.
 5. Fill in each app on the Apps page, then `bun run resend:push-templates`.
-6. Build the five automations in Resend, per the Automations page. In each Send Email step, map
+6. Build the five automations in Resend: trigger on the event the Templates page shows, send the
+   template alias it shows, and filter on the `app_slug` payload field. In each Send Email step, map
    `GREETING_NAME` from `event.first_name` and `PREFERENCES_URL` from `event.preferences_url`.
 7. Edge Cart first: copy `clients/edge-mail-client.ts` into it, set `EDGE_MAIL_APP_ID=edge-cart`,
    `EDGE_MAIL_SECRET` (and the same value as `EDGE_MAIL_SECRET_EDGE_CART` here), `EDGE_MAIL_URL`.

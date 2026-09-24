@@ -7,6 +7,7 @@ import {
 	brandFor,
 	LIFECYCLE_NAMES,
 	LIFECYCLE_TEMPLATES,
+	LIFECYCLE_TRIGGERS,
 	lifecycleContent,
 	previewVariables,
 	TEMPLATE_VARIABLES,
@@ -88,10 +89,22 @@ export default async function TemplatesPage({
 					</Link>
 				))}
 			</nav>
-			<p className="text-body-sm text-secondary-foreground">
-				Subject:{" "}
-				<span className="text-primary-foreground">{content.subject}</span>
-			</p>
+			<dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1 text-body-sm">
+				<dt className="text-secondary-foreground">Subject</dt>
+				<dd className="text-primary-foreground">{content.subject}</dd>
+				<dt className="text-secondary-foreground">Sent when</dt>
+				<dd>
+					<code className="font-mono text-[12px]">
+						{LIFECYCLE_TRIGGERS[template]}
+					</code>
+				</dd>
+				<dt className="text-secondary-foreground">Resend alias</dt>
+				<dd>
+					<code className="font-mono text-[12px]">
+						{app.slug}-{template}
+					</code>
+				</dd>
+			</dl>
 			<iframe
 				className="h-[760px] w-full rounded-xl border border-border-strong bg-white"
 				sandbox=""

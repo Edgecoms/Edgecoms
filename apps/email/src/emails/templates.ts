@@ -83,7 +83,7 @@ function voiceOf(app: AppIdentity): AppVoice {
 /**
  * Resend fills these per recipient. Each template declares them with a
  * fallback, and each automation's Send Email step maps them from the event
- * payload Edge Mail sends (see the Automations page).
+ * payload Edge Mail sends (see docs/edge-mail.md, Go-live runbook).
  */
 export const TEMPLATE_VARIABLES = {
 	greetingName: "{{{GREETING_NAME}}}",
@@ -139,7 +139,7 @@ export const LIFECYCLE_TEMPLATES = [
 
 export type LifecycleTemplate = (typeof LIFECYCLE_TEMPLATES)[number];
 
-/** What starts each one in Resend. Shown on the Automations page. */
+/** What starts each one in Resend. Shown on the Templates page. */
 export const LIFECYCLE_TRIGGERS: Record<LifecycleTemplate, string> = {
 	welcome: "app.installed",
 	"setup-reminder": "app.installed, then no setup.completed within 24 hours",

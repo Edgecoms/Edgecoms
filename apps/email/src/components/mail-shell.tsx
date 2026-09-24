@@ -12,8 +12,6 @@ const NAV = [
 	{ href: "/contacts", label: "Contacts" },
 	{ href: "/apps", label: "Apps" },
 	{ href: "/templates", label: "Templates" },
-	{ href: "/automations", label: "Automations" },
-	{ href: "/settings", label: "Settings" },
 ];
 
 export function MailShell({

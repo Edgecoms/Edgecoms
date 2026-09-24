@@ -9,7 +9,8 @@
     "start": "next start -H 0.0.0.0",
     "test": "SKIP_ENV_VALIDATION=1 bun test",
     "resend:setup": "bun --env-file=.env scripts/setup-resend.ts",
-    "resend:push-templates": "bun --env-file=.env scripts/push-templates.ts"
+    "resend:push-templates": "bun --env-file=.env scripts/push-templates.ts",
+    "simulate": "bun --env-file=.env scripts/simulate.ts"
   },
   "dependencies": {
     "@edgecoms/api": "workspace:*",

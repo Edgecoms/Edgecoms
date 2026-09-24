@@ -233,6 +233,30 @@ tests before committing (66 tests in `apps/email`, plus render tests in `@edgeco
 - **A layout is not an auth boundary.** Every server page that reads data calls `requireAdmin()` itself.
 - **No new shadcn components** were needed; native `<select>`, `datetime-local` and checkboxes cover it.
 
+## Local testing
+
+Everything runs locally against the dev database; test mode keeps every email in one inbox.
+
+1. `apps/email/.env` (see `.env.example`): `RESEND_API_KEY`, `EDGE_MAIL_TEST_RECIPIENT` (an inbox you
+   read; leave `EDGE_MAIL_TEST_MODE` unset), `EDGE_MAIL_SECRET_EDGE_CART`,
+   `EDGE_MAIL_PREFERENCES_SECRET` and `EDGE_MAIL_URL=http://localhost:3006`.
+2. `bun run dev:email`, sign in at `http://localhost:3006` with the Edge admin account, and save a
+   sender for Edge Cart on the Apps page (an address on a domain verified in Resend).
+3. `bun run resend:setup` in `apps/email` (topics, contact properties, event names in Resend).
+4. Play the app: `bun run simulate app.installed --email you@example.com` (then `app.activated`,
+   `plan.changed --plan pro`, `app.uninstalled`, ...). The contact appears on Contacts; in Resend,
+   the TEST inbox's contact and the event show up. Replaying an `--id` is a duplicate.
+5. Open the printed preferences link and opt in to product updates.
+6. Campaigns: paste HTML (with `{{{RESEND_UNSUBSCRIBE_URL}}}`), pick Edge Cart / Product update, see
+   the recipient count, **Send test to me**, then **Send**. Only the test inbox receives it.
+7. Webhooks (optional): `ngrok http 3006`, add `https://<ngrok>/api/webhooks/resend` in Resend, put its
+   signing secret in `RESEND_WEBHOOK_SECRET`, and restart the dev server. Opens, clicks and bounces
+   then show on the campaign and the contact timeline.
+
+Lifecycle automations run inside Resend and need public template images, so they are tested after
+deploy (runbook step 8), or with the ngrok https URL as `EDGE_MAIL_URL` for `resend:push-templates`
+(push again with the production URL afterwards).
+
 ## Go-live runbook
 
 **1. Merge and let web migrate.** Merging this branch to `main` redeploys `apps/web`; its production

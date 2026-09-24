@@ -253,6 +253,26 @@
 	--color-border-strong: var(--border-strong);
 	--color-ring: var(--indigo-a5);
 	--color-muted-ring: var(--gray-5);
+
+	/* shadcn's colour vocabulary, mapped onto this theme so a generated
+	   component renders correctly without edits. Without these, classes like
+	   `border-input` or `bg-popover` produce NO CSS: borders fall back to the
+	   hairline, placeholders to black, and popups lose their background.
+	   Deliberately NOT here: `primary-foreground`. In this theme it is the body
+	   text colour, not the text on a `primary` fill, so a component that puts
+	   text on `bg-primary` must use `inverted-primary-foreground`. */
+	--color-foreground: var(--text-primary);
+	--color-muted: var(--gray-3);
+	--color-muted-foreground: var(--text-secondary);
+	--color-accent: var(--gray-a3);
+	--color-accent-foreground: var(--text-primary);
+	--color-popover: var(--elevated);
+	--color-popover-foreground: var(--text-primary);
+	--color-card: var(--elevated);
+	--color-card-foreground: var(--text-primary);
+	/* A field's edge: a step stronger than the divider hairline. */
+	--color-input: var(--border-strong);
+	--color-destructive: var(--red-9);
 }
 
 @layer base {

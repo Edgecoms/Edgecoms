@@ -29,7 +29,7 @@ export default function LoginPage() {
 			setLoading(false);
 			return;
 		}
-		router.push("/" as Route);
+		router.push("/campaigns" as Route);
 		router.refresh();
 	}
 

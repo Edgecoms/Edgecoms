@@ -216,7 +216,7 @@ tests before committing (66 tests in `apps/email`, plus render tests in `@edgeco
 | 2 Ingest | `mail_*` schema (migration 0015), `POST /api/v1/events` with per-app HMAC, idempotency, forwarding to `merchant_events` |
 | 3 Resend | Adapter, test mode, `/api/webhooks/resend`, suppression, `resend:setup` |
 | 4 Templates | Brand option on `@edgecoms/mail/render`, 5 lifecycle templates, `/templates`, `resend:push-templates` |
-| 5 Admin UI | Dashboard, Contacts (+ profile, opt-out), Apps (settings, secret status), Templates |
+| 5 Admin UI | Campaigns (home), Contacts (+ profile, opt-out), Apps (sender, secret status), Templates. No dashboard: delivery numbers live in Resend |
 | 6 Campaigns | Paste the email's HTML (written with Claude; a "Copy prompt for Claude" brief keeps it email-safe), sandboxed live preview, audience, test send, guarded send/schedule/cancel. HTML must carry `{{{RESEND_UNSUBSCRIBE_URL}}}` and no `<script>`; the plain-text part is derived from it (migrations 0016, 0018, 0019) |
 | 7 Automations | Built in Resend's dashboard; the Templates page shows each template's trigger and alias |
 | 8 Preferences | `/preferences/<token>`, consent timestamp `preferences_set_at` (migration 0017) |

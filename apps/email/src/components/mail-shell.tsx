@@ -7,7 +7,6 @@ import type { ReactNode } from "react";
 import { authClient } from "@/lib/auth-client";
 
 const NAV = [
-	{ href: "/", label: "Dashboard" },
 	{ href: "/campaigns", label: "Campaigns" },
 	{ href: "/contacts", label: "Contacts" },
 	{ href: "/apps", label: "Apps" },

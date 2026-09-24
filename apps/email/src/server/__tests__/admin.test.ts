@@ -13,7 +13,6 @@ import {
 } from "@edgecoms/db/schema/mail";
 import { listAppsWithSettings } from "../apps/identity";
 import { listContacts } from "../queries/contacts";
-import { change, overview } from "../queries/dashboard";
 import { mailRouter } from "../router";
 
 const createCaller = createCallerFactory(mailRouter);
@@ -167,68 +166,5 @@ describe("contact list", () => {
 		expect(byEmail.get("other@else.com")?.shopDomain).toBeNull();
 		expect(await listContacts(testDb.db, "brand.my")).toHaveLength(1);
 		expect(other).toBeDefined();
-	});
-});
-
-describe("dashboard", () => {
-	const NOW = new Date("2026-09-24T15:00:00Z");
-	const daysAgo = (days: number) => new Date(NOW.getTime() - days * 86_400_000);
-
-	test("counts new contacts per day, against the 30 days before", async () => {
-		await testDb.db.insert(mailContacts).values([
-			{ createdAt: daysAgo(0), email: "today@a.com" },
-			{ createdAt: daysAgo(0), email: "today2@a.com" },
-			{ createdAt: daysAgo(29), email: "first-day@a.com" },
-			{ createdAt: daysAgo(45), email: "previous@a.com" },
-			{ createdAt: daysAgo(90), email: "old@a.com" },
-		]);
-		const stats = await overview(testDb.db, NOW);
-		expect(stats.newContacts).toBe(3);
-		expect(stats.previousNewContacts).toBe(1);
-		expect(stats.series).toHaveLength(30);
-		expect(stats.series.at(-1)).toBe(2);
-		expect(stats.series[0]).toBe(1);
-		// The line and the headline count the same people.
-		expect(stats.series.reduce((sum, n) => sum + n, 0)).toBe(stats.newContacts);
-		expect(stats.contacts).toBe(5);
-		expect(change(3, 1)).toBe(200);
-		expect(change(3, 0)).toBeNull();
-	});
-
-	test("reachable means opted in to marketing and not suppressed", async () => {
-		await testDb.db.insert(mailContacts).values([
-			{ email: "yes@a.com", marketing: true },
-			{ email: "bounced@a.com", marketing: true, suppressedAt: NOW },
-			{ email: "no@a.com", marketing: false },
-		]);
-		expect((await overview(testDb.db, NOW)).reachable).toBe(1);
-	});
-
-	test("live installs count installed and active, per Edge Mail app", async () => {
-		const [store] = await testDb.db
-			.insert(mailStores)
-			.values({ shopDomain: "brand.myshopify.com" })
-			.returning();
-		const [other] = await testDb.db
-			.insert(mailStores)
-			.values({ shopDomain: "other.myshopify.com" })
-			.returning();
-		await testDb.db.insert(mailInstallations).values([
-			{
-				appId,
-				status: "active",
-				statusChangedAt: NOW,
-				storeId: store?.id ?? "",
-			},
-			{
-				appId,
-				status: "uninstalled",
-				statusChangedAt: NOW,
-				storeId: other?.id ?? "",
-			},
-		]);
-		const stats = await overview(testDb.db, NOW);
-		expect(stats.liveInstalls).toBe(1);
-		expect(stats.byApp).toEqual([{ installs: 1, name: "Edge Cart" }]);
 	});
 });

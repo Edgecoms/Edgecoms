@@ -15,12 +15,17 @@ import {
 	identityOf,
 	listAppsWithSettings,
 } from "../src/server/apps/identity";
-import { upsertTemplate } from "../src/server/resend";
+import {
+	lifecycleAutomation,
+	upsertAutomation,
+	upsertTemplate,
+} from "../src/server/resend";
 
 /**
- * Renders every lifecycle template for every CONFIGURED app and pushes it to
- * Resend as `<app-slug>-<template>`. Apps without settings are skipped: they
- * have no sender yet. Safe to re-run; each run updates in place.
+ * Renders every lifecycle template for every CONFIGURED app, pushes it to
+ * Resend as `<app-slug>-<template>`, then creates or updates the automation
+ * that sends it. Apps without settings are skipped: they have no sender yet.
+ * Safe to re-run; each run updates in place.
  *
  *   bun run resend:push-templates     (reads apps/email/.env)
  */
@@ -52,16 +57,23 @@ try {
 		}));
 		for (const template of LIFECYCLE_TEMPLATES) {
 			const content = lifecycleContent(template, identity);
+			const name = `${app.name}: ${LIFECYCLE_NAMES[template]}`;
 			const outcome = await upsertTemplate({
 				alias: `${app.slug}-${template}`,
 				from: fromHeader(settings),
 				html: renderMinimalHtml(content, brand),
-				name: `${app.name}: ${LIFECYCLE_NAMES[template]}`,
+				name,
 				subject: content.subject,
 				text: renderText(content, brand),
 				variables,
 			});
-			process.stdout.write(`${outcome} ${app.slug}-${template}\n`);
+			const automation = await upsertAutomation(
+				name,
+				lifecycleAutomation(app.slug, template, fromHeader(settings))
+			);
+			process.stdout.write(
+				`${outcome} ${app.slug}-${template}, automation ${automation}\n`
+			);
 		}
 	}
 } finally {

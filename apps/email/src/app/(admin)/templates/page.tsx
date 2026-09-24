@@ -7,10 +7,10 @@ import {
 	brandFor,
 	LIFECYCLE_NAMES,
 	LIFECYCLE_TEMPLATES,
-	LIFECYCLE_TRIGGERS,
 	lifecycleContent,
 	previewVariables,
 	TEMPLATE_VARIABLES,
+	triggerLabel,
 } from "@/emails/templates";
 import { identityOf, listAppsWithSettings } from "@/server/apps/identity";
 import { requireAdmin } from "@/server/session";
@@ -63,7 +63,7 @@ export default async function TemplatesPage({
 	return (
 		<div className="flex flex-col gap-6">
 			<PortalHeader
-				description="Pushed to Resend as <app>-<template> by `bun run resend:push-templates`. Automations pick them by that alias."
+				description="Pushed to Resend as <app>-<template>, each with its automation, by `bun run resend:push-templates`."
 				title="Templates"
 			/>
 			<nav aria-label="App" className="flex flex-wrap gap-1">
@@ -97,7 +97,7 @@ export default async function TemplatesPage({
 				<dt className="text-secondary-foreground">Sent when</dt>
 				<dd>
 					<code className="font-mono text-[12px]">
-						{LIFECYCLE_TRIGGERS[template]}
+						{triggerLabel(template)}
 					</code>
 				</dd>
 				<dt className="text-secondary-foreground">Resend alias</dt>

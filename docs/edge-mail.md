@@ -282,12 +282,15 @@ email, contact and suppression events; put its signing secret in `RESEND_WEBHOOK
 for each app on the Apps page (the address must be on a domain verified in Resend). Then
 `bun run resend:push-templates` (it refuses a non-https `EDGE_MAIL_URL`).
 
-**7. Automations** in Resend: trigger on the event the Templates page shows, send the template alias
-it shows, and filter on the `app_slug` payload field. In each Send Email step, map `GREETING_NAME`
-from `event.first_name` and `PREFERENCES_URL` from `event.preferences_url`.
+**7. Automations** are created by the same `bun run resend:push-templates`: one per template, named
+`<App>: <Template>`, enabled. Each is the template's event, then a filter on the payload's `app_slug`
+(every app sends the same event names), then Send Email with `GREETING_NAME` and `PREFERENCES_URL`
+mapped from `event.first_name` and `event.preferences_url`. The setup reminder waits 24 hours for
+`setup.completed` from the same app and sends only on timeout. Re-running updates them in place, so
+edit `LIFECYCLE_TRIGGERS` and push rather than editing them in the Resend dashboard.
 
-**8. Edge Cart first**, with test mode still ON: copy `apps/email/clients/edge-mail-client.ts` into
-it, set `EDGE_MAIL_APP_ID=edge-cart`, `EDGE_MAIL_URL=https://email.edgecoms.app` and
+**8. Edge Cart first**, with test mode still ON: paste `apps/email/clients/handoff/edge-cart.md` into
+Claude Code in the Edge Cart repo (one hand-off per app, the client embedded). It adds the client, sets `EDGE_MAIL_APP_ID=edge-cart`, `EDGE_MAIL_URL=https://email.edgecoms.app` and
 `EDGE_MAIL_SECRET` (the same value as `EDGE_MAIL_SECRET_EDGE_CART` here). Install on a dev store and
 walk the brief's section 43 checklist; confirm the three unverified Resend points (template
 placeholders, import upsert, automation tags). Nothing reaches a merchant: every message goes to the

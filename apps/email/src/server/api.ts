@@ -3,12 +3,10 @@ import { db } from "@edgecoms/db";
 import { trpcServer } from "@hono/trpc-server";
 import { Hono } from "hono";
 import { mailAuth } from "./auth";
-import type { ResendSync } from "./events/ingest";
 import { eventsRoute } from "./events/route";
+import { createResendSync } from "./resend";
 import { mailRouter } from "./router";
-
-// ponytail: placeholder until the Resend adapter lands (Phase 3).
-const noSync: ResendSync = () => Promise.resolve("skipped");
+import { resendWebhookRoute } from "./webhooks/route";
 
 /**
  * The whole HTTP surface of Edge Mail, mounted at /api by the Next catch-all.
@@ -16,6 +14,7 @@ const noSync: ResendSync = () => Promise.resolve("skipped");
  *   /api/auth/*   Better Auth (admin sign-in; sign-up disabled)
  *   /api/trpc/*   the admin UI's typed API
  *   /api/v1/events  the Edge apps' signed event stream
+ *   /api/webhooks/resend  Resend delivery webhooks (Svix-signed)
  */
 export const api = new Hono()
 	.basePath("/api")
@@ -28,4 +27,5 @@ export const api = new Hono()
 			createContext: (_opts, c) => createContext(c.req.raw),
 		})
 	)
-	.route("/v1/events", eventsRoute({ db, sync: noSync }));
+	.route("/v1/events", eventsRoute({ db, sync: createResendSync(db) }))
+	.route("/webhooks/resend", resendWebhookRoute({ db }));

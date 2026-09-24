@@ -1,7 +1,9 @@
 "use client";
 
 import { Button } from "@edgecoms/ui/components/button";
+import { Input } from "@edgecoms/ui/components/input";
 import { Label } from "@edgecoms/ui/components/label";
+import { Textarea } from "@edgecoms/ui/components/textarea";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type { Route } from "next";
 import Link from "next/link";
@@ -27,6 +29,7 @@ import {
 	CODE_AREA,
 	EMPTY_FORM,
 	FIELD,
+	SELECT,
 } from "./shared";
 
 function Field({
@@ -94,7 +97,7 @@ function HtmlField({
 				label="Email HTML"
 			>
 				{(id) => (
-					<textarea
+					<Textarea
 						className={CODE_AREA}
 						id={id}
 						onChange={(event) => onChange(event.target.value)}
@@ -229,7 +232,7 @@ export function Composer({
 			>
 				<Field label="Campaign name">
 					{(id) => (
-						<input
+						<Input
 							className={FIELD}
 							id={id}
 							onChange={(event) => update({ name: event.target.value })}
@@ -258,7 +261,7 @@ export function Composer({
 					>
 						{(id) => (
 							<select
-								className={FIELD}
+								className={SELECT}
 								id={id}
 								onChange={(event) =>
 									update({ appId: event.target.value, audience: {} })
@@ -284,7 +287,7 @@ export function Composer({
 					>
 						{(id) => (
 							<select
-								className={FIELD}
+								className={SELECT}
 								id={id}
 								onChange={(event) =>
 									update({ type: event.target.value as CampaignType })
@@ -302,7 +305,7 @@ export function Composer({
 				</div>
 				<Field label="Subject">
 					{(id) => (
-						<input
+						<Input
 							className={FIELD}
 							id={id}
 							onChange={(event) => update({ subject: event.target.value })}
@@ -317,7 +320,7 @@ export function Composer({
 					label="Preview text"
 				>
 					{(id) => (
-						<input
+						<Input
 							className={FIELD}
 							id={id}
 							onChange={(event) => update({ preheader: event.target.value })}

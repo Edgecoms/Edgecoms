@@ -1,5 +1,6 @@
 "use client";
 
+import { Input } from "@edgecoms/ui/components/input";
 import { Label } from "@edgecoms/ui/components/label";
 import { useMutation } from "@tanstack/react-query";
 import { useId, useState } from "react";
@@ -86,7 +87,7 @@ export function SendDialog({
 			</p>
 			<div className="mt-4 flex flex-col gap-2">
 				<Label htmlFor={scheduleId}>Schedule (optional, your local time)</Label>
-				<input
+				<Input
 					className={FIELD}
 					id={scheduleId}
 					onChange={(event) => setScheduleAt(event.target.value)}

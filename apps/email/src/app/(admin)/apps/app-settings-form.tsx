@@ -84,6 +84,7 @@ export function AppSettingsForm({
 				<div className="flex flex-col gap-2" key={name}>
 					<Label htmlFor={`${idPrefix}-${name}`}>{label}</Label>
 					<Input
+						className="bg-white"
 						defaultValue={
 							settings?.[name] ?? (name === "senderName" ? appName : "")
 						}

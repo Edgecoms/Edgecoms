@@ -1,6 +1,7 @@
 "use client";
 
 import type { MailAudience } from "@edgecoms/db/schema/mail";
+import { Input } from "@edgecoms/ui/components/input";
 import { Label } from "@edgecoms/ui/components/label";
 import { useId } from "react";
 import { FIELD } from "./shared";
@@ -65,7 +66,7 @@ export function AudienceFields({
 
 			<div className="flex flex-col gap-2">
 				<Label htmlFor={`${id}-winback`}>Uninstalled within (days)</Label>
-				<input
+				<Input
 					className={FIELD}
 					id={`${id}-winback`}
 					min={1}
@@ -110,7 +111,7 @@ export function AudienceFields({
 				<Label htmlFor={`${id}-plans`}>
 					Plans (comma separated, empty for any)
 				</Label>
-				<input
+				<Input
 					className={FIELD}
 					defaultValue={(audience.plans ?? []).join(", ")}
 					id={`${id}-plans`}
@@ -131,7 +132,7 @@ export function AudienceFields({
 
 			<div className="flex flex-col gap-2">
 				<Label htmlFor={`${id}-active`}>Active within (days)</Label>
-				<input
+				<Input
 					className={FIELD}
 					id={`${id}-active`}
 					min={1}

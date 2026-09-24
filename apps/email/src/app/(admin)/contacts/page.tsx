@@ -37,6 +37,7 @@ export default async function ContactsPage({
 					Search contacts
 				</label>
 				<Input
+					className="bg-white"
 					defaultValue={q}
 					id="contact-search"
 					name="q"

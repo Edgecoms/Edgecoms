@@ -48,6 +48,7 @@ export default function LoginPage() {
 					<Label htmlFor={emailId}>Email</Label>
 					<Input
 						autoComplete="email"
+						className="bg-white"
 						id={emailId}
 						name="email"
 						required
@@ -58,6 +59,7 @@ export default function LoginPage() {
 					<Label htmlFor={passwordId}>Password</Label>
 					<Input
 						autoComplete="current-password"
+						className="bg-white"
 						id={passwordId}
 						name="password"
 						required

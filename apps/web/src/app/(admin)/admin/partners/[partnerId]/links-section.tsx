@@ -2,11 +2,15 @@
 
 import { Button } from "@edgecoms/ui/components/button";
 import { Input } from "@edgecoms/ui/components/input";
+import {
+	EmptyState,
+	StatusBadge,
+	TableShell,
+} from "@edgecoms/ui/components/portal";
 import { Skeleton } from "@edgecoms/ui/components/skeleton";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { type FormEvent, useId, useState } from "react";
 import { toast } from "sonner";
-import { EmptyState, StatusBadge, TableShell } from "@/components/portal/ui";
 import { EDGE_PRODUCTS } from "@/lib/products";
 import { SITE_URL } from "@/lib/seo";
 import { queryClient, trpc } from "@/utils/trpc";

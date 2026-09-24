@@ -9,7 +9,16 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
 import { renderResetPasswordEmail, renderVerifyEmail } from "./emails";
 
-export function createAuth() {
+export interface CreateAuthOptions {
+	/**
+	 * Refuse email/password sign-up on this instance. Edge Mail sets it: its
+	 * users are existing admins, and a sign-up there would run the hook below
+	 * and mint a pending PARTNER row from a host that has no partner portal.
+	 */
+	disableSignUp?: boolean;
+}
+
+export function createAuth(options: CreateAuthOptions = {}) {
 	return betterAuth({
 		database: drizzleAdapter(db, {
 			provider: "pg",
@@ -19,6 +28,7 @@ export function createAuth() {
 		trustedOrigins: [env.CORS_ORIGIN],
 		emailAndPassword: {
 			enabled: true,
+			disableSignUp: options.disableSignUp ?? false,
 			/**
 			 * SELF-SERVE PASSWORD RESET.
 			 *

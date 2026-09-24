@@ -1,0 +1,1 @@
+ALTER TABLE "mail_campaigns" ADD COLUMN "html" text DEFAULT '' NOT NULL;

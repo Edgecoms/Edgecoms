@@ -1,5 +1,11 @@
 "use client";
 
+import {
+	EmptyState,
+	PortalHeader,
+	StatusBadge,
+	TableShell,
+} from "@edgecoms/ui/components/portal";
 import { Skeleton } from "@edgecoms/ui/components/skeleton";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type { Route } from "next";
@@ -8,12 +14,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { PartnerCodeCard } from "@/components/portal/partner-code-card";
-import {
-	EmptyState,
-	PortalHeader,
-	StatusBadge,
-	TableShell,
-} from "@/components/portal/ui";
 import { AppIcon } from "@/components/ui/app-icon";
 import { authClient } from "@/lib/auth-client";
 import {

@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { PARTNER_CONTACT_EMAIL } from "../contact";
 import {
 	type EmailContent,
+	RESEND_UNSUBSCRIBE_URL,
 	renderEmail,
 	renderHtml,
 	renderText,
@@ -154,5 +155,50 @@ describe("renderEmail", () => {
 		expect(email.to).toBe("alex@acme.com");
 		expect(email.html).toBe(renderHtml(EVERY_BLOCK));
 		expect(email.text).toBe(renderText(EVERY_BLOCK));
+	});
+});
+
+describe("an Edge app's brand", () => {
+	const brand = {
+		accent: "#2255ff",
+		contact: "https://edgecoms.app/support/edge-cart",
+		footer: "Edge Cart, edgecoms.app",
+		manageUrl: RESEND_UNSUBSCRIBE_URL,
+		name: "Edge Cart",
+	};
+	const html = renderHtml({ ...EVERY_BLOCK, eyebrow: "New feature" }, brand);
+
+	test("names the app, not the partner program", () => {
+		expect(html).toContain("Edge Cart</td>");
+		expect(html).not.toContain("Partners");
+		expect(html).toContain("#2255ff");
+		expect(html).toContain("New feature");
+	});
+
+	test("links the support page and the unsubscribe placeholder", () => {
+		expect(html).toContain(
+			'Visit <a href="https://edgecoms.app/support/edge-cart"'
+		);
+		expect(html).toContain(`href="${RESEND_UNSUBSCRIBE_URL}"`);
+		expect(renderText(EVERY_BLOCK, brand)).toContain(
+			`Manage email preferences: ${RESEND_UNSUBSCRIBE_URL}`
+		);
+	});
+
+	test("an accent that is not a plain hex colour never reaches a style attribute", () => {
+		const hostile = renderHtml(EVERY_BLOCK, {
+			...brand,
+			accent: 'red;" onmouseover="alert(1)',
+		});
+		expect(hostile).not.toContain("onmouseover");
+		expect(hostile).toContain("#ff5e1f");
+	});
+
+	test("a manage link that is not a web address is dropped", () => {
+		const html2 = renderHtml(EVERY_BLOCK, {
+			...brand,
+			manageUrl: "javascript:alert(1)",
+		});
+		expect(html2).not.toContain("Manage email preferences");
 	});
 });

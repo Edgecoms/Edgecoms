@@ -1,9 +1,9 @@
 "use client";
 
 import { Button } from "@edgecoms/ui/components/button";
+import { PortalHeader, StatCard } from "@edgecoms/ui/components/portal";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { PortalHeader, StatCard } from "@/components/portal/ui";
 import { allMoney } from "@/lib/money";
 import { queryClient, trpc } from "@/utils/trpc";
 

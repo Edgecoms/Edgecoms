@@ -31,6 +31,7 @@
     "check-types": "turbo check-types",
     "test": "turbo test",
     "dev:web": "turbo -F web dev",
+    "dev:email": "turbo -F email dev",
     "db:push": "turbo -F @edgecoms/db db:push",
     "db:seed": "turbo -F @edgecoms/db db:seed",
     "db:create-admin": "turbo -F @edgecoms/auth create-admin",

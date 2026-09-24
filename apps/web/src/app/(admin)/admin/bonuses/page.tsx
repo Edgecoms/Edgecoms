@@ -1,16 +1,16 @@
 "use client";
 
 import { Button } from "@edgecoms/ui/components/button";
-import { Skeleton } from "@edgecoms/ui/components/skeleton";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { toast } from "sonner";
 import {
 	EmptyState,
 	PortalHeader,
 	StatCard,
 	StatusBadge,
 	TableShell,
-} from "@/components/portal/ui";
+} from "@edgecoms/ui/components/portal";
+import { Skeleton } from "@edgecoms/ui/components/skeleton";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
 	allMoney,
 	formatMoney,

@@ -3,11 +3,11 @@
 import { Button } from "@edgecoms/ui/components/button";
 import { Input } from "@edgecoms/ui/components/input";
 import { Label } from "@edgecoms/ui/components/label";
+import { PortalHeader, StatusBadge } from "@edgecoms/ui/components/portal";
 import { Skeleton } from "@edgecoms/ui/components/skeleton";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { type FormEvent, useId, useState } from "react";
 import { toast } from "sonner";
-import { PortalHeader, StatusBadge } from "@/components/portal/ui";
 import { queryClient, trpc } from "@/utils/trpc";
 
 /**

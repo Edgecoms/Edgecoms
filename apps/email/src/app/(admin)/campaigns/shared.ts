@@ -52,6 +52,6 @@ export const EMPTY_FORM: CampaignForm = {
 };
 
 export const FIELD =
-	"h-9 w-full rounded-lg border border-border bg-bg px-3 text-body-sm text-primary-foreground";
+	"h-9 w-full rounded-lg border border-border bg-white px-3 text-body-sm text-primary-foreground";
 export const AREA =
-	"min-h-40 w-full rounded-lg border border-border bg-bg px-3 py-2 text-body-sm text-primary-foreground";
+	"min-h-40 w-full rounded-lg border border-border bg-white px-3 py-2 text-body-sm text-primary-foreground";

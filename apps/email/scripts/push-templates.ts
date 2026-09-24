@@ -1,14 +1,13 @@
 import { createDb } from "@edgecoms/db";
-import {
-	RESEND_UNSUBSCRIBE_URL,
-	renderHtml,
-	renderText,
-} from "@edgecoms/mail/render";
+import { renderMinimalHtml } from "@edgecoms/mail/minimal";
+import { renderText } from "@edgecoms/mail/render";
 import {
 	brandFor,
 	LIFECYCLE_NAMES,
 	LIFECYCLE_TEMPLATES,
+	LIFECYCLE_VARIABLES,
 	lifecycleContent,
+	TEMPLATE_VARIABLES,
 } from "../src/emails/templates";
 import {
 	fromHeader,
@@ -33,17 +32,25 @@ try {
 			continue;
 		}
 		const identity = identityOf(app);
-		const brand = brandFor(identity, RESEND_UNSUBSCRIBE_URL);
+		const brand = brandFor(identity, TEMPLATE_VARIABLES.preferencesUrl);
+		// With no preferences link in the event, the manage link still goes
+		// somewhere real: the app's support page.
+		const variables = LIFECYCLE_VARIABLES.map((variable) => ({
+			fallbackValue:
+				variable.fallback ?? identity.supportUrl ?? "https://edgecoms.app",
+			key: variable.key,
+		}));
 		for (const template of LIFECYCLE_TEMPLATES) {
 			const content = lifecycleContent(template, identity);
 			const outcome = await upsertTemplate({
 				alias: `${app.slug}-${template}`,
 				from: fromHeader(settings),
-				html: renderHtml(content, brand),
+				html: renderMinimalHtml(content, brand),
 				name: `${app.name}: ${LIFECYCLE_NAMES[template]}`,
 				replyTo: settings.replyTo,
 				subject: content.subject,
 				text: renderText(content, brand),
+				variables,
 			});
 			process.stdout.write(`${outcome} ${app.slug}-${template}\n`);
 		}

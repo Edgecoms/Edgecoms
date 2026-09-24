@@ -1,5 +1,5 @@
 import { db } from "@edgecoms/db";
-import { RESEND_UNSUBSCRIBE_URL, renderHtml } from "@edgecoms/mail/render";
+import { renderMinimalHtml } from "@edgecoms/mail/minimal";
 import { EmptyState, PortalHeader } from "@edgecoms/ui/components/portal";
 import type { Metadata, Route } from "next";
 import Link from "next/link";
@@ -8,6 +8,8 @@ import {
 	LIFECYCLE_NAMES,
 	LIFECYCLE_TEMPLATES,
 	lifecycleContent,
+	previewVariables,
+	TEMPLATE_VARIABLES,
 } from "@/emails/templates";
 import { identityOf, listAppsWithSettings } from "@/server/apps/identity";
 
@@ -46,7 +48,12 @@ export default async function TemplatesPage({
 
 	const identity = identityOf(app);
 	const content = lifecycleContent(template, identity);
-	const html = renderHtml(content, brandFor(identity, RESEND_UNSUBSCRIBE_URL));
+	const html = previewVariables(
+		renderMinimalHtml(
+			content,
+			brandFor(identity, TEMPLATE_VARIABLES.preferencesUrl)
+		)
+	);
 	const href = (appSlug: string, name: string) =>
 		`/templates?app=${appSlug}&t=${name}` as Route;
 

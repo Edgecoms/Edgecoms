@@ -34,6 +34,8 @@ export type Block =
 	/** A short label and value table, such as the bonus amounts. */
 	| { kind: "facts"; note?: string; rows: readonly FactRow[]; title: string }
 	| { kind: "paragraph"; text: string }
+	/** A quiet secondary action: an underlined link, not a second button. */
+	| { kind: "link"; label: string; url: string }
 	/** Fine print, set apart below a hairline. */
 	| { kind: "small"; text: string }
 	/** A numbered "how it works". */
@@ -51,7 +53,7 @@ export interface EmailContent {
 
 type BlockOf<K extends Block["kind"]> = Extract<Block, { kind: K }>;
 
-const FONT =
+export const FONT =
 	"-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Helvetica, Arial, sans-serif";
 const MONO = "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace";
 
@@ -94,6 +96,7 @@ const BLOCK_SPACE: Record<Block["kind"], number> = {
 	callout: 24,
 	code: 24,
 	facts: 28,
+	link: 16,
 	paragraph: 16,
 	small: 32,
 	steps: 28,
@@ -167,21 +170,28 @@ export const PARTNER_BRAND: EmailBrand = {
 const HEX_COLOR = /^#[0-9a-f]{6}$/i;
 
 /** The accent, or Edge orange if it is not a plain hex colour. It lands in a style attribute. */
-function accentOf(brand: EmailBrand): string {
+export function accentOf(brand: EmailBrand): string {
 	return HEX_COLOR.test(brand.accent) ? brand.accent : COLOR.brand;
 }
 
-function contactLine(brand: EmailBrand): string {
+export function contactLine(brand: EmailBrand): string {
 	const verb = PLAIN_EMAIL.test(brand.contact) ? "Email" : "Visit";
 	return `Questions? ${verb} ${brand.contact}. Replies to this email are not received.`;
 }
 
-/** Only a web address, or Resend's own placeholder, becomes the manage link. */
-function manageHref(brand: EmailBrand): string | null {
+/**
+ * A Resend template variable, like `{{{PREFERENCES_URL}}}`: Resend fills it
+ * per recipient. Upper-case letters, digits and underscores only, so it can
+ * carry nothing that would break out of an attribute.
+ */
+const TEMPLATE_VARIABLE = /^\{\{\{[A-Z][A-Z0-9_]*\}\}\}$/;
+
+/** Only a web address, or a Resend placeholder, becomes the manage link. */
+export function manageHref(brand: EmailBrand): string | null {
 	if (!brand.manageUrl) {
 		return null;
 	}
-	if (brand.manageUrl === RESEND_UNSUBSCRIBE_URL) {
+	if (TEMPLATE_VARIABLE.test(brand.manageUrl)) {
 		return brand.manageUrl;
 	}
 	return webAddress(brand.manageUrl);
@@ -208,7 +218,7 @@ export function formatRate(rateBps: number): string {
 }
 
 /** Only a web address becomes a link. Anything else is shown, never followed. */
-function webAddress(url: string): string | null {
+export function webAddress(url: string): string | null {
 	const trimmed = url.trim();
 	return WEB_ADDRESS.test(trimmed) ? trimmed : null;
 }
@@ -315,6 +325,15 @@ function renderCallout(block: BlockOf<"callout">, accent: string): string {
 	return `<table ${FULL_TABLE} style="border-collapse:separate;"><tr><td width="4" bgcolor="${accent}" style="${bar}">&nbsp;</td><td bgcolor="${COLOR.calloutTint}" style="${box}">${title}${body}</td></tr></table>`;
 }
 
+function renderLink(block: BlockOf<"link">): string {
+	const href = webAddress(block.url);
+	const style = text(15, 24, COLOR.body);
+	if (!href) {
+		return `<p style="${style}">${escapeHtml(block.label)}</p>`;
+	}
+	return `<p style="${style}"><a href="${escapeHtml(href)}" style="color:${COLOR.heading};text-decoration:underline;">${escapeHtml(block.label)}</a></p>`;
+}
+
 function renderSmall(block: BlockOf<"small">): string {
 	const rule = `border-top:1px solid ${COLOR.hairline};padding-top:20px;`;
 	return `<table ${FULL_TABLE}><tr><td style="${rule}${text(13, 20, COLOR.muted, "text-wrap:pretty;")}">${escapeHtml(block.text)}</td></tr></table>`;
@@ -330,6 +349,8 @@ function renderBlock(block: Block, accent: string): string {
 			return renderCode(block);
 		case "facts":
 			return renderFacts(block);
+		case "link":
+			return renderLink(block);
 		case "paragraph":
 			return renderParagraph(block);
 		case "small":
@@ -402,9 +423,13 @@ function renderCard(content: EmailContent, brand: EmailBrand): string {
 	return `<table ${FULL_TABLE} bgcolor="${COLOR.card}" style="${card}">${renderBand(brand)}${renderHeading(content.heading, content.eyebrow)}${renderBlockRows(content.blocks, accentOf(brand))}${end}</table>`;
 }
 
-function contactHtml(contact: string): string {
+/** "Email <link>" or "Visit <link>". `color` is a fixed palette value, never input. */
+export function contactHtml(
+	contact: string,
+	color: string = COLOR.heading
+): string {
 	const shown = escapeHtml(contact);
-	const linkStyle = `color:${COLOR.heading};text-decoration:underline;`;
+	const linkStyle = `color:${color};text-decoration:underline;`;
 	if (PLAIN_EMAIL.test(contact)) {
 		return `Email <a href="mailto:${shown}" style="${linkStyle}">${shown}</a>`;
 	}
@@ -447,11 +472,11 @@ function renderFrame(content: EmailContent, brand: EmailBrand): string {
 	return `<table ${FULL_TABLE} bgcolor="${COLOR.page}" style="width:100%;background-color:${COLOR.page};"><tr><td align="center" class="outer" style="padding:32px 16px 40px;">${msoOpen}${inner}${msoClose}</td></tr></table>`;
 }
 
-function renderPreheader(preheader: string): string {
+export function renderPreheader(preheader: string): string {
 	return `<div style="${HIDDEN}color:${COLOR.page};">${escapeHtml(preheader)}</div><div style="${HIDDEN}">${PREHEADER_PADDING}</div>`;
 }
 
-function renderHead(subject: string): string {
+export function renderHead(subject: string, style = HEAD_STYLE): string {
 	return [
 		"<head>",
 		'<meta charset="utf-8">',
@@ -460,7 +485,7 @@ function renderHead(subject: string): string {
 		'<meta name="color-scheme" content="light">',
 		'<meta name="supported-color-schemes" content="light">',
 		`<title>${escapeHtml(subject)}</title>`,
-		`<style>${HEAD_STYLE}</style>`,
+		`<style>${style}</style>`,
 		"</head>",
 	].join("\n");
 }
@@ -486,6 +511,7 @@ export function renderHtml(
 function blockText(block: Block): string {
 	switch (block.kind) {
 		case "button":
+		case "link":
 			return `${block.label}: ${block.url}`;
 		case "callout":
 			return `${block.title} ${block.text}`;

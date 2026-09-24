@@ -1,6 +1,7 @@
 "use client";
 
-import { RESEND_UNSUBSCRIBE_URL, renderHtml } from "@edgecoms/mail/render";
+import { renderMinimalHtml } from "@edgecoms/mail/minimal";
+import { RESEND_UNSUBSCRIBE_URL } from "@edgecoms/mail/render";
 import { Button } from "@edgecoms/ui/components/button";
 import { Label } from "@edgecoms/ui/components/label";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -22,6 +23,12 @@ import {
 	EMPTY_FORM,
 	FIELD,
 } from "./shared";
+
+/** Example copy, shown as a placeholder: short, specific, one idea per paragraph. */
+const SAMPLE_BODY = [
+	"Your cart can now choose the upsell for you. Set a rule once, like showing the travel case whenever a suitcase is in the cart, and every shopper sees the add-on that fits.",
+	"It takes about two minutes to set up, and each rule shows what it has earned on the same screen.",
+].join("\n\n");
 
 function nullIfEmpty(value: string): string | null {
 	return value.trim() === "" ? null : value;
@@ -110,16 +117,19 @@ export function Composer({
 	);
 
 	const preview = app
-		? renderHtml(
-				campaignContent({
-					body: form.body,
-					ctaLabel: nullIfEmpty(form.ctaLabel),
-					ctaUrl: nullIfEmpty(form.ctaUrl),
-					eyebrow: nullIfEmpty(form.eyebrow),
-					headline: form.headline || "Your headline",
-					preheader: form.preheader,
-					subject: form.subject,
-				}),
+		? renderMinimalHtml(
+				campaignContent(
+					{
+						body: form.body,
+						ctaLabel: nullIfEmpty(form.ctaLabel),
+						ctaUrl: nullIfEmpty(form.ctaUrl),
+						eyebrow: nullIfEmpty(form.eyebrow),
+						headline: form.headline || "Your headline",
+						preheader: form.preheader,
+						subject: form.subject,
+					},
+					app.name
+				),
 				brandFor(app.identity, RESEND_UNSUBSCRIBE_URL)
 			)
 		: "";
@@ -147,6 +157,7 @@ export function Composer({
 							className={FIELD}
 							id={id}
 							onChange={(event) => update({ name: event.target.value })}
+							placeholder="Smart Upsells launch"
 							required
 							value={form.name}
 						/>
@@ -199,6 +210,7 @@ export function Composer({
 							className={FIELD}
 							id={id}
 							onChange={(event) => update({ subject: event.target.value })}
+							placeholder="Smart Upsells just landed in Edge Cart"
 							required
 							value={form.subject}
 						/>
@@ -210,6 +222,7 @@ export function Composer({
 							className={FIELD}
 							id={id}
 							onChange={(event) => update({ preheader: event.target.value })}
+							placeholder="Upsells that change with what's in the cart."
 							value={form.preheader}
 						/>
 					)}
@@ -232,18 +245,25 @@ export function Composer({
 								className={FIELD}
 								id={id}
 								onChange={(event) => update({ headline: event.target.value })}
+								placeholder="Smart Upsells are here"
 								required
 								value={form.headline}
 							/>
 						)}
 					</Field>
 				</div>
-				<Field hint="A blank line starts a new paragraph." label="Body">
+				<Field
+					hint={
+						'A blank line starts a new paragraph. "The <app> team" is added after the button.'
+					}
+					label="Body"
+				>
 					{(id) => (
 						<textarea
 							className={AREA}
 							id={id}
 							onChange={(event) => update({ body: event.target.value })}
+							placeholder={SAMPLE_BODY}
 							required
 							value={form.body}
 						/>
@@ -256,6 +276,7 @@ export function Composer({
 								className={FIELD}
 								id={id}
 								onChange={(event) => update({ ctaLabel: event.target.value })}
+								placeholder="Try Smart Upsells →"
 								value={form.ctaLabel}
 							/>
 						)}
@@ -266,6 +287,7 @@ export function Composer({
 								className={FIELD}
 								id={id}
 								onChange={(event) => update({ ctaUrl: event.target.value })}
+								placeholder="https://"
 								type="url"
 								value={form.ctaUrl}
 							/>

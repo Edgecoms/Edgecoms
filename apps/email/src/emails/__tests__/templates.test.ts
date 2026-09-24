@@ -1,16 +1,27 @@
 /// <reference types="bun" />
 import { describe, expect, test } from "bun:test";
 import { PARTNER_CONTACT_EMAIL } from "@edgecoms/mail/contact";
-import { renderHtml, renderText } from "@edgecoms/mail/render";
+import { renderMinimalHtml } from "@edgecoms/mail/minimal";
+import { renderText } from "@edgecoms/mail/render";
 import {
 	type AppIdentity,
 	brandFor,
 	campaignContent,
 	LIFECYCLE_TEMPLATES,
 	lifecycleContent,
+	previewVariables,
+	TEMPLATE_VARIABLES,
 } from "../templates";
 
 const EM_DASH = "—";
+const SIX_APPS = [
+	"edge-cart",
+	"edge-bundles",
+	"edge-subscriptions",
+	"edge-timer",
+	"edge-reviews",
+	"edge-currency",
+];
 
 const unconfigured: AppIdentity = {
 	appUrl: null,
@@ -30,35 +41,66 @@ const configured: AppIdentity = {
 	supportUrl: "https://edgecoms.app/support",
 };
 
+function actions(
+	template: (typeof LIFECYCLE_TEMPLATES)[number],
+	app: AppIdentity
+) {
+	return lifecycleContent(template, app).blocks.filter(
+		(block) => block.kind === "button" || block.kind === "link"
+	);
+}
+
 describe("lifecycle templates", () => {
-	test("never show a button that goes nowhere", () => {
+	test("never show a button or link that goes nowhere", () => {
 		for (const template of LIFECYCLE_TEMPLATES) {
-			const content = lifecycleContent(template, unconfigured);
-			expect(content.blocks.some((block) => block.kind === "button")).toBe(
-				false
-			);
+			expect(actions(template, unconfigured)).toHaveLength(0);
 		}
 	});
 
-	test("each has its action once the app is configured", () => {
+	test("each has exactly one button once the app is configured", () => {
 		for (const template of LIFECYCLE_TEMPLATES) {
-			const content = lifecycleContent(template, configured);
-			expect(content.blocks.some((block) => block.kind === "button")).toBe(
-				true
+			const buttons = lifecycleContent(template, configured).blocks.filter(
+				(block) => block.kind === "button"
 			);
+			expect(buttons).toHaveLength(1);
 		}
 	});
 
-	test("name the app and follow the house copy rules", () => {
+	test("greet by name through Resend, and follow the house copy rules", () => {
+		const brand = brandFor(configured, TEMPLATE_VARIABLES.preferencesUrl);
 		for (const template of LIFECYCLE_TEMPLATES) {
 			const content = lifecycleContent(template, configured);
-			const html = renderHtml(content, brandFor(configured));
-			const text = renderText(content, brandFor(configured));
-			expect(html).toContain("Edge Cart");
-			expect(html).not.toContain(EM_DASH);
-			expect(text).not.toContain(EM_DASH);
-			expect(text.toLowerCase()).not.toContain("reply to this");
+			const html = renderMinimalHtml(content, brand);
+			const text = renderText(content, brand);
+			expect(html).toContain("Hi {{{GREETING_NAME}}},");
+			expect(html).toContain('href="{{{PREFERENCES_URL}}}"');
+			expect(html).toContain("The Edge Cart team");
+			for (const part of [html, text, content.subject, content.preheader]) {
+				expect(part).not.toContain(EM_DASH);
+				expect(part.toLowerCase()).not.toContain("reply to this");
+			}
 		}
+	});
+
+	test("every one of the six apps speaks in its own voice", () => {
+		const welcomes = SIX_APPS.map((slug) =>
+			renderText(lifecycleContent("welcome", { ...configured, slug }))
+		);
+		for (const text of welcomes) {
+			expect(text).not.toContain("turn more visitors into customers");
+		}
+		expect(new Set(welcomes).size).toBe(SIX_APPS.length);
+	});
+
+	test("the preview fills the placeholders", () => {
+		const html = previewVariables(
+			renderMinimalHtml(
+				lifecycleContent("welcome", configured),
+				brandFor(configured, TEMPLATE_VARIABLES.preferencesUrl)
+			)
+		);
+		expect(html).toContain("Hi there,");
+		expect(html).not.toContain("{{{");
 	});
 });
 
@@ -80,13 +122,14 @@ describe("campaign content", () => {
 		subject: "s",
 	};
 
-	test("splits the body into paragraphs and ends with the call to action", () => {
-		const content = campaignContent(copy);
+	test("body, then the button, then the app's sign-off", () => {
+		const content = campaignContent(copy, "Edge Cart");
 		expect(content.eyebrow).toBe("New feature");
 		expect(content.blocks).toEqual([
 			{ kind: "paragraph", text: "First paragraph." },
 			{ kind: "paragraph", text: "Second paragraph." },
 			{ kind: "button", label: "Try it", url: "https://edgecoms.app/x" },
+			{ kind: "paragraph", text: "The Edge Cart team" },
 		]);
 	});
 

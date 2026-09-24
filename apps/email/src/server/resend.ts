@@ -193,7 +193,8 @@ async function pushEvent(
 		payload: {
 			...event.properties,
 			...branding,
-			first_name: contact.firstName,
+			// Left out when unknown, so the template's fallback ("there") applies.
+			...(contact.firstName ? { first_name: contact.firstName } : {}),
 			preferences_url: preferencesUrl(contact.id),
 			shop_domain: event.shopDomain,
 		},
@@ -404,6 +405,8 @@ export async function upsertTemplate(template: {
 	replyTo: string | null;
 	subject: string;
 	text: string;
+	/** Filled per recipient by the automation; each needs a fallback or a value. */
+	variables: { fallbackValue: string | null; key: string }[];
 }): Promise<"created" | "updated"> {
 	const resend = client();
 	if (!resend) {
@@ -415,6 +418,11 @@ export async function upsertTemplate(template: {
 		name: template.name,
 		subject: template.subject,
 		text: template.text,
+		variables: template.variables.map((variable) => ({
+			fallbackValue: variable.fallbackValue,
+			key: variable.key,
+			type: "string" as const,
+		})),
 		...(template.replyTo ? { replyTo: template.replyTo } : {}),
 	};
 	const existing = await resend.templates.get(template.alias);

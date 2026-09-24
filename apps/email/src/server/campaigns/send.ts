@@ -4,11 +4,8 @@ import {
 	mailCampaignRecipients,
 	mailCampaigns,
 } from "@edgecoms/db/schema/mail";
-import {
-	RESEND_UNSUBSCRIBE_URL,
-	renderHtml,
-	renderText,
-} from "@edgecoms/mail/render";
+import { renderMinimalHtml } from "@edgecoms/mail/minimal";
+import { RESEND_UNSUBSCRIBE_URL, renderText } from "@edgecoms/mail/render";
 import { and, eq, gte, isNull, lt, sql } from "drizzle-orm";
 import { brandFor, campaignContent } from "@/emails/templates";
 import {
@@ -243,9 +240,12 @@ export async function startSend(
 
 /** The broadcast's HTML and text: the same render the composer previews. */
 export function renderCampaign(campaign: Campaign, app: AppWithSettings) {
-	const content = campaignContent(campaign);
+	const content = campaignContent(campaign, app.name);
 	const brand = brandFor(identityOf(app), RESEND_UNSUBSCRIBE_URL);
-	return { html: renderHtml(content, brand), text: renderText(content, brand) };
+	return {
+		html: renderMinimalHtml(content, brand),
+		text: renderText(content, brand),
+	};
 }
 
 async function createBroadcastOnce(

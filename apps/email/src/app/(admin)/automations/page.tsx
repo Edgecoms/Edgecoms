@@ -4,6 +4,7 @@ import {
 	LIFECYCLE_NAMES,
 	LIFECYCLE_TEMPLATES,
 	LIFECYCLE_TRIGGERS,
+	LIFECYCLE_VARIABLES,
 } from "@/emails/templates";
 import { requireAdmin } from "@/server/session";
 
@@ -49,6 +50,38 @@ export default async function AutomationsPage() {
 					</tr>
 				))}
 			</TableShell>
+			<section className="flex flex-col gap-3">
+				<h2 className="font-medium text-body text-primary-foreground">
+					Template variables
+				</h2>
+				<p className="max-w-3xl text-body-sm text-secondary-foreground">
+					Every lifecycle template declares these. In each automation's Send
+					Email step, map them from the event exactly as below.
+				</p>
+				<TableShell
+					head={
+						<>
+							<th>Variable</th>
+							<th>Map from</th>
+							<th>Fallback</th>
+						</>
+					}
+				>
+					{LIFECYCLE_VARIABLES.map((variable) => (
+						<tr key={variable.key}>
+							<td>
+								<code className="font-mono text-[12px]">{variable.key}</code>
+							</td>
+							<td>
+								<code className="font-mono text-[12px]">
+									{`{ "var": "${variable.from}" }`}
+								</code>
+							</td>
+							<td>{variable.fallback ?? "the app's support page"}</td>
+						</tr>
+					))}
+				</TableShell>
+			</section>
 			<section className="flex max-w-3xl flex-col gap-3 text-body-sm text-secondary-foreground">
 				<h2 className="font-medium text-body text-primary-foreground">
 					Building one in Resend

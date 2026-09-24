@@ -1,7 +1,3 @@
-import { Analytics } from "@vercel/analytics/next";
-import type { Metadata } from "next";
-import { Geist_Mono } from "next/font/google";
-import localFont from "next/font/local";
 import { ConsentBanner } from "@/components/analytics/consent-banner";
 import { MetaPixel } from "@/components/analytics/meta-pixel";
 import Providers from "@/components/providers";
@@ -12,6 +8,10 @@ import {
 	SITE_URL,
 	websiteSchema,
 } from "@/lib/seo";
+import { Analytics } from "@vercel/analytics/next";
+import type { Metadata } from "next";
+import { Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "../index.css";
 
 const interVariable = localFont({

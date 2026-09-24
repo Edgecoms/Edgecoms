@@ -24,7 +24,7 @@ export default async function AppsPage() {
 	return (
 		<div className="flex flex-col gap-8">
 			<PortalHeader
-				description="Each app's sending identity and links. An app sends events once its secret is set in the environment, and can be picked for a campaign once it has a sender."
+				description="Who each app's email comes from. An app accepts events once its secret is set in the environment, and can send once it has a sender. Its links and icon are built in."
 				title="Apps"
 			/>
 			{all.map((app) => {

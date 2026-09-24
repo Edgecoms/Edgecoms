@@ -6,18 +6,27 @@ import { asc, eq, inArray } from "drizzle-orm";
 import type { AppIdentity } from "@/emails/templates";
 
 /**
- * The apps Edge Mail serves. The shared `apps` catalog also holds Trackproof,
- * which is out of scope for now; adding it means adding it here (and its icon
- * to `public/app-icons`, which a test checks).
+ * The apps Edge Mail serves, with each one's Shopify App Store listing (from
+ * the marketing catalog, apps/web/src/lib/products.ts). The shared `apps`
+ * catalog also holds Trackproof, which is out of scope for now; adding it
+ * means adding it here (and its icon to `public/app-icons`, which a test
+ * checks).
  */
-export const MAIL_APP_SLUGS = [
-	"edge-bundles",
-	"edge-cart",
-	"edge-currency",
-	"edge-reviews",
-	"edge-subscriptions",
-	"edge-timer",
-] as const;
+const APP_STORE_LISTINGS = {
+	"edge-bundles": "https://apps.shopify.com/edge-bundles",
+	"edge-cart": "https://apps.shopify.com/edgecart",
+	"edge-currency": "https://apps.shopify.com/edge-currency",
+	"edge-reviews": "https://apps.shopify.com/edge-reviews",
+	"edge-subscriptions": "https://apps.shopify.com/edge-subscription",
+	"edge-timer": "https://apps.shopify.com/urgency-timer",
+} as const;
+
+export const MAIL_APP_SLUGS = Object.keys(
+	APP_STORE_LISTINGS
+) as readonly (keyof typeof APP_STORE_LISTINGS)[];
+
+/** Where a merchant gets help with any Edge app. */
+export const SUPPORT_URL = "https://edgecoms.app/contact";
 
 /**
  * Edge Mail's apps with their settings, or null settings for an app with no
@@ -66,16 +75,28 @@ export function hostedIconUrl(slug: string): string | null {
 	return new URL(`/app-icons/${slug}.png`, env.EDGE_MAIL_URL).toString();
 }
 
-/** What a template needs to know about an app, configured or not. */
-export function identityOf(app: AppWithSettings): AppIdentity {
+function listingOf(slug: string): string | null {
+	return slug in APP_STORE_LISTINGS
+		? APP_STORE_LISTINGS[slug as keyof typeof APP_STORE_LISTINGS]
+		: null;
+}
+
+/**
+ * An app's links and icon, derived rather than configured. The App Store
+ * listing doubles as the way back into the app: for a merchant who has it
+ * installed, Shopify shows "Open app" there.
+ */
+export function linksOf(slug: string) {
+	const listing = listingOf(slug);
 	return {
-		appUrl: app.settings?.appUrl ?? null,
-		brandColor: app.settings?.brandColor ?? null,
-		// An uploaded logo wins; otherwise the icon hosted here.
-		logoUrl: app.settings?.logoUrl ?? hostedIconUrl(app.slug),
-		name: app.name,
-		reviewUrl: app.settings?.reviewUrl ?? null,
-		slug: app.slug,
-		supportUrl: app.settings?.supportUrl ?? null,
+		appUrl: listing,
+		logoUrl: hostedIconUrl(slug),
+		reviewUrl: listing ? `${listing}/reviews` : null,
+		supportUrl: SUPPORT_URL,
 	};
+}
+
+/** What a template needs to know about an app. */
+export function identityOf(app: { name: string; slug: string }): AppIdentity {
+	return { ...linksOf(app.slug), name: app.name, slug: app.slug };
 }

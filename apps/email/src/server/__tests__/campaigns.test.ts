@@ -158,7 +158,6 @@ beforeEach(async () => {
 	});
 	await testDb.db.insert(mailAppSettings).values({
 		appId: cartId,
-		brandColor: "#2255ff",
 		senderEmail: "updates@edgecoms.app",
 		senderName: "Edge Cart",
 	});

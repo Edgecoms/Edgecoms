@@ -5,7 +5,12 @@ import { join } from "node:path";
 import { PARTNER_CONTACT_EMAIL } from "@edgecoms/mail/contact";
 import { renderMinimalHtml } from "@edgecoms/mail/minimal";
 import { renderText } from "@edgecoms/mail/render";
-import { hostedIconUrl, MAIL_APP_SLUGS } from "../../server/apps/identity";
+import {
+	hostedIconUrl,
+	identityOf,
+	linksOf,
+	MAIL_APP_SLUGS,
+} from "../../server/apps/identity";
 import {
 	type AppIdentity,
 	brandFor,
@@ -22,7 +27,6 @@ const SIX_APPS = MAIL_APP_SLUGS;
 
 const unconfigured: AppIdentity = {
 	appUrl: null,
-	brandColor: null,
 	logoUrl: null,
 	name: "Edge Cart",
 	reviewUrl: null,
@@ -32,7 +36,6 @@ const unconfigured: AppIdentity = {
 
 const configured: AppIdentity = {
 	appUrl: "https://admin.shopify.com/apps/edge-cart",
-	brandColor: "#2255ff",
 	logoUrl: "https://email.edgecoms.app/app-icons/edge-cart.png",
 	name: "Edge Cart",
 	reviewUrl: "https://apps.shopify.com/edge-cart#reviews",
@@ -128,6 +131,25 @@ describe("app icon", () => {
 		}
 		expect(hostedIconUrl("not-an-app")).toBeNull();
 		expect(hostedIconUrl("trackproof")).toBeNull();
+	});
+});
+
+describe("app links", () => {
+	test("every app has its App Store listing, review page and support page", () => {
+		for (const slug of SIX_APPS) {
+			const links = linksOf(slug);
+			expect(links.appUrl).toStartWith("https://apps.shopify.com/");
+			expect(links.reviewUrl).toBe(`${links.appUrl}/reviews`);
+			expect(links.supportUrl).toBe("https://edgecoms.app/contact");
+		}
+		expect(linksOf("trackproof").appUrl).toBeNull();
+	});
+
+	test("a configured app's emails carry every action", () => {
+		const identity = identityOf({ name: "Edge Timer", slug: "edge-timer" });
+		for (const template of LIFECYCLE_TEMPLATES) {
+			expect(actions(template, identity).length).toBeGreaterThan(0);
+		}
 	});
 });
 

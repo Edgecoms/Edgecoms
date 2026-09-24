@@ -47,7 +47,6 @@ try {
 				from: fromHeader(settings),
 				html: renderMinimalHtml(content, brand),
 				name: `${app.name}: ${LIFECYCLE_NAMES[template]}`,
-				replyTo: settings.replyTo,
 				subject: content.subject,
 				text: renderText(content, brand),
 				variables,

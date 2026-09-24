@@ -92,8 +92,9 @@ Edge Mail tracks every store that installs any app, so it has its own
 All tables are prefixed `mail_`, so the boundary is visible in SQL and generic names never collide.
 
 ```text
-mail_app_settings    app_id PK→apps.id (restrict), sender_name, sender_email, reply_to,
-                     brand_color, logo_url, app_url, support_url, review_url
+mail_app_settings    app_id PK→apps.id (restrict), sender_name, sender_email
+                     (links and icon are derived in code: App Store listing, its /reviews
+                     page, edgecoms.app/contact, the hosted icon)
 mail_contacts        id, email UNIQUE (lowercased), first_name, last_name, resend_contact_id,
                      product_updates, marketing, education (bool, DEFAULT FALSE), preferences_set_at,
                      suppressed_at, suppression_reason ('bounced'|'complained')

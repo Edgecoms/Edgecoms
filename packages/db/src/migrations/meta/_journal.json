@@ -141,6 +141,13 @@
       "when": 1790237110951,
       "tag": "0019_mail_campaign_drop_fields",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1790247016377,
+      "tag": "0020_mail_app_settings_sender_only",
+      "breakpoints": true
     }
   ]
 }

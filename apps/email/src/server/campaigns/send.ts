@@ -32,7 +32,6 @@ export interface CampaignGateway {
 		html: string;
 		name: string;
 		previewText: string;
-		replyTo: string | null;
 		segmentId: string;
 		subject: string;
 		text: string;
@@ -282,7 +281,6 @@ async function createBroadcastOnce(
 			html,
 			name: campaign.name,
 			previewText: campaign.preheader,
-			replyTo: app.settings.replyTo,
 			segmentId: campaign.resendSegmentId,
 			subject: campaign.subject,
 			text,

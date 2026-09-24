@@ -16,7 +16,6 @@ import type { Block, EmailBrand, EmailContent } from "@edgecoms/mail/render";
 
 export interface AppIdentity {
 	appUrl: string | null;
-	brandColor: string | null;
 	/** An https PNG. Defaults to the icon Edge Mail hosts (see apps/identity). */
 	logoUrl: string | null;
 	name: string;
@@ -100,7 +99,7 @@ const EDGE_ORANGE = "#ff5e1f";
 
 export function brandFor(app: AppIdentity, manageUrl?: string): EmailBrand {
 	return {
-		accent: app.brandColor ?? EDGE_ORANGE,
+		accent: EDGE_ORANGE,
 		// The app's own support page when it has one; the one inbox that is
 		// read otherwise.
 		contact: app.supportUrl ?? PARTNER_CONTACT_EMAIL,

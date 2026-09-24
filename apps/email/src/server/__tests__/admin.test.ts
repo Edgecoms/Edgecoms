@@ -45,14 +45,8 @@ afterEach(async () => {
 
 const settings = () => ({
 	appId,
-	appUrl: "https://admin.shopify.com/apps/edge-cart",
-	brandColor: "#2255ff",
-	logoUrl: "",
-	replyTo: "",
-	reviewUrl: "",
 	senderEmail: "updates@edgecoms.app",
 	senderName: "Edge Cart",
-	supportUrl: "https://edgecoms.app/support",
 });
 
 describe("admin mutations are admin-only", () => {
@@ -85,21 +79,17 @@ describe("app settings", () => {
 		const rows = await testDb.db.select().from(mailAppSettings);
 		expect(rows).toHaveLength(1);
 		expect(rows[0]?.senderName).toBe("Edge Cart Team");
-		expect(rows[0]?.logoUrl).toBeNull();
 	});
 
-	test("refuse a colour that is not #rrggbb and a link that is not https", async () => {
+	test("refuse a sender that is not an email address, or has no name", async () => {
 		await expect(
 			callerAs("admin").apps.saveSettings({
 				...settings(),
-				brandColor: "red;} body{display:none",
+				senderEmail: "Edge Cart <updates@edgecoms.app>",
 			})
 		).rejects.toMatchObject({ code: "BAD_REQUEST" });
 		await expect(
-			callerAs("admin").apps.saveSettings({
-				...settings(),
-				supportUrl: "javascript:alert(1)",
-			})
+			callerAs("admin").apps.saveSettings({ ...settings(), senderName: "  " })
 		).rejects.toMatchObject({ code: "BAD_REQUEST" });
 	});
 });

@@ -10,34 +10,13 @@ import { toast } from "sonner";
 import { trpc } from "@/utils/trpc";
 
 export interface AppSettingsValues {
-	appUrl: string | null;
-	brandColor: string;
-	logoUrl: string | null;
-	replyTo: string | null;
-	reviewUrl: string | null;
 	senderEmail: string;
 	senderName: string;
-	supportUrl: string | null;
 }
 
 const FIELDS = [
 	["senderName", "Sender name", "text", "Edge Cart"],
 	["senderEmail", "Sender email", "email", "updates@edgecoms.app"],
-	["replyTo", "Reply-to (optional)", "email", ""],
-	["appUrl", "App URL", "url", "https://admin.shopify.com/..."],
-	["supportUrl", "Support URL", "url", "https://edgecoms.app/support"],
-	[
-		"reviewUrl",
-		"App Store review URL",
-		"url",
-		"https://apps.shopify.com/...#reviews",
-	],
-	[
-		"logoUrl",
-		"Logo URL (empty uses the built-in icon)",
-		"url",
-		"https://…/icon.png",
-	],
 ] as const;
 
 export function AppSettingsForm({
@@ -67,14 +46,8 @@ export function AppSettingsForm({
 		const value = (name: string) => String(form.get(name) ?? "");
 		save.mutate({
 			appId,
-			appUrl: value("appUrl"),
-			brandColor: value("brandColor"),
-			logoUrl: value("logoUrl"),
-			replyTo: value("replyTo"),
-			reviewUrl: value("reviewUrl"),
 			senderEmail: value("senderEmail"),
 			senderName: value("senderName"),
-			supportUrl: value("supportUrl"),
 		});
 	}
 
@@ -91,21 +64,11 @@ export function AppSettingsForm({
 						id={`${idPrefix}-${name}`}
 						name={name}
 						placeholder={placeholder}
-						required={name === "senderName" || name === "senderEmail"}
+						required
 						type={type}
 					/>
 				</div>
 			))}
-			<div className="flex flex-col gap-2">
-				<Label htmlFor={`${idPrefix}-brandColor`}>Brand colour</Label>
-				<input
-					className="h-10 w-20 cursor-pointer rounded-md border border-border-strong bg-surface"
-					defaultValue={settings?.brandColor ?? "#ff5e1f"}
-					id={`${idPrefix}-brandColor`}
-					name="brandColor"
-					type="color"
-				/>
-			</div>
 			<div className="flex items-end sm:col-span-2">
 				<Button
 					disabled={save.isPending}

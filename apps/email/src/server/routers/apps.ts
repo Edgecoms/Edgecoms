@@ -5,31 +5,10 @@ import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 
-const WEB_ADDRESS = /^https:\/\/\S+$/i;
-const HEX_COLOR = /^#[0-9a-f]{6}$/i;
-
-/** Optional https link: empty means unset, anything else must be a real link. */
-const link = z
-	.string()
-	.trim()
-	.max(500)
-	.refine((value) => value === "" || WEB_ADDRESS.test(value), {
-		message: "Must start with https://",
-	})
-	.transform((value) => (value === "" ? null : value));
-
 export const appSettingsInput = z.object({
 	appId: z.uuid(),
 	senderName: z.string().trim().min(1).max(80),
 	senderEmail: z.email().max(320),
-	replyTo: z
-		.union([z.email().max(320), z.literal("")])
-		.transform((value) => (value === "" ? null : value)),
-	brandColor: z.string().regex(HEX_COLOR, "Use a #rrggbb colour"),
-	logoUrl: link,
-	appUrl: link,
-	supportUrl: link,
-	reviewUrl: link,
 });
 
 export const appsRouter = router({

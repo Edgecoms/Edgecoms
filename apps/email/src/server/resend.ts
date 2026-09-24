@@ -1,7 +1,6 @@
 import type { Database } from "@edgecoms/db";
 import { apps } from "@edgecoms/db/schema/apps";
 import {
-	mailAppSettings,
 	mailContactStores,
 	mailContacts,
 	mailInstallations,
@@ -11,6 +10,7 @@ import { isTestMode, env as mailEnv } from "@edgecoms/env/mail";
 import { env } from "@edgecoms/env/server";
 import { eq } from "drizzle-orm";
 import { Resend, type WebhookEventPayload } from "resend";
+import { linksOf } from "./apps/identity";
 import type { ResendSync, SyncEvent } from "./events/ingest";
 import { preferencesUrl } from "./preferences/token";
 
@@ -151,22 +151,22 @@ async function upsertResendContact(
 	return created.data?.id ?? null;
 }
 
-/** The app's name and branding, as the automation templates read them. */
+/** The app's name and links, as the automation templates read them. */
 export async function appBranding(db: Database, slug: string) {
 	const [app] = await db
-		.select({
-			app_name: apps.name,
-			app_url: mailAppSettings.appUrl,
-			brand_color: mailAppSettings.brandColor,
-			logo_url: mailAppSettings.logoUrl,
-			review_url: mailAppSettings.reviewUrl,
-			support_url: mailAppSettings.supportUrl,
-		})
+		.select({ name: apps.name })
 		.from(apps)
-		.leftJoin(mailAppSettings, eq(mailAppSettings.appId, apps.id))
 		.where(eq(apps.slug, slug))
 		.limit(1);
-	return { app_slug: slug, ...app, app_name: app?.app_name ?? slug };
+	const links = linksOf(slug);
+	return {
+		app_name: app?.name ?? slug,
+		app_slug: slug,
+		app_url: links.appUrl,
+		logo_url: links.logoUrl,
+		review_url: links.reviewUrl,
+		support_url: links.supportUrl,
+	};
 }
 
 type Contact = typeof mailContacts.$inferSelect;
@@ -402,7 +402,6 @@ export async function upsertTemplate(template: {
 	from: string;
 	html: string;
 	name: string;
-	replyTo: string | null;
 	subject: string;
 	text: string;
 	/** Filled per recipient by the automation; each needs a fallback or a value. */
@@ -423,7 +422,6 @@ export async function upsertTemplate(template: {
 			key: variable.key,
 			type: "string" as const,
 		})),
-		...(template.replyTo ? { replyTo: template.replyTo } : {}),
 	};
 	const existing = await resend.templates.get(template.alias);
 	const outcome = existing.data ? "updated" : "created";
@@ -507,7 +505,6 @@ export async function createBroadcast(input: {
 	html: string;
 	name: string;
 	previewText: string;
-	replyTo: string | null;
 	segmentId: string;
 	subject: string;
 	text: string;
@@ -523,7 +520,6 @@ export async function createBroadcast(input: {
 		subject: input.subject,
 		text: input.text,
 		topicId: input.topicId,
-		...(input.replyTo ? { replyTo: input.replyTo } : {}),
 	});
 	return unwrap(result, "broadcasts.create").id;
 }
@@ -551,7 +547,6 @@ export async function cancelBroadcast(broadcastId: string): Promise<void> {
 export async function sendTestEmail(input: {
 	from: string;
 	html: string;
-	replyTo: string | null;
 	subject: string;
 	text: string;
 	to: string;
@@ -564,7 +559,6 @@ export async function sendTestEmail(input: {
 			subject: input.subject,
 			text: input.text,
 			to: input.to,
-			...(input.replyTo ? { replyTo: input.replyTo } : {}),
 		}),
 		"emails.send"
 	);

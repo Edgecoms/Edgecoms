@@ -71,9 +71,11 @@ export const mailSuppressionReason = pgEnum("mail_suppression_reason", [
 ]);
 
 /**
- * Per-app sending identity and branding. One row per configured app, created
- * from the Apps page; an app without a row can still send events (its secret
- * is the gate) but cannot be picked for a campaign until it has a sender.
+ * Per-app sending identity: who an app's email is FROM. One row per app,
+ * created from the Apps page; an app without a row still accepts events (its
+ * secret is the gate) but cannot send a campaign until it has a sender. The
+ * app's links (App Store listing, reviews, support) and icon are derived in
+ * code, not stored (apps/email/src/server/apps/identity.ts).
  */
 export const mailAppSettings = pgTable("mail_app_settings", {
 	appId: uuid("app_id")
@@ -81,13 +83,6 @@ export const mailAppSettings = pgTable("mail_app_settings", {
 		.references(() => apps.id, { onDelete: "restrict" }),
 	senderName: text("sender_name").notNull(),
 	senderEmail: text("sender_email").notNull(),
-	replyTo: text("reply_to"),
-	/** `#rrggbb`. An accent only: body text never sits on it. */
-	brandColor: text("brand_color").notNull(),
-	logoUrl: text("logo_url"),
-	appUrl: text("app_url"),
-	supportUrl: text("support_url"),
-	reviewUrl: text("review_url"),
 	...timestamps,
 });
 

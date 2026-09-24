@@ -261,7 +261,6 @@ export function createCampaignsRouter(gateway: CampaignGateway) {
 					await sendTestEmail({
 						from: fromHeader(app.settings),
 						html: withoutPlaceholders(html),
-						replyTo: app.settings.replyTo,
 						subject: `[Test] ${campaign.subject}`,
 						text: withoutPlaceholders(text),
 						to,

@@ -235,20 +235,41 @@ tests before committing (66 tests in `apps/email`, plus render tests in `@edgeco
 
 ## Go-live runbook
 
-1. Deploy `apps/web` first: its production build applies migrations 0015-0017 (it is the only migrator).
-2. Create the Vercel project for `apps/email` (root `apps/email`, domain `email.edgecoms.app`) with the
-   environment below. Leave `EDGE_MAIL_TEST_MODE` unset (test mode on) and set `EDGE_MAIL_TEST_RECIPIENT`.
-3. `bun run resend:setup` in `apps/email` (topics, contact properties, event names).
-4. In Resend, add a webhook to `https://email.edgecoms.app/api/webhooks/resend` for email, contact and
-   suppression events; put its signing secret in `RESEND_WEBHOOK_SECRET`.
-5. Fill in each app on the Apps page, then `bun run resend:push-templates`.
-6. Build the five automations in Resend: trigger on the event the Templates page shows, send the
-   template alias it shows, and filter on the `app_slug` payload field. In each Send Email step, map
-   `GREETING_NAME` from `event.first_name` and `PREFERENCES_URL` from `event.preferences_url`.
-7. Edge Cart first: copy `clients/edge-mail-client.ts` into it, set `EDGE_MAIL_APP_ID=edge-cart`,
-   `EDGE_MAIL_SECRET` (and the same value as `EDGE_MAIL_SECRET_EDGE_CART` here), `EDGE_MAIL_URL`.
-   Walk the brief's section 43 checklist with test mode ON. Verify the two open SDK points above.
-8. Set `EDGE_MAIL_TEST_MODE=off`. Then connect the other five apps.
+**1. Merge and let web migrate.** Merging this branch to `main` redeploys `apps/web`; its production
+build applies migrations 0015-0021 (it is the only migrator). They only add `mail_*` tables and
+columns, plus drop `mail_*` columns nothing reads any more; no partner-platform table changes.
+
+**2. Create the Vercel project** "edge-mail": import the same GitHub repo, Root Directory
+`apps/email`, framework Next.js, Node runtime (default). Add the domain `email.edgecoms.app`.
+`vercel.json` skips builds that do not touch Edge Mail (`turbo-ignore`).
+
+**3. Environment variables** (Production), from the list below. Generate each new secret with
+`openssl rand -hex 32`. Leave `EDGE_MAIL_TEST_MODE` unset (test mode ON) and set
+`EDGE_MAIL_TEST_RECIPIENT` to an inbox you read. Then deploy.
+
+**4. Resend, once**, from `apps/email` with a `.env` holding the production values
+(`RESEND_API_KEY`, `DATABASE_URL`, `EDGE_MAIL_URL=https://email.edgecoms.app`):
+`bun run resend:setup` (topics, contact properties, event names).
+
+**5. Resend webhook**: in Resend, add `https://email.edgecoms.app/api/webhooks/resend` for the
+email, contact and suppression events; put its signing secret in `RESEND_WEBHOOK_SECRET` and redeploy.
+
+**6. Senders**: sign in at `https://email.edgecoms.app` with the Edge admin account, and save a sender
+for each app on the Apps page (the address must be on a domain verified in Resend). Then
+`bun run resend:push-templates` (it refuses a non-https `EDGE_MAIL_URL`).
+
+**7. Automations** in Resend: trigger on the event the Templates page shows, send the template alias
+it shows, and filter on the `app_slug` payload field. In each Send Email step, map `GREETING_NAME`
+from `event.first_name` and `PREFERENCES_URL` from `event.preferences_url`.
+
+**8. Edge Cart first**, with test mode still ON: copy `apps/email/clients/edge-mail-client.ts` into
+it, set `EDGE_MAIL_APP_ID=edge-cart`, `EDGE_MAIL_URL=https://email.edgecoms.app` and
+`EDGE_MAIL_SECRET` (the same value as `EDGE_MAIL_SECRET_EDGE_CART` here). Install on a dev store and
+walk the brief's section 43 checklist; confirm the three unverified Resend points (template
+placeholders, import upsert, automation tags). Nothing reaches a merchant: every message goes to the
+test inbox.
+
+**9. Go live**: set `EDGE_MAIL_TEST_MODE=off`, redeploy, then connect the other five apps the same way.
 
 ## Environment (`apps/email` Vercel project)
 

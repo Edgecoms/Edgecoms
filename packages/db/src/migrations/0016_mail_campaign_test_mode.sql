@@ -1,0 +1,1 @@
+ALTER TABLE "mail_campaigns" ADD COLUMN "sent_in_test_mode" boolean;

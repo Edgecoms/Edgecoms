@@ -431,3 +431,133 @@ export async function upsertTemplate(template: {
 	}
 	return outcome;
 }
+
+function requireClient(): Resend {
+	const resend = client();
+	if (!resend) {
+		throw new Error("RESEND_API_KEY is not set.");
+	}
+	return resend;
+}
+
+function unwrap<T>(
+	result: { data: T | null; error: { message: string } | null },
+	what: string
+): T {
+	if (result.error || result.data === null) {
+		throw new Error(`${what}: ${result.error?.message ?? "no data"}`);
+	}
+	return result.data;
+}
+
+/** A segment of its own for one campaign, so its audience is exactly its snapshot. */
+export async function createCampaignSegment(name: string): Promise<string> {
+	const resend = requireClient();
+	return unwrap(await resend.segments.create({ name }), "segments.create").id;
+}
+
+/**
+ * Loads the recipients into the campaign's segment with ONE import instead of
+ * one call per contact, opting each into the campaign's topic: every one of
+ * them opted in on our side, which is how they were chosen.
+ */
+export async function importSegmentContacts(input: {
+	emails: string[];
+	segmentId: string;
+	topicId: string | null;
+}): Promise<string> {
+	const resend = requireClient();
+	const csv = ["email", ...input.emails].join("\n");
+	const result = await resend.contacts.imports.create({
+		columnMap: { email: "email" },
+		file: new Blob([csv], { type: "text/csv" }),
+		onConflict: "upsert",
+		segments: [{ id: input.segmentId }],
+		...(input.topicId
+			? { topics: [{ id: input.topicId, subscription: "opt_in" as const }] }
+			: {}),
+	});
+	return unwrap(result, "contacts.imports.create").id;
+}
+
+export type ImportState = "pending" | "completed" | "failed";
+
+export async function importState(importId: string): Promise<ImportState> {
+	const resend = requireClient();
+	const status = unwrap(
+		await resend.contacts.imports.get(importId),
+		"contacts.imports.get"
+	).status;
+	if (status === "completed") {
+		return "completed";
+	}
+	return status === "failed" ? "failed" : "pending";
+}
+
+export async function createBroadcast(input: {
+	from: string;
+	html: string;
+	name: string;
+	previewText: string;
+	replyTo: string | null;
+	segmentId: string;
+	subject: string;
+	text: string;
+	topicId: string | null;
+}): Promise<string> {
+	const resend = requireClient();
+	const result = await resend.broadcasts.create({
+		from: input.from,
+		html: input.html,
+		name: input.name,
+		previewText: input.previewText,
+		segmentId: input.segmentId,
+		subject: input.subject,
+		text: input.text,
+		topicId: input.topicId,
+		...(input.replyTo ? { replyTo: input.replyTo } : {}),
+	});
+	return unwrap(result, "broadcasts.create").id;
+}
+
+export async function sendBroadcast(
+	broadcastId: string,
+	scheduledAt: Date | null
+): Promise<void> {
+	const resend = requireClient();
+	unwrap(
+		await resend.broadcasts.send(
+			broadcastId,
+			scheduledAt ? { scheduledAt: scheduledAt.toISOString() } : undefined
+		),
+		"broadcasts.send"
+	);
+}
+
+export async function cancelBroadcast(broadcastId: string): Promise<void> {
+	const resend = requireClient();
+	unwrap(await resend.broadcasts.cancel(broadcastId), "broadcasts.cancel");
+}
+
+/** A single email, for "Send test". The recipient is the admin, never a merchant. */
+export async function sendTestEmail(input: {
+	from: string;
+	html: string;
+	replyTo: string | null;
+	subject: string;
+	text: string;
+	to: string;
+}): Promise<void> {
+	const resend = requireClient();
+	unwrap(
+		await resend.emails.send({
+			from: input.from,
+			html: input.html,
+			subject: input.subject,
+			text: input.text,
+			to: input.to,
+			...(input.replyTo ? { replyTo: input.replyTo } : {}),
+		}),
+		"emails.send"
+	);
+}

@@ -253,6 +253,11 @@ export const mailCampaigns = pgTable(
 		resendBroadcastId: text("resend_broadcast_id"),
 		scheduledAt: timestamp("scheduled_at"),
 		sentAt: timestamp("sent_at"),
+		/**
+		 * Set when the send starts. True means test mode diverted it to the test
+		 * inbox and no merchant received it. Kept so the record says so forever.
+		 */
+		sentInTestMode: boolean("sent_in_test_mode"),
 		failureReason: text("failure_reason"),
 		createdBy: text("created_by")
 			.notNull()

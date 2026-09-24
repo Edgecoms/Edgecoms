@@ -1,5 +1,6 @@
 import { adminProcedure, router } from "@edgecoms/api";
 import { appsRouter } from "./routers/apps";
+import { campaignsRouter } from "./routers/campaigns";
 import { contactsRouter } from "./routers/contacts";
 
 /**
@@ -8,6 +9,7 @@ import { contactsRouter } from "./routers/contacts";
  */
 export const mailRouter = router({
 	apps: appsRouter,
+	campaigns: campaignsRouter,
 	contacts: contactsRouter,
 	me: adminProcedure.query(({ ctx }) => ({
 		email: ctx.session.user.email,

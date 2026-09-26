@@ -25,6 +25,35 @@ export const MAIL_APP_SLUGS = Object.keys(
 	APP_STORE_LISTINGS
 ) as readonly (keyof typeof APP_STORE_LISTINGS)[];
 
+/**
+ * Each app's Shopify client id (the `client_id` in its shopify.app.toml).
+ * Public, not a secret: the admin opens an installed app by it.
+ */
+const CLIENT_IDS: Record<(typeof MAIL_APP_SLUGS)[number], string> = {
+	"edge-bundles": "83b1eb07b6463a1c8cf28031a507ea7f",
+	"edge-cart": "5957f4800812fe7bacbaae0c4abfc411",
+	"edge-currency": "56540f1533d5c549f42c30eb3d8ac399",
+	"edge-reviews": "8f98e9e5db93521fb328ca60269ae4ea",
+	"edge-subscriptions": "b42bfc6479a53048cfd6c1dc4c0e2a65",
+	"edge-timer": "5ed2d50b3a29697af7360b72762d758b",
+};
+
+const MYSHOPIFY = /\.myshopify\.com$/;
+
+/**
+ * The app open inside this store's admin, so a button lands the merchant in
+ * the app rather than on its App Store page. The store handle in an admin URL
+ * is the myshopify subdomain.
+ */
+export function adminUrl(slug: string, shopDomain: string): string | null {
+	const clientId = CLIENT_IDS[slug as keyof typeof CLIENT_IDS];
+	if (!(clientId && MYSHOPIFY.test(shopDomain))) {
+		return null;
+	}
+	const store = shopDomain.replace(MYSHOPIFY, "");
+	return `https://admin.shopify.com/store/${store}/apps/${clientId}`;
+}
+
 /** Where a merchant gets help with any Edge app. */
 export const SUPPORT_URL = "https://edgecoms.app/contact";
 

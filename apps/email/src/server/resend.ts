@@ -21,7 +21,7 @@ import {
 	LIFECYCLE_VARIABLES,
 	type LifecycleTemplate,
 } from "../emails/templates";
-import { linksOf } from "./apps/identity";
+import { adminUrl, linksOf } from "./apps/identity";
 import type { ResendSync, SyncEvent } from "./events/ingest";
 import { preferencesUrl } from "./preferences/token";
 
@@ -198,6 +198,7 @@ async function pushEvent(
 		contactProperties(db, contact.id),
 		appBranding(db, event.appSlug),
 	]);
+	const admin = adminUrl(event.appSlug, event.shopDomain);
 	const resendContactId = await upsertResendContact(
 		resend,
 		{ ...contact, email: address },
@@ -213,6 +214,7 @@ async function pushEvent(
 			...(contact.firstName ? { first_name: contact.firstName } : {}),
 			preferences_url: preferencesUrl(contact.id),
 			shop_domain: event.shopDomain,
+			...(admin ? { admin_url: admin } : {}),
 		},
 	});
 	if (error) {
@@ -532,8 +534,10 @@ export function lifecycleAutomation(
 let automationCache: Promise<Map<string, string>> | null = null;
 
 /**
- * Creates or updates one automation by name, enabled. In test mode that is
- * safe: every event is sent as the test inbox, so that is who it emails.
+ * Creates or updates one automation by name, enabled. Resend refuses to edit
+ * an enabled automation, so an update disables it for the moment of the edit;
+ * runs already in flight finish on the version they started with. In test
+ * mode enabled is safe: every event is sent as the test inbox.
  */
 export async function upsertAutomation(
 	name: string,
@@ -545,17 +549,34 @@ export async function upsertAutomation(
 		.then((result) => unwrap(result, "list automations"))
 		.then(({ data }) => new Map(data.map((row) => [row.name, row.id])));
 	const id = (await automationCache).get(name);
-	const { error } = id
-		? await resend.automations.update(id, { ...automation, status: "enabled" })
-		: await resend.automations.create({
+	if (!id) {
+		unwrap(
+			await resend.automations.create({
 				...automation,
 				name,
 				status: "enabled",
-			});
-	if (error) {
-		throw new Error(`automation ${name}: ${error.message}`);
+			}),
+			`automation ${name}`
+		);
+		return "created";
 	}
-	return id ? "updated" : "created";
+	unwrap(
+		await resend.automations.update(id, { status: "disabled" }),
+		`disable ${name}`
+	);
+	try {
+		unwrap(
+			await resend.automations.update(id, automation),
+			`automation ${name}`
+		);
+	} finally {
+		// Back on either way: a failed edit leaves the previous version running.
+		unwrap(
+			await resend.automations.update(id, { status: "enabled" }),
+			`enable ${name}`
+		);
+	}
+	return "updated";
 }
 
 function requireClient(): Resend {

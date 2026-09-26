@@ -350,6 +350,7 @@ describe("lifecycle automations", () => {
 					variables: {
 						GREETING_NAME: { var: "event.first_name" },
 						PREFERENCES_URL: { var: "event.preferences_url" },
+						ADMIN_URL: { var: "event.admin_url" },
 					},
 				},
 			},

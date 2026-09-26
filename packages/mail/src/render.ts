@@ -192,15 +192,18 @@ export function contactLine(brand: EmailBrand): string {
  */
 const TEMPLATE_VARIABLE = /^\{\{\{[A-Z][A-Z0-9_]*\}\}\}$/;
 
+/**
+ * A web address, or a Resend placeholder that Resend fills per recipient.
+ * For layouts whose links are template variables (Edge Mail's lifecycle
+ * templates); anything else is shown, never followed.
+ */
+export function linkHref(url: string): string | null {
+	return TEMPLATE_VARIABLE.test(url) ? url : webAddress(url);
+}
+
 /** Only a web address, or a Resend placeholder, becomes the manage link. */
 export function manageHref(brand: EmailBrand): string | null {
-	if (!brand.manageUrl) {
-		return null;
-	}
-	if (TEMPLATE_VARIABLE.test(brand.manageUrl)) {
-		return brand.manageUrl;
-	}
-	return webAddress(brand.manageUrl);
+	return brand.manageUrl ? linkHref(brand.manageUrl) : null;
 }
 
 /**

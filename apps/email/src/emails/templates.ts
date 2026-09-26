@@ -85,15 +85,40 @@ function voiceOf(app: AppIdentity): AppVoice {
  * payload Edge Mail sends (see docs/edge-mail.md, Go-live runbook).
  */
 export const TEMPLATE_VARIABLES = {
+	adminUrl: "{{{ADMIN_URL}}}",
 	greetingName: "{{{GREETING_NAME}}}",
 	preferencesUrl: "{{{PREFERENCES_URL}}}",
 } as const;
 
-/** Declared on every lifecycle template, and where each is filled from. */
-export const LIFECYCLE_VARIABLES = [
-	{ fallback: "there", from: "event.first_name", key: "GREETING_NAME" },
-	{ fallback: null, from: "event.preferences_url", key: "PREFERENCES_URL" },
-] as const;
+const EDGE_SITE = "https://edgecoms.app";
+
+/**
+ * Declared on every lifecycle template: where each is filled from, and what
+ * it falls back to when the event leaves it out.
+ */
+export const LIFECYCLE_VARIABLES: readonly {
+	fallback: (app: AppIdentity) => string;
+	from: string;
+	key: string;
+}[] = [
+	{ fallback: () => "there", from: "event.first_name", key: "GREETING_NAME" },
+	{
+		fallback: (app) => app.supportUrl ?? EDGE_SITE,
+		from: "event.preferences_url",
+		key: "PREFERENCES_URL",
+	},
+	// The listing: for a merchant who has the app, Shopify shows "Open app".
+	{
+		fallback: (app) => app.appUrl ?? EDGE_SITE,
+		from: "event.admin_url",
+		key: "ADMIN_URL",
+	},
+];
+
+/** Into the app in the merchant's own admin, where the app has a listing. */
+function openApp(app: AppIdentity): string | null {
+	return app.appUrl ? TEMPLATE_VARIABLES.adminUrl : null;
+}
 
 const EDGE_ORANGE = "#ff5e1f";
 
@@ -182,7 +207,7 @@ function welcome(app: AppIdentity, voice: AppVoice): EmailContent {
 			paragraph(
 				`Getting started takes a few minutes. The first step is to ${voice.firstStep}. Nothing changes for your customers until you switch it on, so feel free to look around first.`
 			),
-			...button("Finish setup →", app.appUrl),
+			...button("Finish setup →", openApp(app)),
 			paragraph("We're glad you're here."),
 			signOff("Warmly", app),
 		],
@@ -202,7 +227,7 @@ function setupReminder(app: AppIdentity, voice: AppVoice): EmailContent {
 			paragraph(
 				`The quickest win is to ${voice.firstStep}. It takes a few minutes.`
 			),
-			...button("Finish setup →", app.appUrl),
+			...button("Finish setup →", openApp(app)),
 			paragraph("Stuck on a step? Our team can walk through it with you."),
 			...link("Get setup help", app.supportUrl),
 			signOff("Cheers", app),
@@ -222,7 +247,7 @@ function activation(app: AppIdentity, voice: AppVoice): EmailContent {
 				"The first week is where most of the gains come from. One thing worth doing now:"
 			),
 			paragraph(voice.tip),
-			...button(`Open ${app.name} →`, app.appUrl),
+			...button(`Open ${app.name} →`, openApp(app)),
 			paragraph("We'll check in once you start seeing results."),
 			signOff("Cheers", app),
 		],
@@ -300,6 +325,7 @@ export function lifecycleContent(
  */
 export function previewVariables(html: string): string {
 	return html
+		.replaceAll(TEMPLATE_VARIABLES.adminUrl, "#")
 		.replaceAll(TEMPLATE_VARIABLES.greetingName, "there")
 		.replaceAll(TEMPLATE_VARIABLES.preferencesUrl, "#");
 }

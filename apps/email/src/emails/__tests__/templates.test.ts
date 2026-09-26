@@ -6,6 +6,7 @@ import { PARTNER_CONTACT_EMAIL } from "@edgecoms/mail/contact";
 import { renderMinimalHtml } from "@edgecoms/mail/minimal";
 import { renderText } from "@edgecoms/mail/render";
 import {
+	adminUrl,
 	hostedIconUrl,
 	identityOf,
 	linksOf,
@@ -157,5 +158,34 @@ describe("brand", () => {
 	test("falls back to the read inbox when the app has no support page", () => {
 		expect(brandFor(unconfigured).contact).toBe(PARTNER_CONTACT_EMAIL);
 		expect(brandFor(configured).contact).toBe("https://edgecoms.app/support");
+	});
+});
+
+describe("admin links", () => {
+	test("open the app in the merchant's own admin", () => {
+		expect(adminUrl("edge-cart", "urgency-timer.myshopify.com")).toBe(
+			"https://admin.shopify.com/store/urgency-timer/apps/5957f4800812fe7bacbaae0c4abfc411"
+		);
+	});
+
+	test("every Edge Mail app has one; anything else falls back", () => {
+		for (const slug of SIX_APPS) {
+			expect(adminUrl(slug, "brand.myshopify.com")).not.toBeNull();
+		}
+		expect(adminUrl("trackproof", "brand.myshopify.com")).toBeNull();
+		expect(adminUrl("edge-cart", "brand.com")).toBeNull();
+	});
+
+	test("app buttons use the admin link, the review button the App Store", () => {
+		const html = renderMinimalHtml(
+			lifecycleContent("welcome", configured),
+			brandFor(configured)
+		);
+		expect(html).toContain(TEMPLATE_VARIABLES.adminUrl);
+		const review = renderMinimalHtml(
+			lifecycleContent("review-request", configured),
+			brandFor(configured)
+		);
+		expect(review).not.toContain(TEMPLATE_VARIABLES.adminUrl);
 	});
 });

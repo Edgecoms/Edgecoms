@@ -77,6 +77,33 @@ describe("minimal layout", () => {
 	});
 });
 
+describe("button and link targets", () => {
+	const withTarget = (url: string) =>
+		renderMinimalHtml(
+			{
+				...CONTENT,
+				blocks: [
+					{ kind: "button", label: "Open Edge Cart", url },
+					{ kind: "link", label: "Open it here", url },
+				],
+			},
+			BRAND
+		);
+
+	test("an UPPER_CASE Resend placeholder becomes the href, filled per recipient", () => {
+		const html = withTarget("{{{ADMIN_URL}}}");
+		expect(html.match(/href="\{\{\{ADMIN_URL\}\}\}"/g)).toHaveLength(2);
+	});
+
+	test("anything that is neither https nor such a placeholder is shown, never linked", () => {
+		for (const url of ["{{{admin_url}}}", '{{{A}}}"x', "javascript:alert(1)"]) {
+			const html = withTarget(url);
+			expect(html).not.toContain(`href="${url}"`);
+			expect(html).toContain("Open Edge Cart</p>");
+		}
+	});
+});
+
 describe("the app icon", () => {
 	test("replaces the wordmark when it is a web address, with the name as alt text", () => {
 		const html = renderMinimalHtml(CONTENT, {

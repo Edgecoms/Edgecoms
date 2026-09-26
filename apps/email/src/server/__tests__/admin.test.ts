@@ -167,4 +167,43 @@ describe("contact list", () => {
 		expect(await listContacts(testDb.db, "brand.my")).toHaveLength(1);
 		expect(other).toBeDefined();
 	});
+
+	test("shows the store the contact was most recently active on", async () => {
+		const [older, newer] = await testDb.db
+			.insert(mailStores)
+			.values([
+				{ shopDomain: "older.myshopify.com" },
+				{ shopDomain: "newer.myshopify.com" },
+			])
+			.returning();
+		const [owner] = await testDb.db
+			.insert(mailContacts)
+			.values({ email: "owner@brand.com" })
+			.returning();
+		// Linked to the older store first, so "first linked" would pick it.
+		for (const store of [older, newer]) {
+			await testDb.db
+				.insert(mailContactStores)
+				.values({ contactId: owner?.id ?? "", storeId: store?.id ?? "" });
+		}
+		await testDb.db.insert(mailInstallations).values([
+			{
+				appId,
+				lastActiveAt: new Date("2026-09-20T10:00:00Z"),
+				status: "active",
+				statusChangedAt: new Date(),
+				storeId: older?.id ?? "",
+			},
+			{
+				appId,
+				lastActiveAt: new Date("2026-09-26T10:00:00Z"),
+				status: "active",
+				statusChangedAt: new Date(),
+				storeId: newer?.id ?? "",
+			},
+		]);
+
+		const [row] = await listContacts(testDb.db, "");
+		expect(row?.shopDomain).toBe("newer.myshopify.com");
+	});
 });

@@ -37,12 +37,17 @@ const LAST_ACTIVE = sql<Date | null>`(
 	where cs.contact_id = "mail_contacts"."id"
 )`;
 
-const FIRST_STORE = sql<string | null>`(
+/** The store the contact was most recently active on; the profile lists them all. */
+const LATEST_STORE = sql<string | null>`(
 	select s.shop_domain
 	from mail_contact_stores cs
 	join mail_stores s on s.id = cs.store_id
 	where cs.contact_id = "mail_contacts"."id"
-	order by cs.created_at
+	order by (
+		select max(i.last_active_at)
+		from mail_installations i
+		where i.store_id = cs.store_id
+	) desc nulls last, cs.created_at desc
 	limit 1
 )`;
 
@@ -66,7 +71,7 @@ export function listContacts(db: Database, search: string, limit = 50) {
 			lastName: mailContacts.lastName,
 			marketing: mailContacts.marketing,
 			productUpdates: mailContacts.productUpdates,
-			shopDomain: FIRST_STORE,
+			shopDomain: LATEST_STORE,
 			suppressedAt: mailContacts.suppressedAt,
 		})
 		.from(mailContacts)

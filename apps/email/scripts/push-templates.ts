@@ -48,11 +48,9 @@ try {
 		}
 		const identity = identityOf(app);
 		const brand = brandFor(identity, TEMPLATE_VARIABLES.preferencesUrl);
-		// With no preferences link in the event, the manage link still goes
-		// somewhere real: the app's support page.
+		// A link the event leaves out still goes somewhere real.
 		const variables = LIFECYCLE_VARIABLES.map((variable) => ({
-			fallbackValue:
-				variable.fallback ?? identity.supportUrl ?? "https://edgecoms.app",
+			fallbackValue: variable.fallback(identity),
 			key: variable.key,
 		}));
 		for (const template of LIFECYCLE_TEMPLATES) {

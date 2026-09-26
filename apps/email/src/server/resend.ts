@@ -21,7 +21,7 @@ import {
 	LIFECYCLE_VARIABLES,
 	type LifecycleTemplate,
 } from "../emails/templates";
-import { linksOf } from "./apps/identity";
+import { adminUrl, linksOf } from "./apps/identity";
 import type { ResendSync, SyncEvent } from "./events/ingest";
 import { preferencesUrl } from "./preferences/token";
 
@@ -198,6 +198,7 @@ async function pushEvent(
 		contactProperties(db, contact.id),
 		appBranding(db, event.appSlug),
 	]);
+	const admin = adminUrl(event.appSlug, event.shopDomain);
 	const resendContactId = await upsertResendContact(
 		resend,
 		{ ...contact, email: address },
@@ -213,6 +214,7 @@ async function pushEvent(
 			...(contact.firstName ? { first_name: contact.firstName } : {}),
 			preferences_url: preferencesUrl(contact.id),
 			shop_domain: event.shopDomain,
+			...(admin ? { admin_url: admin } : {}),
 		},
 	});
 	if (error) {

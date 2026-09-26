@@ -6,6 +6,7 @@ import {
 	type EmailContent,
 	escapeHtml,
 	FONT,
+	linkHref,
 	manageHref,
 	renderHead,
 	renderPreheader,
@@ -82,7 +83,7 @@ function paragraph(value: string): string {
 }
 
 function button(block: Extract<Block, { kind: "button" }>): string {
-	const href = webAddress(block.url);
+	const href = linkHref(block.url);
 	if (!href) {
 		return `<p style="${type(14, 22, INK.heading, "font-weight:600;text-align:center;")}">${escapeHtml(block.label)}</p>`;
 	}
@@ -91,7 +92,7 @@ function button(block: Extract<Block, { kind: "button" }>): string {
 }
 
 function link(block: Extract<Block, { kind: "link" }>): string {
-	const href = webAddress(block.url);
+	const href = linkHref(block.url);
 	const style = type(14, 23, INK.body);
 	if (!href) {
 		return `<p style="${style}">${escapeHtml(block.label)}</p>`;

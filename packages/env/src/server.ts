@@ -33,6 +33,12 @@ export const env = createEnv({
 		// reports to an ad platform. Losing analytics is not worth a 503 on a
 		// marketing page, so no token simply means the browser pixel runs alone.
 		META_CAPI_ACCESS_TOKEN: z.string().min(1).optional(),
+		// The same thing for the Edgecoms Academy dataset, which hears only from
+		// `/store-setup`. Its own variable because it is its own dataset, and
+		// Events Manager generates a token per dataset. Unset means Academy
+		// events go out from the browser alone, exactly as the site pixel behaves
+		// without its token.
+		META_ACADEMY_CAPI_ACCESS_TOKEN: z.string().min(1).optional(),
 		// Graph API version. Meta supports each for roughly two years; v26.0 was
 		// current as of September 2026. Pinned rather than floating so a Meta
 		// release never silently changes the payload shape underneath us.

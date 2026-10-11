@@ -1,8 +1,8 @@
-import { env as webEnv } from "@edgecoms/env/web";
 import { cookies, headers } from "next/headers";
 
 import {
 	capiRequestBody,
+	capiTargetFor,
 	clientIp,
 	deriveFbc,
 	isSameOrigin,
@@ -32,6 +32,11 @@ import {
  * - **It is not a general relay.** The route is public, so an open one would
  *   let a stranger post invented conversions into the dataset the ad spend is
  *   judged on. Same-origin only, and only the events the site actually fires.
+ *
+ * Each event names the dataset it is for (`pixel` in the body, the site pixel
+ * when absent). The Academy dataset is only ever written to from
+ * `/store-setup`; `capiRequestBody` refuses an Academy event from any other
+ * page before this handler sees it.
  */
 
 const NO_CONTENT = 204;
@@ -41,11 +46,6 @@ function noContent(): Response {
 }
 
 export async function POST(request: Request): Promise<Response> {
-	const pixelId = webEnv.NEXT_PUBLIC_META_PIXEL_ID;
-	if (!pixelId) {
-		return noContent();
-	}
-
 	const headerList = await headers();
 	if (!isSameOrigin(headerList.get("origin"), headerList.get("host"))) {
 		return noContent();
@@ -60,6 +60,15 @@ export async function POST(request: Request): Promise<Response> {
 
 	const parsed = capiRequestBody.safeParse(json);
 	if (!parsed.success) {
+		return noContent();
+	}
+
+	/**
+	 * No id or no token for this dataset means its server leg is switched off,
+	 * and there is nothing to read cookies for.
+	 */
+	const target = capiTargetFor(parsed.data.pixel);
+	if (!(target.pixelId && target.accessToken)) {
 		return noContent();
 	}
 
@@ -89,7 +98,7 @@ export async function POST(request: Request): Promise<Response> {
 				clientUserAgent: headerList.get("user-agent") ?? undefined,
 			},
 		},
-		pixelId,
+		target,
 		now
 	);
 

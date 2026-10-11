@@ -6,8 +6,9 @@
  *
  * 1. **Nothing fires without consent.** Every report goes through `report()`,
  *    which asks `lib/consent.ts` first. No consent, no pixel, no server call.
- * 2. **Nothing fires without an id.** No `NEXT_PUBLIC_META_PIXEL_ID` means the
- *    pixel never loads. Local dev and preview deploys are silent by default.
+ * 2. **Nothing fires without an id.** A pixel with no id configured is never
+ *    initialised and never sent anything. Local dev and preview deploys are
+ *    silent by default.
  * 3. **The signed-in portal is never tracked.** A partner reading their own
  *    earnings is not ad traffic, and their dashboard URLs are none of Meta's
  *    business. Attribution ends at the marketing site.
@@ -19,14 +20,38 @@
  *    once from our own server (see `api/meta/events`). Meta collapses the pair
  *    on `event_id`, so the count is unchanged -- but when a browser blocks the
  *    pixel outright, the server copy is the only one that arrives.
+ * 6. **Every event names the one pixel it is for.** There are two (see
+ *    `PIXELS` in `meta-events.ts`), and `fbq('track')` reaches every pixel
+ *    initialised on the page. So nothing here calls it: each report is a
+ *    `trackSingle` to one id. The Academy pixel hears from `/store-setup`
+ *    and from nowhere else, and the site pixel never hears a Store Setup
+ *    click.
  */
 
 import { env } from "@edgecoms/env/web";
 
 import { consentGranted } from "./consent";
-import type { CustomEvent, PixelParams, StandardEvent } from "./meta-events";
+import {
+	type AcademyEvent,
+	type CustomEvent,
+	isAcademyPath,
+	type PixelKey,
+	type PixelParams,
+	type StandardEvent,
+} from "./meta-events";
+import {
+	STORE_SETUP_CURRENCY,
+	STORE_SETUP_PLANS,
+	type StoreSetupClick,
+} from "./store-setup";
 
 export const META_PIXEL_ID = env.NEXT_PUBLIC_META_PIXEL_ID;
+export const META_ACADEMY_PIXEL_ID = env.NEXT_PUBLIC_META_ACADEMY_PIXEL_ID;
+
+const PIXEL_IDS: Record<PixelKey, string | undefined> = {
+	site: META_PIXEL_ID,
+	academy: META_ACADEMY_PIXEL_ID,
+};
 
 interface FbqStub {
 	callMethod?: (...args: unknown[]) => void;
@@ -121,9 +146,10 @@ function newEventId(): string {
  * rejection in a visitor's console over an analytics ping.
  */
 function reportToServer(body: {
+	eventId: string;
 	name: string;
 	params: PixelParams;
-	eventId: string;
+	pixel: PixelKey;
 	sourceUrl: string;
 }): void {
 	try {
@@ -140,9 +166,65 @@ function reportToServer(body: {
 	}
 }
 
-function report(name: string, params: PixelParams, standard: boolean): void {
-	if (typeof window === "undefined" || !(META_PIXEL_ID && consentGranted())) {
+/**
+ * Whether the Academy pixel has been initialised on this page load.
+ *
+ * Module state rather than React state because `fbevents.js` is itself a page
+ * singleton: it outlives every component, and initialising one id twice makes
+ * it log a duplicate-pixel warning.
+ */
+let academyPixelReady = false;
+
+/**
+ * Bring the Academy pixel up, the first time it is needed.
+ *
+ * Initialising it is not enough to keep it to `/store-setup`, because once a
+ * pixel is initialised `fbevents.js` talks to it without being asked:
+ *
+ * - On every client-side navigation it sends an automatic `PageView` to every
+ *   initialised pixel, and the Academy pixel stays initialised when a visitor
+ *   moves on to another page of the site. `trackSingleOnly` is what stops
+ *   that: a pixel carrying it is skipped by everything except a `trackSingle`
+ *   addressed to it by id.
+ * - With automatic setup on (the default for a new dataset) it also reports
+ *   button clicks and page metadata on its own, on whichever page the visitor
+ *   is on. `autoConfig` off removes those. It has to be set before `init`.
+ *
+ * Together these mean the Academy pixel hears exactly what `report()` sends
+ * it and nothing else.
+ */
+function ensureAcademyPixel(pixelId: string): void {
+	if (academyPixelReady || !window.fbq) {
 		return;
+	}
+
+	window.fbq("set", "autoConfig", false, pixelId);
+	window.fbq("init", pixelId);
+	window.fbq("set", "trackSingleOnly", true, pixelId);
+	academyPixelReady = true;
+}
+
+function report(
+	pixel: PixelKey,
+	name: string,
+	params: PixelParams,
+	standard: boolean
+): void {
+	const pixelId = PIXEL_IDS[pixel];
+	if (typeof window === "undefined" || !(pixelId && consentGranted())) {
+		return;
+	}
+
+	if (pixel === "academy") {
+		/**
+		 * The one gate every Academy event passes, browser leg and server leg
+		 * alike. Checked against the address bar at the moment of sending rather
+		 * than trusted from the caller, so no call site can get this wrong.
+		 */
+		if (!isAcademyPath(window.location.pathname)) {
+			return;
+		}
+		ensureAcademyPixel(pixelId);
 	}
 
 	/**
@@ -151,11 +233,16 @@ function report(name: string, params: PixelParams, standard: boolean): void {
 	 */
 	const eventId = newEventId();
 
-	callFbq(standard ? "track" : "trackCustom", name, params, {
-		eventID: eventId,
-	});
+	callFbq(
+		standard ? "trackSingle" : "trackSingleCustom",
+		pixelId,
+		name,
+		params,
+		{ eventID: eventId }
+	);
 
 	reportToServer({
+		pixel,
 		name,
 		params,
 		eventId,
@@ -167,14 +254,22 @@ export function trackStandard(
 	event: StandardEvent,
 	params: PixelParams = {}
 ): void {
-	report(event, params, true);
+	report("site", event, params, true);
 }
 
 export function trackCustom(
 	event: CustomEvent,
 	params: PixelParams = {}
 ): void {
-	report(event, params, false);
+	report("site", event, params, false);
+}
+
+/** Report to the Academy pixel. Sends nothing unless the page is `/store-setup`. */
+export function trackAcademy(
+	event: AcademyEvent,
+	params: PixelParams = {}
+): void {
+	report("academy", event, params, true);
 }
 
 /**
@@ -204,16 +299,19 @@ export function productSlugFromPath(pathname: string): string | null {
 export interface OutboundEvent {
 	name: StandardEvent | CustomEvent;
 	params: PixelParams;
-	/** Standard events use `track`; custom ones use `trackCustom`. */
+	/** The one dataset this event is for. */
+	pixel: PixelKey;
+	/** Standard events use `trackSingle`; custom ones use `trackSingleCustom`. */
 	standard: boolean;
 }
 
 const APP_STORE_SLUG = /apps\.shopify\.com\/([a-z0-9-]+)/;
 
 /**
- * What a click on an outbound link means, in Meta's vocabulary.
+ * What a click on an outbound link means to the site pixel, in Meta's
+ * vocabulary.
  *
- * These are the three ways somebody leaves this site with intent:
+ * These are the three ways somebody leaves the marketing site with intent:
  *
  * - **Calendly** — the demo booking. This is the money event; it is the one
  *   worth optimising campaigns for. Fired as `Lead` (the click) rather than
@@ -224,12 +322,17 @@ const APP_STORE_SLUG = /apps\.shopify\.com\/([a-z0-9-]+)/;
  * - **apps.shopify.com** — an install click. Custom rather than standard,
  *   because the install completes on Shopify and none of Meta's purchase-shaped
  *   standard events would be honest about a click.
+ *
+ * The Store Setup buttons are deliberately absent. They belong to the Academy
+ * pixel, and they are recognised by what they are rather than by where they
+ * lead; see `storeSetupEventsForClick`.
  */
 export function eventForOutboundHref(href: string): OutboundEvent | null {
 	if (href.startsWith("mailto:")) {
 		return {
 			name: "Contact",
 			params: { contact_address: href.slice("mailto:".length) },
+			pixel: "site",
 			standard: true,
 		};
 	}
@@ -238,6 +341,7 @@ export function eventForOutboundHref(href: string): OutboundEvent | null {
 		return {
 			name: "Lead",
 			params: { content_name: "Book a demo" },
+			pixel: "site",
 			standard: true,
 		};
 	}
@@ -247,6 +351,7 @@ export function eventForOutboundHref(href: string): OutboundEvent | null {
 		return {
 			name: "AppStoreClick",
 			params: { app: appSlug },
+			pixel: "site",
 			standard: false,
 		};
 	}
@@ -254,6 +359,78 @@ export function eventForOutboundHref(href: string): OutboundEvent | null {
 	return null;
 }
 
+/**
+ * What a click on one of the Store Setup buttons means, to the Academy pixel.
+ *
+ * Each click is two events, because the Store Setup campaigns read two things
+ * from it:
+ *
+ * - **"Get Pro" / "Get Basic"** — `InitiateCheckout` and `Lead`, both valued
+ *   at the plan's price. The payment completes on the payment provider's own
+ *   page, where we cannot see it, so this is the start of a checkout and never
+ *   a `Purchase`.
+ * - **WhatsApp** — `Contact` and `Lead`. No value: nothing has been priced
+ *   yet when somebody asks a question.
+ *
+ * All of it is addressed to the Academy pixel. The site pixel's `Lead` means
+ * "Get a demo" and the Edge apps campaigns optimise on it, so a Store Setup
+ * click must never be one.
+ *
+ * The argument is which button was pressed, read off the button itself. The
+ * address it leads to is not consulted, so moving to another payment provider
+ * changes nothing here.
+ */
+export function storeSetupEventsForClick(
+	click: StoreSetupClick
+): OutboundEvent[] {
+	if (click === "whatsapp") {
+		const params: PixelParams = { content_name: "Store Setup WhatsApp" };
+		return [
+			{ name: "Contact", params, pixel: "academy", standard: true },
+			{ name: "Lead", params, pixel: "academy", standard: true },
+		];
+	}
+
+	const plan = STORE_SETUP_PLANS[click];
+	const params: PixelParams = {
+		content_name: `Store Setup ${plan.name}`,
+		currency: STORE_SETUP_CURRENCY,
+		value: plan.priceUsd,
+	};
+	return [
+		{ name: "InitiateCheckout", params, pixel: "academy", standard: true },
+		{ name: "Lead", params, pixel: "academy", standard: true },
+	];
+}
+
+/** A link somebody clicked, as far as the pixel is concerned. */
+export interface ClickedLink {
+	href: string;
+	/** Which Store Setup button it is, if the link is marked as one. */
+	storeSetupClick: StoreSetupClick | null;
+}
+
+/**
+ * Everything one click on a link reports, given the page it happened on.
+ *
+ * On `/store-setup` a Store Setup button is answered here and the site
+ * pixel's mapping is never consulted, which is what keeps those clicks out of
+ * the site dataset whatever the link happens to look like. Everywhere else
+ * the button's mark is ignored, which is half of what keeps the Academy pixel
+ * to its one page (`report()` enforces the other half).
+ */
+export function eventsForOutboundClick(
+	link: ClickedLink,
+	pathname: string
+): OutboundEvent[] {
+	if (link.storeSetupClick && isAcademyPath(pathname)) {
+		return storeSetupEventsForClick(link.storeSetupClick);
+	}
+
+	const site = eventForOutboundHref(link.href);
+	return site ? [site] : [];
+}
+
 export function trackOutbound(event: OutboundEvent): void {
-	report(event.name, event.params, event.standard);
+	report(event.pixel, event.name, event.params, event.standard);
 }

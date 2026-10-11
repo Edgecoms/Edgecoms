@@ -1,0 +1,78 @@
+/* The offer look: warm paper, near-black ink, and highlighter yellow as the
+   only accent. These tokens are scoped to the shell rather than `:root` so
+   they cannot leak into the rest of the site, which runs on its own theme.
+
+   Dark follows the visitor's OS setting. The rest of the site is forced light
+   by its theme provider; that provider works through a class on `html`, which
+   nothing in here reads. */
+.shell {
+	--paper: #fffdf6;
+	--surface: #ffffff;
+	--ink: #16150f;
+	--muted: #625e52;
+	--line: #e6e0cf;
+	--highlight: #ffe14d;
+	--on-highlight: #16150f;
+	--button: #16150f;
+	--on-button: #ffe14d;
+	--font-display: var(--font-bricolage), "Arial Black", system-ui, sans-serif;
+	--font-body: var(--font-instrument), "Helvetica Neue", Arial, sans-serif;
+	--font-mono:
+		var(--font-jetbrains), ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+	/* The scroller. `min-height: 0` lets a flex child shrink below its content,
+	   which is what makes `overflow-y` take effect inside the fixed-height body. */
+	flex: 1 1 0%;
+	width: 100%;
+	min-height: 0;
+	overflow-y: auto;
+	font-family: var(--font-body);
+	font-size: 17px;
+	/* The site turns on Inter's alternates for every element. They are not
+	   this typeface's to honour. */
+	font-feature-settings: normal;
+	-webkit-font-smoothing: antialiased;
+	line-height: 1.55;
+	color: var(--ink);
+
+	background: var(--paper);
+}
+
+/* The site draws every scrollbar thumb in a translucent black, which is right
+   on its own light pages and invisible on dark paper. Drawn from the ink
+   instead, it shows in both. */
+.shell::-webkit-scrollbar-thumb {
+	background-color: color-mix(in srgb, var(--ink) 22%, transparent);
+}
+
+.shell::-webkit-scrollbar-thumb:hover {
+	background-color: color-mix(in srgb, var(--ink) 34%, transparent);
+}
+
+/* The canvas behind the scroller: what shows when a phone rubber-bands past
+   the end of the page, and for the instant before the shell paints. Left
+   alone it is the site's light grey, which flashes against dark paper. The
+   values are the two `--paper`s, written out because the tokens live on the
+   shell and `body` is above it. */
+body:has(.shell) {
+	background-color: #fffdf6;
+}
+
+@media (prefers-color-scheme: dark) {
+	.shell {
+		--paper: #12110c;
+		--surface: #1b1a14;
+		--ink: #f3efe2;
+		--muted: #a9a493;
+		--line: #2e2c22;
+		--highlight: #ffe14d;
+		--on-highlight: #16150f;
+		--button: #ffe14d;
+		--on-button: #16150f;
+		color-scheme: dark;
+	}
+
+	body:has(.shell) {
+		background-color: #12110c;
+	}
+}

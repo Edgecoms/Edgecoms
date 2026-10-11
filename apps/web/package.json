@@ -7,7 +7,7 @@
     "build": "bash ../../scripts/deploy-migrate.sh && next build",
     "check-types": "tsc --noEmit",
     "start": "next start -H 0.0.0.0",
-    "test": "SKIP_ENV_VALIDATION=1 NEXT_PUBLIC_META_PIXEL_ID=000000000000001 bun test"
+    "test": "SKIP_ENV_VALIDATION=1 NEXT_PUBLIC_META_PIXEL_ID=000000000000001 NEXT_PUBLIC_META_ACADEMY_PIXEL_ID=000000000000002 bun test"
   },
   "dependencies": {
     "@edgecoms/api": "workspace:*",

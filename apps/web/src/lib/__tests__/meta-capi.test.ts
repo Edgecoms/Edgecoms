@@ -4,11 +4,20 @@ import { describe, expect, test } from "bun:test";
 import {
 	buildCapiPayload,
 	capiRequestBody,
+	capiTargetFor,
 	clientIp,
 	deriveFbc,
 	isSameOrigin,
+	pixelAcceptsEvent,
+	sendToConversionsApi,
 } from "../meta-capi";
-import { CUSTOM_EVENTS, isKnownEvent, STANDARD_EVENTS } from "../meta-events";
+import {
+	ACADEMY_EVENTS,
+	CUSTOM_EVENTS,
+	isEventForPixel,
+	isKnownEvent,
+	STANDARD_EVENTS,
+} from "../meta-events";
 
 /**
  * The Conversions API fails in the worst possible way: silently. A misspelled
@@ -107,7 +116,7 @@ describe("isKnownEvent", () => {
 	test("refuses anything else, including real Meta events we never send", () => {
 		for (const name of [
 			"Purchase",
-			"InitiateCheckout",
+			"AddToCart",
 			"Subscribe",
 			"",
 			"constructor",
@@ -142,6 +151,18 @@ describe("the endpoint's guards", () => {
 		).toBe(false);
 	});
 
+	test("an event with no pixel named is for the site dataset", () => {
+		const parsed = capiRequestBody.safeParse(valid);
+
+		expect(parsed.success && parsed.data.pixel).toBe("site");
+	});
+
+	test("refuses a pixel that does not exist", () => {
+		expect(
+			capiRequestBody.safeParse({ ...valid, pixel: "somebody-elses" }).success
+		).toBe(false);
+	});
+
 	test("refuses a body that would break deduplication or attribution", () => {
 		// Too short to be a real event id -- would collide across visitors.
 		expect(capiRequestBody.safeParse({ ...valid, eventId: "x" }).success).toBe(
@@ -162,6 +183,241 @@ describe("the endpoint's guards", () => {
 
 		expect(parsed.success).toBe(true);
 		expect(parsed.success && parsed.data.params).toEqual({});
+	});
+});
+
+/**
+ * The Academy dataset belongs to one page. The browser already refuses to send
+ * it anything from anywhere else, and this is the same rule held a second time
+ * on the server, so that a mistake in one place cannot quietly feed the Store
+ * Setup campaigns traffic from the rest of the site -- or feed the site's
+ * campaigns a Store Setup click.
+ */
+describe("the Academy dataset", () => {
+	const fromStoreSetup = {
+		pixel: "academy",
+		name: "Lead",
+		params: { content_name: "Store Setup Pro", currency: "USD", value: 497 },
+		eventId: "11111111-2222-3333-4444-555555555555",
+		sourceUrl: "https://edgecoms.app/store-setup",
+	};
+
+	test("accepts each of its events from /store-setup", () => {
+		for (const name of ACADEMY_EVENTS) {
+			expect(
+				capiRequestBody.safeParse({ ...fromStoreSetup, name }).success
+			).toBe(true);
+		}
+	});
+
+	/**
+	 * The checkout click is the one event here that carries money, so its
+	 * numeric `value` has to survive the guard as a number. Meta reads a string
+	 * value as no value at all.
+	 */
+	test("a checkout click keeps its value as a number", () => {
+		const parsed = capiRequestBody.safeParse({
+			...fromStoreSetup,
+			name: "InitiateCheckout",
+		});
+
+		expect(parsed.success).toBe(true);
+		expect(parsed.success && parsed.data.pixel).toBe("academy");
+		expect(parsed.success && parsed.data.params.value).toBe(497);
+		expect(parsed.success && parsed.data.params.currency).toBe("USD");
+	});
+
+	test("accepts the page however an ad link decorates it", () => {
+		for (const sourceUrl of [
+			"https://edgecoms.app/store-setup?fbclid=IwAR0abc123",
+			"https://edgecoms.app/store-setup#options",
+			"https://edgecoms.app/store-setup/",
+			"https://www.edgecoms.app/store-setup?utm_source=meta&utm_campaign=oct",
+		]) {
+			expect(
+				capiRequestBody.safeParse({ ...fromStoreSetup, sourceUrl }).success
+			).toBe(true);
+		}
+	});
+
+	test("refuses Academy events from every other page", () => {
+		for (const sourceUrl of [
+			"https://edgecoms.app/",
+			"https://edgecoms.app/products",
+			"https://edgecoms.app/products/edge-cart",
+			"https://edgecoms.app/partners",
+			// Near misses: a prefix match would let all three through.
+			"https://edgecoms.app/store-setup-old",
+			"https://edgecoms.app/store-setup/thanks",
+			"https://edgecoms.app/blog/store-setup",
+			// The path named only in the query string or the fragment.
+			"https://edgecoms.app/products?next=/store-setup",
+			"https://edgecoms.app/#/store-setup",
+		]) {
+			for (const name of ACADEMY_EVENTS) {
+				expect(
+					capiRequestBody.safeParse({ ...fromStoreSetup, name, sourceUrl })
+						.success
+				).toBe(false);
+			}
+		}
+	});
+
+	test("refuses events the Academy pixel never fires, even from /store-setup", () => {
+		for (const name of [
+			"ViewContent",
+			"CompleteRegistration",
+			"AppStoreClick",
+			"Purchase",
+		]) {
+			expect(
+				capiRequestBody.safeParse({ ...fromStoreSetup, name }).success
+			).toBe(false);
+		}
+	});
+
+	/**
+	 * The other direction. A checkout only starts on the Store Setup page, so
+	 * one addressed to the site dataset is a mistake, from whichever page.
+	 */
+	test("the site dataset refuses a Store Setup checkout", () => {
+		for (const sourceUrl of [
+			"https://edgecoms.app/store-setup",
+			"https://edgecoms.app/",
+		]) {
+			expect(
+				capiRequestBody.safeParse({
+					...fromStoreSetup,
+					pixel: "site",
+					name: "InitiateCheckout",
+					sourceUrl,
+				}).success
+			).toBe(false);
+		}
+
+		expect(isEventForPixel("site", "InitiateCheckout")).toBe(false);
+		expect(isEventForPixel("academy", "InitiateCheckout")).toBe(true);
+	});
+
+	test("the site dataset still takes everything it took before", () => {
+		for (const name of [...STANDARD_EVENTS, ...CUSTOM_EVENTS]) {
+			if (name === "InitiateCheckout") {
+				continue;
+			}
+			expect(isEventForPixel("site", name)).toBe(true);
+			expect(
+				pixelAcceptsEvent({
+					pixel: "site",
+					name,
+					sourceUrl: "https://edgecoms.app/products/edge-cart",
+				})
+			).toBe(true);
+		}
+	});
+
+	test("a malformed page address is refused, not an exception", () => {
+		expect(
+			pixelAcceptsEvent({ pixel: "academy", name: "Lead", sourceUrl: "nope" })
+		).toBe(false);
+	});
+});
+
+/**
+ * Which dataset an event is sent to, and with which token. The ids come from
+ * the `test` script.
+ */
+describe("capiTargetFor", () => {
+	test("each pixel resolves to its own dataset id", () => {
+		expect(capiTargetFor("site").pixelId).toBe("000000000000001");
+		expect(capiTargetFor("academy").pixelId).toBe("000000000000002");
+	});
+
+	/**
+	 * A test event code is issued per dataset. The one in the environment is the
+	 * site dataset's, so it must never ride along on an Academy event.
+	 */
+	test("the Academy target never carries the site's test event code", () => {
+		expect("testEventCode" in capiTargetFor("academy")).toBe(false);
+	});
+
+	test("with no token the server leg does nothing at all", async () => {
+		const realFetch = globalThis.fetch;
+		let requests = 0;
+		globalThis.fetch = (() => {
+			requests += 1;
+			return Promise.resolve(new Response(null, { status: 200 }));
+		}) as unknown as typeof fetch;
+
+		try {
+			const event = {
+				name: "Lead",
+				eventId: "11111111-2222-3333-4444-555555555555",
+				sourceUrl: "https://edgecoms.app/store-setup",
+				customData: { content_name: "Store Setup Pro" },
+				userData: {},
+			};
+
+			/**
+			 * The Academy dataset before its token is added: an id and nothing
+			 * else. Spelled out rather than read from the environment, so a
+			 * developer's local `.env` cannot change what this asserts.
+			 */
+			expect(
+				await sendToConversionsApi(
+					event,
+					{ accessToken: undefined, pixelId: "000000000000002" },
+					1
+				)
+			).toEqual({ ok: false, reason: "not_configured" });
+
+			// And a token with no id is no better.
+			expect(
+				await sendToConversionsApi(
+					event,
+					{ accessToken: "token", pixelId: undefined },
+					1
+				)
+			).toEqual({ ok: false, reason: "not_configured" });
+
+			expect(requests).toBe(0);
+		} finally {
+			globalThis.fetch = realFetch;
+		}
+	});
+
+	test("with both, the event goes to that dataset and no other", async () => {
+		const realFetch = globalThis.fetch;
+		const requests: { body: URLSearchParams; url: string }[] = [];
+		globalThis.fetch = ((url: string, init: { body: URLSearchParams }) => {
+			requests.push({ url: String(url), body: init.body });
+			return Promise.resolve(new Response(null, { status: 200 }));
+		}) as unknown as typeof fetch;
+
+		try {
+			const result = await sendToConversionsApi(
+				{
+					name: "InitiateCheckout",
+					eventId: "11111111-2222-3333-4444-555555555555",
+					sourceUrl: "https://edgecoms.app/store-setup",
+					customData: { currency: "USD", value: 497 },
+					userData: {},
+				},
+				{ accessToken: "academy-token", pixelId: "000000000000002" },
+				1_788_000_000_000
+			);
+
+			expect(result).toEqual({ ok: true });
+			expect(requests).toHaveLength(1);
+			expect(requests[0]?.url.endsWith("/000000000000002/events")).toBe(true);
+			expect(requests[0]?.body.get("access_token")).toBe("academy-token");
+			expect(requests[0]?.body.has("test_event_code")).toBe(false);
+
+			const [sent] = JSON.parse(requests[0]?.body.get("data") ?? "[]");
+			expect(sent.event_name).toBe("InitiateCheckout");
+			expect(sent.custom_data).toEqual({ currency: "USD", value: 497 });
+		} finally {
+			globalThis.fetch = realFetch;
+		}
 	});
 });
 

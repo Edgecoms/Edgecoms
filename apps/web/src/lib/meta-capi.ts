@@ -1,7 +1,14 @@
 import { env } from "@edgecoms/env/server";
+import { env as webEnv } from "@edgecoms/env/web";
 import { z } from "zod";
 
-import { isKnownEvent } from "./meta-events";
+import {
+	isAcademyPath,
+	isEventForPixel,
+	isKnownEvent,
+	PIXELS,
+	type PixelKey,
+} from "./meta-events";
 
 /**
  * Meta Conversions API — the server-side half of ad attribution.
@@ -16,7 +23,10 @@ import { isKnownEvent } from "./meta-events";
  * nothing can block it. Both copies carry the same `event_id`, which is how
  * Meta knows they are one event and not two.
  *
- * NOTE: server-side only. It reads `META_CAPI_ACCESS_TOKEN` and must never be
+ * There are two datasets (see `PIXELS` in `meta-events.ts`), each with its own
+ * id and its own token. An event is sent to exactly one of them.
+ *
+ * NOTE: server-side only. It reads the two access tokens and must never be
  * imported from a client component.
  */
 
@@ -41,6 +51,39 @@ export interface CapiEvent {
 export type CapiResult =
 	| { ok: true }
 	| { ok: false; reason: "not_configured" | "rejected" | "unreachable" };
+
+/** One dataset, and what it takes to write to it. */
+export interface CapiTarget {
+	accessToken: string | undefined;
+	pixelId: string | undefined;
+	/** Routes events to that dataset's Test Events tab instead of live data. */
+	testEventCode?: string;
+}
+
+/**
+ * Where an event addressed to this pixel goes.
+ *
+ * Either half missing means the dataset is not configured and the server leg
+ * does nothing, leaving the browser pixel to run alone.
+ *
+ * The test event code belongs to the site dataset: Events Manager issues one
+ * per dataset, and a code sent to a dataset it was not issued for is not a
+ * test event there. So Academy events never carry it.
+ */
+export function capiTargetFor(pixel: PixelKey): CapiTarget {
+	if (pixel === "academy") {
+		return {
+			pixelId: webEnv.NEXT_PUBLIC_META_ACADEMY_PIXEL_ID,
+			accessToken: env.META_ACADEMY_CAPI_ACCESS_TOKEN,
+		};
+	}
+
+	return {
+		pixelId: webEnv.NEXT_PUBLIC_META_PIXEL_ID,
+		accessToken: env.META_CAPI_ACCESS_TOKEN,
+		testEventCode: env.META_CAPI_TEST_EVENT_CODE,
+	};
+}
 
 const FBCLID_PARAM = "fbclid";
 
@@ -104,11 +147,11 @@ export function buildCapiPayload(
 
 export async function sendToConversionsApi(
 	event: CapiEvent,
-	pixelId: string,
+	target: CapiTarget,
 	nowMs: number
 ): Promise<CapiResult> {
-	const token = env.META_CAPI_ACCESS_TOKEN;
-	if (!token) {
+	const { accessToken, pixelId, testEventCode } = target;
+	if (!(accessToken && pixelId)) {
 		return { ok: false, reason: "not_configured" };
 	}
 
@@ -121,11 +164,11 @@ export async function sendToConversionsApi(
 	 */
 	const body = new URLSearchParams({
 		data: JSON.stringify([payload]),
-		access_token: token,
+		access_token: accessToken,
 	});
 
-	if (env.META_CAPI_TEST_EVENT_CODE) {
-		body.set("test_event_code", env.META_CAPI_TEST_EVENT_CODE);
+	if (testEventCode) {
+		body.set("test_event_code", testEventCode);
 	}
 
 	const url = `https://graph.facebook.com/${env.META_GRAPH_API_VERSION}/${pixelId}/events`;
@@ -154,14 +197,53 @@ export async function sendToConversionsApi(
  */
 const paramValue = z.union([z.string().max(500), z.number(), z.boolean()]);
 
-export const capiRequestBody = z.object({
-	/** Allowlisted: only the events this site actually fires. */
-	name: z.string().max(60).refine(isKnownEvent, "Unknown event"),
-	params: z.record(z.string().max(60), paramValue).default({}),
-	/** Must match the `eventID` the browser gave `fbq`, or Meta counts two. */
-	eventId: z.string().min(8).max(100),
-	sourceUrl: z.string().url().max(2000),
-});
+/**
+ * Whether a dataset takes this event from this page.
+ *
+ * The two pixels are kept apart on the server as well as in the browser, so
+ * that a bug in one cannot be papered over by the other:
+ *
+ * - **The Academy dataset hears from `/store-setup` and nowhere else.** An
+ *   Academy event whose page is anything other than that is refused, however
+ *   well formed.
+ * - **Neither dataset is sent an event it never fires.** A checkout starts on
+ *   the Store Setup page only, so one addressed to the site dataset is a
+ *   mistake, not a conversion.
+ */
+export function pixelAcceptsEvent(event: {
+	name: string;
+	pixel: PixelKey;
+	sourceUrl: string;
+}): boolean {
+	if (!isEventForPixel(event.pixel, event.name)) {
+		return false;
+	}
+	if (event.pixel !== "academy") {
+		return true;
+	}
+
+	try {
+		return isAcademyPath(new URL(event.sourceUrl).pathname);
+	} catch {
+		return false;
+	}
+}
+
+export const capiRequestBody = z
+	.object({
+		/**
+		 * Which dataset the event is for. Absent means the site pixel, which is
+		 * every event there was before the Academy pixel existed.
+		 */
+		pixel: z.enum(PIXELS).default("site"),
+		/** Allowlisted: only the events this site actually fires. */
+		name: z.string().max(60).refine(isKnownEvent, "Unknown event"),
+		params: z.record(z.string().max(60), paramValue).default({}),
+		/** Must match the `eventID` the browser gave `fbq`, or Meta counts two. */
+		eventId: z.string().min(8).max(100),
+		sourceUrl: z.string().url().max(2000),
+	})
+	.refine(pixelAcceptsEvent, "Event not accepted for this pixel");
 
 /**
  * Same-origin only. A browser always sends `Origin` on a POST, so a request

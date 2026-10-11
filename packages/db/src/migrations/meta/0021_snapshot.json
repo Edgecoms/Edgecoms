@@ -61,16 +61,12 @@
         "apps_slug_unique": {
           "name": "apps_slug_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "slug"
-          ]
+          "columns": ["slug"]
         },
         "apps_partner_api_gid_unique": {
           "name": "apps_partner_api_gid_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "partner_api_gid"
-          ]
+          "columns": ["partner_api_gid"]
         }
       },
       "policies": {},
@@ -291,12 +287,8 @@
           "name": "merchant_events_merchant_id_merchants_id_fk",
           "tableFrom": "merchant_events",
           "tableTo": "merchants",
-          "columnsFrom": [
-            "merchant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["merchant_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -304,12 +296,8 @@
           "name": "merchant_events_app_id_apps_id_fk",
           "tableFrom": "merchant_events",
           "tableTo": "apps",
-          "columnsFrom": [
-            "app_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["app_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -319,9 +307,7 @@
         "merchant_events_idempotency_key_unique": {
           "name": "merchant_events_idempotency_key_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "idempotency_key"
-          ]
+          "columns": ["idempotency_key"]
         }
       },
       "policies": {},
@@ -434,12 +420,8 @@
           "name": "account_user_id_user_id_fk",
           "tableFrom": "account",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -526,12 +508,8 @@
           "name": "session_user_id_user_id_fk",
           "tableFrom": "session",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -541,9 +519,7 @@
         "session_token_unique": {
           "name": "session_token_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "token"
-          ]
+          "columns": ["token"]
         }
       },
       "policies": {},
@@ -614,9 +590,7 @@
         "user_email_unique": {
           "name": "user_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},
@@ -877,12 +851,8 @@
           "name": "commissions_earning_event_id_earning_events_id_fk",
           "tableFrom": "commissions",
           "tableTo": "earning_events",
-          "columnsFrom": [
-            "earning_event_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["earning_event_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -890,12 +860,8 @@
           "name": "commissions_partner_id_partners_id_fk",
           "tableFrom": "commissions",
           "tableTo": "partners",
-          "columnsFrom": [
-            "partner_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["partner_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -903,12 +869,8 @@
           "name": "commissions_merchant_id_merchants_id_fk",
           "tableFrom": "commissions",
           "tableTo": "merchants",
-          "columnsFrom": [
-            "merchant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["merchant_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -916,12 +878,8 @@
           "name": "commissions_app_id_apps_id_fk",
           "tableFrom": "commissions",
           "tableTo": "apps",
-          "columnsFrom": [
-            "app_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["app_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -929,12 +887,8 @@
           "name": "commissions_payout_id_payouts_id_fk",
           "tableFrom": "commissions",
           "tableTo": "payouts",
-          "columnsFrom": [
-            "payout_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["payout_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -944,9 +898,7 @@
         "commissions_earning_event_id_unique": {
           "name": "commissions_earning_event_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "earning_event_id"
-          ]
+          "columns": ["earning_event_id"]
         }
       },
       "policies": {},
@@ -1105,12 +1057,8 @@
           "name": "earning_events_merchant_id_merchants_id_fk",
           "tableFrom": "earning_events",
           "tableTo": "merchants",
-          "columnsFrom": [
-            "merchant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["merchant_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -1118,12 +1066,8 @@
           "name": "earning_events_app_id_apps_id_fk",
           "tableFrom": "earning_events",
           "tableTo": "apps",
-          "columnsFrom": [
-            "app_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["app_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -1133,9 +1077,7 @@
         "earning_events_shopify_transaction_id_unique": {
           "name": "earning_events_shopify_transaction_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "shopify_transaction_id"
-          ]
+          "columns": ["shopify_transaction_id"]
         }
       },
       "policies": {},
@@ -1185,12 +1127,8 @@
           "name": "mail_app_settings_app_id_apps_id_fk",
           "tableFrom": "mail_app_settings",
           "tableTo": "apps",
-          "columnsFrom": [
-            "app_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["app_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         }
@@ -1231,12 +1169,8 @@
           "name": "mail_campaign_recipients_campaign_id_mail_campaigns_id_fk",
           "tableFrom": "mail_campaign_recipients",
           "tableTo": "mail_campaigns",
-          "columnsFrom": [
-            "campaign_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["campaign_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -1244,12 +1178,8 @@
           "name": "mail_campaign_recipients_contact_id_mail_contacts_id_fk",
           "tableFrom": "mail_campaign_recipients",
           "tableTo": "mail_contacts",
-          "columnsFrom": [
-            "contact_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["contact_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         }
@@ -1257,10 +1187,7 @@
       "compositePrimaryKeys": {
         "mail_campaign_recipients_campaign_id_contact_id_pk": {
           "name": "mail_campaign_recipients_campaign_id_contact_id_pk",
-          "columns": [
-            "campaign_id",
-            "contact_id"
-          ]
+          "columns": ["campaign_id", "contact_id"]
         }
       },
       "uniqueConstraints": {},
@@ -1442,12 +1369,8 @@
           "name": "mail_campaigns_app_id_apps_id_fk",
           "tableFrom": "mail_campaigns",
           "tableTo": "apps",
-          "columnsFrom": [
-            "app_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["app_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -1455,12 +1378,8 @@
           "name": "mail_campaigns_created_by_user_id_fk",
           "tableFrom": "mail_campaigns",
           "tableTo": "user",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         }
@@ -1517,12 +1436,8 @@
           "name": "mail_contact_stores_contact_id_mail_contacts_id_fk",
           "tableFrom": "mail_contact_stores",
           "tableTo": "mail_contacts",
-          "columnsFrom": [
-            "contact_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["contact_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -1530,12 +1445,8 @@
           "name": "mail_contact_stores_store_id_mail_stores_id_fk",
           "tableFrom": "mail_contact_stores",
           "tableTo": "mail_stores",
-          "columnsFrom": [
-            "store_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["store_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         }
@@ -1543,10 +1454,7 @@
       "compositePrimaryKeys": {
         "mail_contact_stores_contact_id_store_id_pk": {
           "name": "mail_contact_stores_contact_id_store_id_pk",
-          "columns": [
-            "contact_id",
-            "store_id"
-          ]
+          "columns": ["contact_id", "store_id"]
         }
       },
       "uniqueConstraints": {},
@@ -1651,9 +1559,7 @@
         "mail_contacts_email_unique": {
           "name": "mail_contacts_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},
@@ -1791,12 +1697,8 @@
           "name": "mail_email_events_contact_id_mail_contacts_id_fk",
           "tableFrom": "mail_email_events",
           "tableTo": "mail_contacts",
-          "columnsFrom": [
-            "contact_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["contact_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -1804,12 +1706,8 @@
           "name": "mail_email_events_campaign_id_mail_campaigns_id_fk",
           "tableFrom": "mail_email_events",
           "tableTo": "mail_campaigns",
-          "columnsFrom": [
-            "campaign_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["campaign_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -1817,12 +1715,8 @@
           "name": "mail_email_events_app_id_apps_id_fk",
           "tableFrom": "mail_email_events",
           "tableTo": "apps",
-          "columnsFrom": [
-            "app_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["app_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         }
@@ -1832,9 +1726,7 @@
         "mail_email_events_svix_id_unique": {
           "name": "mail_email_events_svix_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "svix_id"
-          ]
+          "columns": ["svix_id"]
         }
       },
       "policies": {},
@@ -1945,12 +1837,8 @@
           "name": "mail_events_app_id_apps_id_fk",
           "tableFrom": "mail_events",
           "tableTo": "apps",
-          "columnsFrom": [
-            "app_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["app_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -1958,12 +1846,8 @@
           "name": "mail_events_store_id_mail_stores_id_fk",
           "tableFrom": "mail_events",
           "tableTo": "mail_stores",
-          "columnsFrom": [
-            "store_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["store_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -1971,12 +1855,8 @@
           "name": "mail_events_contact_id_mail_contacts_id_fk",
           "tableFrom": "mail_events",
           "tableTo": "mail_contacts",
-          "columnsFrom": [
-            "contact_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["contact_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         }
@@ -1986,10 +1866,7 @@
         "mail_events_app_event_unique": {
           "name": "mail_events_app_event_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "app_id",
-            "event_id"
-          ]
+          "columns": ["app_id", "event_id"]
         }
       },
       "policies": {},
@@ -2117,12 +1994,8 @@
           "name": "mail_installations_store_id_mail_stores_id_fk",
           "tableFrom": "mail_installations",
           "tableTo": "mail_stores",
-          "columnsFrom": [
-            "store_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["store_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -2130,12 +2003,8 @@
           "name": "mail_installations_app_id_apps_id_fk",
           "tableFrom": "mail_installations",
           "tableTo": "apps",
-          "columnsFrom": [
-            "app_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["app_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         }
@@ -2145,10 +2014,7 @@
         "mail_installations_store_app_unique": {
           "name": "mail_installations_store_app_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "store_id",
-            "app_id"
-          ]
+          "columns": ["store_id", "app_id"]
         }
       },
       "policies": {},
@@ -2218,9 +2084,7 @@
         "mail_stores_shop_domain_unique": {
           "name": "mail_stores_shop_domain_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "shop_domain"
-          ]
+          "columns": ["shop_domain"]
         }
       },
       "policies": {},
@@ -2380,12 +2244,8 @@
           "name": "merchant_grandfathered_apps_merchant_id_merchants_id_fk",
           "tableFrom": "merchant_grandfathered_apps",
           "tableTo": "merchants",
-          "columnsFrom": [
-            "merchant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["merchant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2393,12 +2253,8 @@
           "name": "merchant_grandfathered_apps_app_id_apps_id_fk",
           "tableFrom": "merchant_grandfathered_apps",
           "tableTo": "apps",
-          "columnsFrom": [
-            "app_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["app_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2408,10 +2264,7 @@
         "merchant_grandfathered_apps_merchant_app_uq": {
           "name": "merchant_grandfathered_apps_merchant_app_uq",
           "nullsNotDistinct": false,
-          "columns": [
-            "merchant_id",
-            "app_id"
-          ]
+          "columns": ["merchant_id", "app_id"]
         }
       },
       "policies": {},
@@ -2645,12 +2498,8 @@
           "name": "merchants_partner_id_partners_id_fk",
           "tableFrom": "merchants",
           "tableTo": "partners",
-          "columnsFrom": [
-            "partner_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["partner_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -2658,12 +2507,8 @@
           "name": "merchants_partner_code_id_partner_codes_id_fk",
           "tableFrom": "merchants",
           "tableTo": "partner_codes",
-          "columnsFrom": [
-            "partner_code_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["partner_code_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -2671,12 +2516,8 @@
           "name": "merchants_approved_by_user_id_fk",
           "tableFrom": "merchants",
           "tableTo": "user",
-          "columnsFrom": [
-            "approved_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["approved_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -2686,9 +2527,7 @@
         "merchants_shop_domain_unique": {
           "name": "merchants_shop_domain_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "shop_domain"
-          ]
+          "columns": ["shop_domain"]
         }
       },
       "policies": {},
@@ -2761,12 +2600,8 @@
           "name": "partner_app_rates_partner_id_partners_id_fk",
           "tableFrom": "partner_app_rates",
           "tableTo": "partners",
-          "columnsFrom": [
-            "partner_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["partner_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2774,12 +2609,8 @@
           "name": "partner_app_rates_app_id_apps_id_fk",
           "tableFrom": "partner_app_rates",
           "tableTo": "apps",
-          "columnsFrom": [
-            "app_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["app_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2789,10 +2620,7 @@
         "partner_app_rates_partner_app_uq": {
           "name": "partner_app_rates_partner_app_uq",
           "nullsNotDistinct": false,
-          "columns": [
-            "partner_id",
-            "app_id"
-          ]
+          "columns": ["partner_id", "app_id"]
         }
       },
       "policies": {},
@@ -2944,12 +2772,8 @@
           "name": "partner_codes_partner_id_partners_id_fk",
           "tableFrom": "partner_codes",
           "tableTo": "partners",
-          "columnsFrom": [
-            "partner_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["partner_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         }
@@ -2959,9 +2783,7 @@
         "partner_codes_code_unique": {
           "name": "partner_codes_code_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "code"
-          ]
+          "columns": ["code"]
         }
       },
       "policies": {},
@@ -3103,12 +2925,8 @@
           "name": "partner_invites_invited_by_user_id_fk",
           "tableFrom": "partner_invites",
           "tableTo": "user",
-          "columnsFrom": [
-            "invited_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["invited_by"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -3116,12 +2934,8 @@
           "name": "partner_invites_accepted_partner_id_partners_id_fk",
           "tableFrom": "partner_invites",
           "tableTo": "partners",
-          "columnsFrom": [
-            "accepted_partner_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["accepted_partner_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -3131,9 +2945,7 @@
         "partner_invites_token_hash_unique": {
           "name": "partner_invites_token_hash_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "token_hash"
-          ]
+          "columns": ["token_hash"]
         }
       },
       "policies": {},
@@ -3282,12 +3094,8 @@
           "name": "partners_user_id_user_id_fk",
           "tableFrom": "partners",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -3295,12 +3103,8 @@
           "name": "partners_approved_by_user_id_fk",
           "tableFrom": "partners",
           "tableTo": "user",
-          "columnsFrom": [
-            "approved_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["approved_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -3310,9 +3114,7 @@
         "partners_user_id_unique": {
           "name": "partners_user_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "user_id"
-          ]
+          "columns": ["user_id"]
         }
       },
       "policies": {},
@@ -3489,12 +3291,8 @@
           "name": "partner_bonuses_partner_id_partners_id_fk",
           "tableFrom": "partner_bonuses",
           "tableTo": "partners",
-          "columnsFrom": [
-            "partner_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["partner_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -3502,12 +3300,8 @@
           "name": "partner_bonuses_payout_id_payouts_id_fk",
           "tableFrom": "partner_bonuses",
           "tableTo": "payouts",
-          "columnsFrom": [
-            "payout_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["payout_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -3515,12 +3309,8 @@
           "name": "partner_bonuses_merchant_id_merchants_id_fk",
           "tableFrom": "partner_bonuses",
           "tableTo": "merchants",
-          "columnsFrom": [
-            "merchant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["merchant_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -3528,12 +3318,8 @@
           "name": "partner_bonuses_issued_by_user_id_fk",
           "tableFrom": "partner_bonuses",
           "tableTo": "user",
-          "columnsFrom": [
-            "issued_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["issued_by"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         }
@@ -3710,12 +3496,8 @@
           "name": "payouts_partner_id_partners_id_fk",
           "tableFrom": "payouts",
           "tableTo": "partners",
-          "columnsFrom": [
-            "partner_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["partner_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         }
@@ -3878,12 +3660,8 @@
           "name": "referral_claims_partner_id_partners_id_fk",
           "tableFrom": "referral_claims",
           "tableTo": "partners",
-          "columnsFrom": [
-            "partner_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["partner_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -3891,12 +3669,8 @@
           "name": "referral_claims_link_id_referral_links_id_fk",
           "tableFrom": "referral_claims",
           "tableTo": "referral_links",
-          "columnsFrom": [
-            "link_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["link_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -3904,12 +3678,8 @@
           "name": "referral_claims_click_id_referral_clicks_id_fk",
           "tableFrom": "referral_claims",
           "tableTo": "referral_clicks",
-          "columnsFrom": [
-            "click_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["click_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -3917,12 +3687,8 @@
           "name": "referral_claims_converted_merchant_id_merchants_id_fk",
           "tableFrom": "referral_claims",
           "tableTo": "merchants",
-          "columnsFrom": [
-            "converted_merchant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["converted_merchant_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         }
@@ -4122,12 +3888,8 @@
           "name": "referral_clicks_link_id_referral_links_id_fk",
           "tableFrom": "referral_clicks",
           "tableTo": "referral_links",
-          "columnsFrom": [
-            "link_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["link_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -4135,12 +3897,8 @@
           "name": "referral_clicks_partner_id_partners_id_fk",
           "tableFrom": "referral_clicks",
           "tableTo": "partners",
-          "columnsFrom": [
-            "partner_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["partner_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         }
@@ -4230,12 +3988,8 @@
           "name": "referral_links_partner_id_partners_id_fk",
           "tableFrom": "referral_links",
           "tableTo": "partners",
-          "columnsFrom": [
-            "partner_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["partner_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         }
@@ -4245,18 +3999,12 @@
         "referral_links_slug_unique": {
           "name": "referral_links_slug_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "slug"
-          ]
+          "columns": ["slug"]
         },
         "referral_links_shape_uq": {
           "name": "referral_links_shape_uq",
           "nullsNotDistinct": true,
-          "columns": [
-            "partner_id",
-            "app_slug",
-            "sub_id"
-          ]
+          "columns": ["partner_id", "app_slug", "sub_id"]
         }
       },
       "policies": {},
@@ -4330,12 +4078,7 @@
     "public.discount_kind": {
       "name": "discount_kind",
       "schema": "public",
-      "values": [
-        "none",
-        "percentage",
-        "fixed",
-        "free_cycles"
-      ]
+      "values": ["none", "percentage", "fixed", "free_cycles"]
     },
     "public.code_attempt_outcome": {
       "name": "code_attempt_outcome",
@@ -4351,11 +4094,7 @@
     "public.commission_status": {
       "name": "commission_status",
       "schema": "public",
-      "values": [
-        "pending",
-        "paid",
-        "void"
-      ]
+      "values": ["pending", "paid", "void"]
     },
     "public.mail_campaign_status": {
       "name": "mail_campaign_status",
@@ -4385,131 +4124,72 @@
     "public.mail_category": {
       "name": "mail_category",
       "schema": "public",
-      "values": [
-        "product_updates",
-        "marketing",
-        "education"
-      ]
+      "values": ["product_updates", "marketing", "education"]
     },
     "public.mail_install_status": {
       "name": "mail_install_status",
       "schema": "public",
-      "values": [
-        "installed",
-        "active",
-        "inactive",
-        "uninstalled"
-      ]
+      "values": ["installed", "active", "inactive", "uninstalled"]
     },
     "public.mail_suppression_reason": {
       "name": "mail_suppression_reason",
       "schema": "public",
-      "values": [
-        "bounced",
-        "complained"
-      ]
+      "values": ["bounced", "complained"]
     },
     "public.merchant_source": {
       "name": "merchant_source",
       "schema": "public",
-      "values": [
-        "manual",
-        "code",
-        "link"
-      ]
+      "values": ["manual", "code", "link"]
     },
     "public.merchant_status": {
       "name": "merchant_status",
       "schema": "public",
-      "values": [
-        "pending",
-        "approved",
-        "rejected",
-        "suspended"
-      ]
+      "values": ["pending", "approved", "rejected", "suspended"]
     },
     "public.partner_code_status": {
       "name": "partner_code_status",
       "schema": "public",
-      "values": [
-        "active",
-        "disabled"
-      ]
+      "values": ["active", "disabled"]
     },
     "public.partner_invite_status": {
       "name": "partner_invite_status",
       "schema": "public",
-      "values": [
-        "sent",
-        "accepted",
-        "revoked"
-      ]
+      "values": ["sent", "accepted", "revoked"]
     },
     "public.partner_status": {
       "name": "partner_status",
       "schema": "public",
-      "values": [
-        "pending",
-        "approved",
-        "suspended"
-      ]
+      "values": ["pending", "approved", "suspended"]
     },
     "public.payout_destination_kind": {
       "name": "payout_destination_kind",
       "schema": "public",
-      "values": [
-        "bank_in",
-        "bank_intl"
-      ]
+      "values": ["bank_in", "bank_intl"]
     },
     "public.partner_bonus_status": {
       "name": "partner_bonus_status",
       "schema": "public",
-      "values": [
-        "pending",
-        "paid",
-        "revoked"
-      ]
+      "values": ["pending", "paid", "revoked"]
     },
     "public.payout_method": {
       "name": "payout_method",
       "schema": "public",
-      "values": [
-        "bank_transfer",
-        "upi",
-        "wire",
-        "payment_link",
-        "other"
-      ]
+      "values": ["bank_transfer", "upi", "wire", "payment_link", "other"]
     },
     "public.payout_status": {
       "name": "payout_status",
       "schema": "public",
-      "values": [
-        "pending",
-        "paid"
-      ]
+      "values": ["pending", "paid"]
     },
     "public.referral_claim_status": {
       "name": "referral_claim_status",
       "schema": "public",
-      "values": [
-        "pending",
-        "converted",
-        "expired",
-        "rejected",
-        "suggested"
-      ]
+      "values": ["pending", "converted", "expired", "rejected", "suggested"]
     },
     "public.referral_device_type": {
       "name": "referral_device_type",
       "schema": "public",
-      "values": [
-        "desktop",
-        "mobile",
-        "tablet",
-        "unknown"
-      ]
+      "values": ["desktop", "mobile", "tablet", "unknown"]
     }
   },
   "schemas": {},

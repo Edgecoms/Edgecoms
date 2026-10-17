@@ -16,6 +16,7 @@ import {
 	partners,
 } from "@edgecoms/db/schema/partners";
 import { partnerBonuses, payouts } from "@edgecoms/db/schema/payouts";
+import { promoCodes, promoRedemptions } from "@edgecoms/db/schema/promos";
 import { syncState } from "@edgecoms/db/schema/sync";
 import { env } from "@edgecoms/env/server";
 import type { OutboundEmail } from "@edgecoms/mail/types";
@@ -23,6 +24,7 @@ import { TRPCError } from "@trpc/server";
 import {
 	and,
 	count,
+	countDistinct,
 	desc,
 	eq,
 	inArray,
@@ -292,6 +294,39 @@ function codeTermsPatch(input: CodeTermsInput) {
 type Tx = Parameters<Parameters<Database["transaction"]>[0]>[0];
 
 /**
+ * Partner codes and promo codes share ONE namespace: a merchant pastes both
+ * into the same box, so one string must never mean both. Each table's own
+ * unique index covers its half; these cover the other.
+ */
+async function assertNotPromoCode(reader: Database | Tx, code: string) {
+	const rows = await reader
+		.select({ id: promoCodes.id })
+		.from(promoCodes)
+		.where(eq(promoCodes.code, code))
+		.limit(1);
+	if (rows[0]) {
+		throw new TRPCError({
+			code: "CONFLICT",
+			message: "That code is already in use.",
+		});
+	}
+}
+
+async function assertNotPartnerCode(reader: Database | Tx, code: string) {
+	const rows = await reader
+		.select({ id: partnerCodes.id })
+		.from(partnerCodes)
+		.where(eq(partnerCodes.code, code))
+		.limit(1);
+	if (rows[0]) {
+		throw new TRPCError({
+			code: "CONFLICT",
+			message: "That code is already in use.",
+		});
+	}
+}
+
+/**
  * ISSUE a merchant-facing code onto a partner, inside the caller's transaction.
  *
  * Shares `CODE_PATTERN` and the global-unique conflict handling with
@@ -311,6 +346,7 @@ async function issueCodeInTx(
 				"Use 4\u201332 letters, digits or hyphens. Keep the commission rate out of the code.",
 		});
 	}
+	await assertNotPromoCode(tx, code);
 
 	const inserted = await tx
 		.insert(partnerCodes)
@@ -1144,6 +1180,7 @@ export const adminRouter = router({
 					});
 				}
 				assertCoherentDiscount(input);
+				await assertNotPromoCode(ctx.db, code);
 
 				const inserted = await ctx.db
 					.insert(partnerCodes)
@@ -1209,6 +1246,143 @@ export const adminRouter = router({
 					.where(eq(partnerCodes.id, input.codeId))
 					.returning({ id: partnerCodes.id });
 
+				if (!updated[0]) {
+					throw new TRPCError({ code: "NOT_FOUND", message: "Unknown code." });
+				}
+				return { ok: true };
+			}),
+	}),
+
+	/**
+	 * Promo codes: a discount on any paid plan of any Edge app, with no partner
+	 * behind it and no attribution. See docs/promo-codes.md.
+	 */
+	promoCodes: router({
+		list: adminProcedure.query(async ({ ctx }) => {
+			const rows = await ctx.db
+				.select()
+				.from(promoCodes)
+				.orderBy(desc(promoCodes.createdAt));
+
+			// Counted, not stored, so the numbers can't disagree with the rows.
+			const usage = await ctx.db
+				.select({
+					promoCodeId: promoRedemptions.promoCodeId,
+					stores: countDistinct(promoRedemptions.shopDomain),
+					redemptions: count(),
+				})
+				.from(promoRedemptions)
+				.groupBy(promoRedemptions.promoCodeId);
+			const byCode = new Map(usage.map((row) => [row.promoCodeId, row]));
+
+			return rows.map((row) => ({
+				...row,
+				discountAmountMinor: row.discountAmountMinor?.toString() ?? null,
+				stores: byCode.get(row.id)?.stores ?? 0,
+				redemptions: byCode.get(row.id)?.redemptions ?? 0,
+			}));
+		}),
+
+		create: adminProcedure
+			.input(
+				z.object({
+					code: z.string().min(4).max(32),
+					label: codeTermsInput.label,
+					maxRedemptions: codeTermsInput.maxRedemptions,
+					expiresAt: codeTermsInput.expiresAt,
+					discountKind: z.enum(["percentage", "fixed", "free_cycles"]),
+					discountBps: codeTermsInput.discountBps,
+					discountAmount: codeTermsInput.discountAmount,
+					discountCurrency: codeTermsInput.discountCurrency,
+					discountCycles: codeTermsInput.discountCycles,
+				})
+			)
+			.mutation(async ({ ctx, input }) => {
+				const code = normalizeCode(input.code);
+				if (!CODE_PATTERN.test(code)) {
+					throw new TRPCError({
+						code: "BAD_REQUEST",
+						message: "Use 4–32 letters, digits or hyphens.",
+					});
+				}
+				assertCoherentDiscount(input);
+				await assertNotPartnerCode(ctx.db, code);
+
+				const inserted = await ctx.db
+					.insert(promoCodes)
+					.values({
+						code,
+						label: input.label?.trim() || null,
+						maxRedemptions: input.maxRedemptions ?? null,
+						expiresAt: input.expiresAt ? new Date(input.expiresAt) : null,
+						// Only the fields the kind reads, so a stale value from another
+						// kind can't ride along to an app.
+						discountKind: input.discountKind,
+						discountBps:
+							input.discountKind === "percentage"
+								? (input.discountBps ?? null)
+								: null,
+						discountAmountMinor:
+							input.discountKind === "fixed"
+								? toMinor(input.discountAmount, input.discountCurrency)
+								: null,
+						discountCurrency:
+							input.discountKind === "fixed"
+								? (input.discountCurrency ?? null)
+								: null,
+						discountCycles: input.discountCycles ?? null,
+					})
+					.onConflictDoNothing({ target: promoCodes.code })
+					.returning({ id: promoCodes.id });
+
+				const row = inserted[0];
+				if (!row) {
+					throw new TRPCError({
+						code: "CONFLICT",
+						message: "That code is already in use.",
+					});
+				}
+				return { id: row.id, code };
+			}),
+
+		/**
+		 * Status, label, cap and expiry only. The discount terms are deliberately
+		 * not editable: redemptions don't freeze a copy, so an edit would change
+		 * what stores that already redeemed were promised. Issue a new code.
+		 */
+		update: adminProcedure
+			.input(
+				z.object({
+					promoCodeId: z.string(),
+					status: z.enum(["active", "disabled"]).optional(),
+					label: codeTermsInput.label,
+					maxRedemptions: codeTermsInput.maxRedemptions,
+					expiresAt: codeTermsInput.expiresAt,
+				})
+			)
+			.mutation(async ({ ctx, input }) => {
+				const set: Record<string, unknown> = {};
+				if (input.status !== undefined) {
+					set.status = input.status;
+				}
+				if (input.label !== undefined) {
+					set.label = input.label.trim() || null;
+				}
+				if (input.maxRedemptions !== undefined) {
+					set.maxRedemptions = input.maxRedemptions ?? null;
+				}
+				if (input.expiresAt !== undefined) {
+					set.expiresAt = input.expiresAt ? new Date(input.expiresAt) : null;
+				}
+				if (Object.keys(set).length === 0) {
+					return { ok: true };
+				}
+
+				const updated = await ctx.db
+					.update(promoCodes)
+					.set(set)
+					.where(eq(promoCodes.id, input.promoCodeId))
+					.returning({ id: promoCodes.id });
 				if (!updated[0]) {
 					throw new TRPCError({ code: "NOT_FOUND", message: "Unknown code." });
 				}

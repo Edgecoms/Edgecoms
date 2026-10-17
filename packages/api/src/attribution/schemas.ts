@@ -55,6 +55,15 @@ export const createAttributionBody = z.object({
 
 export type CreateAttributionBody = z.infer<typeof createAttributionBody>;
 
+/** A promo redemption. `appSlug` is required: redemptions are per app. */
+export const redeemPromoBody = z.object({
+	code: CODE,
+	shopDomain: SHOP,
+	appSlug: APP_SLUG,
+});
+
+export type RedeemPromoBody = z.infer<typeof redeemPromoBody>;
+
 /**
  * The install-time question: "does this shop belong to a partner?" No code,
  * because the merchant may never have typed one; the match comes from a claim

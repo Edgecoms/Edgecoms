@@ -238,6 +238,21 @@ See `docs/partner-attribution-codes.md` for the full design.
   it exists a code must not promise a price cut nothing can honour. When they
   arrive they are integers (basis points / minor units), never a float.
 
+## Promo codes
+
+See `docs/promo-codes.md`.
+
+- A promo code is a discount with **no partner**. Redeeming one never creates a
+  `merchants` row, never binds, and never earns commission. It lives in its own
+  tables (`promo_codes`, `promo_redemptions`) so no attribution invariant above
+  ever has to consider a code without a partner.
+- Partner and promo codes share **one namespace**; issuing either refuses a
+  string the other already uses.
+- Its discount terms are **immutable once issued**: redemptions do not freeze a
+  copy, so an edit would change what redeemed stores were promised.
+- Its offer applies to any paid plan (`appliesTo: "all"`); partner grants stay
+  Enterprise-only.
+
 ## Referral links
 
 - A link is the second way a partner brings a store, and it changes **nothing**

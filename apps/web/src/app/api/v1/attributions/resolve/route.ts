@@ -56,14 +56,21 @@ export async function POST(request: Request): Promise<Response> {
 		return jsonResponse({ ok: true, partner: null, status: "none" }, 200);
 	}
 
-	/* The partner's NAME reaches the app because the app shows it to the
-	   merchant ("referred by ..."), the same field the bind response carries.
-	   Nothing else about the partner does. */
+	/* Id, name and code reach the app: it stores the first two on its own
+	   attribution row, shows the name to the merchant ("referred by ..."), and
+	   records the code so a link-referred store reads like a code-referred one
+	   everywhere else. A code is public by design (CLAUDE.md), and `null` here
+	   simply means the partner holds no active one. Nothing else about the
+	   partner is returned. */
 	return jsonResponse(
 		{
 			merchantId: "merchantId" in outcome ? outcome.merchantId : null,
 			ok: true,
-			partner: { name: outcome.partner.name },
+			partner: {
+				code: outcome.partner.code,
+				id: outcome.partner.id,
+				name: outcome.partner.name,
+			},
 			status: outcome.status,
 		},
 		200

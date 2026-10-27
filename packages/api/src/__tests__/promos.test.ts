@@ -1,6 +1,9 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+import { BFCM_PROMO_EXPIRES_AT } from "@edgecoms/db/promo-seed-data";
+import { apps } from "@edgecoms/db/schema/apps";
 import { codeRedemptionAttempts } from "@edgecoms/db/schema/attribution";
 import { user } from "@edgecoms/db/schema/auth";
+import { earningEvents } from "@edgecoms/db/schema/earnings";
 import { merchants } from "@edgecoms/db/schema/merchants";
 import { partnerCodes, partners } from "@edgecoms/db/schema/partners";
 import { promoCodes, promoRedemptions } from "@edgecoms/db/schema/promos";
@@ -17,7 +20,9 @@ import { createTestDb, type TestDb } from "./db-harness";
  *
  *   • It binds NOTHING — no merchant row, and a partner's store can redeem one.
  *   • The store cap counts STORES, so one store in four apps is one slot.
- *   • Rejections look identical outside and are written down inside.
+ *   • Rejections are written down inside. Outside, only "expired" and "store
+ *     already used another code" are named; every other one looks the same.
+ *   • One promo code per store, across every app.
  *   • Partner and promo codes never share a string.
  */
 
@@ -133,11 +138,15 @@ describe("redeemPromo", () => {
 		expect(merchant?.partnerId).toBe(P1);
 	});
 
-	test("expired, disabled and unknown codes fail the same way", async () => {
+	test("disabled and unknown codes fail the same way; expired says so", async () => {
 		await issue({ code: "OLD1", expiresAt: new Date("2026-10-01T00:00:00Z") });
 		await issue({ code: "OFF1", status: "disabled" });
 
-		for (const code of ["old1", "off1", "nope"]) {
+		expect(await redeem(SHOP, "edge-cart", "old1")).toEqual({
+			ok: false,
+			status: "expired",
+		});
+		for (const code of ["off1", "nope"]) {
 			expect(await redeem(SHOP, "edge-cart", code)).toEqual({
 				ok: false,
 				status: "invalid_code",
@@ -151,6 +160,39 @@ describe("redeemPromo", () => {
 			expect.stringContaining("disabled"),
 			"unknown promo code",
 		]);
+	});
+
+	test("the Black Friday cut-off is the end of 30 November UTC", async () => {
+		await issue({ expiresAt: BFCM_PROMO_EXPIRES_AT });
+		const at = (iso: string) =>
+			redeemPromo(
+				harness.db,
+				{ code: " free3 ", shopDomain: SHOP, appSlug: "edge-cart" },
+				new Date(iso)
+			);
+
+		expect((await at("2026-11-30T23:59:59.999Z")).ok).toBe(true);
+		expect(
+			await redeemPromo(
+				harness.db,
+				{ code: "FREE3", shopDomain: OTHER_SHOP, appSlug: "edge-cart" },
+				new Date("2026-12-01T00:00:00Z")
+			)
+		).toEqual({ ok: false, status: "expired" });
+	});
+
+	test("one promo code per store, across every app", async () => {
+		await issue();
+		await issue({ code: "OTHER3" });
+
+		expect((await redeem(SHOP, "edge-cart", "free3")).ok).toBe(true);
+		expect((await redeem(SHOP, "edge-bundles", "free3")).ok).toBe(true);
+		expect(await redeem(SHOP, "edge-timer", "other3")).toEqual({
+			ok: false,
+			status: "other_code_used",
+		});
+		// Another store is unaffected.
+		expect((await redeem(OTHER_SHOP, "edge-timer", "other3")).ok).toBe(true);
 	});
 
 	test("a store that redeemed before expiry keeps its offer on replay", async () => {
@@ -233,6 +275,52 @@ describe("admin.promoCodes", () => {
 		const [row] = await adminCaller().admin.promoCodes.list();
 		expect(row?.stores).toBe(2);
 		expect(row?.redemptions).toBe(3);
+	});
+
+	test("list sums net revenue from the redeeming app, from redemption on", async () => {
+		const CART = "bbbbbbbb-0000-0000-0000-000000000001";
+		const BUNDLES = "bbbbbbbb-0000-0000-0000-000000000002";
+		await harness.db.insert(apps).values([
+			{
+				id: CART,
+				slug: "edge-cart",
+				name: "Edge Cart",
+				partnerApiGid: "gid://partners/App/1",
+			},
+			{
+				id: BUNDLES,
+				slug: "edge-bundles",
+				name: "Edge Bundles",
+				partnerApiGid: "gid://partners/App/2",
+			},
+		]);
+		await issue();
+		await redeem(SHOP, "edge-cart");
+
+		let seq = 0;
+		const charge = (appId: string, netAmount: bigint, occurredAt: string) => {
+			seq += 1;
+			return {
+				shopifyTransactionId: `txn-${seq}`,
+				shopDomain: SHOP,
+				appId,
+				grossAmount: netAmount,
+				shopifyFeeAmount: 0n,
+				netAmount,
+				currency: "USD",
+				transactionType: "app_subscription",
+				occurredAt: new Date(occurredAt),
+			};
+		};
+		await harness.db.insert(earningEvents).values([
+			charge(CART, 1999n, "2027-02-01T00:00:00Z"), // counted
+			charge(CART, 1999n, "2027-03-01T00:00:00Z"), // counted
+			charge(CART, 500n, "2026-10-01T00:00:00Z"), // before redemption
+			charge(BUNDLES, 900n, "2027-02-01T00:00:00Z"), // app never redeemed
+		]);
+
+		const [row] = await adminCaller().admin.promoCodes.list();
+		expect(row?.revenue).toEqual([{ currency: "USD", netMinor: "3998" }]);
 	});
 
 	test("disabling stops new redemptions", async () => {

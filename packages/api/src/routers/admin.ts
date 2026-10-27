@@ -4,7 +4,7 @@ import { runBillingSync } from "@edgecoms/billing/run-sync";
 import type { Database } from "@edgecoms/db";
 import { apps } from "@edgecoms/db/schema/apps";
 import { user } from "@edgecoms/db/schema/auth";
-import { commissions } from "@edgecoms/db/schema/earnings";
+import { commissions, earningEvents } from "@edgecoms/db/schema/earnings";
 import {
 	merchantGrandfatheredApps,
 	merchants,
@@ -27,6 +27,7 @@ import {
 	countDistinct,
 	desc,
 	eq,
+	gte,
 	inArray,
 	isNotNull,
 	lte,
@@ -1275,11 +1276,42 @@ export const adminRouter = router({
 				.groupBy(promoRedemptions.promoCodeId);
 			const byCode = new Map(usage.map((row) => [row.promoCodeId, row]));
 
+			// Net revenue each code brought in: charges from the redeeming store,
+			// in the app it redeemed in, from the moment it redeemed. Per currency,
+			// since amounts in different currencies never add up.
+			const earned = await ctx.db
+				.select({
+					promoCodeId: promoRedemptions.promoCodeId,
+					currency: earningEvents.currency,
+					netMinor: MONEY_SUM(earningEvents.netAmount),
+				})
+				.from(promoRedemptions)
+				.innerJoin(apps, eq(apps.slug, promoRedemptions.appSlug))
+				.innerJoin(
+					earningEvents,
+					and(
+						eq(earningEvents.shopDomain, promoRedemptions.shopDomain),
+						eq(earningEvents.appId, apps.id),
+						gte(earningEvents.occurredAt, promoRedemptions.createdAt)
+					)
+				)
+				.groupBy(promoRedemptions.promoCodeId, earningEvents.currency);
+			const revenueByCode = new Map<
+				string,
+				{ currency: string; netMinor: string }[]
+			>();
+			for (const { promoCodeId, currency, netMinor } of earned) {
+				const list = revenueByCode.get(promoCodeId) ?? [];
+				list.push({ currency, netMinor });
+				revenueByCode.set(promoCodeId, list);
+			}
+
 			return rows.map((row) => ({
 				...row,
 				discountAmountMinor: row.discountAmountMinor?.toString() ?? null,
 				stores: byCode.get(row.id)?.stores ?? 0,
 				redemptions: byCode.get(row.id)?.redemptions ?? 0,
+				revenue: revenueByCode.get(row.id) ?? [],
 			}));
 		}),
 

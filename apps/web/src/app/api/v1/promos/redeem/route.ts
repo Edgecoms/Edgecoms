@@ -13,7 +13,9 @@ import { db } from "@edgecoms/db";
  * Binds nothing (see docs/promo-codes.md). Idempotent per (code, shop, app).
  *
  *   200 — `{ ok: true, status, offer }`; `offer.appliesTo` is always "all"
- *   422 — the code is not usable (one generic reason, always)
+ *   422 — the code is not usable: reason "expired", "other_code_used" (this
+ *         store already redeemed a different promo code), or "invalid" for
+ *         every other cause
  *   429 — too many attempts for this shop
  *
  * An app should ask /api/v1/codes/validate FIRST and only come here when that
@@ -50,6 +52,20 @@ export async function POST(request: Request): Promise<Response> {
 			return jsonResponse(
 				{ ok: false, reason: "rate_limited", message: "Too many attempts." },
 				429
+			);
+		case "expired":
+			return jsonResponse(
+				{ ok: false, reason: "expired", message: "That code has expired." },
+				422
+			);
+		case "other_code_used":
+			return jsonResponse(
+				{
+					ok: false,
+					reason: "other_code_used",
+					message: "This store has already used a different code.",
+				},
+				422
 			);
 		case "invalid_shop":
 			return jsonResponse({ error: "Invalid shop domain." }, 400);

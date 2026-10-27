@@ -23,8 +23,13 @@ redeemed one can still be referred by a partner later.
   one app before the date and installs another after it gets nothing in the second. A replay from an
   app that already redeemed returns the offer even after expiry or disabling: that store was
   promised it.
-- **Rejections look identical** and share the per-shop attempt budget with partner codes
-  (`code_redemption_attempts`, outcome `invalid`, with the real reason in `reason`).
+- **One promo code per store.** A store that redeemed `YT90` may redeem `YT90` in every other
+  app, but never `DIGI90`. Each store's installs and revenue therefore belong to exactly one code.
+- **Rejections** share the per-shop attempt budget with partner codes
+  (`code_redemption_attempts`, outcome `invalid`, with the real reason in `reason`). Two are
+  named over the wire, `expired` and `other_code_used`; every other one is the generic `invalid`.
+- **Revenue per code** on `/admin/promo-codes`: net `earning_events` from the redeeming store, in
+  the app it redeemed in, from the moment it redeemed.
 
 ## The app contract
 
@@ -37,7 +42,7 @@ redeemed one can still be referred by a partner later.
 | Status | Body |
 |---|---|
 | 200 | `{ "ok": true, "status": "redeemed" \| "already_redeemed", "offer": { "kind", "bps", "amountMinor", "currency", "cycles", "appliesTo": "all" } }` |
-| 422 | `{ "ok": false, "reason": "invalid" }` — any reason, always the same |
+| 422 | `{ "ok": false, "reason": "expired" \| "other_code_used" \| "invalid", "message" }` |
 | 429 | `{ "ok": false, "reason": "rate_limited" }` |
 | 400 | bad body or shop domain |
 
@@ -51,3 +56,10 @@ attempts, so the other order would burn the budget on every partner code a merch
 
 **Before an app ships this**, it must accept `appliesTo: "all"`. Edge Currency's
 `partnerOfferSnapshot` throws on anything but `"enterprise"` today.
+
+## Black Friday 2026 codes
+
+Fifteen codes, one per marketing platform, each 3 cycles free, redeemable until the end of
+30 November 2026 UTC. The list lives in `packages/db/src/promo-seed-data.ts`. Issue them with
+`bun run db:seed:promos:deploy` against the production database; re-running issues nothing new
+and never changes a code that exists.

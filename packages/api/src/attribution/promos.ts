@@ -1,7 +1,7 @@
 import { normalizeShopDomain } from "@edgecoms/billing/partner-api";
 import type { Database } from "@edgecoms/db";
 import { promoCodes, promoRedemptions } from "@edgecoms/db/schema/promos";
-import { and, countDistinct, eq } from "drizzle-orm";
+import { countDistinct, eq } from "drizzle-orm";
 import { ATTEMPT_LIMIT, recentAttemptCount, recordAttempt } from "./attempts";
 import { normalizeCode } from "./codes";
 import { type OfferPayload, termsFrom, toOffer } from "./grants";
@@ -14,8 +14,10 @@ import { type OfferPayload, termsFrom, toOffer } from "./grants";
  * See packages/db/src/schema/promos.ts and docs/promo-codes.md.
  *
  * Rejections share the partner flow's attempt log and limiter, so guessing at
- * promo codes and at partner codes spends the same per-shop budget, and every
- * rejection looks the same from outside.
+ * promo codes and at partner codes spends the same per-shop budget. Unlike a
+ * partner code, two rejections are named to the merchant: an expired code, and
+ * a store that already used a different promo code. Every other one looks the
+ * same from outside.
  */
 
 /** A promo discount applies to every paid plan, not just Enterprise. */
@@ -34,21 +36,47 @@ export type PromoRedeemOutcome =
 			status: "redeemed" | "already_redeemed";
 			offer: PromoOffer;
 	  }
-	| { ok: false; status: "invalid_shop" | "invalid_code" | "rate_limited" };
+	| {
+			ok: false;
+			status:
+				| "invalid_shop"
+				| "invalid_code"
+				| "expired"
+				| "other_code_used"
+				| "rate_limited";
+	  };
+
+interface Rejection {
+	detail: string;
+	ok: false;
+	status: "invalid_code" | "expired" | "other_code_used";
+}
 
 /** Why a code can't be redeemed right now, or null when it can. */
 function promoProblem(
 	row: { status: string; expiresAt: Date | null; discountKind: string },
 	now: Date
-): string | null {
+): Rejection | null {
 	if (row.status !== "active") {
-		return `promo status ${row.status}`;
+		return {
+			ok: false,
+			status: "invalid_code",
+			detail: `promo status ${row.status}`,
+		};
 	}
 	if (row.expiresAt && row.expiresAt.getTime() <= now.getTime()) {
-		return `promo expired at ${row.expiresAt.toISOString()}`;
+		return {
+			ok: false,
+			status: "expired",
+			detail: `promo expired at ${row.expiresAt.toISOString()}`,
+		};
 	}
 	if (row.discountKind === "none") {
-		return "promo carries no discount";
+		return {
+			ok: false,
+			status: "invalid_code",
+			detail: "promo carries no discount",
+		};
 	}
 	return null;
 }
@@ -82,82 +110,98 @@ export async function redeemPromo(
 		return { ok: false, status: "rate_limited" };
 	}
 
-	const result = await db.transaction(async (tx) => {
-		// Locked so two stores racing for the last slot can't both take it.
-		const rows = await tx
-			.select()
-			.from(promoCodes)
-			.where(eq(promoCodes.code, code))
-			.for("update");
-		const promo = rows[0];
-		if (!promo) {
-			return { ok: false as const, detail: "unknown promo code" };
-		}
-		const offer = toOffer(termsFrom(promo));
-		if (!offer) {
-			return { ok: false as const, detail: "promo carries no discount" };
-		}
-		const promoOffer: PromoOffer = { ...offer, appliesTo: "all" };
-
-		const mine = await tx
-			.select({ appSlug: promoRedemptions.appSlug })
-			.from(promoRedemptions)
-			.where(
-				and(
-					eq(promoRedemptions.promoCodeId, promo.id),
-					eq(promoRedemptions.shopDomain, shopDomain)
-				)
-			);
-
-		// A replay from the same app keeps what it was given, even if the code
-		// has since expired or been disabled: that store was already promised it.
-		if (mine.some((row) => row.appSlug === appSlug)) {
-			return {
-				ok: true as const,
-				status: "already_redeemed" as const,
-				offer: promoOffer,
-			};
-		}
-
-		const problem = promoProblem(promo, now);
-		if (problem) {
-			return { ok: false as const, detail: problem };
-		}
-
-		// A store that already redeemed in another app holds its slot.
-		if (mine.length === 0 && promo.maxRedemptions !== null) {
-			const used = await tx
-				.select({ value: countDistinct(promoRedemptions.shopDomain) })
-				.from(promoRedemptions)
-				.where(eq(promoRedemptions.promoCodeId, promo.id));
-			const stores = used[0]?.value ?? 0;
-			if (stores >= promo.maxRedemptions) {
+	const result = await db.transaction(
+		async (
+			tx
+		): Promise<Rejection | Extract<PromoRedeemOutcome, { ok: true }>> => {
+			// Locked so two stores racing for the last slot can't both take it.
+			const rows = await tx
+				.select()
+				.from(promoCodes)
+				.where(eq(promoCodes.code, code))
+				.for("update");
+			const promo = rows[0];
+			if (!promo) {
 				return {
-					ok: false as const,
-					detail: `promo exhausted (${stores}/${promo.maxRedemptions} stores)`,
+					ok: false,
+					status: "invalid_code",
+					detail: "unknown promo code",
 				};
 			}
-		}
+			const offer = toOffer(termsFrom(promo));
+			if (!offer) {
+				return {
+					ok: false,
+					status: "invalid_code",
+					detail: "promo carries no discount",
+				};
+			}
+			const promoOffer: PromoOffer = { ...offer, appliesTo: "all" };
 
-		await tx
-			.insert(promoRedemptions)
-			.values({ promoCodeId: promo.id, shopDomain, appSlug, createdAt: now })
-			.onConflictDoNothing();
-		return {
-			ok: true as const,
-			status: "redeemed" as const,
-			offer: promoOffer,
-		};
-	});
+			const shopRedemptions = await tx
+				.select({
+					appSlug: promoRedemptions.appSlug,
+					promoCodeId: promoRedemptions.promoCodeId,
+				})
+				.from(promoRedemptions)
+				.where(eq(promoRedemptions.shopDomain, shopDomain));
+			const mine = shopRedemptions.filter(
+				(row) => row.promoCodeId === promo.id
+			);
+
+			// A replay from the same app keeps what it was given, even if the code
+			// has since expired or been disabled: that store was already promised it.
+			if (mine.some((row) => row.appSlug === appSlug)) {
+				return { ok: true, status: "already_redeemed", offer: promoOffer };
+			}
+
+			// One promo code per store, across every app, so each store's install
+			// and revenue count toward exactly one code.
+			if (shopRedemptions.length > mine.length) {
+				return {
+					ok: false,
+					status: "other_code_used",
+					detail: "store already redeemed another promo code",
+				};
+			}
+
+			const problem = promoProblem(promo, now);
+			if (problem) {
+				return problem;
+			}
+
+			// A store that already redeemed in another app holds its slot.
+			if (mine.length === 0 && promo.maxRedemptions !== null) {
+				const used = await tx
+					.select({ value: countDistinct(promoRedemptions.shopDomain) })
+					.from(promoRedemptions)
+					.where(eq(promoRedemptions.promoCodeId, promo.id));
+				const stores = used[0]?.value ?? 0;
+				if (stores >= promo.maxRedemptions) {
+					return {
+						ok: false,
+						status: "invalid_code",
+						detail: `promo exhausted (${stores}/${promo.maxRedemptions} stores)`,
+					};
+				}
+			}
+
+			await tx
+				.insert(promoRedemptions)
+				.values({ promoCodeId: promo.id, shopDomain, appSlug, createdAt: now })
+				.onConflictDoNothing();
+			return { ok: true, status: "redeemed", offer: promoOffer };
+		}
+	);
 
 	if (!result.ok) {
-		// The detail stays here. Outward, every rejection looks the same.
+		// The detail stays here. Outward, only the status is named.
 		await recordAttempt(
 			db,
 			{ ...attempt, outcome: "invalid", reason: result.detail },
 			now
 		);
-		return { ok: false, status: "invalid_code" };
+		return { ok: false, status: result.status };
 	}
 	return result;
 }

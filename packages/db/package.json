@@ -13,6 +13,7 @@
     "check-types": "tsc --noEmit",
     "db:push": "drizzle-kit push",
     "db:seed": "bun --env-file=../../apps/web/.env src/seed.ts",
+    "db:seed:promos": "bun --env-file=../../apps/web/.env src/seed-promos.ts",
     "db:generate": "drizzle-kit generate",
     "db:studio": "drizzle-kit studio",
     "db:migrate": "drizzle-kit migrate",

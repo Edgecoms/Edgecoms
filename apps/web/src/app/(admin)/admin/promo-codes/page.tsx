@@ -19,6 +19,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { type FormEvent, useId, useState } from "react";
 import { toast } from "sonner";
 import { formatExpiry, optionalInt, percentToBps } from "@/lib/code-form";
+import { formatMoney } from "@/lib/money";
 import { queryClient, trpc } from "@/utils/trpc";
 
 /**
@@ -42,6 +43,7 @@ interface PromoRow {
 	label: string | null;
 	maxRedemptions: number | null;
 	redemptions: number;
+	revenue: { currency: string; netMinor: string }[];
 	status: "active" | "disabled";
 	stores: number;
 }
@@ -80,6 +82,7 @@ function PromoTable({
 					<th>Offer (any paid plan)</th>
 					<th className="text-right">Stores</th>
 					<th className="text-right">App redemptions</th>
+					<th className="text-right">Net revenue</th>
 					<th>Redeem by</th>
 					<th className="text-right">Action</th>
 				</>
@@ -111,6 +114,13 @@ function PromoTable({
 					</td>
 					<td className="text-right text-secondary-foreground tabular-nums">
 						{row.redemptions}
+					</td>
+					<td className="text-right text-primary-foreground tabular-nums">
+						{row.revenue.length === 0
+							? "—"
+							: row.revenue
+									.map((r) => formatMoney(r.netMinor, r.currency))
+									.join(" + ")}
 					</td>
 					<td className="text-secondary-foreground">
 						{formatExpiry(row.expiresAt)}

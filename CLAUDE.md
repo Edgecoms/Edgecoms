@@ -252,6 +252,13 @@ See `docs/promo-codes.md`.
   copy, so an edit would change what redeemed stores were promised.
 - Its offer applies to any paid plan (`appliesTo: "all"`); partner grants stay
   Enterprise-only.
+- **One promo code per store**, across every app: a store that redeemed one may
+  redeem the same code in other apps, never a different one. That is what makes
+  each store's installs and revenue belong to exactly one code.
+- **Two rejections are named to the merchant**, unlike partner codes: `expired`
+  and `other_code_used`. Promo codes are public marketing codes with a printed
+  deadline, so "expired" reveals nothing a merchant could not read on the
+  advert. Every other rejection stays the generic `invalid`.
 
 ## Referral links
 
